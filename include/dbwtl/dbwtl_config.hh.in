@@ -1,0 +1,14 @@
+
+
+#define dbwtl_MAJOR_VERSION @dbwtl_MAJOR_VERSION@
+#define dbwtl_MINOR_VERSION @dbwtl_MINOR_VERSION@
+#define dbwtl_PATCH_LEVEL @dbwtl_PATCH_LEVEL@
+
+#define dbwtl_PROJECT_NAME "@PROJECT_NAME@"
+
+#define dbwtl_VERSION_STRING dbwtl_PROJECT_NAME " " #dbwtl_MAJOR_VERSION "." #dbwtl_MINOR_VERSION "." #dbwtl_PATCH_LEVEL
+
+#cmakedefine WITH_SQLITE
+
+#cmakedefine WITH_POSTGRES
+

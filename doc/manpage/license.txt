@@ -1,0 +1,19 @@
+//MANPAGE.999 AUTHOR
+//MANPAGE.999 ------
+//MANPAGE.999 Written by Daniel Vogelbacher, <daniel@vogelbacher.name>
+//MANPAGE.999 
+
+//MANPAGE.999 RESOURCES
+//MANPAGE.999 ---------
+//MANPAGE.999 Main web site: <http://www.informave.org>
+//MANPAGE.999 
+
+//MANPAGE.999 COPYING
+//MANPAGE.999 -------
+//MANPAGE.999 Copyright \(C) 2008-2010 Daniel Vogelbacher.
+//MANPAGE.999 Free use of this software is
+//MANPAGE.999 granted under the terms of the BSD License.
+//MANPAGE.999 
+
+
+

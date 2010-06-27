@@ -1,0 +1,57 @@
+//GINTRO.001 DBWTL Programmers Manual
+//GINTRO.001 ========================
+//GINTRO.001 Daniel Vogelbacher <daniel@vogelbacher.name>
+
+
+//GINTRO.001 
+//GINTRO.001 This manual describes how you can use the Informave DBWTL library.
+//GINTRO.001 
+
+//GINTRO.001 USER GUIDE
+//GINTRO.001 ==========
+//GINTRO.001 
+//GINTRO.001 A simple example
+//GINTRO.001 ----------------
+//GINTRO.001 
+//GINTRO.001 Creating a connection
+//GINTRO.001 ~~~~~~~~~~~~~~~~~~~~~
+//GINTRO.001  
+//GINTRO.001 Execute a SQL query
+//GINTRO.001 ~~~~~~~~~~~~~~~~~~~
+//GINTRO.001  
+//GINTRO.001  - Custom structures for resultsets
+//GINTRO.001  - Multithreading
+//GINTRO.001  - DAL
+//GINTRO.001    - Example
+//GINTRO.001    - Creating a connection
+//GINTRO.001    - Execute a SQL query
+//GINTRO.001    - Get metadata information
+//GINTRO.001 
+//GINTRO.001 Supported systems
+//GINTRO.001 -----------------
+//GINTRO.001 
+//GINTRO.001 [format="csv",cols="^1,4*2",separator=";"]
+//GINTRO.001 |===================================================
+//GINTRO.001 DBMS;Version;Status;Write Support;Version indroduced
+//GINTRO.001 include::../../doc/dbms_support.csv[]
+//GINTRO.001 |===================================================
+//GINTRO.001 
+
+
+//GINTRO.001 
+//GINTRO.001 PROGRAMMER GUIDE
+//GINTRO.001 ================
+//GINTRO.001 
+//GINTRO.001 How to build the DBWTL
+//GINTRO.001 ----------------------
+//GINTRO.001  
+//GINTRO.001  - Guidelines
+//GINTRO.001    - Directories
+//GINTRO.001    - Naming schema
+//GINTRO.001 
+
+
+
+
+
+

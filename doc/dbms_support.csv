@@ -1,0 +1,24 @@
+"SQLite";>= 3.6.0;"IN PROGRESS";"Yes";"0.1.1"
+"PostgreSQL";>= 8.4;"IN PROGRESS";"Yes";"0.1.2"
+"Btrieve";"<= 6.15";"IN PROGRESS";"No";
+"Oracle";;"PLANNED";"Yes";
+"Teradata";;"PLANNED";"Yes";
+"MySQL";;"PLANNED";"Yes";
+"MS-SQL Server";;"PLANNED";"Yes";
+"Ingres";;"PLANNED";"Yes";
+"Sybase";;"PLANNED";"Yes";
+"Pervasive";;"PLANNED";"Yes";
+"DB2";;"PLANNED";"Yes";
+"Informix";;"PLANNED";"Yes";
+"Firebird";;"PLANNED";"Yes";
+"Interbase";;"PLANNED";"Yes";
+"Paradox";;"PLANNED";"Yes";
+"DBase";;"PLANNED";"Yes";
+"TopSpeed";;"PLANNED";"No";
+"Adabas D";;"NOT SUPPORTED";;
+"MaxDB";;"NOT SUPPORTED";;
+"MonetSQL";;"NOT SUPPORTED";;
+"General ODBC";;"PLANNED";"Yes";
+"Blackfish SQL";;"NOT SUPPORTED";;
+"Ocelot";;"NOT SUPPORTED";;
+"Mimer";;"NOT SUPPORTED";;

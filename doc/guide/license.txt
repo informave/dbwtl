@@ -1,0 +1,10 @@
+
+//GLIC.999 COPYING
+//GLIC.999 -------
+//GLIC.999 Copyright \(C) 2008-2010 Daniel Vogelbacher.
+//GLIC.999 Free use of this software is
+//GLIC.999 granted under the terms of the BSD License.
+//GLIC.999 
+
+
+

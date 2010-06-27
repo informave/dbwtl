@@ -47,7 +47,7 @@
 
 #include "dbwtl/dbwtl_config.hh"
 #include "db_fwd.hh"
-#include "db_exceptions.hh"
+//#include "db_exceptions.hh"
 #include "dal/dal_interface.hh"
 
 #include <iostream>

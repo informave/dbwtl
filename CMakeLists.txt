@@ -113,8 +113,6 @@ ADD_LIBRARY(dbwtl SHARED ${dbwtl_srcs})
 
 target_link_libraries(dbwtl dl)
 
-
-
 SET_TARGET_PROPERTIES(dbwtl PROPERTIES
 	VERSION ${${PROJECT_NAME}_VERSION}
 	SOVERSION ${${PROJECT_NAME}_SOVERSION}
@@ -128,15 +126,20 @@ include(UseDoxygen)
 
 
 
-install(DIRECTORY ${DBWTL_MAIN_INCLUDE_DIR}
+install(TARGETS dbwtl LIBRARY DESTINATION lib)
+
+install(DIRECTORY ${DBWTL_MAIN_INCLUDE_DIR}/dbwtl
   DESTINATION include
   FILES_MATCHING
-  PATTERN "*.def"
-  PATTERN "*.h"
-  PATTERN "*.td"
-  PATTERN "*.inc"
-  PATTERN ".svn" EXCLUDE
-  )
+  PATTERN "*.hh"
+  REGEX "^[^\\.]*$"
+  PATTERN ".git*" EXCLUDE
+)
+
+install(FILES "${PROJECT_BINARY_DIR}/dbwtl/dbwtl_config.hh"
+	DESTINATION include/dbwtl)
+
+
 
 
 IF(WITH_TESTS)

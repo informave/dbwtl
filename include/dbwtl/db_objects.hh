@@ -493,6 +493,109 @@ private:
 
 
 
+
+//GEXAMPLE.001 A simple example
+//GEXAMPLE.001 ----------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 All important declarations are provided by the inclusion of the
+//GEXAMPLE.001 'dbobjects' header file.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 #include <dbwtl/dbobjects>
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 You have to choose at least one engine and include them.
+//GEXAMPLE.001 If you want a generic API instead of a specific engine, you
+//GEXAMPLE.001 can just include the 'generic' engine.
+//GEXAMPLE.001 The generic engine allows the configuration of a
+//GEXAMPLE.001 specific engine at runtime.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 #include <dbwtl/dal/engines/sqlite>
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 The next line is not required, but makes life easier.
+//GEXAMPLE.001 All needed classes are declared inside the 'informave::db' namespace.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 using namespace informave::db;
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 Now we have to declare our own type to tell the dbwtl library
+//GEXAMPLE.001 which database/engine we want to use.
+//GEXAMPLE.001 The 'Database' template members declares the right types for connections,
+//GEXAMPLE.001 resultsets etc. depending on the given engine.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 typedef Database<dal:sqlite> DBMS;
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 The environment is the first thing we have to create. The argument to the
+//GEXAMPLE.001 constructor tells the environment which backend should be used.
+//GEXAMPLE.001 For example, you can connect to a SQLite database via the libsqlite.dll C-Library,
+//GEXAMPLE.001 through ODBC or ADO. 
+//GEXAMPLE.001 
+//GEXAMPLE.001 If you are using the generic engine, the first part of the string is important.
+//GEXAMPLE.001 The generic Environment class instantiates an environment of the given
+//GEXAMPLE.001 engine "in the background". This makes it possible to select
+//GEXAMPLE.001 the used engine at runtime.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 DBMS::Environment env("sqlite:libsqlite");
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 Now we can check if everything is correct and the dbwtl library
+//GEXAMPLE.001 is correctly installed.
+//GEXAMPLE.001 [source,shell]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 gcc -o dbtest dbtest.c -ldbwtl
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 
+//GEXAMPLE.001 Creating a connection
+//GEXAMPLE.001 ~~~~~~~~~~~~~~~~~~~~~
+//GEXAMPLE.001 In the next step, we create a new connection to a SQLite database.
+//GEXAMPLE.001 The 'Connection' constructor takes the environment object as a reference.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 DBMS::Connection dbc(env);
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+
+//GEXAMPLE.001 Now we can open the database:
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 dalstate_t state = dbc.connect(L"sampledb.sqlitedb");
+//GEXAMPLE.001 if(! dbc.isConnected() )
+//GEXAMPLE.001    throw std::runtime_error("not connected");
+//GEXAMPLE.001 std::cout << i18n::conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+
+//GEXAMPLE.001 Run a SQL query
+//GEXAMPLE.001 ~~~~~~~~~~~~~~~
+//GEXAMPLE.001 To run a query, we need to create a Statement object.
+//GEXAMPLE.001 The constructor takes the connection object as a reference.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 DBMS::Statement stmt(dbc);
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 
+//GEXAMPLE.001 The direct executing a SQL statement is possible via 'execDirect':
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 stmt.execDirect(L"SELECT * from customers");
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+
+
+
+
 //------------------------------------------------------------------------------
 ///
 /// @brief Defines the main types
@@ -507,6 +610,17 @@ struct Database
     typedef typename db_traits<Engine, tag>::value_type               Value;
     typedef dal::Variant                                              Variant;
 };
+
+//GSUPP.001 
+//GSUPP.001 Supported systems
+//GSUPP.001 -----------------
+//GSUPP.001 
+//GSUPP.001 [format="csv",cols="^1,4*2",separator=";"]
+//GSUPP.001 |===================================================
+//GSUPP.001 DBMS;Version;Status;Write Support;Version indroduced
+//GSUPP.001 include::../../doc/dbms_support.csv[]
+//GSUPP.001 |===================================================
+//GSUPP.001 
 
 
 

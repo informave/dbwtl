@@ -49,7 +49,7 @@
 #include "dbwtl/db_objects.hh"
 #include "dbwtl/util/smartptr.hh"
 
-#if !defined(WITH_SQLITE)
+#if !defined(DBWTL_WITH_SQLITE)
 #error "DBWTL was compiled without SQLite support!"
 #endif
 
@@ -79,7 +79,7 @@ struct sqlite;
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite BLOB
-class SqliteBlob : public IBlob
+class DBWTL_EXPORT SqliteBlob : public IBlob
 {
     // no sqlite specific extensions
 };
@@ -123,7 +123,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Variant
-class SqliteVariant : public Variant
+class DBWTL_EXPORT SqliteVariant : public Variant
 {
 public:
     SqliteVariant(SqliteData* data);
@@ -133,6 +133,7 @@ public:
     virtual SqliteBlob& asBlob(void) const;
 
 private:
+	SqliteVariant(const SqliteVariant& ref);
     SqliteVariant(void);
     SqliteVariant& operator=(const SqliteVariant&);
 };
@@ -144,7 +145,7 @@ private:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Table object
-class SqliteTable : public ITable
+class DBWTL_EXPORT SqliteTable : public ITable
 {
 public:
     typedef util::SmartPtr<SqliteTable,
@@ -191,7 +192,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Datatype
-class SqliteDatatype : public IDatatype
+class DBWTL_EXPORT SqliteDatatype : public IDatatype
 {
 public:
     friend class SqliteDbc;
@@ -221,7 +222,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Resultset
-class SqliteResult : public ResultBase
+class DBWTL_EXPORT SqliteResult : public ResultBase
 {
 public:
     typedef std::auto_ptr<SqliteResult> ptr;
@@ -229,6 +230,9 @@ public:
     typedef size_t                      bookmark_type;
     typedef SqliteVariant               value_type;
     typedef std::vector<value_type*>    row_type;
+
+    SqliteResult(void) : ResultBase()
+    {}
 
     virtual const value_type&     column(colnum_t num) = 0;
     //virtual SqliteVariant&     field(colnum_t num) = 0;
@@ -243,10 +247,13 @@ public:
 //------------------------------------------------------------------------------
 ///
 ///  @brief SQLite Statement
-class SqliteStmt : public StmtBase
+class DBWTL_EXPORT SqliteStmt : public StmtBase
 {
 public:
     typedef std::auto_ptr<SqliteStmt> ptr;
+
+    SqliteStmt(void) : StmtBase()
+    {}
 
     virtual SqliteResult&        resultset(void) = 0;
     virtual const SqliteResult&  resultset(void) const = 0;
@@ -259,7 +266,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Connection
-class SqliteDbc : public DbcBase
+class DBWTL_EXPORT SqliteDbc : public DbcBase
 {
 public:
     typedef std::auto_ptr<SqliteDbc> ptr;
@@ -290,7 +297,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Environment
-class SqliteEnv : public IEnv
+class DBWTL_EXPORT SqliteEnv : public IEnv
 {
 public:
     typedef std::auto_ptr<SqliteEnv> ptr;
@@ -309,7 +316,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Engine State
-class SqliteEngineState : public BaseEngineState
+class DBWTL_EXPORT SqliteEngineState : public BaseEngineState
 {
 public:
     SqliteEngineState(void);
@@ -345,7 +352,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Type Info
-class SqliteTypeInfo : public ITypeInfo
+class DBWTL_EXPORT SqliteTypeInfo : public ITypeInfo
 {
 public:
     SqliteTypeInfo(daltype_t id);
@@ -386,7 +393,7 @@ struct sqlite
     /// Current supported drivers are:
     ///  - libsqlite
     ///
-    static ENV* createEnv(i18n::UString driver);
+    DBWTL_EXPORT static ENV* createEnv(i18n::UString driver);
 };
 
 

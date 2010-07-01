@@ -8,7 +8,25 @@
 
 #define dbwtl_VERSION_STRING dbwtl_PROJECT_NAME " " #dbwtl_MAJOR_VERSION "." #dbwtl_MINOR_VERSION "." #dbwtl_PATCH_LEVEL
 
-#cmakedefine WITH_SQLITE
+#cmakedefine DBWTL_WITH_SQLITE
 
-#cmakedefine WITH_POSTGRES
+#cmakedefine DBWTL_WITH_POSTGRES
 
+#cmakedefine DBWTL_ON_WIN32
+
+#cmakedefine DBWTL_ON_UNIX
+
+#cmakedefine DBWTL_USE_ICONV
+
+#cmakedefine DBWTL_USE_ICU
+
+
+#if defined (DBWTL_ON_WIN32) 
+  #if defined(dbwtl_EXPORTS)
+    #define  DBWTL_EXPORT __declspec(dllexport)
+  #else
+    #define  DBWTL_EXPORT // __declspec(dllimport)
+  #endif /* DBWTL_EXPORTS */
+#else /* defined (DBWTL_ON_WIN32) */
+ #define DBWTL_EXPORT
+#endif

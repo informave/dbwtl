@@ -69,7 +69,7 @@ namespace informave
                 class              ElemT, 
                 unsigned long      Maxcode = 0x10ffff,
                 std::codecvt_mode  Mode = static_cast<std::codecvt_mode>(0),
-                typename           ConverterT = details::IconvConverterImpl
+                typename           ConverterT = details::default_converter_type
                 >
                 class codecvt_charset_impl : public std::codecvt<ElemT, char, typename std::char_traits<ElemT>::state_type> 
                 {

@@ -55,13 +55,13 @@ namespace informave
 
 
         /// @brief Convert from narrow to wide string
-        UString conv_from(const std::string& str, const char *encoding);
+        DBWTL_EXPORT UString conv_from(const std::string& str, const char *encoding);
 
         /// @brief Convert from narrow to wide string
-        UString conv_from(const char *str, const char *encoding);
+        DBWTL_EXPORT UString conv_from(const char *str, const char *encoding);
 
         /// @brief Convert from wide to narrow string
-        std::string conv_to(UString str, const char *encoding);
+        DBWTL_EXPORT std::string conv_to(UString str, const char *encoding);
     }
 }
 

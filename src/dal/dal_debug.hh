@@ -52,6 +52,12 @@
 //#define INFORMAVE_DAL_TRACE
 
 
+/// @todo is only available on gcc
+#ifdef MSVC
+#define __PRETTY_FUNCTION__ "<func>"
+#endif
+
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 

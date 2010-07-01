@@ -83,7 +83,7 @@ struct generic
     /// Current supported drivers are:
     ///  - libsqlite
     ///
-    static ENV* createEnv(i18n::UString driver); 
+    DBWTL_EXPORT static ENV* createEnv(i18n::UString driver); 
 };
 
 

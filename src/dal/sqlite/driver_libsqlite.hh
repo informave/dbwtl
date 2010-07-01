@@ -48,8 +48,15 @@
 #include "dbwtl/dal/dal_interface.hh"
 
 #include <memory>
-
 #include <sqlite3.h>
+
+#if defined(DBWTL_ON_WIN32)
+  #define DBWTL_SQLITE3_DEFAULT_LIB "sqlite3.dll"
+#elif defined(DBWTL_ON_UNIX)
+ #define DBWTL_SQLITE3_DEFAULT_LIB "/usr/lib/libsqlite3.so" /// @todo insert correct name
+#else
+  #error "Unsupported plattform"
+#endif
 
 
 DAL_NAMESPACE_BEGIN
@@ -416,7 +423,14 @@ protected:
 
 
 public:
-    SQLite3Drv(void) : DynamicLibrary("/usr/lib/libsqlite3.so"),
+/*
+    void openLib(const i18n::UString &path = i18n::UString(DBWTL_SQLITE3_DEFAULT_LIB))
+    {
+
+    }
+*/
+
+    SQLite3Drv(void) : DynamicLibrary(DBWTL_SQLITE3_DEFAULT_LIB),
                        m_func_sqlite3_open_v2(0),
                        m_func_sqlite3_libversion(0),
                        m_func_sqlite3_step(0),

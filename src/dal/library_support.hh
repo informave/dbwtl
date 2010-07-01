@@ -49,7 +49,9 @@
 
 #include <iostream>
 #include <cassert>
-#include <dlfcn.h>
+#ifdef DBWTL_ON_UNIX
+#include <dlfcn.h> /// @bug check for dlfcn.h
+#endif
 #include <sqlite3.h>
 
 
@@ -80,7 +82,12 @@ protected:
     };
 
     // handle to the library
+#ifdef DBWTL_ON_UNIX
     void *m_handle;
+#else
+	HMODULE m_handle;
+#endif
+
 
 public:
 
@@ -94,6 +101,7 @@ public:
 
     funcptr_t addrofsymbol(const char *const sym) const
         {
+#ifdef DBWTL_ON_UNIX
             ::dlerror();
             void* ptr = ::dlsym(this->m_handle, sym);
             const char *dlsym_error = ::dlerror();
@@ -104,6 +112,17 @@ public:
             dlsym_workaround p;
             p.ptr = ptr;
             return p.func;
+#else
+            FARPROC ptr = GetProcAddress(const_cast<HMODULE>(this->m_handle), sym);
+            if (!ptr)
+            {
+                std::cerr << "Cannot load symbol: " << sym << '\n';
+            }
+			return reinterpret_cast<funcptr_t>(ptr);
+#endif
+
+
+
         }
 private:
     DynamicLibraryBase(const DynamicLibraryBase&);
@@ -122,16 +141,29 @@ class DynamicLibrary : public DynamicLibraryBase
 public:
     DynamicLibrary(const char* const name) : DynamicLibraryBase()
         {
+#ifdef DBWTL_ON_UNIX
             this->m_handle = ::dlopen(name, RTLD_LAZY);
             if (!this->m_handle) {
                 std::cerr << "Cannot load library: " << ::dlerror() << '\n';
             }
+#else
+			this->m_handle = LoadLibrary(name);
+            if (!this->m_handle) {
+                std::cerr << "Cannot load library: " << "ERR" << '\n';
+            }
+#endif
         }
 
     virtual ~DynamicLibrary(void)
         {
             if(this->m_handle)
+            {
+#ifdef DBWTL_ON_UNIX
                 ::dlclose(this->m_handle);
+#else
+                FreeLibrary(this->m_handle);
+#endif
+            }
         }
 
 

@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 
-int main(void)
+int test(void)
 {
     using namespace informave;
     using namespace informave::db::dal;
@@ -49,8 +49,8 @@ int main(void)
     int v = 104;
     stmt->bind(1, &v);
     /*
-    const SqliteVariant* abc = &stmt->resultset().column(1);
-    stmt->bind(2, abc);
+      const SqliteVariant* abc = &stmt->resultset().column(1);
+      stmt->bind(2, abc);
     */
 
     stmt->execute();
@@ -74,8 +74,8 @@ int main(void)
 
 /*
 
-    bind(IBlob& );
-    bind(blob);
+  bind(IBlob& );
+  bind(blob);
 
 */
 
@@ -120,25 +120,25 @@ int main(void)
                     delete[] buf;
 
                     /*
-                    BlobStream bs(myblob);
-                    std::string x;
-                    bs >> x;
+                      BlobStream bs(myblob);
+                      std::string x;
+                      bs >> x;
                     */
 
                     /*
-                    SqliteBlob& myblob = res.column(i).asBlob();
-                    SqliteMemo& mymemo = res.column(i).asMemo();
-                    oblobstream bs;
-                    bs.open(myblob);
+                      SqliteBlob& myblob = res.column(i).asBlob();
+                      SqliteMemo& mymemo = res.column(i).asMemo();
+                      oblobstream bs;
+                      bs.open(myblob);
 
-                    MemoStream ms;
-                    BlobStream bs;
+                      MemoStream ms;
+                      BlobStream bs;
 
-                    IBlob& blob = res.column(i).asBlob();
-                    bs.open(blob); // basic_istream<char>
+                      IBlob& blob = res.column(i).asBlob();
+                      bs.open(blob); // basic_istream<char>
 
-                    IMemo& memo = res.column(i).asMemo();
-                    ms.open(memo);
+                      IMemo& memo = res.column(i).asMemo();
+                      ms.open(memo);
                     */
                 }
             }
@@ -154,3 +154,20 @@ int main(void)
 
     return state == DALSTATE_OK ? 0 : -1;
 }
+
+
+
+int main(void)
+{
+    try
+    {
+        test();
+    }
+    catch(informave::db::ex::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        return -1;
+    }
+    return 0;
+}
+

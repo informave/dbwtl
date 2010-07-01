@@ -217,11 +217,11 @@ enum DatatypeEnumeration
     DAL_TYPE_POINT,
     DAL_TYPE_POLYGON,
     DAL_TYPE_LINE,
-    //DAL_TYPE_CIRCLE,
-    //DAL_TYPE_LINESEG,
-    //DAL_TYPE_PATH,
+    DAL_TYPE_CIRCLE,
+    DAL_TYPE_LINESEG,
+    DAL_TYPE_PATH,
     DAL_TYPE_UUID,
-    //DAL_TYPE_BOX,
+    DAL_TYPE_BOX,
     DAL_TYPE_XML
 };
 
@@ -234,7 +234,7 @@ typedef enum DatatypeEnumeration daltype_t;
 /// 
 /// @since 0.0.1
 /// @brief Interface for engine state implemetations
-class IEngineState
+class DBWTL_EXPORT IEngineState
 {
 public:
     IEngineState(void);
@@ -296,7 +296,7 @@ std::ostream&   operator<<(std::ostream& o,  const informave::db::dal::IEngineSt
 /// 
 /// @since 0.0.1
 /// @brief EngineState Proxy
-class EngineState : public IEngineState
+class DBWTL_EXPORT EngineState : public IEngineState
 {
 public:
     EngineState(void);
@@ -377,7 +377,7 @@ typedef EngineState dalstate_t;
 ///
 /// @since 0.0.1
 /// @brief Base class for all driver-specific implementations of IEngineState
-class BaseEngineState : public IEngineState
+class DBWTL_EXPORT BaseEngineState : public IEngineState
 {
 public:
     BaseEngineState(void);
@@ -407,7 +407,7 @@ protected:
 
 //--------------------------------------------------------------------------
 /// @brief Base class for all DAL classes
-class IDALObject
+class DBWTL_EXPORT IDALObject
 {
 public:
     virtual ~IDALObject(void) { }
@@ -418,7 +418,7 @@ public:
 
 //--------------------------------------------------------------------------
 /// @brief DAL Interface for drivers
-class IDALDriver : public IDALObject
+class DBWTL_EXPORT IDALDriver : public IDALObject
 {
 public:
     virtual ~IDALDriver(void) { }
@@ -429,7 +429,7 @@ public:
 
 //--------------------------------------------------------------------------
 /// @brief DAL Interface for BLOB data
-class IBlob : public IDALObject
+class DBWTL_EXPORT IBlob : public IDALObject
 {
 public:
     enum seekdir { DAL_SEEK_SET, DAL_SEEK_CUR, DAL_SEEK_END };
@@ -487,7 +487,7 @@ class blob_buf : std::streambuf
 {
 };
 
-
+#if 0
 class BlobStream : public std::iostream
 {
 public:
@@ -497,15 +497,19 @@ public:
 
     void open(IBlob& blob) { }
 };
+#endif
 
 
-
+/// @todo just a workaround for now
+#if defined(DBWTL_ON_WIN32)
+typedef long long int64_t;
+#endif
 
 
 
 //--------------------------------------------------------------------------
 /// @brief DAL Interface for variant types
-class IVariant : public IDALObject
+class DBWTL_EXPORT IVariant : public IDALObject
 {
 public:
     virtual ~IVariant(void) { }
@@ -599,7 +603,7 @@ private:
 //--------------------------------------------------------------------------
 /// @brief Base implementation for Variant
 template<class Base>
-class BaseVariantImplFor : public Base
+class DBWTL_EXPORT BaseVariantImplFor : public Base
 {
 public:
     BaseVariantImplFor(void) : m_isnull(true)
@@ -691,7 +695,7 @@ protected:
 
 //--------------------------------------------------------------------------
 /// @brief Internal stored variants needs a clone method
-class IStoredVariant : public IVariant//BaseVariantImplFor
+class DBWTL_EXPORT IStoredVariant : public IVariant//BaseVariantImplFor
 {
 public:
     virtual IStoredVariant* clone(void) const = 0;
@@ -839,7 +843,7 @@ protected:
 ///
 /// @since 0.0.1
 /// @brief Represent a variant value
-class Variant : public IVariant
+class DBWTL_EXPORT  Variant : public IVariant
 {
 public:
     /// A helper class to the Variant() constructor if you want to create
@@ -1028,7 +1032,7 @@ private:
 ///
 /// @since 0.0.1
 /// @brief DAL Interface for a single table
-class ITable : IDALObject
+class DBWTL_EXPORT ITable : IDALObject
 {
 public:
     typedef IVariant value_type;
@@ -1064,7 +1068,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for types
-class IDatatype : IDALObject
+class DBWTL_EXPORT IDatatype : IDALObject
 {
 public:
     typedef util::SmartPtr<IDatatype,
@@ -1086,7 +1090,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for views
-class IView : IDALObject
+class DBWTL_EXPORT IView : IDALObject
 {
 public:
     typedef util::SmartPtr<IView,
@@ -1108,7 +1112,7 @@ typedef std::vector<IView::ptr>       ViewList;
 //------------------------------------------------------------------------------
 ///
 /// @brief Interface for Table Filters
-class ITableFilter : public IDALObject
+class DBWTL_EXPORT ITableFilter : public IDALObject
 {
 public:
     virtual ~ITableFilter(void) { }
@@ -1125,7 +1129,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief Empty Table Filter implementation
-class EmptyTableFilter : public ITableFilter
+class DBWTL_EXPORT EmptyTableFilter : public ITableFilter
 {
 public:
     virtual ~EmptyTableFilter(void) { }
@@ -1141,7 +1145,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief Interface for Datatype Filters
-class IDatatypeFilter : public IDALObject
+class DBWTL_EXPORT IDatatypeFilter : public IDALObject
 {
 public:
     virtual ~IDatatypeFilter(void) { }
@@ -1156,7 +1160,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief Empty Datatype Filter implementation
-class EmptyDatatypeFilter : public IDatatypeFilter
+class DBWTL_EXPORT EmptyDatatypeFilter : public IDatatypeFilter
 {
 public:
     virtual ~EmptyDatatypeFilter(void) { }
@@ -1173,7 +1177,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for type information
-class ITypeInfo : IDALObject
+class DBWTL_EXPORT ITypeInfo : IDALObject
 {
 public:
     ITypeInfo(void);
@@ -1196,7 +1200,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for Environments
-class IEnv : public IDALObject
+class DBWTL_EXPORT IEnv : public IDALObject
 {
 public:
     typedef std::auto_ptr<IEnv> ptr;
@@ -1213,7 +1217,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for connections
-class IDbc : public IDALObject
+class DBWTL_EXPORT IDbc : public IDALObject
 {
 public:
     typedef std::auto_ptr<IDbc>                      ptr;
@@ -1299,7 +1303,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for resultsets
-class IResult : public IDALObject
+class DBWTL_EXPORT IResult : public IDALObject
 {
 public:
     typedef std::auto_ptr<IResult> ptr;
@@ -1352,7 +1356,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for statements
-class IStmt : public IDALObject
+class DBWTL_EXPORT IStmt : public IDALObject
 {
 public:
     typedef std::map<int, IVariant*> ParamMapT;
@@ -1398,10 +1402,10 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Factory
-class Factory
+class DBWTL_EXPORT Factory
 {
 public:
-    template<class T> static typename T::ENV* create(i18n::UString driver)
+    template<class T> DBWTL_EXPORT static typename T::ENV* create(i18n::UString driver)
         {
             typename T::ENV* env = T::createEnv(driver);
             return env;
@@ -1418,7 +1422,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for special types
-class TType : public BaseVariantImplFor<IVariant>
+class DBWTL_EXPORT TType : public BaseVariantImplFor<IVariant>
 {
 public:
     TType(void) : BaseVariantImplFor<IVariant>()
@@ -1426,7 +1430,7 @@ public:
 };
 
 
-class TBit : public TType
+class DBWTL_EXPORT TBit : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1436,7 +1440,7 @@ public:
 };
 
 
-class TVarbit : public TType
+class DBWTL_EXPORT TVarbit : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1445,35 +1449,35 @@ public:
 
 };
 
-class TCIDR : public TType
+class DBWTL_EXPORT TCIDR : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TDate : public TType
+class DBWTL_EXPORT TDate : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TTime : public TType
+class DBWTL_EXPORT TTime : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TInterval : public TType
+class DBWTL_EXPORT TInterval : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TMacaddr : public TType
+class DBWTL_EXPORT TMacaddr : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1496,85 +1500,42 @@ public:
 
     unsigned char blocks[6];
 };
-class TNumeric : public TType
+class DBWTL_EXPORT TNumeric : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TMoney : public TNumeric
+class DBWTL_EXPORT TMoney : public TNumeric
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TDecimal : public TNumeric
+class DBWTL_EXPORT TDecimal : public TNumeric
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TInetaddr : public TType
+class DBWTL_EXPORT TInetaddr : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TPoint : public TType
+class DBWTL_EXPORT TPoint : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class TPolygon : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-
-class TLine : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class TCircle : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class TLineSeg : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class TPath : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class TUUID : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class TBox : public TType
+class DBWTL_EXPORT TPolygon : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1582,8 +1543,42 @@ public:
     virtual i18n::UString asStr() const; // using objects locale
 };
 
-
-class TTimestamp : public TType
+class DBWTL_EXPORT TLine : public TType
+{
+public:
+    virtual daltype_t  datatype(void) const;
+    virtual i18n::UString asStr(std::locale loc) const;
+    virtual i18n::UString asStr() const; // using objects locale
+};
+class DBWTL_EXPORT TCircle : public TType
+{
+public:
+    virtual daltype_t  datatype(void) const;
+    virtual i18n::UString asStr(std::locale loc) const;
+    virtual i18n::UString asStr() const; // using objects locale
+};
+class DBWTL_EXPORT TLineSeg : public TType
+{
+public:
+    virtual daltype_t  datatype(void) const;
+    virtual i18n::UString asStr(std::locale loc) const;
+    virtual i18n::UString asStr() const; // using objects locale
+};
+class DBWTL_EXPORT TPath : public TType
+{
+public:
+    virtual daltype_t  datatype(void) const;
+    virtual i18n::UString asStr(std::locale loc) const;
+    virtual i18n::UString asStr() const; // using objects locale
+};
+class DBWTL_EXPORT TUUID : public TType
+{
+public:
+    virtual daltype_t  datatype(void) const;
+    virtual i18n::UString asStr(std::locale loc) const;
+    virtual i18n::UString asStr() const; // using objects locale
+};
+class DBWTL_EXPORT TBox : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1592,8 +1587,7 @@ public:
 };
 
 
-
-class TDatetime : public TType
+class DBWTL_EXPORT TTimestamp : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1603,7 +1597,17 @@ public:
 
 
 
-class TXML : public TType
+class DBWTL_EXPORT TDatetime : public TType
+{
+public:
+    virtual daltype_t  datatype(void) const;
+    virtual i18n::UString asStr(std::locale loc) const;
+    virtual i18n::UString asStr() const; // using objects locale
+};
+
+
+
+class DBWTL_EXPORT TXML : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1617,7 +1621,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief Base implementation for IStmt
-class StmtBase : public IStmt
+class DBWTL_EXPORT StmtBase : public IStmt
 {
 public:
     typedef std::map<int, IVariant*>   ParamMap;
@@ -1665,7 +1669,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// @brief Base implementation for IResult
-class ResultBase : public IResult
+class DBWTL_EXPORT ResultBase : public IResult
 {
 public:
     virtual bool      isPrepared(void) const;
@@ -1690,7 +1694,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// 
-class DbcBase : public IDbc
+class DBWTL_EXPORT DbcBase : public IDbc
 {
 public:
     virtual bool      isConnected(void) const;

@@ -39,10 +39,12 @@
 /// @brief Charset converter
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
+/// @bug perform correct checks for sizeof(wchar_t)
 
 #ifndef INFORMAVE_I18N_CONVERTER_HH
 #define INFORMAVE_I18N_CONVERTER_HH
 
+#include "dbwtl/dbwtl_config.hh"
 
 #include <locale>
 #include <iostream>
@@ -50,7 +52,17 @@
 #include <cerrno>
 #include <cstdlib>
 
+#ifdef DBWTL_USE_ICONV
 #include <iconv.h>
+#endif
+
+#ifdef DBWTL_USE_ICU
+#include <unicode/ucnv.h>
+#include <unicode/ucnv_err.h>
+#include <unicode/uenum.h>
+#include <unicode/localpointer.h>
+#endif
+
 
 
 namespace informave
@@ -128,26 +140,91 @@ namespace informave
             class ICUConverterImpl : public Converter
             {
             public:
+            protected:
+                const char *m_enc;
+                std::size_t m_bcout;
+                
+                ICUConverterImpl(const ICUConverterImpl&);
+                ICUConverterImpl& operator=(const ICUConverterImpl&);
+                
+            public:
+                ICUConverterImpl(const char *charset, std::codecvt_mode mode, std::size_t size)
+                    : m_enc(charset), m_bcout(size)
+                    {
+                        if(std::string(charset) == "UTF-16")
+                        {
+                            if(mode & std::little_endian)
+                                this->m_enc = "UTF-16LE";
+                            else
+                                this->m_enc = "UTF-16BE";
+                        }
+                        if(std::string(charset) == "UTF-32")
+                        {
+                            if(mode & std::little_endian)
+                                this->m_enc = "UTF-32LE";
+                            else
+                                this->m_enc = "UTF-32BE";
+                        }
+                    }
+            
 
                 virtual ~ICUConverterImpl(void) {}
                 
-                ICUConverterImpl(const ICUConverterImpl&);
-                
-                ICUConverterImpl& operator=(const ICUConverterImpl&);
-                
+
+                ///
                 ///
                 virtual result convert_in(state_type &state,
                                           const char *from,
                                           const char *from_end,
-                                      const char *&from_next,
+                                          const char *&from_next,
                                           wchar_t *to,
                                           wchar_t *to_end,
                                           wchar_t *&to_next) const
                     {
                         SHOW();
-                        return std::codecvt_base::ok;  /// @bug fixme
+                        result ret = std::codecvt_base::ok;
+
+                        UErrorCode errcode = U_ZERO_ERROR;
+                        int32_t c = ::ucnv_convert(sizeof(wchar_t) == 4 ? "UTF-32LE" : "UTF-16LE",
+                                                   this->m_enc,
+                                                   reinterpret_cast<char*>(to),
+                                                   (to_end - to) * sizeof(wchar_t),
+                                                   from,
+                                                   (from_end - from) * sizeof(char),
+                                                   &errcode);
+                        if(! U_SUCCESS(errcode))
+                        {
+                            switch(errcode)
+                            {
+                            case U_BUFFER_OVERFLOW_ERROR: 
+                                std::cout << "BIG" << std::endl; 
+                                ret = std::codecvt_base::partial;
+                                break;
+                            case U_TRUNCATED_CHAR_FOUND:
+                                std::cout << "SEQ" << std::endl;
+                                ret = std::codecvt_base::error;
+                                break;
+                                
+                            case U_ILLEGAL_CHAR_FOUND: 
+                            case U_INVALID_CHAR_FOUND:
+                                std::cout << "INVALID" << std::endl; 
+                                ret = std::codecvt_base::error;
+                                break;
+                            default:
+                                std::cout << "ERR" << std::endl; 
+                                ret = std::codecvt_base::error;
+                                break; /// @bug fixme
+                            }
+                        }
+
+                        from_next = from_end + 1;
+                        to_next = reinterpret_cast<wchar_t*>(reinterpret_cast<char*>(to) + c);
+
+                        return ret;
                     }
-                
+
+
+                ///
                 ///
                 virtual result convert_out(state_type &state,
                                            const wchar_t *from,
@@ -158,11 +235,50 @@ namespace informave
                                            char *&to_next) const
                     { 
                         SHOW();
-                        return std::codecvt_base::ok;  /// @bug fixme
-                    }
+                        result ret = std::codecvt_base::ok;
+
+                        UErrorCode errcode = U_ZERO_ERROR;
+                        int32_t c = ::ucnv_convert(this->m_enc, sizeof(wchar_t) == 4 ? "UTF-32LE" : "UTF-16LE",
+                                                   to,
+                                                   (to_end - to) * sizeof(char),
+                                                   reinterpret_cast<const char*>(from),
+                                                   (from_end - from) * sizeof(wchar_t),
+                                                   &errcode);
+                        
+                        if(! U_SUCCESS(errcode))
+                        {
+                            switch(errcode)
+                            {
+                            case U_BUFFER_OVERFLOW_ERROR: 
+                                std::cout << "BIG" << std::endl; 
+                                ret = std::codecvt_base::partial;
+                                break;
+                            case U_TRUNCATED_CHAR_FOUND:
+                                std::cout << "SEQ" << std::endl;
+                                ret = std::codecvt_base::error;
+                                break;
+                                
+                            case U_ILLEGAL_CHAR_FOUND: 
+                            case U_INVALID_CHAR_FOUND:
+                                std::cout << "INVALID" << std::endl; 
+                                ret = std::codecvt_base::error;
+                                break;
+                            default:
+                                std::cout << "ERR" << std::endl; 
+                                ret = std::codecvt_base::error;
+                                break; /// @bug fixme
+                            }
+                        }
+
+                        to_next = to + c;
+                        from_next = from_end + 1;
+
+                        return ret;
+                    }  
             };
 
 
+#ifdef DBWTL_USE_ICONV
 
             //--------------------------------------------------------------------------
             /// ICONV Library converter
@@ -304,7 +420,16 @@ namespace informave
                     }  
             };
 
-        }
+#endif
+
+#ifdef DBWTL_USE_ICONV
+	typedef details::IconvConverterImpl default_converter_type;
+#endif
+
+#ifdef DBWTL_USE_ICU
+	typedef details::ICUConverterImpl default_converter_type;
+#endif
+		}
     }
 }
 

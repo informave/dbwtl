@@ -1,5 +1,5 @@
 #include <dbwtl/dal/dalinterface>
-//#include <dbwtl/dal/engines/sqlite>
+#include <dbwtl/dal/engines/sqlite>
 #include <dbwtl/dal/engines/generic>
 #include <dbwtl/dbobjects>
 #include <dbwtl/ustring>
@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 
-int main(void)
+int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
@@ -21,7 +21,7 @@ int main(void)
     
     //typedef Database<DAL::sqlite> DBMS;
 
-    typedef Database<dal::generic> DBMS;
+    typedef Database<dal::sqlite> DBMS;
 
 
     DBMS::Environment env("sqlite:libsqlite");
@@ -34,26 +34,30 @@ int main(void)
 
     std::cout << conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
 
+
+
     dbc.directCmd(L"create temp table foo(id int);");
 
-try
-{
-    dal::TableList list = dbc.getTables();
-
-    for(dal::TableList::iterator i = list.begin(); i != list.end(); ++i)
+    try
     {
-	   std::cout
-	   	<< conv_to((*i)->getName().asStr(), "iso-8859-1") << "|"
-		<< conv_to((*i)->getCatalog().asStr(), "iso-8859-1") << "|"
-		<< conv_to((*i)->getSchema().asStr(), "iso-8859-1") << "|"
-		<< conv_to((*i)->getDDL().asStr(), "iso-8859-1") << "|"
-		<< std::endl;
+        dal::TableList list = dbc.getTables();
+
+        for(dal::TableList::iterator i = list.begin(); i != list.end(); ++i)
+        {
+            std::cout
+                << conv_to((*i)->getName().asStr(), "iso-8859-1") << "|"
+                << conv_to((*i)->getCatalog().asStr(), "iso-8859-1") << "|"
+                << conv_to((*i)->getSchema().asStr(), "iso-8859-1") << "|"
+                << conv_to((*i)->getDDL().asStr(), "iso-8859-1") << "|"
+                << std::endl;
+        }
     }
-}
-catch(...)
-{
-}
+    catch(...)
+    {
+    }
     //abort();
+
+
 
     DBMS::Statement stmt(dbc);
     stmt.execDirect(L"SELECT *,* from customers");
@@ -70,6 +74,8 @@ catch(...)
                 std::cout << "<NULL>" << " | ";
             else
             {
+                //DBMS::Value x = res.column(i);
+                const DBMS::Value& v = res.column(i);
                 std::cout << res.column(i).asNarrowStr("UTF-8") << " ";
                 //std::cout << res.field(i).asStr("ISO-8859-15") << " | ";
             }
@@ -78,8 +84,8 @@ catch(...)
     }
 
 /*
-    DBMS::Resultset::iterator a = res.begin();
-    DBMS::Resultset::const_iterator b;
+  DBMS::Resultset::iterator a = res.begin();
+  DBMS::Resultset::const_iterator b;
 */
     DBMS::Value* var;
 
@@ -91,21 +97,39 @@ catch(...)
 
     //int id = db_traits<dal::sqlite>::DB_SYSTEM_ID;
 
+    return 0;
 
 /*
-    // auto_ptr for scope deletion
-    SqliteEnv::ptr env(Factory::create<Sqlite>(L"libsqlite"));
-    // db connection
-    SqliteDbc::ptr dbc(env->newConnection());
+// auto_ptr for scope deletion
+SqliteEnv::ptr env(Factory::create<Sqlite>(L"libsqlite"));
+// db connection
+SqliteDbc::ptr dbc(env->newConnection());
 
 
-    // now connect
-    dalstate_t state = dbc->connect(L"testdb2.db");
-    if(state != DALSTATE_OK)
-    {
-        i18n::UString s = state.dump();
-        //throw std::runtime_error(state.getMsgUTF8());
-        throw std::runtime_error(i18n::conv_to(s, "UTF-8"));
-    }
-*/
+// now connect
+dalstate_t state = dbc->connect(L"testdb2.db");
+if(state != DALSTATE_OK)
+{
+i18n::UString s = state.dump();
+//throw std::runtime_error(state.getMsgUTF8());
+throw std::runtime_error(i18n::conv_to(s, "UTF-8"));
 }
+*/
+    }
+
+
+
+int main(void)
+{
+    try
+    {
+        test();
+    }
+    catch(informave::db::ex::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        return -1;
+    }
+    return 0;
+}
+

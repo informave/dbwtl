@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 
-int main(void)
+int test(void)
 {
     using namespace informave;
     using namespace informave::db::dal;
@@ -18,6 +18,9 @@ int main(void)
 
     // auto_ptr for scope deletion
     SqliteEnv::ptr env(Factory::create<sqlite>(L"libsqlite"));
+
+
+
     // db connection
     SqliteDbc::ptr dbc(env->newConnection());
 
@@ -31,9 +34,11 @@ int main(void)
         throw std::runtime_error(i18n::conv_to(s, "UTF-8"));
     }
 
+
     // print current state
     //std::cout << Sqlite::engine_state(state);
-    
+
+
     std::cout << "Driver name: " << i18n::conv_to(dbc->driverName(), "ISO-8859-1") << std::endl;
     std::cout << "DBMS name: " << i18n::conv_to(dbc->dbmsName(), "ISO-8859-1") << std::endl;
 
@@ -67,3 +72,20 @@ int main(void)
 
     return state == DALSTATE_OK ? 0 : -1;
 }
+
+
+
+int main(void)
+{
+    try
+    {
+        test();
+    }
+    catch(informave::db::ex::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        return -1;
+    }
+    return 0;
+}
+

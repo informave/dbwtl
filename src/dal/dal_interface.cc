@@ -74,6 +74,7 @@ const char* type2name(IVariant *var)
 {
     switch(var->datatype())
     {
+	case DAL_TYPE_INT:
     default:
         return "UNKNOW";
     }
@@ -833,7 +834,7 @@ EngineState::dump(void) const
 EngineState*
 EngineState::clone(void) const
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__);
+    NOT_IMPL();
 }
 
 
@@ -939,6 +940,7 @@ daltype_t TTime::datatype(void) const       {  return DAL_TYPE_TIME;       }
 daltype_t TInterval::datatype(void) const   {  return DAL_TYPE_INTERVAL;   }
 daltype_t TMacaddr::datatype(void) const    {  return DAL_TYPE_MACADDR;    }
 daltype_t TNumeric::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
+daltype_t TDecimal::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
 daltype_t TMoney::datatype(void) const      {  return DAL_TYPE_MONEY;      }
 daltype_t TInetaddr::datatype(void) const   {  return DAL_TYPE_INETADDR;   }
 daltype_t TPoint::datatype(void) const      {  return DAL_TYPE_POINT;      }
@@ -948,10 +950,10 @@ daltype_t TUUID::datatype(void) const       {  return DAL_TYPE_UUID;       }
 daltype_t TXML::datatype(void) const        {  return DAL_TYPE_XML;        }
 daltype_t TTimestamp::datatype(void) const  {  return DAL_TYPE_TIMESTAMP;  }
 daltype_t TDatetime::datatype(void) const   {  return DAL_TYPE_DATETIME;   }
-//daltype_t TBox::datatype(void) const        {  return DAL_TYPE_BOX;        }
-//daltype_t TCircle::datatype(void) const     {  return DAL_TYPE_CIRCLE;     }
-//daltype_t TLineSeg::datatype(void) const    {  return DAL_TYPE_LINESEG;    }
-//daltype_t TPath::datatype(void) const       {  return DAL_TYPE_PATH;       }
+daltype_t TBox::datatype(void) const        {  return DAL_TYPE_BOX;        }
+daltype_t TCircle::datatype(void) const     {  return DAL_TYPE_CIRCLE;     }
+daltype_t TLineSeg::datatype(void) const    {  return DAL_TYPE_LINESEG;    }
+daltype_t TPath::datatype(void) const       {  return DAL_TYPE_PATH;       }
 
 
 
@@ -1436,7 +1438,7 @@ ITypeInfo::name(void) const
 i18n::UString 
 EmptyTableFilter::simpleNameFilter(void) const
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    NOT_IMPL(); /// @bug implement me
 }
 
 
@@ -1445,7 +1447,7 @@ EmptyTableFilter::simpleNameFilter(void) const
 i18n::UString
 EmptyTableFilter::simpleCatalogFilter(void) const
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    NOT_IMPL(); /// @bug implement me
 }
 
 
@@ -1454,7 +1456,7 @@ EmptyTableFilter::simpleCatalogFilter(void) const
 i18n::UString 
 EmptyTableFilter::simpleSchemaFilter(void) const
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    NOT_IMPL(); /// @bug implement me
 }
 
 
@@ -1468,7 +1470,7 @@ EmptyTableFilter::simpleSchemaFilter(void) const
 i18n::UString 
 EmptyDatatypeFilter::simpleNameFilter(void) const
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    NOT_IMPL(); /// @bug implement me
 }
 
 
@@ -1477,7 +1479,7 @@ EmptyDatatypeFilter::simpleNameFilter(void) const
 i18n::UString
 EmptyDatatypeFilter::simpleCatalogFilter(void) const
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    NOT_IMPL(); /// @bug implement me
 }
 
 
@@ -1486,7 +1488,7 @@ EmptyDatatypeFilter::simpleCatalogFilter(void) const
 i18n::UString 
 EmptyDatatypeFilter::simpleSchemaFilter(void) const
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    NOT_IMPL(); /// @bug implement me
 }
 
 
@@ -1551,7 +1553,7 @@ StmtBase::close(void)
 bool
 StmtBase::isPrepared(void) const
 {
-    return this-m_isPrepared;
+    return this->m_isPrepared;
 }
 
 
@@ -1560,7 +1562,7 @@ StmtBase::isPrepared(void) const
 bool
 StmtBase::isBad(void) const
 {
-    return this-m_isBad;
+    return this->m_isBad;
 }
 
 
@@ -1571,7 +1573,7 @@ StmtBase::isBad(void) const
 bool
 ResultBase::isPrepared(void) const
 {
-    return this-m_isPrepared;
+    return this->m_isPrepared;
 }
 
 
@@ -1580,7 +1582,7 @@ ResultBase::isPrepared(void) const
 bool
 ResultBase::isBad(void) const
 {
-    return this-m_isBad;
+    return this->m_isBad;
 }
 
 
@@ -1589,7 +1591,7 @@ ResultBase::isBad(void) const
 bool
 ResultBase::isOpen(void) const
 {
-    return this-m_isOpen;
+    return this->m_isOpen;
 }
 
 
@@ -1599,7 +1601,7 @@ ResultBase::isOpen(void) const
 bool
 DbcBase::isBad(void) const
 {
-    return this-m_isBad;
+    return this->m_isBad;
 }
 
 
@@ -1608,7 +1610,7 @@ DbcBase::isBad(void) const
 bool
 DbcBase::isConnected(void) const
 {
-    return this-m_isConnected;
+    return this->m_isConnected;
 }
 
 

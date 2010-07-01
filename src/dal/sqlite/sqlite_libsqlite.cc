@@ -374,7 +374,7 @@ SqliteResult_libsqlite::prepare(i18n::UString sql)
 {
     DALTRACE_ENTER;
 
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
@@ -382,7 +382,8 @@ SqliteResult_libsqlite::prepare(i18n::UString sql)
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
-    this->close();
+    if(this->isPrepared())
+        this->close();
 
     std::string sql_e = i18n::conv_to(sql, "UTF-8");
 
@@ -415,7 +416,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     DALTRACE_ENTER;
     sqlite::STATE state;
 
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isPrepared())
@@ -520,7 +521,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
 size_t    
 SqliteResult_libsqlite::paramCount(void) const
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isPrepared())
@@ -536,7 +537,7 @@ SqliteResult_libsqlite::paramCount(void) const
 void 
 SqliteResult_libsqlite::first(void)
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -554,7 +555,7 @@ SqliteResult_libsqlite::first(void)
 void
 SqliteResult_libsqlite::next(void)
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -587,7 +588,7 @@ SqliteResult_libsqlite::next(void)
 bool  
 SqliteResult_libsqlite::eof(void) const
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -602,11 +603,8 @@ SqliteResult_libsqlite::eof(void) const
 void   
 SqliteResult_libsqlite::close(void)
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
-
-    if(! this->isPrepared())
-        throw ex::engine_error(L"Resultset is not prepared.");
 
     if(this->m_handle)
     {
@@ -642,7 +640,7 @@ SqliteResult_libsqlite::rowCount(void) const
 rowcount_t
 SqliteResult_libsqlite::affectedRows(void) const
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isPrepared())
@@ -681,7 +679,7 @@ SqliteResult_libsqlite::column(colnum_t num)
 {
     DALTRACE_ENTER;
 
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -713,7 +711,7 @@ SqliteResult_libsqlite::field(colnum_t num)
 {
     DALTRACE_ENTER;
 
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -738,7 +736,7 @@ SqliteResult_libsqlite::field(colnum_t num)
 rowid_t
 SqliteResult_libsqlite::getCurrentRowID(void) const
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -755,7 +753,7 @@ SqliteResult_libsqlite::columnCount(void) const
 {
     DALTRACE_ENTER;
 
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -773,7 +771,7 @@ SqliteResult_libsqlite::columnCount(void) const
 colnum_t
 SqliteResult_libsqlite::columnID(i18n::UString name) const
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -795,7 +793,7 @@ SqliteResult_libsqlite::columnName(colnum_t num) const
 {
     DALTRACE("VISIT");
 
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -814,7 +812,7 @@ SqliteResult_libsqlite::columnName(colnum_t num) const
 const ITypeInfo&
 SqliteResult_libsqlite::datatype(colnum_t num) const
 {
-    if(! this->isBad())
+    if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
 
     if(! this->isOpen())
@@ -1150,7 +1148,7 @@ SqliteStmt_libsqlite::prepare(i18n::UString sql)
 bool   
 SqliteStmt_libsqlite::isPrepared(void) const
 {
-    NOT_IMPL();
+    return this->m_isPrepared;
 }
 
 

@@ -64,7 +64,7 @@ namespace ex
     /// 
     /// @since 0.0.1
     /// @brief Base class for all exceptions
-    class exception : public std::exception
+    class DBWTL_EXPORT exception : public std::exception
     {
     public:
         /// Empty virtual destructor
@@ -105,7 +105,7 @@ namespace ex
     /// This exception class is thrown if a value can notbe converted
     /// to another (requested) type.
     /// @brief Exception if converting values fails
-    class convert_error : public exception
+    class DBWTL_EXPORT convert_error : public exception
     {
     public:
         convert_error(const i18n::UString &varname = i18n::UString());
@@ -135,7 +135,7 @@ namespace ex
     //--------------------------------------------------------------------------
     /// This exception class is thrown if a value or a pointer is null
     /// @brief Exception if a value or pointer is null
-    class null_value : public exception
+    class DBWTL_EXPORT null_value : public exception
     {
     public:
         null_value(const i18n::UString &varname = i18n::UString());
@@ -157,7 +157,7 @@ namespace ex
     /// This exception class is thrown if anything goes wrong in the DAL
     /// backends. Exceptions like sql_error are derived from this class.
     /// @brief Exception if anything goes wrong in the DAL backend
-    class engine_error : public exception
+    class DBWTL_EXPORT engine_error : public exception
     {
     public:
         engine_error(dal::dalstate_t state);
@@ -176,7 +176,7 @@ namespace ex
     //--------------------------------------------------------------------------
     /// This exception class is thrown if a SQL query fails.
     /// @brief Exception if a SQL query fails
-    class sql_error : public engine_error
+    class DBWTL_EXPORT sql_error : public engine_error
     {
     public:
         sql_error(const i18n::UString &sql, const i18n::UString &what);
@@ -209,7 +209,7 @@ namespace ex
     ///  - Parameters
     ///
     /// @brief Exception if something was not found.
-    class not_found : public exception
+    class DBWTL_EXPORT not_found : public exception
     {
     public:
         not_found(dal::dalstate_t state, const i18n::UString &what = i18n::UString());
@@ -228,7 +228,7 @@ namespace ex
     /// This exception class is thrown if a conversion from one to another
     /// charset fails.
     /// @brief Exception if a charset conversion fails
-    class charset_error : public exception
+    class DBWTL_EXPORT charset_error : public exception
     {
     public:
         charset_error(dal::dalstate_t state, std::string data, i18n::UString from_charset,
@@ -248,7 +248,7 @@ namespace ex
     //--------------------------------------------------------------------------
     /// This exception class is thrown if resource is read only.
     /// @brief Exception if a resource is read only
-    class read_only : public exception
+    class DBWTL_EXPORT read_only : public exception
     {
     public:
         read_only(dal::dalstate_t state, const i18n::UString &resource_name);
@@ -267,7 +267,7 @@ namespace ex
     /// This exception class is thrown if required function is not
     /// found in the specified module.
     /// @brief Exception if a function is not found
-    class missing_function : public engine_error
+    class DBWTL_EXPORT missing_function : public engine_error
     {
     public:
         missing_function(const std::string &func_name, const i18n::UString &module_path = L"<unknown module>");
@@ -287,7 +287,7 @@ namespace ex
     //--------------------------------------------------------------------------
     /// This exception class is thrown if a logic error occours.
     /// @brief Exception if a logic error occours.
-    class logic_error : public exception
+    class DBWTL_EXPORT logic_error : public exception
     {
     public:
         logic_error(const i18n::UString &what);
@@ -305,7 +305,7 @@ namespace ex
     //--------------------------------------------------------------------------
     /// This exception class is thrown if the backend is busy.
     /// @brief Exception if the backend is busy
-    class busy_error : public engine_error
+    class DBWTL_EXPORT busy_error : public engine_error
     {
     public:
         busy_error(const i18n::UString &what);

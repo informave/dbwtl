@@ -207,7 +207,7 @@ SqliteDbc::getTables(const ITableFilter&)
             tables->prepare(sql_column_query);
             tables->execute();
         }
-        catch(ex::sql_error &err)
+        catch(ex::sql_error &)
         {
             continue;
         }

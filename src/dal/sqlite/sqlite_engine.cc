@@ -52,6 +52,8 @@
 
 DAL_NAMESPACE_BEGIN
 
+
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -69,22 +71,20 @@ SqliteData::~SqliteData(void)
 
 
 
-
-
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ///
 /// @todo implement other values, not only name
 SqliteTable::SqliteTable(i18n::UString dbname, SqliteResult& src)
-    : m_name(Variant::NullValue(), L"SqliteTable::name"),
-      m_catalog(Variant::NullValue(), L"SqliteTable::catalog"),
-      m_schema(Variant::NullValue(), L"SqliteTable::schema"),
-      m_comment(Variant::NullValue(), L"SqliteTable::comment"),
-      m_ddl(Variant::NullValue(), L"SqliteTable::ddl"),
-      m_systemobject(Variant::NullValue(), L"SqliteTable::systemobject")
+    : m_name(DAL_TYPE_VARCHAR, L"SqliteTable::name"),
+      m_catalog(DAL_TYPE_VARCHAR, L"SqliteTable::catalog"),
+      m_schema(DAL_TYPE_VARCHAR, L"SqliteTable::schema"),
+      m_comment(DAL_TYPE_VARCHAR, L"SqliteTable::comment"),
+      m_ddl(DAL_TYPE_VARCHAR, L"SqliteTable::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, L"SqliteTable::systemobject")
 {
-    this->m_name.assign(src.column(L"name"));
+    this->m_name.assign(src.column(L"name")); /// @bug change to operator=
     this->m_catalog.setStr(dbname);
     this->m_schema.setStr(L"");
     //this->m_schema.setNull();

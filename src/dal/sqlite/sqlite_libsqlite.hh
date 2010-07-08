@@ -135,6 +135,14 @@ protected:
 };
 
 
+class SqliteColumnDesc_libsqlite : public SqliteColumnDesc
+{
+public:
+	SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_libsqlite &result);
+
+	virtual ~SqliteColumnDesc_libsqlite(void)
+	{}
+};
 
 
 
@@ -179,6 +187,11 @@ public:
     virtual SQLite3Drv*        drv(void) const;
 
 
+    virtual const SqliteColumnDesc& metadata(colnum_t num) const;
+
+    virtual const SqliteColumnDesc& metadata(i18n::UString name) const;
+
+
     virtual SqliteDbc_libsqlite& getDbc(void) const;
 
     inline ::sqlite3_stmt* getHandle(void) const
@@ -207,7 +220,8 @@ protected:
 
     ///
     /// @brief Stores the type information of all columns in the resultset
-    std::vector<SqliteTypeInfo>   m_column_meta;
+    std::vector<SqliteTypeInfo>   m_column_meta; /// @bug remove me
+    std::map<colnum_t, SqliteColumnDesc_libsqlite>     m_column_desc;
 
     ///
     /// @brief Stores all column accessors (IVariants) requested by an user for

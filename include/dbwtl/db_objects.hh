@@ -352,6 +352,7 @@ public:
 
     typedef typename db_traits<Engine, tag>::statement_type      statement_type;
     typedef typename db_traits<Engine, tag>::dal_resultset_type  dal_resultset_type;
+    typedef typename db_traits<Engine, tag>::dal_columndesc_type dal_columndesc_type;
     typedef typename db_traits<Engine, tag>::value_type          value_type;
 
 public:
@@ -416,6 +417,12 @@ public:
     virtual dal::colnum_t          columnID(i18n::UString name) const  { return this->m_result->columnID(name); }
 
     virtual i18n::UString          columnName(dal::colnum_t num) const { return this->m_result->columnName(num); }
+
+
+    virtual const dal_columndesc_type& metadata(dal::colnum_t num) const { return this->m_result->metadata(num); }
+
+    virtual const dal_columndesc_type& metadata(i18n::UString name) const { return this->m_result->metadata(name); }
+
 
     virtual const dal::ITypeInfo&  datatype(dal::colnum_t num) const   { return this->m_result->datatype(num); }
 
@@ -608,6 +615,7 @@ struct Database
     typedef typename db_traits<Engine, tag>::resultset_type           Resultset;
     typedef typename db_traits<Engine, tag>::cached_resultset_type    CachedResultset;
     typedef typename db_traits<Engine, tag>::value_type               Value;
+    typedef typename db_traits<Engine, tag>::dal_columndesc_type      ColumnDesc;
     typedef dal::Variant                                              Variant;
 };
 

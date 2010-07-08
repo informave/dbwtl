@@ -350,6 +350,7 @@ SqliteResult_libsqlite::SqliteResult_libsqlite(SqliteStmt_libsqlite& stmt)
       m_last_row_status(0),
       m_isopen(false),
       m_column_meta(),
+      m_column_desc(),
       m_column_accessors(),
       m_field_accessors(),
       m_allocated_accessors()
@@ -473,12 +474,20 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     switch(this->m_last_row_status)
     {
     case SQLITE_OK:
-    case SQLITE_DONE:
     	break;
     case SQLITE_ROW:
         this->m_current_tuple = 1;
         this->m_isOpen = true;
         this->refreshMetadata();
+        break;
+    case SQLITE_DONE: /// @todo empty resultsets returns SQLITE_DONE
+        if(! this->m_isOpen)
+        {
+            this->m_isOpen = true;
+            this->refreshMetadata();
+        }
+        else
+            this->close(); /// @todo really?
         break;
 
     case SQLITE_ERROR:
@@ -732,6 +741,8 @@ SqliteResult_libsqlite::field(colnum_t num)
 */
 
 
+
+
 //
 rowid_t
 SqliteResult_libsqlite::getCurrentRowID(void) const
@@ -799,11 +810,7 @@ SqliteResult_libsqlite::columnName(colnum_t num) const
     if(! this->isOpen())
         throw ex::engine_error(L"Resultset is not open.");
 
-    const char *s = this->drv()->sqlite3_column_name(this->getHandle(), num-1);
-    if(s)
-        return i18n::conv_from(s, "UTF-8");
-    else
-        return i18n::UString();
+    return this->metadata(num).getName().asStr(); /// @todo return empty string if null
 }
 
 
@@ -819,6 +826,7 @@ SqliteResult_libsqlite::datatype(colnum_t num) const
         throw ex::engine_error(L"Resultset is not open.");
 
     return this->m_column_meta.at(num);
+    /// @bug meta will be removed
 }
 
 
@@ -841,7 +849,114 @@ SqliteResult_libsqlite::getDbc(void) const
 
 
 
+namespace sqlutils
+{
+    class ParsedType
+    {
+    public:
+        ParsedType(i18n::UString typestr)
+            {
+            }
+
+        daltype_t getDaltype(void)
+            {
+                return DAL_TYPE_VARCHAR;
+            }
+
+        unsigned short int getPrecision(void)
+            {
+                return 0;
+            }
+
+        unsigned short int getScale(void)
+            {
+                return 0;
+            }
+
+        int getSize(void)
+            {
+                return 100;
+            }
+
+    };
+
+}
+
+
+SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_libsqlite &result)
+	: SqliteColumnDesc()
+{
+	if(i == 0)
+	{
+		//this->m_daltype = DAL_TYPE_BOOKMARK;
+		this->m_name.setStr(L"__DBWTL_BOOKMARK__");
+	}
+	else
+	{
+        // set name
+        const char *s = result.drv()->sqlite3_column_name(result.getHandle(), i-1);
+        this->m_name.setStr(s ? s : "", "UTF-8");
+
+        // set type
+		const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
+        sqlutils::ParsedType pt(i18n::conv_from(type, "UTF-8"));
+        this->m_type_name.setStr(daltype2sqlname(pt.getDaltype()));
+        this->m_daltype = pt.getDaltype();
+        this->m_size.setInt(pt.getSize());
+        this->m_precision.setUSmallint(pt.getPrecision());
+        this->m_scale.setUSmallint(pt.getScale());
+	}
+}
+
+
 //
+const SqliteColumnDesc&
+SqliteResult_libsqlite::metadata(colnum_t num) const
+{
+    std::map<colnum_t, SqliteColumnDesc_libsqlite>::const_iterator i =
+        this->m_column_desc.find(num);
+
+    if(i == this->m_column_desc.end())
+        throw ex::not_found(L"foo");
+    else
+        return i->second;
+   
+   
+}
+
+
+//
+const SqliteColumnDesc&
+SqliteResult_libsqlite::metadata(i18n::UString name) const
+{
+        NOT_IMPL();
+}
+
+
+void
+SqliteResult_libsqlite::refreshMetadata(void)
+{
+	DALTRACE_ENTER;
+	this->m_column_desc.clear();
+	if(! this->getHandle())
+		return;
+	
+	size_t colcount = this->columnCount();
+	SqliteColumnDesc desc;
+	//desc.m_name.setStr(L"foo");
+	//for(size_t i = 0; i < colCount; ++i)
+	//
+	
+	for(size_t i = 0; i <= colcount; ++i)
+	{
+		SqliteColumnDesc_libsqlite x(i, *this);
+		//x = y;
+		this->m_column_desc.insert(std::pair<colnum_t, SqliteColumnDesc_libsqlite>(i, x));
+	}
+}
+
+//
+#if 0
 void      
 SqliteResult_libsqlite::refreshMetadata(void)
 {
@@ -871,7 +986,7 @@ SqliteResult_libsqlite::refreshMetadata(void)
     }
     DALTRACE_LEAVE;
 }
-
+#endif
 
 
 // delete me

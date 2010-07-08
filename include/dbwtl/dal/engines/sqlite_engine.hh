@@ -53,6 +53,7 @@
 #error "DBWTL was compiled without SQLite support!"
 #endif
 
+#include <cstdlib>
 
 
 DAL_NAMESPACE_BEGIN
@@ -70,6 +71,8 @@ class SqliteEngineState;
 class SqliteTable;
 class SqliteDatatype;
 class SqliteTypeInfo;
+
+class SqliteColumnDesc;
 
 struct sqlite;
 
@@ -186,6 +189,18 @@ protected:
 
 
 
+class DBWTL_EXPORT SqliteColumnDesc : public ColumnDescBase
+{
+public:
+    friend class SqliteResult;
+
+    SqliteColumnDesc(void) : ColumnDescBase()
+    {}
+
+    virtual ~SqliteColumnDesc(void)
+    {}
+
+};
 
 
 
@@ -229,7 +244,7 @@ public:
 
     typedef size_t                      bookmark_type;
     typedef SqliteVariant               value_type;
-    typedef std::vector<value_type*>    row_type;
+    typedef std::vector<value_type*>    row_type; /// @todo required?
 
     SqliteResult(void) : ResultBase()
     {}
@@ -238,6 +253,12 @@ public:
     //virtual SqliteVariant&     field(colnum_t num) = 0;
     virtual const value_type&     column(i18n::UString name) = 0;
     //virtual SqliteVariant&     field(i18n::UString name) = 0;
+
+
+    virtual const SqliteColumnDesc& metadata(colnum_t num) const = 0;
+
+    virtual const SqliteColumnDesc& metadata(i18n::UString name) const = 0;
+   
 };
 
 
@@ -366,7 +387,6 @@ public:
 
 
 
-
 //------------------------------------------------------------------------------
 ///
 /// @brief Main SQLite interface class 
@@ -380,6 +400,7 @@ struct sqlite
 	typedef SqliteEngineState  STATE;
 	typedef SqliteTable        TABLE;
 	typedef SqliteTypeInfo     TYPEINFO;
+	typedef SqliteColumnDesc   COLUMNDESC;
 
 	static inline const STATE& engine_state(dalstate_t& state)
 	{
@@ -480,6 +501,8 @@ struct db_traits<dal::sqlite, tag>
     typedef dal::sqlite::ENV                   dal_env_type;
     typedef dal::sqlite::DBC                   dal_dbc_type;
 
+    typedef dal::sqlite::COLUMNDESC            dal_columndesc_type;
+    
     enum { DB_SYSTEM_ID = 0 };
 
 };

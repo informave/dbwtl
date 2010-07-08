@@ -62,6 +62,7 @@
 #include <stdexcept>
 #include <memory>
 #include <fstream>
+#include <sstream>
 
 
 
@@ -75,6 +76,7 @@ class IDALDriver;
 class IDALObject;
 class IBlob;
 class ITypeInfo;
+class IColumnDesc;
 class IVariant;
 //class PodVariant;
 class Variant;
@@ -185,7 +187,7 @@ const char* dal_state_msg(int code);
 enum DatatypeEnumeration
 {
     DAL_TYPE_CUSTOM,
-    DAL_TYPE_UNKNOW,
+    DAL_TYPE_UNKNOWN,
     DAL_TYPE_INT,
     DAL_TYPE_UINT,
     DAL_TYPE_CHAR,
@@ -226,6 +228,12 @@ enum DatatypeEnumeration
 };
 
 typedef enum DatatypeEnumeration daltype_t;
+
+
+/// @brief Maps a daltype ID to a string name
+i18n::UString daltype2string(daltype_t type);
+
+i18n::UString daltype2sqlname(daltype_t type);
 
 
 
@@ -301,7 +309,7 @@ class DBWTL_EXPORT EngineState : public IEngineState
 public:
     EngineState(void);
     EngineState(int code);
-	EngineState(const IEngineState& newstate);
+    EngineState(const IEngineState& newstate);
     EngineState(const EngineState& newstate);
 
     virtual ~EngineState(void);
@@ -316,7 +324,7 @@ public:
 
 
     /// @brief Resets the internal engine state by newstate
-	EngineState& operator=(const EngineState& newstate);
+    EngineState& operator=(const EngineState& newstate);
 
     bool operator!=(int code);
     bool operator==(int code);
@@ -508,6 +516,36 @@ typedef long long int64_t;
 
 
 //--------------------------------------------------------------------------
+/// @brief DAL Interface for column descriptors
+class DBWTL_EXPORT IColumnDesc : public IDALObject
+{
+public:
+    typedef IVariant value_type;
+    //typedef util::SmartPtr<ITable, util::RefCounted, util::AllowConversion> ptr;
+
+    /// Empty virtual destructor
+    virtual ~IColumnDesc(void) { }
+
+    /// @brief Returns the name of the column
+    virtual const value_type& getName(void) const = 0;
+    virtual const value_type& getCatalogName(void) const = 0;
+    virtual const value_type& getSchemaName(void) const = 0;
+    virtual const value_type& getBaseColumnName(void) const = 0;
+    virtual const value_type& getTypeName(void) const = 0;
+    virtual const value_type& getBaseTableName(void) const = 0;
+    virtual const value_type& getSize(void) const = 0;
+    virtual const value_type& getComment(void) const = 0;
+    virtual const value_type& getIsNullable(void) const = 0;
+    virtual const value_type& getPrecision(void) const = 0;
+    virtual const value_type& getScale(void) const = 0;
+    virtual const value_type& getIsSearchable(void) const = 0;
+
+    virtual daltype_t getDatatype(void) const = 0;
+};
+
+
+
+//--------------------------------------------------------------------------
 /// @brief DAL Interface for variant types
 class DBWTL_EXPORT IVariant : public IDALObject
 {
@@ -607,8 +645,8 @@ class DBWTL_EXPORT BaseVariantImplFor : public Base
 {
 public:
     BaseVariantImplFor(void) : m_isnull(true)
-        {
-        }
+    {
+    }
 
     virtual bool            isnull(void) const;
     virtual void            setNull(void);
@@ -770,15 +808,16 @@ struct pointee_deleter<T*>
 template<class T>
 class var_storage : public storage_accessor<T>
 {
+    /// check if there is a storage_accessor for T defined
     DAL_VARIANT_ACCESSOR_CHECK;
 
     typedef var_storage<T> self_t;
 
 public:
-	var_storage(void) : m_var()
-	{
-		this->m_isnull = true;
-	}
+    var_storage(void) : m_var()
+        {
+            this->m_isnull = true;
+        }
 
     explicit var_storage(T v) : m_var(v)
         { 
@@ -828,8 +867,7 @@ protected:
 
 
 
-
-
+IStoredVariant* new_default_storage(daltype_t type);
 
 
 
@@ -848,7 +886,7 @@ class DBWTL_EXPORT  Variant : public IVariant
 public:
     /// A helper class to the Variant() constructor if you want to create
     /// a empty Variant object (set to null).
-	struct NullValue { };
+    //struct NullValue { };
 
 
     /// This constructor creates a Variant object from the given value
@@ -857,10 +895,11 @@ public:
     /// The optional name can be used to identify the value (e.g. exeptions).
     /// @brief Creates a Variant object from the given value/type
     template<class T>
-    Variant(T value, const i18n::UString &name = i18n::UString())
-    	: IVariant(),
-          m_storage(new var_storage<T>(value)),
-          m_name(name)
+        Variant(T value, const i18n::UString &name = i18n::UString(L"<unnamed>"))
+        : IVariant(),
+        m_storage(new var_storage<T>(value)),
+        m_name(name),
+        m_type(DAL_TYPE_UNKNOWN)
         {}
     
 
@@ -869,21 +908,52 @@ public:
     /// @brief Copy constructor for Variant objects
     /// @bug should we really use clone()?
     Variant(const Variant& v)
-    	: IVariant(),
-          m_storage(v.m_storage->clone()),
-          m_name(v.m_name)
-        {}
+        : IVariant(),
+        m_storage(),
+        m_name(v.m_name),
+        m_type(v.m_type)
+        {
+            if(! v.isnull())
+                m_storage.reset(v.m_storage->clone());
+        }
     
+
+    /// Assign a new value to the variant.
+    /// The name, storage etc. are preserved, we only set a
+    /// new value for the internal variant_storage.
+    Variant& operator=(const Variant &v)
+        {
+            this->assign(v);
+            return *this;
+        }
+
+    Variant& operator=(const IVariant &v)
+        {
+            this->assign(v);
+            return *this;
+        }
+
     
     /// This constructor can be used to create a empty Variant object.
     /// The storage accessor is initialized if any of the set-methods is
     /// called.
     /// @brief Creates an empty Variant object
-    Variant(const NullValue& = NullValue(), const i18n::UString &name = i18n::UString())
-     	: IVariant(),
-          m_storage(),
-          m_name(name)
-        {}
+    explicit Variant(daltype_t type = DAL_TYPE_UNKNOWN,
+                     const i18n::UString &name = i18n::UString(L"<unnamed>"))
+        : IVariant(),
+        m_storage(),
+        m_name(name),
+        m_type(type)
+        {
+            this->m_storage.reset(new_default_storage(type));
+        }
+
+
+    virtual const i18n::UString& getName(void) const;
+
+    typedef util::SmartPtr<IStoredVariant,
+        util::RefCounted,
+        util::AllowConversion> storage_type;
 
 
     
@@ -993,34 +1063,18 @@ public:
     virtual void            setBlob(IBlob&);
 
 
-    virtual const i18n::UString& getName(void) const
-        { return this->m_name; }
-
-    /*
-    Variant& operator=(const IVariant&)
-    {}
-    */
-    /*
-    Variant& operator=(const Variant&)
-    {}
-    */
-
 protected:
     IStoredVariant*       getStorageImpl(void);
     const IStoredVariant* getStorageImpl(void) const;
 
-public:
-    typedef util::SmartPtr<IStoredVariant,
-                   util::RefCounted,
-                   util::AllowConversion> storage_type;
-protected:		   
-		  storage_type m_storage;
+    /// @brief Internal storage of the value
+    storage_type      m_storage;
     
-    i18n::UString m_name;
+    /// @brief Name of the variant
+    i18n::UString     m_name;
 
-
-private:
-    Variant& operator=(const Variant&); // use assign() instead
+    /// This type is only used if m_storage is not initialized.
+    daltype_t         m_type;
 };
 
 
@@ -1072,16 +1126,16 @@ class DBWTL_EXPORT IDatatype : IDALObject
 {
 public:
     typedef util::SmartPtr<IDatatype,
-                           util::RefCounted,
-                           util::AllowConversion> ptr;
+        util::RefCounted,
+        util::AllowConversion> ptr;
 
     virtual i18n::UString        name(void) const = 0;
     virtual daltype_t            daltype(void) const = 0;
 /*
-    virtual int                  maxLength(void) const = 0;
-    virtual systype_t            systype(void) const = 0;
-    virtual i18n::UString        schema(void) const = 0;
-    virtual i18n::UString        catalog(void) const = 0;
+  virtual int                  maxLength(void) const = 0;
+  virtual systype_t            systype(void) const = 0;
+  virtual i18n::UString        schema(void) const = 0;
+  virtual i18n::UString        catalog(void) const = 0;
 */
 };
 
@@ -1094,8 +1148,8 @@ class DBWTL_EXPORT IView : IDALObject
 {
 public:
     typedef util::SmartPtr<IView,
-                           util::RefCounted,
-                           util::AllowConversion> ptr;
+        util::RefCounted,
+        util::AllowConversion> ptr;
     
     virtual ~IView(void) { }
 };
@@ -1279,16 +1333,16 @@ public:
     /// @bug can these be const methods?
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter()) = 0;
     virtual DatatypeList   getDatatypes(const IDatatypeFilter& = EmptyDatatypeFilter())
-        { 
-            throw std::runtime_error("not impl");
-        }
+    { 
+        throw std::runtime_error("not impl");
+    }
     /*
-    virtual ColumnList     getTables(const IColumnFilter& = EmptyColumnFilter()) = 0;
-    virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
-    virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter()) = 0;
-    virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter()) = 0;
-    virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter()) = 0;
-    virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
+      virtual ColumnList     getTables(const IColumnFilter& = EmptyColumnFilter()) = 0;
+      virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
+      virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter()) = 0;
+      virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter()) = 0;
+      virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter()) = 0;
+      virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
     */
 
 
@@ -1315,8 +1369,8 @@ public:
     virtual ~IResult(void);
 
     /*
-    virtual void   prepare(i18n::UString sql) = 0;
-    virtual void   execute(void) = 0;
+      virtual void   prepare(i18n::UString sql) = 0;
+      virtual void   execute(void) = 0;
     */
 
     virtual bool   isPrepared(void) const = 0;
@@ -1346,6 +1400,13 @@ public:
     virtual i18n::UString    columnName(colnum_t num) const = 0;
     virtual const ITypeInfo& datatype(colnum_t num) const = 0;
 
+    /// @brief Returns the column descriptor for the given column number
+    virtual const IColumnDesc& metadata(colnum_t num) const = 0;
+
+    /// @brief Returns the column descriptor for the given column name
+    virtual const IColumnDesc& metadata(i18n::UString name) const = 0;
+
+
     virtual IDALDriver* getDriver(void) const = 0;
 };
 
@@ -1370,8 +1431,8 @@ public:
     virtual void      execute(void) = 0;
     virtual void      execDirect(i18n::UString sql) = 0;
     /*
-    virtual void      execBatch(std::istream src, const char *charset) = 0;
-    virtual void      execBatch(std::wistream src) = 0;
+      virtual void      execBatch(std::istream src, const char *charset) = 0;
+      virtual void      execBatch(std::wistream src) = 0;
     */
     virtual void      close(void) = 0;
 
@@ -1406,10 +1467,10 @@ class DBWTL_EXPORT Factory
 {
 public:
     template<class T> DBWTL_EXPORT static typename T::ENV* create(i18n::UString driver)
-        {
-            typename T::ENV* env = T::createEnv(driver);
-            return env;
-        }
+    {
+        typename T::ENV* env = T::createEnv(driver);
+        return env;
+    }
 
     //static IEnv* createByName(i18n::UString name, i18n::UString driver); not needed
 };
@@ -1426,7 +1487,7 @@ class DBWTL_EXPORT TType : public BaseVariantImplFor<IVariant>
 {
 public:
     TType(void) : BaseVariantImplFor<IVariant>()
-        { this->m_isnull = true; }
+    { this->m_isnull = true; }
 };
 
 
@@ -1487,16 +1548,16 @@ public:
 public:
     // converts XX:XX:XX:XX:XX:XX or raises an exception
     static TMacaddr convert(i18n::UString value)
-        {
-            TMacaddr v;
-            v.blocks[0] = 0xAA;
-            v.blocks[1] = 0xBB;
-            v.blocks[2] = 0xCC;
-            v.blocks[3] = 0xDD;
-            v.blocks[4] = 0xEE;
-            v.blocks[5] = 0xFF;
-            return v;
-        }
+    {
+        TMacaddr v;
+        v.blocks[0] = 0xAA;
+        v.blocks[1] = 0xBB;
+        v.blocks[2] = 0xCC;
+        v.blocks[3] = 0xDD;
+        v.blocks[4] = 0xEE;
+        v.blocks[5] = 0xFF;
+        return v;
+    }
 
     unsigned char blocks[6];
 };
@@ -1647,9 +1708,9 @@ public:
 
 protected:
     StmtBase(void) : m_params(),
-                     m_temp_params(),
-                     m_isPrepared(false),
-                     m_isBad(false)
+        m_temp_params(),
+        m_isPrepared(false),
+        m_isBad(false)
         { }
 
 
@@ -1679,8 +1740,8 @@ public:
 protected:
 
     ResultBase(void) : m_isPrepared(false),
-                       m_isOpen(false),
-                       m_isBad(false)
+        m_isOpen(false),
+        m_isBad(false)
         { }
 
     bool    m_isPrepared;
@@ -1703,12 +1764,60 @@ public:
 protected:
 
     DbcBase(void) : m_isConnected(false),
-                    m_isBad(false)
+        m_isBad(false)
         { }
 
     bool    m_isConnected;
     bool    m_isBad;
 };
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+class DBWTL_EXPORT ColumnDescBase : public IColumnDesc
+{
+public:
+    virtual const IColumnDesc::value_type& getName(void) const;
+    virtual const value_type& getCatalogName(void) const;
+    virtual const value_type& getSchemaName(void) const;
+    virtual const value_type& getBaseColumnName(void) const;
+    virtual const value_type& getTypeName(void) const;
+    virtual const value_type& getBaseTableName(void) const;
+    virtual const value_type& getSize(void) const;
+    virtual const value_type& getComment(void) const;
+    virtual const value_type& getIsNullable(void) const;
+    virtual const value_type& getPrecision(void) const;
+    virtual const value_type& getScale(void) const;
+    virtual const value_type& getIsSearchable(void) const;
+
+
+    virtual daltype_t getDatatype(void) const;
+
+
+
+protected:
+    ColumnDescBase(void);
+
+    virtual ~ColumnDescBase(void);
+
+    Variant m_name;
+    Variant m_catalog_name;
+    Variant m_schema_name;
+    Variant m_base_column_name;
+    Variant m_type_name;
+    Variant m_base_table_name;
+    Variant m_size;
+    Variant m_comment;
+    Variant m_is_nullable;
+    Variant m_precision;
+    Variant m_scale;
+    Variant m_is_searchable;
+
+    daltype_t m_daltype;
+};
+
 
 DAL_NAMESPACE_END
 
@@ -1727,6 +1836,42 @@ DAL_NAMESPACE_BEGIN
 //#define DAL_CODE_POS __FUNCTION__
 
 
+template<>
+class storage_accessor<signed int> : public BaseVariantImplFor<sa_base<signed int> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+
+    virtual ~storage_accessor(void) { }
+
+    virtual int asInt() const
+        { return this->getValue(); }
+
+    virtual void setInt(const signed int &value)
+        {
+            this->getValue() = value;
+        }
+
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            return L"Implement me";
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            return L"Implement me";
+        }
+
+
+    virtual daltype_t datatype() const
+        {
+            return DAL_TYPE_INT;
+        }
+};
+
 
 template<>
 class storage_accessor<signed int*> : public BaseVariantImplFor<sa_base<signed int*> >
@@ -1739,7 +1884,10 @@ public:
     virtual int asInt() const
         { return *this->getValue(); }
 
-
+    virtual void setInt(const signed int &value)
+        {
+            *this->getValue() = value;
+        }
 
     virtual i18n::UString asStr(void) const
         {
@@ -1797,6 +1945,78 @@ public:
     DAL_VARIANT_ACCESSOR;
 
     virtual ~storage_accessor(void) { }
+
+    virtual void setStr(const i18n::UString &str)
+        {
+            this->getValue() = str;
+            this->m_isnull = false;
+        }
+
+
+    virtual void setInt(const signed int& value)
+        {
+            std::wstringstream ss;
+            ss << value;
+            this->getValue() = ss.str();
+            this->m_isnull = false;
+        }
+
+    virtual void setUInt(const unsigned int& value)
+        {
+            std::wstringstream ss;
+            ss << value;
+            this->getValue() = ss.str();
+            this->m_isnull = false;
+        }
+
+    virtual void setChar(const signed char& value)
+        {
+            std::wstringstream ss;
+            ss << value;
+            this->getValue() = ss.str();
+            this->m_isnull = false;
+        }
+
+    virtual void setUChar(const unsigned char& value)
+        {
+            std::wstringstream ss;
+            ss << value;
+            this->getValue() = ss.str();           
+            this->m_isnull = false;
+        }
+
+
+
+    virtual void setStr(const std::string& value, const char* charset)
+        {
+            this->setStr(i18n::conv_from(value, charset));
+        }
+
+    virtual void setBool(const bool& value)
+        {
+            std::wstringstream ss;
+            ss << value;
+            this->getValue() = ss.str();            
+            this->m_isnull = false;
+        }
+
+    virtual void setSmallint(const signed short& value)
+        {
+            std::wstringstream ss;
+            ss << value;
+            this->getValue() = ss.str();
+            this->m_isnull = false;
+        }
+
+    virtual void setUSmallint(const unsigned short& value)
+        {
+            std::wstringstream ss;
+            ss << value;
+            this->getValue() = ss.str();
+            this->m_isnull = false;
+        }
+
+
 
 
 

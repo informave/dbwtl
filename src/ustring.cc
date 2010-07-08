@@ -70,8 +70,8 @@ namespace informave
         ///
         UString conv_from(const char *str, const char *encoding)
         {
-            assert(str);
-            if(str[0] == 0)
+            //assert(str);
+            if(!str || str[0] == 0)
                 return UString();
             typedef codecvt_charset_byname<UString::value_type>
                 ConvT;

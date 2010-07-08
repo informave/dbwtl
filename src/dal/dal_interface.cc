@@ -52,6 +52,103 @@
 
 DAL_NAMESPACE_BEGIN
 
+IStoredVariant* new_default_storage(daltype_t type)
+{
+    switch(type)
+    {
+    case DAL_TYPE_UNKNOWN: return 0;
+    default: return new var_storage<i18n::UString>();
+        /*
+    case DAL_TYPE_CUSTOM: return 0;
+    case DAL_TYPE_UNKNOWN: return 0;
+    case DAL_TYPE_INT: return new var_storage<signed int>();
+    case DAL_TYPE_UINT: return new var_storage<unsigned int>();
+    case DAL_TYPE_CHAR: return new var_storage<signed char>();
+    case DAL_TYPE_UCHAR: return new var_storage<unsigned char>();
+    case DAL_TYPE_VARCHAR: return new var_storage<i18n::UString>();
+    case DAL_TYPE_NVARCHAR: return new var_storage<i18n::UString>();
+    case DAL_TYPE_NCHAR: return new var_storage<i18n::UString>();
+    case DAL_TYPE_BOOL: return new var_storage<bool>();
+    case DAL_TYPE_SMALLINT: return new var_storage<signed short int>();
+    case DAL_TYPE_USMALLINT: return new var_storage<unsigned short int>();
+    case DAL_TYPE_BIGINT: return new var_storage<signed long long>();
+    case DAL_TYPE_UBIGINT: return new var_storage<unsigned long long>();
+    case DAL_TYPE_BIT: return new var_storage<bool>();
+    case DAL_TYPE_BLOB: return new var_storage<i18n::UString>();
+    case DAL_TYPE_NUMERIC: return new var_storage<TNumeric>();
+    case DAL_TYPE_DECIMAL: return new var_storage<TDecimal>();
+    case DAL_TYPE_MONEY: return new var_storage<TMoney>();
+    case DAL_TYPE_FLOAT: return new var_storage<float>();
+    case DAL_TYPE_DOUBLE: return new var_storage<double>();
+    case DAL_TYPE_DATE: return new var_storage<TDate>();
+    case DAL_TYPE_TIME: return new var_storage<TTime>();
+    case DAL_TYPE_DATETIME: return new var_storage<TDatetime>();
+    case DAL_TYPE_TIMESTAMP: return new var_storage<TTimestamp>();
+    case DAL_TYPE_VARBIT: return new var_storage<char>();
+    case DAL_TYPE_CIDR: return new var_storage<TCIDR>();
+    case DAL_TYPE_INTERVAL: return new var_storage<TInterval>();
+    case DAL_TYPE_MACADDR: return new var_storage<TMacaddr>();
+    case DAL_TYPE_INETADDR: return new var_storage<TInetaddr>();
+    case DAL_TYPE_POINT: return new var_storage<TPoint>();
+    case DAL_TYPE_POLYGON: return new var_storage<TPolygon>();
+    case DAL_TYPE_LINE: return new var_storage<TLine>();
+    case DAL_TYPE_CIRCLE: return new var_storage<TCircle>();
+    case DAL_TYPE_LINESEG: return new var_storage<TLineSeg>();
+    case DAL_TYPE_PATH: return new var_storage<TPath>();
+    case DAL_TYPE_UUID: return new var_storage<TUUID>();
+    case DAL_TYPE_BOX: return new var_storage<TBox>();
+    case DAL_TYPE_XML: return new var_storage<TXml>();
+        */
+    }
+}
+
+
+
+
+
+//--------------------------------------------------------------------------
+//
+ColumnDescBase::ColumnDescBase(void)
+    : IColumnDesc(),
+      m_name(DAL_TYPE_VARCHAR, L"ColumnDesc::name"),
+      m_catalog_name(DAL_TYPE_VARCHAR, L"ColumnDesc::catalog_name"),
+      m_schema_name(DAL_TYPE_VARCHAR, L"ColumnDesc::schema_name"),
+      m_base_column_name(DAL_TYPE_VARCHAR, L"ColumnDesc::base_column_name"),
+      m_type_name(DAL_TYPE_VARCHAR, L"ColumnDesc::type_name"),
+      m_base_table_name(DAL_TYPE_VARCHAR, L"ColumnDesc::base_table_name"),
+      m_size(DAL_TYPE_INT, L"ColumnDesc::size"),
+      m_comment(DAL_TYPE_VARCHAR, L"ColumnDesc::comment"),
+      m_is_nullable(DAL_TYPE_BOOL, L"ColumnDesc::is_nullable"),
+      m_precision(DAL_TYPE_USMALLINT, L"ColumnDesc::precision"),
+      m_scale(DAL_TYPE_USMALLINT, L"ColumnDesc::scale"),
+      m_is_searchable(DAL_TYPE_BOOL, L"ColumnDesc::is_searchable"),
+      m_daltype(DAL_TYPE_UNKNOWN)
+{}
+
+
+//
+//
+ColumnDescBase::~ColumnDescBase(void)
+{}
+
+
+const IColumnDesc::value_type& ColumnDescBase::getName(void) const           { return this->m_name; }
+const IColumnDesc::value_type& ColumnDescBase::getCatalogName(void) const    { return this->m_catalog_name; }
+const IColumnDesc::value_type& ColumnDescBase::getSchemaName(void) const     { return this->m_schema_name; }
+const IColumnDesc::value_type& ColumnDescBase::getBaseColumnName(void) const { return this->m_base_column_name; }
+const IColumnDesc::value_type& ColumnDescBase::getTypeName(void) const       { return this->m_type_name; }
+const IColumnDesc::value_type& ColumnDescBase::getBaseTableName(void) const  { return this->m_base_table_name; }
+const IColumnDesc::value_type& ColumnDescBase::getSize(void) const           { return this->m_size; }
+const IColumnDesc::value_type& ColumnDescBase::getComment(void) const        { return this->m_comment; }
+const IColumnDesc::value_type& ColumnDescBase::getIsNullable(void) const     { return this->m_is_nullable; }
+const IColumnDesc::value_type& ColumnDescBase::getPrecision(void) const      { return this->m_precision; }
+const IColumnDesc::value_type& ColumnDescBase::getScale(void) const          { return this->m_scale; }
+const IColumnDesc::value_type& ColumnDescBase::getIsSearchable(void) const   { return this->m_is_searchable; }
+
+//
+//
+daltype_t ColumnDescBase::getDatatype(void) const { return this->m_daltype; }
+
 
 
 //--------------------------------------------------------------------------
@@ -70,16 +167,103 @@ struct delete_object
 //--------------------------------------------------------------------------
 ///
 /// Get type of variant as string
-const char* type2name(IVariant *var)
+i18n::UString daltype2string(daltype_t type)
 {
-    switch(var->datatype())
+    switch(type)
     {
-	case DAL_TYPE_INT:
-    default:
-        return "UNKNOW";
+    case DAL_TYPE_CUSTOM: return i18n::UString(L"DAL_TYPE_CUSTOM");
+    case DAL_TYPE_UNKNOWN: return i18n::UString(L"DAL_TYPE_UNKNOWN");
+    case DAL_TYPE_INT: return i18n::UString(L"DAL_TYPE_INT");
+    case DAL_TYPE_UINT: return i18n::UString(L"DAL_TYPE_UINT");
+    case DAL_TYPE_CHAR: return i18n::UString(L"DAL_TYPE_CHAR");
+    case DAL_TYPE_UCHAR: return i18n::UString(L"DAL_TYPE_UCHAR");
+    case DAL_TYPE_VARCHAR: return i18n::UString(L"DAL_TYPE_VARCHAR");
+    case DAL_TYPE_NVARCHAR: return i18n::UString(L"DAL_TYPE_NVARCHAR");
+    case DAL_TYPE_NCHAR: return i18n::UString(L"DAL_TYPE_NCHAR");
+    case DAL_TYPE_BOOL: return i18n::UString(L"DAL_TYPE_BOOL");
+    case DAL_TYPE_SMALLINT: return i18n::UString(L"DAL_TYPE_SMALLINT");
+    case DAL_TYPE_USMALLINT: return i18n::UString(L"DAL_TYPE_USMALLINT");
+    case DAL_TYPE_BIGINT: return i18n::UString(L"DAL_TYPE_BIGINT");
+    case DAL_TYPE_UBIGINT: return i18n::UString(L"DAL_TYPE_UBIGINT");
+    case DAL_TYPE_BIT: return i18n::UString(L"DAL_TYPE_BIT");
+    case DAL_TYPE_BLOB: return i18n::UString(L"DAL_TYPE_BLOB");
+    case DAL_TYPE_NUMERIC: return i18n::UString(L"DAL_TYPE_NUMERIC");
+    case DAL_TYPE_DECIMAL: return i18n::UString(L"DAL_TYPE_DECIMAL");
+    case DAL_TYPE_MONEY: return i18n::UString(L"DAL_TYPE_MONEY");
+    case DAL_TYPE_FLOAT: return i18n::UString(L"DAL_TYPE_FLOAT");
+    case DAL_TYPE_DOUBLE: return i18n::UString(L"DAL_TYPE_DOUBLE");
+    case DAL_TYPE_DATE: return i18n::UString(L"DAL_TYPE_DATE");
+    case DAL_TYPE_TIME: return i18n::UString(L"DAL_TYPE_TIME");
+    case DAL_TYPE_DATETIME: return i18n::UString(L"DAL_TYPE_DATETIME");
+    case DAL_TYPE_TIMESTAMP: return i18n::UString(L"DAL_TYPE_TIMESTAMP");
+    case DAL_TYPE_VARBIT: return i18n::UString(L"DAL_TYPE_VARBIT");
+    case DAL_TYPE_CIDR: return i18n::UString(L"DAL_TYPE_CIDR");
+    case DAL_TYPE_INTERVAL: return i18n::UString(L"DAL_TYPE_INTERVAL");
+    case DAL_TYPE_MACADDR: return i18n::UString(L"DAL_TYPE_MACADDR");
+    case DAL_TYPE_INETADDR: return i18n::UString(L"DAL_TYPE_INETADDR");
+    case DAL_TYPE_POINT: return i18n::UString(L"DAL_TYPE_POINT");
+    case DAL_TYPE_POLYGON: return i18n::UString(L"DAL_TYPE_POLYGON");
+    case DAL_TYPE_LINE: return i18n::UString(L"DAL_TYPE_LINE");
+    case DAL_TYPE_CIRCLE: return i18n::UString(L"DAL_TYPE_CIRCLE");
+    case DAL_TYPE_LINESEG: return i18n::UString(L"DAL_TYPE_LINESEG");
+    case DAL_TYPE_PATH: return i18n::UString(L"DAL_TYPE_PATH");
+    case DAL_TYPE_UUID: return i18n::UString(L"DAL_TYPE_UUID");
+    case DAL_TYPE_BOX: return i18n::UString(L"DAL_TYPE_BOX");
+    case DAL_TYPE_XML: return i18n::UString(L"DAL_TYPE_XML");
     }
+    return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
 }
 
+
+//--------------------------------------------------------------------------
+///
+/// Get type of variant as string
+i18n::UString daltype2sqlname(daltype_t type)
+{
+    switch(type)
+    {
+    //case DAL_TYPE_CUSTOM: return i18n::UString(L"DAL_TYPE_CUSTOM");
+    //case DAL_TYPE_UNKNOWN: return i18n::UString(L"DAL_TYPE_UNKNOWN");
+    case DAL_TYPE_INT: return i18n::UString(L"INTEGER");
+    case DAL_TYPE_UINT: return i18n::UString(L"INTEGER");
+    case DAL_TYPE_CHAR: return i18n::UString(L"CHAR");
+    case DAL_TYPE_UCHAR: return i18n::UString(L"CHAR");
+    case DAL_TYPE_VARCHAR: return i18n::UString(L"VARCHAR");
+    case DAL_TYPE_NVARCHAR: return i18n::UString(L"NVARCHAR");
+    case DAL_TYPE_NCHAR: return i18n::UString(L"NCHAR");
+    case DAL_TYPE_BOOL: return i18n::UString(L"BOOL");
+    case DAL_TYPE_SMALLINT: return i18n::UString(L"SMALLINT");
+    case DAL_TYPE_USMALLINT: return i18n::UString(L"SMALLINT");
+    case DAL_TYPE_BIGINT: return i18n::UString(L"BIGINT");
+    case DAL_TYPE_UBIGINT: return i18n::UString(L"BIGINT");
+    case DAL_TYPE_BIT: return i18n::UString(L"BIT");
+    case DAL_TYPE_BLOB: return i18n::UString(L"BLOB");
+    case DAL_TYPE_NUMERIC: return i18n::UString(L"NUMERIC");
+    case DAL_TYPE_DECIMAL: return i18n::UString(L"DECIMAL");
+    case DAL_TYPE_MONEY: return i18n::UString(L"MONEY");
+    case DAL_TYPE_FLOAT: return i18n::UString(L"FLOAT");
+    case DAL_TYPE_DOUBLE: return i18n::UString(L"DOUBLE");
+    case DAL_TYPE_DATE: return i18n::UString(L"DATE");
+    case DAL_TYPE_TIME: return i18n::UString(L"TIME");
+    case DAL_TYPE_DATETIME: return i18n::UString(L"DATETIME");
+    case DAL_TYPE_TIMESTAMP: return i18n::UString(L"TIMESTAMP");
+    case DAL_TYPE_VARBIT: return i18n::UString(L"VARBIT");
+    case DAL_TYPE_CIDR: return i18n::UString(L"CIDR");
+    case DAL_TYPE_INTERVAL: return i18n::UString(L"INTERVAL");
+    case DAL_TYPE_MACADDR: return i18n::UString(L"MACADDR");
+    case DAL_TYPE_INETADDR: return i18n::UString(L"INETADDR");
+    case DAL_TYPE_POINT: return i18n::UString(L"POINT");
+    case DAL_TYPE_POLYGON: return i18n::UString(L"POLYGON");
+    case DAL_TYPE_LINE: return i18n::UString(L"LINE");
+    case DAL_TYPE_CIRCLE: return i18n::UString(L"CIRCLE");
+    case DAL_TYPE_LINESEG: return i18n::UString(L"LINESEG");
+    case DAL_TYPE_PATH: return i18n::UString(L"PATH");
+    case DAL_TYPE_UUID: return i18n::UString(L"UUID");
+    case DAL_TYPE_BOX: return i18n::UString(L"BOX");
+    case DAL_TYPE_XML: return i18n::UString(L"XML");
+    }
+    return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
+}
 
 
 //--------------------------------------------------------------------------
@@ -114,7 +298,8 @@ IVariant::assign(const IVariant& var)
 IStoredVariant*
 Variant::getStorageImpl(void)
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
+    /// do not use this->isnull() because it checks the m_storage, too!
+    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
     return this->m_storage.get();
 }
 
@@ -125,8 +310,16 @@ Variant::getStorageImpl(void)
 const IStoredVariant*
 Variant::getStorageImpl(void) const
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
+    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
     return this->m_storage.get();
+}
+
+
+///
+const i18n::UString&
+Variant::getName(void) const
+{
+    return this->m_name;
 }
 
 
@@ -269,10 +462,19 @@ Variant::asBlob(void) const { return this->getStorageImpl()->asBlob(); }
 
 ///
 template<class T>
-static inline void init_if_null(typename Variant::storage_type &storage)
+inline void init_if_null(typename Variant::storage_type &storage)
 {
-        if(storage.get() == 0)
-                storage.reset(new var_storage<i18n::UString>());
+    if(storage.get() == 0)
+        storage.reset(new var_storage<i18n::UString>());
+}
+
+
+/// @bug remove me
+template<>
+inline void init_if_null<signed int>(Variant::storage_type &storage)
+{
+    if(storage.get() == 0)
+        storage.reset(new var_storage<signed int>());
 }
 
 
@@ -281,8 +483,8 @@ static inline void init_if_null(typename Variant::storage_type &storage)
 void        
 Variant::setInt(const signed int& value)     
 { 
-     init_if_null<signed int>(this->m_storage);
-     return this->getStorageImpl()->setInt(value);
+    init_if_null<signed int>(this->m_storage);
+    return this->getStorageImpl()->setInt(value);
 }
 
 
@@ -290,7 +492,7 @@ Variant::setInt(const signed int& value)
 void      
 Variant::setUInt(const unsigned int& value) 
 {
-	init_if_null<unsigned int>(this->m_storage);
+    init_if_null<unsigned int>(this->m_storage);
     return this->getStorageImpl()->setUInt(value); 
 }
 
@@ -299,8 +501,8 @@ Variant::setUInt(const unsigned int& value)
 void      
 Variant::setChar(const signed char& value)    
 {
-	init_if_null<signed char>(this->m_storage);
-	this->getStorageImpl()->setChar(value); 
+    init_if_null<signed char>(this->m_storage);
+    this->getStorageImpl()->setChar(value); 
 }
 
 
@@ -308,8 +510,8 @@ Variant::setChar(const signed char& value)
 void       
 Variant::setUChar(const unsigned char& value)  
 {
-	init_if_null<unsigned char>(this->m_storage);
-	this->getStorageImpl()->setUChar(value); 
+    init_if_null<unsigned char>(this->m_storage);
+    this->getStorageImpl()->setUChar(value); 
 }
 
 
@@ -317,8 +519,8 @@ Variant::setUChar(const unsigned char& value)
 void        
 Variant::setStr(const i18n::UString& value)
 {
-	init_if_null<i18n::UString>(this->m_storage);
-	this->getStorageImpl()->setStr(value);
+    init_if_null<i18n::UString>(this->m_storage);
+    this->getStorageImpl()->setStr(value);
 }
 
 
@@ -326,8 +528,8 @@ Variant::setStr(const i18n::UString& value)
 void     
 Variant::setStr(const char* data, std::size_t len, const char* charset) 
 {
-	init_if_null<i18n::UString>(this->m_storage);
-	this->getStorageImpl()->setStr(data, len, charset); 
+    init_if_null<i18n::UString>(this->m_storage);
+    this->getStorageImpl()->setStr(data, len, charset); 
 }
 
 
@@ -335,8 +537,8 @@ Variant::setStr(const char* data, std::size_t len, const char* charset)
 void        
 Variant::setStr(const std::string& value, const char* charset)
 { 
-	init_if_null<i18n::UString>(this->m_storage);
-	this->getStorageImpl()->setStr(value, charset); 
+    init_if_null<i18n::UString>(this->m_storage);
+    this->getStorageImpl()->setStr(value, charset); 
 }
 
 
@@ -344,8 +546,8 @@ Variant::setStr(const std::string& value, const char* charset)
 void     
 Variant::setBool(const bool& value)      
 {
-	init_if_null<bool>(this->m_storage);
-	this->getStorageImpl()->setBool(value); 
+    init_if_null<bool>(this->m_storage);
+    this->getStorageImpl()->setBool(value); 
 }
 
 
@@ -353,8 +555,8 @@ Variant::setBool(const bool& value)
 void       
 Variant::setSmallint(const signed short& value) 
 {
-	init_if_null<signed short>(this->m_storage);
-	this->getStorageImpl()->setSmallint(value); 
+    init_if_null<signed short>(this->m_storage);
+    this->getStorageImpl()->setSmallint(value); 
 }
 
 
@@ -362,8 +564,8 @@ Variant::setSmallint(const signed short& value)
 void     
 Variant::setUSmallint(const unsigned short& value)  
 {
-	init_if_null<unsigned short>(this->m_storage);
-	this->getStorageImpl()->setUSmallint(value); 
+    init_if_null<unsigned short>(this->m_storage);
+    this->getStorageImpl()->setUSmallint(value); 
 }
 
 
@@ -371,8 +573,8 @@ Variant::setUSmallint(const unsigned short& value)
 void     
 Variant::setBigint(const signed long& value)   
 {
-	init_if_null<signed long>(this->m_storage);
-	this->getStorageImpl()->setBigint(value); 
+    init_if_null<signed long>(this->m_storage);
+    this->getStorageImpl()->setBigint(value); 
 }
 
 
@@ -380,8 +582,8 @@ Variant::setBigint(const signed long& value)
 void     
 Variant::setUBigint(const unsigned long& value) 
 {
-	init_if_null<unsigned long>(this->m_storage);
-	this->getStorageImpl()->setUBigint(value); 
+    init_if_null<unsigned long>(this->m_storage);
+    this->getStorageImpl()->setUBigint(value); 
 }
 
 
@@ -389,8 +591,8 @@ Variant::setUBigint(const unsigned long& value)
 void      
 Variant::setBit(const bool& value)       
 {
-	init_if_null<bool>(this->m_storage);
-	return this->getStorageImpl()->setBit(value); 
+    init_if_null<bool>(this->m_storage);
+    return this->getStorageImpl()->setBit(value); 
 }
 
 
@@ -398,8 +600,8 @@ Variant::setBit(const bool& value)
 void
 Variant::setNumeric(const TNumeric& value)   
 {
-	init_if_null<TNumeric>(this->m_storage);
-	return this->getStorageImpl()->setNumeric(value); 
+    init_if_null<TNumeric>(this->m_storage);
+    return this->getStorageImpl()->setNumeric(value); 
 }
 
 
@@ -407,8 +609,8 @@ Variant::setNumeric(const TNumeric& value)
 void       
 Variant::setMoney(const TMoney& value)      
 {
-	init_if_null<TMoney>(this->m_storage);
-	this->getStorageImpl()->setMoney(value); 
+    init_if_null<TMoney>(this->m_storage);
+    this->getStorageImpl()->setMoney(value); 
 }
 
 
@@ -416,8 +618,8 @@ Variant::setMoney(const TMoney& value)
 void    
 Variant::setReal(const float& value)      
 {
-	init_if_null<float>(this->m_storage);
-	this->getStorageImpl()->setReal(value); 
+    init_if_null<float>(this->m_storage);
+    this->getStorageImpl()->setReal(value); 
 }
 
 
@@ -425,8 +627,8 @@ Variant::setReal(const float& value)
 void       
 Variant::setDouble(const double& value)       
 { 
-	init_if_null<double>(this->m_storage);
-	this->getStorageImpl()->setDouble(value); 
+    init_if_null<double>(this->m_storage);
+    this->getStorageImpl()->setDouble(value); 
 }
 
 
@@ -434,8 +636,8 @@ Variant::setDouble(const double& value)
 void     
 Variant::setDate(const TDate& value)      
 {
-	init_if_null<TDate>(this->m_storage);
-	this->getStorageImpl()->setDate(value); 
+    init_if_null<TDate>(this->m_storage);
+    this->getStorageImpl()->setDate(value); 
 }
 
 
@@ -443,8 +645,8 @@ Variant::setDate(const TDate& value)
 void      
 Variant::setTime(const TTime& value)      
 {
-	init_if_null<TTime>(this->m_storage);
-	return this->getStorageImpl()->setTime(value); 
+    init_if_null<TTime>(this->m_storage);
+    return this->getStorageImpl()->setTime(value); 
 }
 
 
@@ -452,8 +654,8 @@ Variant::setTime(const TTime& value)
 void       
 Variant::setDatetime(const TDatetime& value)    
 {
-	init_if_null<TDatetime>(this->m_storage);
-	this->getStorageImpl()->setDatetime(value); 
+    init_if_null<TDatetime>(this->m_storage);
+    this->getStorageImpl()->setDatetime(value); 
 }
 
 
@@ -461,8 +663,8 @@ Variant::setDatetime(const TDatetime& value)
 void       
 Variant::setTimestamp(const signed int& value)  
 {
-	init_if_null<signed int>(this->m_storage); /// @todo typedef timestamp_t;
-	this->getStorageImpl()->setTimestamp(value);
+    init_if_null<signed int>(this->m_storage); /// @todo typedef timestamp_t;
+    this->getStorageImpl()->setTimestamp(value);
 }
 
 //virtual void        asCustom(void) const = 0;
@@ -472,8 +674,8 @@ Variant::setTimestamp(const signed int& value)
 void    
 Variant::setVarbit(const TVarbit& value)    
 {
-	init_if_null<TVarbit>(this->m_storage);
-	this->getStorageImpl()->setVarbit(value); 
+    init_if_null<TVarbit>(this->m_storage);
+    this->getStorageImpl()->setVarbit(value); 
 }
 
 
@@ -481,8 +683,8 @@ Variant::setVarbit(const TVarbit& value)
 void      
 Variant::setCIDR(const TCIDR& value)      
 {
-	init_if_null<TCIDR>(this->m_storage);
-	this->getStorageImpl()->setCIDR(value); 
+    init_if_null<TCIDR>(this->m_storage);
+    this->getStorageImpl()->setCIDR(value); 
 }
 
 
@@ -490,8 +692,8 @@ Variant::setCIDR(const TCIDR& value)
 void       
 Variant::setInterval(const TInterval& value)  
 {
-	init_if_null<TInterval>(this->m_storage);
-	this->getStorageImpl()->setInterval(value); 
+    init_if_null<TInterval>(this->m_storage);
+    this->getStorageImpl()->setInterval(value); 
 }
 
 
@@ -499,8 +701,8 @@ Variant::setInterval(const TInterval& value)
 void  
 Variant::setMacaddr(const TMacaddr& value)   
 {
-	init_if_null<TMacaddr>(this->m_storage);
-	this->getStorageImpl()->setMacaddr(value); 
+    init_if_null<TMacaddr>(this->m_storage);
+    this->getStorageImpl()->setMacaddr(value); 
 }
 
 
@@ -508,8 +710,8 @@ Variant::setMacaddr(const TMacaddr& value)
 void      
 Variant::setInetaddr(const TInetaddr& value)  
 {
-	init_if_null<TInetaddr>(this->m_storage);
-	this->getStorageImpl()->setInetaddr(value); 
+    init_if_null<TInetaddr>(this->m_storage);
+    this->getStorageImpl()->setInetaddr(value); 
 }
 
 
@@ -517,8 +719,8 @@ Variant::setInetaddr(const TInetaddr& value)
 void       
 Variant::setPoint(const TPoint& value)       
 {
-	init_if_null<TPoint>(this->m_storage);
-	this->getStorageImpl()->setPoint(value); 
+    init_if_null<TPoint>(this->m_storage);
+    this->getStorageImpl()->setPoint(value); 
 }
 
 
@@ -526,8 +728,8 @@ Variant::setPoint(const TPoint& value)
 void       
 Variant::setPolygon(const TPolygon& value)  
 {
-	init_if_null<TPolygon>(this->m_storage);
-	this->getStorageImpl()->setPolygon(value); 
+    init_if_null<TPolygon>(this->m_storage);
+    this->getStorageImpl()->setPolygon(value); 
 }
 
 
@@ -535,8 +737,8 @@ Variant::setPolygon(const TPolygon& value)
 void     
 Variant::setLine(const TLine& value)       
 {
-	init_if_null<TLine>(this->m_storage);
-	this->getStorageImpl()->setLine(value); 
+    init_if_null<TLine>(this->m_storage);
+    this->getStorageImpl()->setLine(value); 
 }
 
 
@@ -544,8 +746,8 @@ Variant::setLine(const TLine& value)
 void     
 Variant::setUUID(const TUUID& value)    
 {
-	init_if_null<TUUID>(this->m_storage);
-	this->getStorageImpl()->setUUID(value); 
+    init_if_null<TUUID>(this->m_storage);
+    this->getStorageImpl()->setUUID(value); 
 }
 
 
@@ -553,8 +755,8 @@ Variant::setUUID(const TUUID& value)
 void       
 Variant::setXML(const TXML& value)      
 {
-	init_if_null<TXML>(this->m_storage);
-	this->getStorageImpl()->setXML(value); 
+    init_if_null<TXML>(this->m_storage);
+    this->getStorageImpl()->setXML(value); 
 }
 
 
@@ -562,8 +764,8 @@ Variant::setXML(const TXML& value)
 void      
 Variant::setBlob(IBlob& value)         
 {
-	//init_if_null<IBlob>(this->m_storage);
-	this->m_storage->setBlob(value); 
+    //init_if_null<IBlob>(this->m_storage);
+    this->m_storage->setBlob(value); 
 }
 
 
@@ -572,7 +774,8 @@ daltype_t Variant::datatype(void) const
 {
     // if unitialized, we can't determine the datatype
     if(this->m_storage.get() == 0)
-        throw db::ex::null_value(*this);
+        return this->m_type;
+    //throw db::ex::null_value(*this);
     return this->m_storage->datatype();
 }
 
@@ -662,8 +865,8 @@ EngineState::operator==(int code)
 ///
 ///
 EngineState::EngineState(const IEngineState& newstate) 
-  : m_state(0), 
-    m_state_code(0)
+    : m_state(0), 
+      m_state_code(0)
 {
     this->m_state.reset( newstate.clone() );
 }
@@ -672,8 +875,8 @@ EngineState::EngineState(const IEngineState& newstate)
 ///
 ///
 EngineState::EngineState(const EngineState& newstate)
-  : m_state(0), 
-    m_state_code(newstate.m_state_code)
+    : m_state(0), 
+      m_state_code(newstate.m_state_code)
 {
     if(this->m_state.get())
         this->m_state.reset( newstate.m_state->clone() );
@@ -1364,7 +1567,7 @@ IDbc::~IDbc(void)
 ///
 ITypeInfo::ITypeInfo(void)
     : IDALObject(),
-      m_typeid(DAL_TYPE_UNKNOW)
+      m_typeid(DAL_TYPE_UNKNOWN)
 { }
 
 
@@ -1381,8 +1584,8 @@ ITypeInfo::name(void) const
 {
     switch(this->m_typeid)
     {
-    case DAL_TYPE_UNKNOW:
-        return L"UNKNOW";
+    case DAL_TYPE_UNKNOWN:
+        return L"UNKNOWN";
     case  DAL_TYPE_INT:
         return L"INTEGER";
     case  DAL_TYPE_CHAR:

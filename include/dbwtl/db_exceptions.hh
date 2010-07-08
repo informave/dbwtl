@@ -253,7 +253,7 @@ namespace ex
     public:
         read_only(dal::dalstate_t state, const i18n::UString &resource_name);
 
-        read_only(const i18n::UString &resource_name = i18n::UString());
+        read_only(const i18n::UString &resource_name = i18n::UString(L"<unnamed>"));
 
         virtual ~read_only(void) throw()
             {}

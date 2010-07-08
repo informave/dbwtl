@@ -56,9 +56,6 @@ IStoredVariant* new_default_storage(daltype_t type)
 {
     switch(type)
     {
-    case DAL_TYPE_UNKNOWN: return 0;
-    default: return new var_storage<i18n::UString>();
-        /*
     case DAL_TYPE_CUSTOM: return 0;
     case DAL_TYPE_UNKNOWN: return 0;
     case DAL_TYPE_INT: return new var_storage<signed int>();
@@ -73,7 +70,6 @@ IStoredVariant* new_default_storage(daltype_t type)
     case DAL_TYPE_USMALLINT: return new var_storage<unsigned short int>();
     case DAL_TYPE_BIGINT: return new var_storage<signed long long>();
     case DAL_TYPE_UBIGINT: return new var_storage<unsigned long long>();
-    case DAL_TYPE_BIT: return new var_storage<bool>();
     case DAL_TYPE_BLOB: return new var_storage<i18n::UString>();
     case DAL_TYPE_NUMERIC: return new var_storage<TNumeric>();
     case DAL_TYPE_DECIMAL: return new var_storage<TDecimal>();
@@ -84,22 +80,14 @@ IStoredVariant* new_default_storage(daltype_t type)
     case DAL_TYPE_TIME: return new var_storage<TTime>();
     case DAL_TYPE_DATETIME: return new var_storage<TDatetime>();
     case DAL_TYPE_TIMESTAMP: return new var_storage<TTimestamp>();
-    case DAL_TYPE_VARBIT: return new var_storage<char>();
-    case DAL_TYPE_CIDR: return new var_storage<TCIDR>();
+    case DAL_TYPE_CIDR: return new var_storage<TCidr>();
     case DAL_TYPE_INTERVAL: return new var_storage<TInterval>();
     case DAL_TYPE_MACADDR: return new var_storage<TMacaddr>();
     case DAL_TYPE_INETADDR: return new var_storage<TInetaddr>();
-    case DAL_TYPE_POINT: return new var_storage<TPoint>();
-    case DAL_TYPE_POLYGON: return new var_storage<TPolygon>();
-    case DAL_TYPE_LINE: return new var_storage<TLine>();
-    case DAL_TYPE_CIRCLE: return new var_storage<TCircle>();
-    case DAL_TYPE_LINESEG: return new var_storage<TLineSeg>();
-    case DAL_TYPE_PATH: return new var_storage<TPath>();
-    case DAL_TYPE_UUID: return new var_storage<TUUID>();
-    case DAL_TYPE_BOX: return new var_storage<TBox>();
+    case DAL_TYPE_UUID: return new var_storage<TUuid>();
     case DAL_TYPE_XML: return new var_storage<TXml>();
-        */
     }
+    return 0;
 }
 
 
@@ -185,7 +173,6 @@ i18n::UString daltype2string(daltype_t type)
     case DAL_TYPE_USMALLINT: return i18n::UString(L"DAL_TYPE_USMALLINT");
     case DAL_TYPE_BIGINT: return i18n::UString(L"DAL_TYPE_BIGINT");
     case DAL_TYPE_UBIGINT: return i18n::UString(L"DAL_TYPE_UBIGINT");
-    case DAL_TYPE_BIT: return i18n::UString(L"DAL_TYPE_BIT");
     case DAL_TYPE_BLOB: return i18n::UString(L"DAL_TYPE_BLOB");
     case DAL_TYPE_NUMERIC: return i18n::UString(L"DAL_TYPE_NUMERIC");
     case DAL_TYPE_DECIMAL: return i18n::UString(L"DAL_TYPE_DECIMAL");
@@ -196,19 +183,11 @@ i18n::UString daltype2string(daltype_t type)
     case DAL_TYPE_TIME: return i18n::UString(L"DAL_TYPE_TIME");
     case DAL_TYPE_DATETIME: return i18n::UString(L"DAL_TYPE_DATETIME");
     case DAL_TYPE_TIMESTAMP: return i18n::UString(L"DAL_TYPE_TIMESTAMP");
-    case DAL_TYPE_VARBIT: return i18n::UString(L"DAL_TYPE_VARBIT");
     case DAL_TYPE_CIDR: return i18n::UString(L"DAL_TYPE_CIDR");
     case DAL_TYPE_INTERVAL: return i18n::UString(L"DAL_TYPE_INTERVAL");
     case DAL_TYPE_MACADDR: return i18n::UString(L"DAL_TYPE_MACADDR");
     case DAL_TYPE_INETADDR: return i18n::UString(L"DAL_TYPE_INETADDR");
-    case DAL_TYPE_POINT: return i18n::UString(L"DAL_TYPE_POINT");
-    case DAL_TYPE_POLYGON: return i18n::UString(L"DAL_TYPE_POLYGON");
-    case DAL_TYPE_LINE: return i18n::UString(L"DAL_TYPE_LINE");
-    case DAL_TYPE_CIRCLE: return i18n::UString(L"DAL_TYPE_CIRCLE");
-    case DAL_TYPE_LINESEG: return i18n::UString(L"DAL_TYPE_LINESEG");
-    case DAL_TYPE_PATH: return i18n::UString(L"DAL_TYPE_PATH");
     case DAL_TYPE_UUID: return i18n::UString(L"DAL_TYPE_UUID");
-    case DAL_TYPE_BOX: return i18n::UString(L"DAL_TYPE_BOX");
     case DAL_TYPE_XML: return i18n::UString(L"DAL_TYPE_XML");
     }
     return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
@@ -222,8 +201,8 @@ i18n::UString daltype2sqlname(daltype_t type)
 {
     switch(type)
     {
-    //case DAL_TYPE_CUSTOM: return i18n::UString(L"DAL_TYPE_CUSTOM");
-    //case DAL_TYPE_UNKNOWN: return i18n::UString(L"DAL_TYPE_UNKNOWN");
+    case DAL_TYPE_CUSTOM: return L"<CUSTOM_TYPE_ID>"; /// @todo throw exception
+    case DAL_TYPE_UNKNOWN: return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
     case DAL_TYPE_INT: return i18n::UString(L"INTEGER");
     case DAL_TYPE_UINT: return i18n::UString(L"INTEGER");
     case DAL_TYPE_CHAR: return i18n::UString(L"CHAR");
@@ -236,7 +215,6 @@ i18n::UString daltype2sqlname(daltype_t type)
     case DAL_TYPE_USMALLINT: return i18n::UString(L"SMALLINT");
     case DAL_TYPE_BIGINT: return i18n::UString(L"BIGINT");
     case DAL_TYPE_UBIGINT: return i18n::UString(L"BIGINT");
-    case DAL_TYPE_BIT: return i18n::UString(L"BIT");
     case DAL_TYPE_BLOB: return i18n::UString(L"BLOB");
     case DAL_TYPE_NUMERIC: return i18n::UString(L"NUMERIC");
     case DAL_TYPE_DECIMAL: return i18n::UString(L"DECIMAL");
@@ -247,19 +225,11 @@ i18n::UString daltype2sqlname(daltype_t type)
     case DAL_TYPE_TIME: return i18n::UString(L"TIME");
     case DAL_TYPE_DATETIME: return i18n::UString(L"DATETIME");
     case DAL_TYPE_TIMESTAMP: return i18n::UString(L"TIMESTAMP");
-    case DAL_TYPE_VARBIT: return i18n::UString(L"VARBIT");
     case DAL_TYPE_CIDR: return i18n::UString(L"CIDR");
     case DAL_TYPE_INTERVAL: return i18n::UString(L"INTERVAL");
     case DAL_TYPE_MACADDR: return i18n::UString(L"MACADDR");
     case DAL_TYPE_INETADDR: return i18n::UString(L"INETADDR");
-    case DAL_TYPE_POINT: return i18n::UString(L"POINT");
-    case DAL_TYPE_POLYGON: return i18n::UString(L"POLYGON");
-    case DAL_TYPE_LINE: return i18n::UString(L"LINE");
-    case DAL_TYPE_CIRCLE: return i18n::UString(L"CIRCLE");
-    case DAL_TYPE_LINESEG: return i18n::UString(L"LINESEG");
-    case DAL_TYPE_PATH: return i18n::UString(L"PATH");
     case DAL_TYPE_UUID: return i18n::UString(L"UUID");
-    case DAL_TYPE_BOX: return i18n::UString(L"BOX");
     case DAL_TYPE_XML: return i18n::UString(L"XML");
     }
     return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
@@ -369,16 +339,12 @@ unsigned short
 Variant::asUSmallint(void) const { return this->getStorageImpl()->asUSmallint(); }
 
 ///
-signed long   
+signed long long  
 Variant::asBigint(void) const { return this->getStorageImpl()->asBigint(); }
 
 ///
-unsigned long   
+unsigned long long
 Variant::asUBigint(void) const { return this->getStorageImpl()->asUBigint(); }
-
-///
-bool         
-Variant::asBit(void) const { return this->getStorageImpl()->asBit(); }
 
 ///
 TNumeric  
@@ -416,11 +382,7 @@ Variant::asTimestamp(void) const { return this->getStorageImpl()->asTimestamp();
 //virtual TCustom&        asCustom(void) const = 0;
 
 ///
-TVarbit        
-Variant::asVarbit(void) const { return this->getStorageImpl()->asVarbit(); }
-
-///
-TCIDR        
+TCidr        
 Variant::asCIDR(void) const { return this->getStorageImpl()->asCIDR(); }
 
 ///
@@ -436,23 +398,11 @@ TInetaddr
 Variant::asInetaddr(void) const { return this->getStorageImpl()->asInetaddr(); }
 
 ///
-TPoint      
-Variant::asPoint(void) const { return this->getStorageImpl()->asPoint(); }
-
-///
-TPolygon   
-Variant::asPolygon(void) const { return this->getStorageImpl()->asPolygon(); }
-
-///
-TLine     
-Variant::asLine(void) const { return this->getStorageImpl()->asLine(); }
-
-///
-TUUID      
+TUuid      
 Variant::asUUID(void) const { return this->getStorageImpl()->asUUID(); }
 
 ///
-TXML      
+TXml     
 Variant::asXML(void) const { return this->getStorageImpl()->asXML(); }
 
 ///
@@ -465,16 +415,7 @@ template<class T>
 inline void init_if_null(typename Variant::storage_type &storage)
 {
     if(storage.get() == 0)
-        storage.reset(new var_storage<i18n::UString>());
-}
-
-
-/// @bug remove me
-template<>
-inline void init_if_null<signed int>(Variant::storage_type &storage)
-{
-    if(storage.get() == 0)
-        storage.reset(new var_storage<signed int>());
+        storage.reset(new var_storage<T>());
 }
 
 
@@ -553,7 +494,7 @@ Variant::setBool(const bool& value)
 
 ///
 void       
-Variant::setSmallint(const signed short& value) 
+Variant::setSmallint(const signed short int& value) 
 {
     init_if_null<signed short>(this->m_storage);
     this->getStorageImpl()->setSmallint(value); 
@@ -562,7 +503,7 @@ Variant::setSmallint(const signed short& value)
 
 ///
 void     
-Variant::setUSmallint(const unsigned short& value)  
+Variant::setUSmallint(const unsigned short int& value)  
 {
     init_if_null<unsigned short>(this->m_storage);
     this->getStorageImpl()->setUSmallint(value); 
@@ -571,28 +512,19 @@ Variant::setUSmallint(const unsigned short& value)
 
 ///
 void     
-Variant::setBigint(const signed long& value)   
+Variant::setBigint(const signed long long& value)   
 {
-    init_if_null<signed long>(this->m_storage);
+    init_if_null<signed long long>(this->m_storage);
     this->getStorageImpl()->setBigint(value); 
 }
 
 
 ///
 void     
-Variant::setUBigint(const unsigned long& value) 
+Variant::setUBigint(const unsigned long long& value) 
 {
-    init_if_null<unsigned long>(this->m_storage);
+    init_if_null<unsigned long long>(this->m_storage);
     this->getStorageImpl()->setUBigint(value); 
-}
-
-
-///
-void      
-Variant::setBit(const bool& value)       
-{
-    init_if_null<bool>(this->m_storage);
-    return this->getStorageImpl()->setBit(value); 
 }
 
 
@@ -670,20 +602,13 @@ Variant::setTimestamp(const signed int& value)
 //virtual void        asCustom(void) const = 0;
 
 
-///
-void    
-Variant::setVarbit(const TVarbit& value)    
-{
-    init_if_null<TVarbit>(this->m_storage);
-    this->getStorageImpl()->setVarbit(value); 
-}
 
 
 ///
 void      
-Variant::setCIDR(const TCIDR& value)      
+Variant::setCIDR(const TCidr& value)      
 {
-    init_if_null<TCIDR>(this->m_storage);
+    init_if_null<TCidr>(this->m_storage);
     this->getStorageImpl()->setCIDR(value); 
 }
 
@@ -716,46 +641,19 @@ Variant::setInetaddr(const TInetaddr& value)
 
 
 ///
-void       
-Variant::setPoint(const TPoint& value)       
-{
-    init_if_null<TPoint>(this->m_storage);
-    this->getStorageImpl()->setPoint(value); 
-}
-
-
-///
-void       
-Variant::setPolygon(const TPolygon& value)  
-{
-    init_if_null<TPolygon>(this->m_storage);
-    this->getStorageImpl()->setPolygon(value); 
-}
-
-
-///
 void     
-Variant::setLine(const TLine& value)       
+Variant::setUUID(const TUuid& value)    
 {
-    init_if_null<TLine>(this->m_storage);
-    this->getStorageImpl()->setLine(value); 
-}
-
-
-///
-void     
-Variant::setUUID(const TUUID& value)    
-{
-    init_if_null<TUUID>(this->m_storage);
+    init_if_null<TUuid>(this->m_storage);
     this->getStorageImpl()->setUUID(value); 
 }
 
 
 ///
 void       
-Variant::setXML(const TXML& value)      
+Variant::setXML(const TXml& value)
 {
-    init_if_null<TXML>(this->m_storage);
+    init_if_null<TXml>(this->m_storage);
     this->getStorageImpl()->setXML(value); 
 }
 
@@ -1135,9 +1033,7 @@ const char* dal_state_msg(int code)
 
 
 //--------------------------------------------------------------------------
-daltype_t TBit::datatype(void) const        {  return DAL_TYPE_BIT;        }
-daltype_t TVarbit::datatype(void) const     {  return DAL_TYPE_VARBIT;     }
-daltype_t TCIDR::datatype(void) const       {  return DAL_TYPE_CIDR;       }
+daltype_t TCidr::datatype(void) const       {  return DAL_TYPE_CIDR;       }
 daltype_t TDate::datatype(void) const       {  return DAL_TYPE_DATE;       }
 daltype_t TTime::datatype(void) const       {  return DAL_TYPE_TIME;       }
 daltype_t TInterval::datatype(void) const   {  return DAL_TYPE_INTERVAL;   }
@@ -1146,17 +1042,10 @@ daltype_t TNumeric::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
 daltype_t TDecimal::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
 daltype_t TMoney::datatype(void) const      {  return DAL_TYPE_MONEY;      }
 daltype_t TInetaddr::datatype(void) const   {  return DAL_TYPE_INETADDR;   }
-daltype_t TPoint::datatype(void) const      {  return DAL_TYPE_POINT;      }
-daltype_t TPolygon::datatype(void) const    {  return DAL_TYPE_POLYGON;    }
-daltype_t TLine::datatype(void) const       {  return DAL_TYPE_LINE;       }
-daltype_t TUUID::datatype(void) const       {  return DAL_TYPE_UUID;       }
-daltype_t TXML::datatype(void) const        {  return DAL_TYPE_XML;        }
+daltype_t TUuid::datatype(void) const       {  return DAL_TYPE_UUID;       }
+daltype_t TXml::datatype(void) const        {  return DAL_TYPE_XML;        }
 daltype_t TTimestamp::datatype(void) const  {  return DAL_TYPE_TIMESTAMP;  }
 daltype_t TDatetime::datatype(void) const   {  return DAL_TYPE_DATETIME;   }
-daltype_t TBox::datatype(void) const        {  return DAL_TYPE_BOX;        }
-daltype_t TCircle::datatype(void) const     {  return DAL_TYPE_CIRCLE;     }
-daltype_t TLineSeg::datatype(void) const    {  return DAL_TYPE_LINESEG;    }
-daltype_t TPath::datatype(void) const       {  return DAL_TYPE_PATH;       }
 
 
 
@@ -1164,20 +1053,10 @@ daltype_t TPath::datatype(void) const       {  return DAL_TYPE_PATH;       }
 //--------------------------------------------------------------------------
 ///
 ///
-i18n::UString
-TBit::asStr(void) const
-{
-    return L"FIXME";
-}
+
 
 i18n::UString
-TVarbit::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TCIDR::asStr(void) const
+TCidr::asStr(void) const
 {
     return L"FIXME";
 }
@@ -1230,56 +1109,16 @@ TInetaddr::asStr(void) const
     return L"FIXME";
 }
 
+
 i18n::UString
-TPoint::asStr(void) const
+TUuid::asStr(void) const
 {
     return L"FIXME";
 }
 
-i18n::UString
-TPolygon::asStr(void) const
-{
-    return L"FIXME";
-}
 
 i18n::UString
-TLine::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TCircle::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TLineSeg::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TPath::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TUUID::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TBox::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TXML::asStr(void) const
+TXml::asStr(void) const
 {
     return L"FIXME";
 }
@@ -1304,19 +1143,7 @@ TDatetime::asStr(void) const
 
 
 i18n::UString
-TBit::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TVarbit::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TCIDR::asStr(std::locale loc) const
+TCidr::asStr(std::locale loc) const
 {
     return L"FIXME";
 }
@@ -1369,56 +1196,16 @@ TInetaddr::asStr(std::locale loc) const
     return L"FIXME";
 }
 
+
 i18n::UString
-TPoint::asStr(std::locale loc) const
+TUuid::asStr(std::locale loc) const
 {
     return L"FIXME";
 }
 
-i18n::UString
-TPolygon::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
 
 i18n::UString
-TLine::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TCircle::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TLineSeg::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TPath::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TUUID::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TBox::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TXML::asStr(std::locale loc) const
+TXml::asStr(std::locale loc) const
 {
     return L"FIXME";
 }
@@ -1602,8 +1389,6 @@ ITypeInfo::name(void) const
         return L"SMALLINT";
     case  DAL_TYPE_BIGINT:
         return L"BIGINT";
-    case  DAL_TYPE_BIT:
-        return L"BIT";
     case  DAL_TYPE_BLOB:
         return L"BLOB";
     case  DAL_TYPE_NUMERIC:

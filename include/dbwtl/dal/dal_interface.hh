@@ -93,9 +93,7 @@ class StmtBase;
 
 
 
-class TBit;
-class TVarbit;
-class TCIDR;
+class TCidr;
 class TDate;
 class TTime;
 class TInterval;
@@ -104,18 +102,10 @@ class TNumeric;
 class TMoney;
 class TDecimal;
 class TInetaddr;
-class TPoint;
-class TPolygon;
-class TLine;
-class TCircle;
-class TLineSeg;
-class TPath;
-class TUUID;
-class TBox;
+class TUuid;
 class TXml;
 class TTimestamp;
 class TDatetime;
-class TXML;
 
 
 
@@ -186,7 +176,7 @@ const char* dal_state_msg(int code);
 /// @brief DAL datatypes
 enum DatatypeEnumeration
 {
-    DAL_TYPE_CUSTOM,
+    DAL_TYPE_CUSTOM = 1,
     DAL_TYPE_UNKNOWN,
     DAL_TYPE_INT,
     DAL_TYPE_UINT,
@@ -200,7 +190,8 @@ enum DatatypeEnumeration
     DAL_TYPE_USMALLINT,
     DAL_TYPE_BIGINT,
     DAL_TYPE_UBIGINT,
-    DAL_TYPE_BIT,
+    //DAL_TYPE_BIT,
+    //DAL_TYPE_VARBIT,
     DAL_TYPE_BLOB,
     DAL_TYPE_NUMERIC,
     DAL_TYPE_DECIMAL,
@@ -211,19 +202,18 @@ enum DatatypeEnumeration
     DAL_TYPE_TIME,
     DAL_TYPE_DATETIME,
     DAL_TYPE_TIMESTAMP,
-    DAL_TYPE_VARBIT,
+    DAL_TYPE_INTERVAL,
     DAL_TYPE_CIDR,
-    DAL_TYPE_INTERVAL, /* ? */
     DAL_TYPE_MACADDR,
     DAL_TYPE_INETADDR,
-    DAL_TYPE_POINT,
-    DAL_TYPE_POLYGON,
-    DAL_TYPE_LINE,
-    DAL_TYPE_CIRCLE,
-    DAL_TYPE_LINESEG,
-    DAL_TYPE_PATH,
+    //DAL_TYPE_POINT,
+    //DAL_TYPE_POLYGON,
+    //DAL_TYPE_LINE,
+    //DAL_TYPE_CIRCLE,
+    //DAL_TYPE_LINESEG,
+    //DAL_TYPE_PATH,
+    //DAL_TYPE_BOX,
     DAL_TYPE_UUID,
-    DAL_TYPE_BOX,
     DAL_TYPE_XML
 };
 
@@ -572,9 +562,8 @@ public:
     virtual bool            asBool(void) const = 0;
     virtual signed short    asSmallint(void) const = 0;
     virtual unsigned short  asUSmallint(void) const = 0;
-    virtual signed long     asBigint(void) const = 0;
-    virtual unsigned long   asUBigint(void) const = 0;
-    virtual bool            asBit(void) const = 0;
+    virtual signed long long    asBigint(void) const = 0;
+    virtual unsigned long long  asUBigint(void) const = 0;
     virtual TNumeric        asNumeric(void) const = 0;
     virtual TMoney          asMoney(void) const = 0;
     virtual float           asReal(void) const = 0;
@@ -584,16 +573,12 @@ public:
     virtual TDatetime       asDatetime(void) const = 0;
     virtual signed int      asTimestamp(void) const = 0;
     //virtual TCustom&        asCustom(void) const = 0;
-    virtual TVarbit         asVarbit(void) const = 0;
-    virtual TCIDR           asCIDR(void) const = 0;
+    virtual TCidr           asCIDR(void) const = 0;
     virtual TInterval       asInterval(void) const = 0;
     virtual TMacaddr        asMacaddr(void) const = 0;
     virtual TInetaddr       asInetaddr(void) const = 0;
-    virtual TPoint          asPoint(void) const = 0;
-    virtual TPolygon        asPolygon(void) const = 0;
-    virtual TLine           asLine(void) const = 0;
-    virtual TUUID           asUUID(void) const = 0;
-    virtual TXML            asXML(void) const = 0;
+    virtual TUuid           asUUID(void) const = 0;
+    virtual TXml            asXML(void) const = 0;
     virtual IBlob&          asBlob(void) const = 0;
 
     // setter methods
@@ -607,9 +592,8 @@ public:
     virtual void            setBool(const bool&) = 0;
     virtual void            setSmallint(const signed short&) = 0;
     virtual void            setUSmallint(const unsigned short&) = 0;
-    virtual void            setBigint(const signed long&) = 0;
-    virtual void            setUBigint(const unsigned long&) = 0;
-    virtual void            setBit(const bool&) = 0;
+    virtual void            setBigint(const signed long long&) = 0;
+    virtual void            setUBigint(const unsigned long long&) = 0;
     virtual void            setNumeric(const TNumeric&) = 0;
     virtual void            setMoney(const TMoney&) = 0;
     virtual void            setReal(const float&) = 0;
@@ -619,16 +603,12 @@ public:
     virtual void            setDatetime(const TDatetime&) = 0;
     virtual void            setTimestamp(const signed int&) = 0;
     //virtual void        asCustom(void) const = 0;
-    virtual void            setVarbit(const TVarbit&) = 0;
-    virtual void            setCIDR(const TCIDR&) = 0;
+    virtual void            setCIDR(const TCidr&) = 0;
     virtual void            setInterval(const TInterval&) = 0;
     virtual void            setMacaddr(const TMacaddr&) = 0;
     virtual void            setInetaddr(const TInetaddr&) = 0;
-    virtual void            setPoint(const TPoint&) = 0;
-    virtual void            setPolygon(const TPolygon&) = 0;
-    virtual void            setLine(const TLine&) = 0;
-    virtual void            setUUID(const TUUID&) = 0;
-    virtual void            setXML(const TXML&) = 0;
+    virtual void            setUUID(const TUuid&) = 0;
+    virtual void            setXML(const TXml&) = 0;
     virtual void            setBlob(IBlob&) = 0;
   
 private:
@@ -666,9 +646,8 @@ public:
     virtual bool            asBool(void) const;
     virtual signed short    asSmallint(void) const;
     virtual unsigned short  asUSmallint(void) const;
-    virtual signed long     asBigint(void) const;
-    virtual unsigned long   asUBigint(void) const;
-    virtual bool            asBit(void) const;
+    virtual signed long long     asBigint(void) const;
+    virtual unsigned long long  asUBigint(void) const;
     virtual TNumeric        asNumeric(void) const;
     virtual TMoney          asMoney(void) const;
     virtual float           asReal(void) const;
@@ -678,16 +657,12 @@ public:
     virtual TDatetime       asDatetime(void) const;
     virtual signed int      asTimestamp(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
-    virtual TVarbit         asVarbit(void) const;
-    virtual TCIDR           asCIDR(void) const;
+    virtual TCidr           asCIDR(void) const;
     virtual TInterval       asInterval(void) const;
     virtual TMacaddr        asMacaddr(void) const;
     virtual TInetaddr       asInetaddr(void) const;
-    virtual TPoint          asPoint(void) const;
-    virtual TPolygon        asPolygon(void) const;
-    virtual TLine           asLine(void) const;
-    virtual TUUID           asUUID(void) const;
-    virtual TXML            asXML(void) const;
+    virtual TUuid           asUUID(void) const;
+    virtual TXml            asXML(void) const;
     virtual IBlob&          asBlob(void) const;
 
 
@@ -701,9 +676,8 @@ public:
     virtual void            setBool(const bool&);
     virtual void            setSmallint(const signed short&);
     virtual void            setUSmallint(const unsigned short&);
-    virtual void            setBigint(const signed long&);
-    virtual void            setUBigint(const unsigned long&);
-    virtual void            setBit(const bool&);
+    virtual void            setBigint(const signed long long&);
+    virtual void            setUBigint(const unsigned long long&);
     virtual void            setNumeric(const TNumeric&);
     virtual void            setMoney(const TMoney&);
     virtual void            setReal(const float&);
@@ -713,16 +687,12 @@ public:
     virtual void            setDatetime(const TDatetime&);
     virtual void            setTimestamp(const signed int&);
     //virtual void        asCustom(void) const = 0;
-    virtual void            setVarbit(const TVarbit&);
-    virtual void            setCIDR(const TCIDR&);
+    virtual void            setCIDR(const TCidr&);
     virtual void            setInterval(const TInterval&);
     virtual void            setMacaddr(const TMacaddr&);
     virtual void            setInetaddr(const TInetaddr&);
-    virtual void            setPoint(const TPoint&);
-    virtual void            setPolygon(const TPolygon&);
-    virtual void            setLine(const TLine&);
-    virtual void            setUUID(const TUUID&);
-    virtual void            setXML(const TXML&);
+    virtual void            setUUID(const TUuid&);
+    virtual void            setXML(const TXml&);
     virtual void            setBlob(IBlob&);
 
 
@@ -1003,9 +973,8 @@ public:
     virtual bool            asBool(void) const;
     virtual signed short    asSmallint(void) const;
     virtual unsigned short  asUSmallint(void) const;
-    virtual signed long     asBigint(void) const;
-    virtual unsigned long   asUBigint(void) const;
-    virtual bool            asBit(void) const;
+    virtual signed long long     asBigint(void) const;
+    virtual unsigned long long  asUBigint(void) const;
     virtual TNumeric        asNumeric(void) const;
     virtual TMoney          asMoney(void) const;
     virtual float           asReal(void) const;
@@ -1015,16 +984,12 @@ public:
     virtual TDatetime       asDatetime(void) const;
     virtual signed int      asTimestamp(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
-    virtual TVarbit         asVarbit(void) const;
-    virtual TCIDR           asCIDR(void) const;
+    virtual TCidr           asCIDR(void) const;
     virtual TInterval       asInterval(void) const;
     virtual TMacaddr        asMacaddr(void) const;
     virtual TInetaddr       asInetaddr(void) const;
-    virtual TPoint          asPoint(void) const;
-    virtual TPolygon        asPolygon(void) const;
-    virtual TLine           asLine(void) const;
-    virtual TUUID           asUUID(void) const;
-    virtual TXML            asXML(void) const;
+    virtual TUuid           asUUID(void) const;
+    virtual TXml            asXML(void) const;
     virtual IBlob&          asBlob(void) const;
 
 
@@ -1038,9 +1003,8 @@ public:
     virtual void            setBool(const bool&);
     virtual void            setSmallint(const signed short&);
     virtual void            setUSmallint(const unsigned short&);
-    virtual void            setBigint(const signed long&);
-    virtual void            setUBigint(const unsigned long&);
-    virtual void            setBit(const bool&);
+    virtual void            setBigint(const signed long long&);
+    virtual void            setUBigint(const unsigned long long&);
     virtual void            setNumeric(const TNumeric&);
     virtual void            setMoney(const TMoney&);
     virtual void            setReal(const float&);
@@ -1050,16 +1014,12 @@ public:
     virtual void            setDatetime(const TDatetime&);
     virtual void            setTimestamp(const signed int&);
     //virtual void        asCustom(void) const = 0;
-    virtual void            setVarbit(const TVarbit&);
-    virtual void            setCIDR(const TCIDR&);
+    virtual void            setCIDR(const TCidr&);
     virtual void            setInterval(const TInterval&);
     virtual void            setMacaddr(const TMacaddr&);
     virtual void            setInetaddr(const TInetaddr&);
-    virtual void            setPoint(const TPoint&);
-    virtual void            setPolygon(const TPolygon&);
-    virtual void            setLine(const TLine&);
-    virtual void            setUUID(const TUUID&);
-    virtual void            setXML(const TXML&);
+    virtual void            setUUID(const TUuid&);
+    virtual void            setXML(const TXml&);
     virtual void            setBlob(IBlob&);
 
 
@@ -1491,26 +1451,7 @@ public:
 };
 
 
-class DBWTL_EXPORT TBit : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr(void) const;
-
-};
-
-
-class DBWTL_EXPORT TVarbit : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-
-};
-
-class DBWTL_EXPORT TCIDR : public TType
+class DBWTL_EXPORT TCidr : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1589,57 +1530,8 @@ public:
     virtual i18n::UString asStr(std::locale loc) const;
     virtual i18n::UString asStr() const; // using objects locale
 };
-class DBWTL_EXPORT TPoint : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class DBWTL_EXPORT TPolygon : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
 
-class DBWTL_EXPORT TLine : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class DBWTL_EXPORT TCircle : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class DBWTL_EXPORT TLineSeg : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class DBWTL_EXPORT TPath : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class DBWTL_EXPORT TUUID : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
-};
-class DBWTL_EXPORT TBox : public TType
+class DBWTL_EXPORT TUuid : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1668,7 +1560,7 @@ public:
 
 
 
-class DBWTL_EXPORT TXML : public TType
+class DBWTL_EXPORT TXml : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
@@ -1836,41 +1728,45 @@ DAL_NAMESPACE_BEGIN
 //#define DAL_CODE_POS __FUNCTION__
 
 
+
+//------------------------------------------------------------------------------
+///
+///
 template<>
 class storage_accessor<signed int> : public BaseVariantImplFor<sa_base<signed int> >
 {
 public:
     DAL_VARIANT_ACCESSOR;
-
     virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INT; }
 
     virtual int asInt() const
         { return this->getValue(); }
 
+
     virtual void setInt(const signed int &value)
         {
             this->getValue() = value;
+            this->m_isnull = false;
         }
-
-
 
     virtual i18n::UString asStr(void) const
         {
-            return L"Implement me";
+            std::wstringstream ss;
+            ss << this->getValue();
+            return ss.str();
         }
 
 
     virtual i18n::UString asStr(std::locale loc) const
         {
-            return L"Implement me";
-        }
-
-
-    virtual daltype_t datatype() const
-        {
-            return DAL_TYPE_INT;
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << this->getValue();
+            return ss.str();
         }
 };
+
 
 
 template<>
@@ -1878,32 +1774,36 @@ class storage_accessor<signed int*> : public BaseVariantImplFor<sa_base<signed i
 {
 public:
     DAL_VARIANT_ACCESSOR;
-
     virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INT; }
+
 
     virtual int asInt() const
         { return *this->getValue(); }
 
+
     virtual void setInt(const signed int &value)
         {
             *this->getValue() = value;
+            this->m_isnull = false;
         }
+
+
 
     virtual i18n::UString asStr(void) const
         {
-            return L"Implement me";
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
         }
 
 
     virtual i18n::UString asStr(std::locale loc) const
         {
-            return L"Implement me";
-        }
-
-
-    virtual daltype_t datatype() const
-        {
-            return DAL_TYPE_INT;
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
         }
 };
 
@@ -1914,30 +1814,1085 @@ class storage_accessor<const signed int*> : public BaseVariantImplFor<sa_base<co
 {
 public:
     DAL_VARIANT_ACCESSOR;
-
     virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INT; }
+
 
     virtual int asInt() const
         { return *this->getValue(); }
 
 
 
-    virtual i18n::UString asStr() const
+    virtual i18n::UString asStr(void) const
         {
-            return L"Implement me";
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
         }
+
 
     virtual i18n::UString asStr(std::locale loc) const
         {
-            return L"Implement me";
-        }
-
-    virtual daltype_t datatype() const
-        {
-            return DAL_TYPE_INT;
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
         }
 };
 
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<unsigned int> : public BaseVariantImplFor<sa_base<unsigned int> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UINT; }
+};
+
+
+template<>
+class storage_accessor<unsigned int*> : public BaseVariantImplFor<sa_base<unsigned int*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UINT; }
+};
+
+
+template<>
+class storage_accessor<const unsigned int*> : public BaseVariantImplFor<sa_base<const unsigned int*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UINT; }
+};
+
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<signed char> : public BaseVariantImplFor<sa_base<signed char> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CHAR; }
+};
+
+
+template<>
+class storage_accessor<signed char*> : public BaseVariantImplFor<sa_base<signed char*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CHAR; }
+};
+
+
+template<>
+class storage_accessor<const signed char*> : public BaseVariantImplFor<sa_base<const signed char*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CHAR; }
+};
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<unsigned char> : public BaseVariantImplFor<sa_base<unsigned char> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UCHAR; }
+};
+
+
+template<>
+class storage_accessor<unsigned char*> : public BaseVariantImplFor<sa_base<unsigned char*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UCHAR; }
+};
+
+
+template<>
+class storage_accessor<const unsigned char*> : public BaseVariantImplFor<sa_base<const unsigned char*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UCHAR; }
+};
+
+
+
+
+
+
+
+
+// varchars
+
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<bool> : public BaseVariantImplFor<sa_base<bool> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_BOOL; }
+
+
+    virtual void setBool(const bool &value)
+        {
+            this->getValue() = value;
+            this->m_isnull = false;
+        }
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << this->getValue();
+            return ss.str();
+        }
+
+};
+
+
+template<>
+class storage_accessor<bool*> : public BaseVariantImplFor<sa_base<bool*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_BOOL; }
+
+    virtual void setBool(const bool &value)
+        {
+            *this->getValue() = value;
+            this->m_isnull = false;
+        }
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+};
+
+
+template<>
+class storage_accessor<const bool*> : public BaseVariantImplFor<sa_base<const bool*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_BOOL; }
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+};
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<signed short int> : public BaseVariantImplFor<sa_base<signed short int> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_SMALLINT; }
+
+
+    virtual void setSmallint(const signed short int &value)
+        {
+            this->getValue() = value;
+            this->m_isnull = false;
+        }
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << this->getValue();
+            return ss.str();
+        }
+};
+
+
+template<>
+class storage_accessor<signed short int*> : public BaseVariantImplFor<sa_base<signed short int*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_SMALLINT; }
+
+
+    virtual void setSmallint(const signed short int &value)
+        {
+            *this->getValue() = value;
+            this->m_isnull = false;
+        }
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
+        }
+};
+
+
+template<>
+class storage_accessor<const signed short int*> : public BaseVariantImplFor<sa_base<const signed short int*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_SMALLINT; }
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
+        }
+};
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<unsigned short int> : public BaseVariantImplFor<sa_base<unsigned short int> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_USMALLINT; }
+
+
+    virtual void setUSmallint(const unsigned short int &value)
+        {
+            this->getValue() = value;
+            this->m_isnull = false;
+        }
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << this->getValue();
+            return ss.str();
+        }
+};
+
+
+template<>
+class storage_accessor<unsigned short int*> : public BaseVariantImplFor<sa_base<unsigned short int*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_USMALLINT; }
+
+    virtual void setUSmallint(const unsigned short int &value)
+        {
+            *this->getValue() = value;
+            this->m_isnull = false;
+        }
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
+        }
+};
+
+
+template<>
+class storage_accessor<const unsigned short int*> : public BaseVariantImplFor<sa_base<const unsigned short int*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_USMALLINT; }
+
+
+    virtual i18n::UString asStr(void) const
+        {
+            std::wstringstream ss;
+            ss << *this->getValue();
+            return ss.str();
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::wstringstream ss;
+            ss.imbue(loc);
+            ss << *this->getValue();
+            return ss.str();
+        }
+};
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<signed long long> : public BaseVariantImplFor<sa_base<signed long long> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_BIGINT; }
+};
+
+
+template<>
+class storage_accessor<signed long long*> : public BaseVariantImplFor<sa_base<signed long long*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_BIGINT; }
+};
+
+
+template<>
+class storage_accessor<const signed long long*> : public BaseVariantImplFor<sa_base<const signed long long*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_BIGINT; }
+};
+
+
+
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<unsigned long long> : public BaseVariantImplFor<sa_base<unsigned long long> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UBIGINT; }
+};
+
+
+template<>
+class storage_accessor<unsigned long long*> : public BaseVariantImplFor<sa_base<unsigned long long*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UBIGINT; }
+};
+
+
+template<>
+class storage_accessor<const unsigned long long*> : public BaseVariantImplFor<sa_base<const unsigned long long*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UBIGINT; }
+};
+
+
+
+
+
+
+
+
+// Blob
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TNumeric> : public BaseVariantImplFor<sa_base<TNumeric> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_NUMERIC; }
+};
+
+
+template<>
+class storage_accessor<TNumeric*> : public BaseVariantImplFor<sa_base<TNumeric*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_NUMERIC; }
+};
+
+
+template<>
+class storage_accessor<const TNumeric*> : public BaseVariantImplFor<sa_base<const TNumeric*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_NUMERIC; }
+};
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TDecimal> : public BaseVariantImplFor<sa_base<TDecimal> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DECIMAL; }
+};
+
+
+template<>
+class storage_accessor<TDecimal*> : public BaseVariantImplFor<sa_base<TDecimal*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DECIMAL; }
+};
+
+
+template<>
+class storage_accessor<const TDecimal*> : public BaseVariantImplFor<sa_base<const TDecimal*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DECIMAL; }
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TMoney> : public BaseVariantImplFor<sa_base<TMoney> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_MONEY; }
+};
+
+
+template<>
+class storage_accessor<TMoney*> : public BaseVariantImplFor<sa_base<TMoney*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_MONEY; }
+};
+
+
+template<>
+class storage_accessor<const TMoney*> : public BaseVariantImplFor<sa_base<const TMoney*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_MONEY; }
+};
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<float> : public BaseVariantImplFor<sa_base<float> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_FLOAT; }
+};
+
+
+template<>
+class storage_accessor<float*> : public BaseVariantImplFor<sa_base<float*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_FLOAT; }
+};
+
+
+template<>
+class storage_accessor<const float*> : public BaseVariantImplFor<sa_base<const float*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_FLOAT; }
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<double> : public BaseVariantImplFor<sa_base<double> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DOUBLE; }
+};
+
+
+template<>
+class storage_accessor<double*> : public BaseVariantImplFor<sa_base<double*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DOUBLE; }
+};
+
+
+template<>
+class storage_accessor<const double*> : public BaseVariantImplFor<sa_base<const double*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DOUBLE; }
+};
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TDate> : public BaseVariantImplFor<sa_base<TDate> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DATE; }
+};
+
+
+template<>
+class storage_accessor<TDate*> : public BaseVariantImplFor<sa_base<TDate*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DATE; }
+};
+
+
+template<>
+class storage_accessor<const TDate*> : public BaseVariantImplFor<sa_base<const TDate*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DATE; }
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TTime> : public BaseVariantImplFor<sa_base<TTime> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_TIME; }
+};
+
+
+template<>
+class storage_accessor<TTime*> : public BaseVariantImplFor<sa_base<TTime*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_TIME; }
+};
+
+
+template<>
+class storage_accessor<const TTime*> : public BaseVariantImplFor<sa_base<const TTime*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_TIME; }
+};
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TDatetime> : public BaseVariantImplFor<sa_base<TDatetime> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DATETIME; }
+};
+
+
+template<>
+class storage_accessor<TDatetime*> : public BaseVariantImplFor<sa_base<TDatetime*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DATETIME; }
+};
+
+
+template<>
+class storage_accessor<const TDatetime*> : public BaseVariantImplFor<sa_base<const TDatetime*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_DATETIME; }
+};
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TTimestamp> : public BaseVariantImplFor<sa_base<TTimestamp> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_TIMESTAMP; }
+};
+
+
+template<>
+class storage_accessor<TTimestamp*> : public BaseVariantImplFor<sa_base<TTimestamp*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_TIMESTAMP; }
+};
+
+
+template<>
+class storage_accessor<const TTimestamp*> : public BaseVariantImplFor<sa_base<const TTimestamp*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_TIMESTAMP; }
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TInterval> : public BaseVariantImplFor<sa_base<TInterval> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INTERVAL; }
+};
+
+
+template<>
+class storage_accessor<TInterval*> : public BaseVariantImplFor<sa_base<TInterval*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INTERVAL; }
+};
+
+
+template<>
+class storage_accessor<const TInterval*> : public BaseVariantImplFor<sa_base<const TInterval*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INTERVAL; }
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TCidr> : public BaseVariantImplFor<sa_base<TCidr> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CIDR; }
+};
+
+
+template<>
+class storage_accessor<TCidr*> : public BaseVariantImplFor<sa_base<TCidr*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CIDR; }
+};
+
+
+template<>
+class storage_accessor<const TCidr*> : public BaseVariantImplFor<sa_base<const TCidr*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CIDR; }
+};
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TMacaddr> : public BaseVariantImplFor<sa_base<TMacaddr> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_MACADDR; }
+};
+
+
+template<>
+class storage_accessor<TMacaddr*> : public BaseVariantImplFor<sa_base<TMacaddr*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_MACADDR; }
+};
+
+
+template<>
+class storage_accessor<const TMacaddr*> : public BaseVariantImplFor<sa_base<const TMacaddr*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_MACADDR; }
+};
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TInetaddr> : public BaseVariantImplFor<sa_base<TInetaddr> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INETADDR; }
+};
+
+
+template<>
+class storage_accessor<TInetaddr*> : public BaseVariantImplFor<sa_base<TInetaddr*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INETADDR; }
+};
+
+
+template<>
+class storage_accessor<const TInetaddr*> : public BaseVariantImplFor<sa_base<const TInetaddr*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_INETADDR; }
+};
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TUuid> : public BaseVariantImplFor<sa_base<TUuid> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UUID; }
+};
+
+
+template<>
+class storage_accessor<TUuid*> : public BaseVariantImplFor<sa_base<TUuid*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UUID; }
+};
+
+
+template<>
+class storage_accessor<const TUuid*> : public BaseVariantImplFor<sa_base<const TUuid*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_UUID; }
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+template<>
+class storage_accessor<TXml> : public BaseVariantImplFor<sa_base<TXml> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_XML; }
+};
+
+
+template<>
+class storage_accessor<TXml*> : public BaseVariantImplFor<sa_base<TXml*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_XML; }
+};
+
+
+template<>
+class storage_accessor<const TXml*> : public BaseVariantImplFor<sa_base<const TXml*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_XML; }
+};
+
+
+
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
 template<>
 class storage_accessor<i18n::UString> : public BaseVariantImplFor<sa_base<i18n::UString> >
 {
@@ -2040,7 +2995,9 @@ public:
 
 
 
-
+//------------------------------------------------------------------------------
+///
+///
 template<>
 class storage_accessor<IVariant*> : public BaseVariantImplFor<sa_base<IVariant*> >
 {
@@ -2113,7 +3070,9 @@ public:
 
 
 
-
+//------------------------------------------------------------------------------
+///
+///
 template<class Base>
 bool BaseVariantImplFor<Base>::isnull(void) const
 {
@@ -2173,16 +3132,14 @@ unsigned short  BaseVariantImplFor<Base>::asUSmallint(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_USMALLINT); }
 
 template<class Base>
-signed long     BaseVariantImplFor<Base>::asBigint(void) const 
+signed long long    BaseVariantImplFor<Base>::asBigint(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_BIGINT); }
 
 template<class Base>
-unsigned long   BaseVariantImplFor<Base>::asUBigint(void) const 
+unsigned long long  BaseVariantImplFor<Base>::asUBigint(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_UBIGINT); }
 
-template<class Base>
-bool            BaseVariantImplFor<Base>::asBit(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_BIT); }
+
 
 template<class Base>
 TNumeric        BaseVariantImplFor<Base>::asNumeric(void) const 
@@ -2216,13 +3173,12 @@ template<class Base>
 signed int      BaseVariantImplFor<Base>::asTimestamp(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_TIMESTAMP); }
 
-template<class Base>
+
 //virtual TCustom&        asCustom(void) const = 0;
-TVarbit         BaseVariantImplFor<Base>::asVarbit(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_VARBIT); }
+
 
 template<class Base>
-TCIDR           BaseVariantImplFor<Base>::asCIDR(void) const 
+TCidr           BaseVariantImplFor<Base>::asCIDR(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_CIDR); }
 
 template<class Base>
@@ -2237,24 +3193,13 @@ template<class Base>
 TInetaddr       BaseVariantImplFor<Base>::asInetaddr(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_INETADDR); }
 
-template<class Base>
-TPoint          BaseVariantImplFor<Base>::asPoint(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_POINT); }
 
 template<class Base>
-TPolygon        BaseVariantImplFor<Base>::asPolygon(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_POLYGON); }
-
-template<class Base>
-TLine           BaseVariantImplFor<Base>::asLine(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_LINE); }
-
-template<class Base>
-TUUID           BaseVariantImplFor<Base>::asUUID(void) const 
+TUuid           BaseVariantImplFor<Base>::asUUID(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_UUID); }
 
 template<class Base>
-TXML            BaseVariantImplFor<Base>::asXML(void) const
+TXml            BaseVariantImplFor<Base>::asXML(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_XML); }
 
 template<class Base>
@@ -2302,15 +3247,11 @@ void            BaseVariantImplFor<Base>::setUSmallint(const unsigned short&)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setBigint(const signed long&) 
+void            BaseVariantImplFor<Base>::setBigint(const signed long long&) 
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setUBigint(const unsigned long&) 
-{ throw ex::read_only(); }
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setBit(const bool&)
+void            BaseVariantImplFor<Base>::setUBigint(const unsigned long long&) 
 { throw ex::read_only(); }
 
 template<class Base>
@@ -2345,13 +3286,11 @@ template<class Base>
 void            BaseVariantImplFor<Base>::setTimestamp(const signed int&)
 { throw ex::read_only(); }
 
-template<class Base>
+
 //virtual void        asCustom(void) const = 0;
-void            BaseVariantImplFor<Base>::setVarbit(const TVarbit&)
-{ throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setCIDR(const TCIDR&)
+void            BaseVariantImplFor<Base>::setCIDR(const TCidr&)
 { throw ex::read_only(); }
 
 template<class Base>
@@ -2367,23 +3306,11 @@ void            BaseVariantImplFor<Base>::setInetaddr(const TInetaddr&)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setPoint(const TPoint&) 
+void            BaseVariantImplFor<Base>::setUUID(const TUuid&)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setPolygon(const TPolygon&)
-{ throw ex::read_only(); }
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setLine(const TLine&)
-{ throw ex::read_only(); }
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setUUID(const TUUID&)
-{ throw ex::read_only(); }
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setXML(const TXML&) 
+void            BaseVariantImplFor<Base>::setXML(const TXml&) 
 { throw ex::read_only(); }
 
 template<class Base>

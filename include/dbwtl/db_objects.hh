@@ -501,10 +501,9 @@ private:
 
 
 
-//GEXAMPLE.001 A simple example
-//GEXAMPLE.001 ----------------
+//GEXAMPLE.001 Introduction with a step by step example
+//GEXAMPLE.001 ----------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 All important declarations are provided by the inclusion of the
 //GEXAMPLE.001 'dbobjects' header file.
 //GEXAMPLE.001 [source,cpp]
@@ -512,7 +511,6 @@ private:
 //GEXAMPLE.001 #include <dbwtl/dbobjects>
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 You have to choose at least one engine and include them.
 //GEXAMPLE.001 If you want a generic API instead of a specific engine, you
 //GEXAMPLE.001 can just include the 'generic' engine.
@@ -523,7 +521,6 @@ private:
 //GEXAMPLE.001 #include <dbwtl/dal/engines/sqlite>
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 The next line is not required, but makes life easier.
 //GEXAMPLE.001 All needed classes are declared inside the 'informave::db' namespace.
 //GEXAMPLE.001 [source,cpp]
@@ -531,17 +528,15 @@ private:
 //GEXAMPLE.001 using namespace informave::db;
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 Now we have to declare our own type to tell the dbwtl library
 //GEXAMPLE.001 which database/engine we want to use.
 //GEXAMPLE.001 The 'Database' template members declares the right types for connections,
 //GEXAMPLE.001 resultsets etc. depending on the given engine.
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 typedef Database<dal:sqlite> DBMS;
+//GEXAMPLE.001 typedef Database<dal::sqlite> DBMS;
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 The environment is the first thing we have to create. The argument to the
 //GEXAMPLE.001 constructor tells the environment which backend should be used.
 //GEXAMPLE.001 For example, you can connect to a SQLite database via the libsqlite.dll C-Library,
@@ -556,7 +551,6 @@ private:
 //GEXAMPLE.001 DBMS::Environment env("sqlite:libsqlite");
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 Now we can check if everything is correct and the dbwtl library
 //GEXAMPLE.001 is correctly installed.
 //GEXAMPLE.001 [source,shell]
@@ -564,7 +558,6 @@ private:
 //GEXAMPLE.001 gcc -o dbtest dbtest.c -ldbwtl
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 
 //GEXAMPLE.001 Creating a connection
 //GEXAMPLE.001 ~~~~~~~~~~~~~~~~~~~~~
@@ -574,7 +567,6 @@ private:
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 DBMS::Connection dbc(env);
 //GEXAMPLE.001 ------------------------------------------------------------------------------
-
 //GEXAMPLE.001 Now we can open the database:
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
@@ -584,7 +576,6 @@ private:
 //GEXAMPLE.001 std::cout << i18n::conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-
 //GEXAMPLE.001 Run a SQL query
 //GEXAMPLE.001 ~~~~~~~~~~~~~~~
 //GEXAMPLE.001 To run a query, we need to create a Statement object.
@@ -594,11 +585,83 @@ private:
 //GEXAMPLE.001 DBMS::Statement stmt(dbc);
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
-//GEXAMPLE.001 The direct executing a SQL statement is possible via 'execDirect':
+//GEXAMPLE.001 The direct execution of a SQL statement is possible via 'execDirect()':
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 stmt.execDirect(L"SELECT * from customers");
 //GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 Iterate over the resultset
+//GEXAMPLE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+//GEXAMPLE.001 After execution of the statement, you can create a new DBMS::Resultset object
+//GEXAMPLE.001 and attach it to the internal statement resultset:
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 DBMS::Resultset rs(stmt);
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 [NOTE]
+//GEXAMPLE.001 If the statement contains no internal resultset, the DBMS::Resultset
+//GEXAMPLE.001 object is marked as 'bad'. This state can only be changed by re-attaching
+//GEXAMPLE.001 the statement via 'rs.attach(stmt)'.
+//GEXAMPLE.001 
+
+
+//GEXAMPLE.001 With the methods 'begin()', 'next()' and 'eof()' you can iterate over the
+//GEXAMPLE.001 records.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 for(rs.begin(); !rs.eof(); rs.next()) { //for each record }
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//
+//GEXAMPLE.001 Access the record fields
+//GEXAMPLE.001 ^^^^^^^^^^^^^^^^^^^^^^^^
+//GEXAMPLE.001 You can access the fields by name or by position (first field has position 1).
+//GEXAMPLE.001 To determine the number of available fields, use 'columnCount()'.
+//GEXAMPLE.001 The 'column()' method returns a 'const DBMS::Value' reference which provides
+//GEXAMPLE.001 many getter methods like 'asStr()', 'asInt()' or 'asDate()' to get the value.
+//GEXAMPLE.001 To check if a field is null, call isNull() on the value reference.
+
+//GEXAMPLE.001 
+//GEXAMPLE.001 .Print all records and fields
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 for(rs.begin(); !rs.eof(); rs.next())
+//GEXAMPLE.001 {
+//GEXAMPLE.001 	for(int i = 1; i <= rs.columnCount(); ++i)
+//GEXAMPLE.001    	{
+//GEXAMPLE.001 		if(rs.column(i).isNull())
+//GEXAMPLE.001 			std::cout << "<NULL>";
+//GEXAMPLE.001 		else
+//GEXAMPLE.001 			std::cout << rs.column(i).asNarrowStr("UTF-8");
+//GEXAMPLE.001 	}
+//GEXAMPLE.001 	std::cout << std::endl;
+//GEXAMPLE.001 }
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//
+//GEXAMPLE.001 Access the column descriptor
+//GEXAMPLE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//GEXAMPLE.001 The 'describeColumn()' method provides a getter for all column descriptors.
+//GEXAMPLE.001 [source,cpp]
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 for(int i = 1; i <= rs.columnCount(); i++)
+//GEXAMPLE.001 {
+//GEXAMPLE.001      const DBMS::ColumnDesc &desc = rs.describeColumn(i);
+//GEXAMPLE.001      std::cout << desc.catalogName() << std::endl;
+//GEXAMPLE.001      std::cout << desc.columnName() << std::endl; /// @todo operator<<
+//GEXAMPLE.001 }
+//GEXAMPLE.001 ------------------------------------------------------------------------------
+//GEXAMPLE.001 A DMBS::ColumnDesc (Interface: 'dal::IColumnDesc') object has
+//GEXAMPLE.001 several getter methods all returning
+//GEXAMPLE.001 a const DBMS::Variant (Interface: 'dal::IVariant') reference.
+
+
+//GSUPPDB.001 
+//GSUPPDB.001 Supported database systems and drivers
+//GSUPPDB.001 --------------------------------------
+//GSUPPDB.001 SQLite
+//GSUPPDB.001 ~~~~~~
+//GSUPPDB.001 libsqlite:: Uses the libsqlite3.so or sqlite3.dll to access
+//GSUPPDB.001 a database file.
+//GSUPPDB.001 odbc:: Uses a installed ODBC driver.
+//GSUPPDB.001 
 
 
 

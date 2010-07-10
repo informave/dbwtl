@@ -48,44 +48,81 @@
 
 #include <cassert>
 
-//#define INFORMAVE_DAL_DEBUG
-//#define INFORMAVE_DAL_TRACE
+/// Enable this macros if required during development
+/// or testing.
+
+//#define DBWTL_DEBUG_MESSAGES
+//#define DBWTL_DEBUG_TRACE
 
 
-/// @todo is only available on gcc
-#ifdef MSVC
-#define __PRETTY_FUNCTION__ "<func>"
-#endif
-
-
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-
-#define CODE_POS() __FILE__ ":"                 \
-    TOSTRING(__LINE__)
-
-#define ShowMessage(msg) std::wcerr << L">>>>> " << msg << std::endl;
-
-#define UNHANDLED(str) throw std::runtime_error(std::string("[ERR][").append(CODE_POS()).append("][").append(__PRETTY_FUNCTION__).append("] ==>>> ").append(str))
-
-#define NOT_IMPLEMENTED "Function not implemented"
-
-
-#define NOT_IMPL() throw std::runtime_error(std::string("[ERR][").append(CODE_POS()).append("][").append(__PRETTY_FUNCTION__).append("] ==>>> ").append(NOT_IMPLEMENTED))
 
 
 
 DAL_NAMESPACE_BEGIN
 
-#define DALDEBUG(message)                                               \
+
+#if defined(__GNUC__)
+ #define DBWTL_FUNC_NAME __PRETTY_FUNCTION__
+#elif defined(_MSC_VER)
+ #define DBWTL_FUNC_NAME __FUNCTION__
+#else
+ #define DBWTL_FUNC_NAME "<func-macro-not-supported>"
+#endif
+
+
+/// @brief Convert a number to string
+#define DBWTL_STRINGIFY(x) #x
+#define DBWTL_TOSTRING(x) DBWTL_STRINGIFY(x)
+
+
+
+/// @brief Current code position as string
+#define DBWTL_CODE_POS() __FILE__ ":"          \
+    DBWTL_TOSTRING(__LINE__)
+
+
+/// 
+#define DBWTL_UNHANDLED(str)                                            \
+    throw std::runtime_error(std::string("[ERR][").append(DBWTL_CODE_POS()) \
+                             .append("][")                              \
+                             .append(DBWTL_FUNC_NAME)                   \
+                             .append("] ==>>> ")                        \
+                             .append(str))
+
+
+
+/// Throws if function is not implemented
+#define DBWTL_NOTIMPL()                                             \
+    throw std::runtime_error(std::string("[ERR][")                  \
+                             .append(DBWTL_CODE_POS())              \
+                             .append("][")                          \
+                             .append(DBWTL_FUNC_NAME)               \
+                             .append("] ==>>> ")                    \
+                             .append("Function not implemented"))
+
+
+
+
+/// @brief Standard debug macro
+#ifdef DBWTL_DEBUG_MESSAGES
+#define DAL_DEBUG(message)                                              \
     {                                                                   \
         std::stringstream __dal_internal_ss;                            \
         __dal_internal_ss << message;                                   \
         dal_debug(__FUNCTION__, __FILE__, __LINE__, __dal_internal_ss.str().c_str()); \
     }
+#else
+#define DAL_DEBUG(message)
+#endif
+
+/// @brief Trace and print a message
 #define DALTRACE(message) { dal_trace(__FUNCTION__, __FILE__, __LINE__, message); }
+
+
+///
 #define DALTRACE_ENTER { dal_trace(__FUNCTION__, __FILE__, __LINE__, "ENTER"); }
 #define DALTRACE_LEAVE { dal_trace(__FUNCTION__, __FILE__, __LINE__, "LEAVE"); }
+#define DALTRACE_VISIT { dal_trace(__FUNCTION__, __FILE__, __LINE__, "VISIT"); }
 
 
 void dal_trace(const char* func, const char* file, unsigned int line, const char* s);
@@ -93,5 +130,6 @@ void dal_debug(const char* func, const char* file, unsigned int line, const char
 
 
 DAL_NAMESPACE_END
+
 
 #endif

@@ -468,7 +468,7 @@ SqliteTypeInfo::~SqliteTypeInfo(void)
 i18n::UString
 SqliteTypeInfo::sys_name(void) const
 {
-    NOT_IMPL();
+    DBWTL_NOTIMPL();
     return L"typename";
 }
 
@@ -487,7 +487,7 @@ SqliteTypeInfo::daltype(void) const
 int
 SqliteTypeInfo::radix(void) const
 {
-    DAL_NOT_IMPL();
+    DBWTL_NOTIMPL();
     return 0;
 }
 

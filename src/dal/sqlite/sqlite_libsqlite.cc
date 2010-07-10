@@ -772,7 +772,7 @@ SqliteResult_libsqlite::columnCount(void) const
         throw ex::engine_error(L"Resultset is not open.");
 
     int c = this->drv()->sqlite3_column_count(this->getHandle());
-    DALDEBUG("Query column count: " << c);
+    DAL_DEBUG("Query column count: " << c);
     DALTRACE_LEAVE;
     return c;
 }
@@ -901,7 +901,7 @@ SqliteResult_libsqlite::metadata(colnum_t num) const
 const SqliteColumnDesc&
 SqliteResult_libsqlite::metadata(i18n::UString name) const
 {
-        NOT_IMPL();
+    DBWTL_NOTIMPL();
 }
 
 
@@ -965,7 +965,7 @@ SqliteResult_libsqlite::refreshMetadata(void)
 SQLite3Drv* 
 SqliteResult_libsqlite::getDriver(void) const
 {
-    NOT_IMPL();
+    DBWTL_NOTIMPL();
 }
 
 

@@ -935,7 +935,7 @@ EngineState::dump(void) const
 EngineState*
 EngineState::clone(void) const
 {
-    NOT_IMPL();
+    DBWTL_NOTIMPL();
 }
 
 
@@ -1426,7 +1426,7 @@ ITypeInfo::name(void) const
 i18n::UString 
 EmptyTableFilter::simpleNameFilter(void) const
 {
-    NOT_IMPL(); /// @bug implement me
+    DBWTL_NOTIMPL(); /// @bug implement me
 }
 
 
@@ -1435,7 +1435,7 @@ EmptyTableFilter::simpleNameFilter(void) const
 i18n::UString
 EmptyTableFilter::simpleCatalogFilter(void) const
 {
-    NOT_IMPL(); /// @bug implement me
+    DBWTL_NOTIMPL(); /// @bug implement me
 }
 
 
@@ -1444,7 +1444,7 @@ EmptyTableFilter::simpleCatalogFilter(void) const
 i18n::UString 
 EmptyTableFilter::simpleSchemaFilter(void) const
 {
-    NOT_IMPL(); /// @bug implement me
+    DBWTL_NOTIMPL(); /// @bug implement me
 }
 
 
@@ -1458,7 +1458,7 @@ EmptyTableFilter::simpleSchemaFilter(void) const
 i18n::UString 
 EmptyDatatypeFilter::simpleNameFilter(void) const
 {
-    NOT_IMPL(); /// @bug implement me
+    DBWTL_NOTIMPL(); /// @bug implement me
 }
 
 
@@ -1467,7 +1467,7 @@ EmptyDatatypeFilter::simpleNameFilter(void) const
 i18n::UString
 EmptyDatatypeFilter::simpleCatalogFilter(void) const
 {
-    NOT_IMPL(); /// @bug implement me
+    DBWTL_NOTIMPL(); /// @bug implement me
 }
 
 
@@ -1476,7 +1476,7 @@ EmptyDatatypeFilter::simpleCatalogFilter(void) const
 i18n::UString 
 EmptyDatatypeFilter::simpleSchemaFilter(void) const
 {
-    NOT_IMPL(); /// @bug implement me
+    DBWTL_NOTIMPL(); /// @bug implement me
 }
 
 
@@ -1488,7 +1488,7 @@ EmptyDatatypeFilter::simpleSchemaFilter(void) const
 void 
 StmtBase::bind(int num, Variant data)
 {
-    DALDEBUG("VISIT");
+    DALTRACE_VISIT;
     Variant* tmp = new Variant(data);
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
@@ -1502,7 +1502,7 @@ StmtBase::bind(int num, Variant data)
 void
 StmtBase::bind(int num, IVariant* data)
 {
-    DALDEBUG("VISIT");
+    DALTRACE_VISIT;
     Variant* tmp = new Variant(data);
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
@@ -1514,7 +1514,7 @@ StmtBase::bind(int num, IVariant* data)
 void
 StmtBase::bind(int num, const IVariant* data)
 {
-    DALDEBUG("VISIT");
+    DALTRACE_VISIT;
     Variant* tmp = new Variant(data);
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
@@ -1604,34 +1604,44 @@ DbcBase::isConnected(void) const
 
 
 
+//--------------------------------------------------------------------------
+///
+///
+#if defined(DBWTL_ON_UNIX) && (defined(DBWTL_DEBUG_MESSAGES) || defined(DBWTL_DEBUG_TRACE))
+const char* RED="\e[1;31m";
+const char* blue="\e[0;34m";
+const char* NC="\e[0m";
+#else
+const char* RED="";
+const char* blue="";
+const char* NC="";
+#endif
 
 
-
-//const char* RED="\e[1;31m";
-//const char* blue="\e[0;34m";
-//const char* NC="\e[0m";
-
-
-void dal_trace(const char* func, const char* file, unsigned int line, const char* s)
+///
+///
+void
+dal_trace(const char* func, const char* file, unsigned int line, const char* s)
 {
-#ifdef INFORMAVE_DAL_TRACE
+#ifdef DBWTL_DEBUG_TRACE
     timespec x = { 0, 100000000/6};
     //nanosleep(&x, NULL);
-    std::cerr << blue << "[TRACE] " << NC << s << " (" << func << "() in " << file << ":" << line << ")" << std::endl;
+    std::cerr << blue << "[TRACE] "
+              << NC << s << " (" << func << "() in " << file << ":" << line << ")" << std::endl;
 #endif
 }
 
-void dal_debug(const char* func, const char* file, unsigned int line, const char* s)
+///
+///
+void
+dal_debug(const char* func, const char* file, unsigned int line, const char* s)
 {
-#ifdef INFORMAVE_DAL_DEBUG
-    std::cerr << RED << "[DEBUG] " << NC << s << " (" << func << "() in " << file << ":" << line << ")" << std::endl;
+#ifdef DBWTL_DEBUG_MESSAGES
+    std::cerr << RED << "[DEBUG] "
+              << NC << s << " (" << func << "() in " << file << ":" << line << ")" << std::endl;
 #endif
 }
-
 
 
 
 DAL_NAMESPACE_END
-
-
-

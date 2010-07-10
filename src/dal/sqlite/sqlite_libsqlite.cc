@@ -44,6 +44,7 @@
 #include "sqlite_libsqlite.hh"
 #include "dbwtl/db_exceptions.hh"
 #include "../dal_debug.hh"
+#include "../sqlutils.hh"
 
 #include <cassert>
 #include <cstring>
@@ -849,40 +850,9 @@ SqliteResult_libsqlite::getDbc(void) const
 
 
 
-namespace sqlutils
-{
-    class ParsedType
-    {
-    public:
-        ParsedType(i18n::UString typestr)
-            {
-            }
 
-        daltype_t getDaltype(void)
-            {
-                return DAL_TYPE_VARCHAR;
-            }
-
-        unsigned short int getPrecision(void)
-            {
-                return 0;
-            }
-
-        unsigned short int getScale(void)
-            {
-                return 0;
-            }
-
-        int getSize(void)
-            {
-                return 100;
-            }
-
-    };
-
-}
-
-
+//
+//
 SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_libsqlite &result)
 	: SqliteColumnDesc()
 {
@@ -899,12 +869,14 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
 
         // set type
 		const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
-        sqlutils::ParsedType pt(i18n::conv_from(type, "UTF-8"));
+        SqlTypeParser pt;
+        pt.registerType(DAL_TYPE_VARCHAR, L"TEXT*");
+        pt.parse(i18n::conv_from(type, "UTF-8"));
         this->m_type_name.setStr(daltype2sqlname(pt.getDaltype()));
         this->m_daltype = pt.getDaltype();
         this->m_size.setInt(pt.getSize());
         this->m_precision.setUSmallint(pt.getPrecision());
-        this->m_scale.setUSmallint(pt.getScale());
+        this->m_scale.setUSmallint(pt.getSize());
 	}
 }
 

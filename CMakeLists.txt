@@ -211,6 +211,7 @@ set(dbwtl_srcs
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/ustring.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/sqlutils.cc
 )
 
 if(DBWTL_WITH_SQLITE)

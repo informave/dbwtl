@@ -36,12 +36,13 @@ int test(void)
 
 
 
-    dbc.directCmd(L"create temp table foo(id int);");
+    dbc.directCmd(L"create temp table foo(id integer primary key, "
+                  L"name VARCHAR(50), bday DATE, married BOOL);");
 
 
 
     DBMS::Statement stmt(dbc);
-    stmt.execDirect(L"SELECT * from customers;");
+    stmt.execDirect(L"SELECT * from foo;");
 
     DBMS::Resultset res;
     res.attach(stmt);
@@ -75,7 +76,7 @@ int test(void)
         std::cout << "searchable " << (desc.getIsSearchable().isnull() ? "<null>" :
                                        desc.getIsSearchable().asNarrowStr("UTF-8")) << std::endl;
 
-        std::cout << "type:      " << desc.getDatatype() << std::endl;
+        std::cout << "type:      " << conv_to(daltype2string(desc.getDatatype()), "UTF-8") << std::endl;
         std::cout << std::endl;
 
 

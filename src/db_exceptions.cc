@@ -342,10 +342,12 @@ namespace ex
 
     //
     //
-    read_only::read_only(const i18n::UString &resource_name)
+    read_only::read_only(const i18n::UString &resource_name,
+                         const char *triggered_by)
         : exception()
     {
-        this->setMessage(L"The resource \"" + resource_name + L"\" is read only.");
+        this->setMessage(L"The resource \"" + resource_name + L"\" is read only"
+                         L" (triggered by: " + i18n::conv_from(triggered_by, "UTF-8") + L").");
     }
 
 

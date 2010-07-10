@@ -468,50 +468,26 @@ inline void init_if_null(typename Variant::storage_type &storage)
 }
 
 
+#define DBWTL_VARIANT_SETTER(postfix, type)                     \
+    void                                                        \
+    Variant::set##postfix(const type& value)                    \
+    {                                                           \
+        init_if_null<type>(this->m_storage);                    \
+        try                                                     \
+        {                                                       \
+            return this->getStorageImpl()->set##postfix(value); \
+        }                                                       \
+        catch(ex::read_only &e)                                 \
+        {                                                       \
+            throw ex::read_only(this->getName(), __FUNCTION__); \
+        }                                                       \
+    }
 
-///
-void        
-Variant::setInt(const signed int& value)     
-{ 
-    init_if_null<signed int>(this->m_storage);
-    return this->getStorageImpl()->setInt(value);
-}
-
-
-///
-void      
-Variant::setUInt(const unsigned int& value) 
-{
-    init_if_null<unsigned int>(this->m_storage);
-    return this->getStorageImpl()->setUInt(value); 
-}
-
-
-///
-void      
-Variant::setChar(const signed char& value)    
-{
-    init_if_null<signed char>(this->m_storage);
-    this->getStorageImpl()->setChar(value); 
-}
-
-
-///
-void       
-Variant::setUChar(const unsigned char& value)  
-{
-    init_if_null<unsigned char>(this->m_storage);
-    this->getStorageImpl()->setUChar(value); 
-}
-
-
-///
-void        
-Variant::setStr(const i18n::UString& value)
-{
-    init_if_null<i18n::UString>(this->m_storage);
-    this->getStorageImpl()->setStr(value);
-}
+DBWTL_VARIANT_SETTER(Int, signed int)
+DBWTL_VARIANT_SETTER(UInt, unsigned int)
+DBWTL_VARIANT_SETTER(Char, signed char)
+DBWTL_VARIANT_SETTER(UChar, unsigned char)
+DBWTL_VARIANT_SETTER(Str, i18n::UString)
 
 
 ///
@@ -519,7 +495,14 @@ void
 Variant::setStr(const char* data, std::size_t len, const char* charset) 
 {
     init_if_null<i18n::UString>(this->m_storage);
-    this->getStorageImpl()->setStr(data, len, charset); 
+    try
+    {
+        this->getStorageImpl()->setStr(data, len, charset);
+    }
+    catch(ex::read_only &e)
+    {
+        throw ex::read_only(this->getName(), __FUNCTION__);
+    }
 }
 
 
@@ -528,183 +511,42 @@ void
 Variant::setStr(const std::string& value, const char* charset)
 { 
     init_if_null<i18n::UString>(this->m_storage);
-    this->getStorageImpl()->setStr(value, charset); 
+    try
+    {
+        this->getStorageImpl()->setStr(value, charset); 
+    }
+    catch(ex::read_only &e)
+    {
+        throw ex::read_only(this->getName(), __FUNCTION__);
+    }
 }
 
 
-///
-void     
-Variant::setBool(const bool& value)      
-{
-    init_if_null<bool>(this->m_storage);
-    this->getStorageImpl()->setBool(value); 
-}
+DBWTL_VARIANT_SETTER(Bool, bool)
+DBWTL_VARIANT_SETTER(Smallint, signed short)
+DBWTL_VARIANT_SETTER(USmallint, unsigned short)
+DBWTL_VARIANT_SETTER(Bigint, signed long long)
+DBWTL_VARIANT_SETTER(UBigint, unsigned long long)
+DBWTL_VARIANT_SETTER(Numeric, TNumeric)
+DBWTL_VARIANT_SETTER(Money, TMoney)
+DBWTL_VARIANT_SETTER(Real, float)
+DBWTL_VARIANT_SETTER(Double, double)
+DBWTL_VARIANT_SETTER(Date, TDate)
+DBWTL_VARIANT_SETTER(Time, TTime)
+DBWTL_VARIANT_SETTER(Datetime, TDatetime)
+DBWTL_VARIANT_SETTER(Timestamp, signed int) /// @bug sure? TTimestamp
+DBWTL_VARIANT_SETTER(CIDR, TCidr)
+DBWTL_VARIANT_SETTER(Interval, TInterval)
+DBWTL_VARIANT_SETTER(Macaddr, TMacaddr)
+DBWTL_VARIANT_SETTER(Inetaddr, TInetaddr)
+DBWTL_VARIANT_SETTER(UUID, TUuid)
+DBWTL_VARIANT_SETTER(XML, TXml)
 
-
-///
-void       
-Variant::setSmallint(const signed short int& value) 
-{
-    init_if_null<signed short>(this->m_storage);
-    this->getStorageImpl()->setSmallint(value); 
-}
-
-
-///
-void     
-Variant::setUSmallint(const unsigned short int& value)  
-{
-    init_if_null<unsigned short>(this->m_storage);
-    this->getStorageImpl()->setUSmallint(value); 
-}
-
-
-///
-void     
-Variant::setBigint(const signed long long& value)   
-{
-    init_if_null<signed long long>(this->m_storage);
-    this->getStorageImpl()->setBigint(value); 
-}
-
-
-///
-void     
-Variant::setUBigint(const unsigned long long& value) 
-{
-    init_if_null<unsigned long long>(this->m_storage);
-    this->getStorageImpl()->setUBigint(value); 
-}
-
-
-///
-void
-Variant::setNumeric(const TNumeric& value)   
-{
-    init_if_null<TNumeric>(this->m_storage);
-    return this->getStorageImpl()->setNumeric(value); 
-}
-
-
-///
-void       
-Variant::setMoney(const TMoney& value)      
-{
-    init_if_null<TMoney>(this->m_storage);
-    this->getStorageImpl()->setMoney(value); 
-}
-
-
-///
-void    
-Variant::setReal(const float& value)      
-{
-    init_if_null<float>(this->m_storage);
-    this->getStorageImpl()->setReal(value); 
-}
-
-
-///
-void       
-Variant::setDouble(const double& value)       
-{ 
-    init_if_null<double>(this->m_storage);
-    this->getStorageImpl()->setDouble(value); 
-}
-
-
-///
-void     
-Variant::setDate(const TDate& value)      
-{
-    init_if_null<TDate>(this->m_storage);
-    this->getStorageImpl()->setDate(value); 
-}
-
-
-///
-void      
-Variant::setTime(const TTime& value)      
-{
-    init_if_null<TTime>(this->m_storage);
-    return this->getStorageImpl()->setTime(value); 
-}
-
-
-///
-void       
-Variant::setDatetime(const TDatetime& value)    
-{
-    init_if_null<TDatetime>(this->m_storage);
-    this->getStorageImpl()->setDatetime(value); 
-}
-
-
-///
-void       
-Variant::setTimestamp(const signed int& value)  
-{
-    init_if_null<signed int>(this->m_storage); /// @todo typedef timestamp_t;
-    this->getStorageImpl()->setTimestamp(value);
-}
 
 //virtual void        asCustom(void) const = 0;
 
 
 
-
-///
-void      
-Variant::setCIDR(const TCidr& value)      
-{
-    init_if_null<TCidr>(this->m_storage);
-    this->getStorageImpl()->setCIDR(value); 
-}
-
-
-///
-void       
-Variant::setInterval(const TInterval& value)  
-{
-    init_if_null<TInterval>(this->m_storage);
-    this->getStorageImpl()->setInterval(value); 
-}
-
-
-///
-void  
-Variant::setMacaddr(const TMacaddr& value)   
-{
-    init_if_null<TMacaddr>(this->m_storage);
-    this->getStorageImpl()->setMacaddr(value); 
-}
-
-
-///
-void      
-Variant::setInetaddr(const TInetaddr& value)  
-{
-    init_if_null<TInetaddr>(this->m_storage);
-    this->getStorageImpl()->setInetaddr(value); 
-}
-
-
-///
-void     
-Variant::setUUID(const TUuid& value)    
-{
-    init_if_null<TUuid>(this->m_storage);
-    this->getStorageImpl()->setUUID(value); 
-}
-
-
-///
-void       
-Variant::setXML(const TXml& value)
-{
-    init_if_null<TXml>(this->m_storage);
-    this->getStorageImpl()->setXML(value); 
-}
 
 
 ///

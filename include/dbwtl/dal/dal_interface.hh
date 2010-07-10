@@ -70,46 +70,6 @@
 DAL_NAMESPACE_BEGIN
 
 
-class IEngineState;
-class EngineState;
-class IDALDriver;
-class IDALObject;
-class IBlob;
-class ITypeInfo;
-class IColumnDesc;
-class IVariant;
-//class PodVariant;
-class Variant;
-class ITable;
-class IView;
-class IEnv;
-class IDbc;
-class IResult;
-class IStmt;
-class Factory;
-class TType;
-
-class StmtBase;
-
-
-
-class TCidr;
-class TDate;
-class TTime;
-class TInterval;
-class TMacaddr;
-class TNumeric;
-class TMoney;
-class TDecimal;
-class TInetaddr;
-class TUuid;
-class TXml;
-class TTimestamp;
-class TDatetime;
-
-
-
-
 
 ///
 /// @brief Type for row IDs

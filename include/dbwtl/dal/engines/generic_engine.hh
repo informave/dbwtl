@@ -52,23 +52,24 @@
 
 DAL_NAMESPACE_BEGIN
 
+// forward
 struct generic;
 
-
+/// parse a driver string
 std::map<std::string, i18n::UString> parse_driver(const i18n::UString &str);
 
 
 //------------------------------------------------------------------------------
-/// @brief Main SQLite interface class
+/// @brief Main generic interface class
 struct generic
 {
-	typedef IDbc          DBC;
-	typedef IResult       RESULT;
-	typedef IStmt         STMT;
-	typedef IEnv          ENV;
-	typedef IVariant      VALUE;
-	typedef EngineState   STATE; /// @bug is this correct or we use the backend state?
-	//typedef SqliteTable        TABLE;
+	typedef IDbc              DBC;
+	typedef IResult           RESULT;
+	typedef IStmt             STMT;
+	typedef IEnv              ENV;
+	typedef IVariant          VALUE;
+	typedef BaseEngineState   STATE;
+	typedef ITable            TABLE;
 	//typedef SqliteTypeInfo     TYPEINFO;
 
 	static inline const STATE& engine_state(dalstate_t& state)
@@ -85,7 +86,6 @@ struct generic
     ///
     DBWTL_EXPORT static ENV* createEnv(i18n::UString driver); 
 };
-
 
 
 DAL_NAMESPACE_END

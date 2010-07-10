@@ -139,6 +139,29 @@ daltype_t ColumnDescBase::getDatatype(void) const { return this->m_daltype; }
 
 
 
+
+
+//--------------------------------------------------------------------------
+///
+/// 
+std::wostream&  operator<<(std::wostream& o, const IVariant &var)
+{
+    o << var.asStr(o.getloc());
+    return o;
+}
+
+///
+///
+std::ostream& operator<<(std::ostream& o,  const IVariant &var)
+{
+    o << var.asNarrowStr("UTF-8", o.getloc());
+    return o;
+}
+
+
+
+
+
 //--------------------------------------------------------------------------
 /// Deletes a object
 struct delete_object

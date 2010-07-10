@@ -645,7 +645,7 @@ private:
 //GEXAMPLE.001 {
 //GEXAMPLE.001      const DBMS::ColumnDesc &desc = rs.describeColumn(i);
 //GEXAMPLE.001      std::cout << desc.catalogName() << std::endl;
-//GEXAMPLE.001      std::cout << desc.columnName() << std::endl; /// @todo operator<<
+//GEXAMPLE.001      std::cout << desc.columnName() << std::endl;
 //GEXAMPLE.001 }
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 A DMBS::ColumnDesc (Interface: 'dal::IColumnDesc') object has

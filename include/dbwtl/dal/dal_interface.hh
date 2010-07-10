@@ -280,8 +280,8 @@ public:
 };
 
 
-std::wostream&  operator<<(std::wostream& o, const informave::db::dal::IEngineState& state);
-std::ostream&   operator<<(std::ostream& o,  const informave::db::dal::IEngineState& state);
+DBWTL_EXPORT std::wostream&  operator<<(std::wostream& o, const informave::db::dal::IEngineState& state);
+DBWTL_EXPORT std::ostream&   operator<<(std::ostream& o,  const informave::db::dal::IEngineState& state);
 
 
 
@@ -614,6 +614,11 @@ public:
 private:
     IVariant&               operator=(const IVariant& o);
 };
+
+
+
+DBWTL_EXPORT std::wostream&  operator<<(std::wostream& o, const IVariant &var);
+DBWTL_EXPORT std::ostream&   operator<<(std::ostream& o,  const IVariant &var);
 
 
 

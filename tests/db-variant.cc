@@ -26,6 +26,9 @@ int test(void)
     v_c = v_b;
 
 
+    std::cout << v_c << std::endl;
+    std::wcout << v_c << std::endl;
+
     //if(v_c == v_b) { } 
 
     return (v_c.asInt() == v_a.asInt()) ? 0 : -1;

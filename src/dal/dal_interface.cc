@@ -267,19 +267,45 @@ IBlob::~IBlob(void)
 
 
 
+//--------------------------------------------------------------------------
 ///
-/// @todo implement other types, asStr() is only a fallback
+///
 void
 IVariant::assign(const IVariant& var)
 {
     switch(var.datatype())
     {
-    case DAL_TYPE_INT:
-        this->setInt(var.asInt()); break;
-        
-    case DAL_TYPE_VARCHAR:
-    default:
-        this->setStr(var.asStr()); break;
+    case DAL_TYPE_CUSTOM:     this->setStr(var.asStr()); break;
+    case DAL_TYPE_UNKNOWN:    this->setStr(var.asStr()); break;
+
+    case DAL_TYPE_INT:        this->setInt(var.asInt()); break;
+    case DAL_TYPE_UINT:       this->setUInt(var.asUInt()); break;
+    case DAL_TYPE_CHAR:       this->setChar(var.asChar()); break;
+    case DAL_TYPE_UCHAR:      this->setUChar(var.asUChar()); break;
+    case DAL_TYPE_VARCHAR:    this->setStr(var.asStr()); break;
+    case DAL_TYPE_NVARCHAR:   this->setStr(var.asStr()); break;
+    case DAL_TYPE_NCHAR:      this->setStr(var.asStr()); break;
+    case DAL_TYPE_BOOL:       this->setBool(var.asBool()); break;
+    case DAL_TYPE_SMALLINT:   this->setSmallint(var.asSmallint()); break;
+    case DAL_TYPE_USMALLINT:  this->setUSmallint(var.asUSmallint()); break;
+    case DAL_TYPE_BIGINT:     this->setBigint(var.asBigint()); break;
+    case DAL_TYPE_UBIGINT:    this->setUBigint(var.asUBigint()); break;
+    case DAL_TYPE_BLOB:       this->setBlob(var.asBlob()); break;
+    case DAL_TYPE_NUMERIC:    this->setNumeric(var.asNumeric()); break;
+    case DAL_TYPE_DECIMAL:    this->setNumeric(var.asNumeric()); break; /// @todo ok?
+    case DAL_TYPE_MONEY:      this->setMoney(var.asMoney()); break;
+    case DAL_TYPE_FLOAT:      this->setReal(var.asReal()); break;
+    case DAL_TYPE_DOUBLE:     this->setDouble(var.asDouble()); break;
+    case DAL_TYPE_DATE:       this->setDate(var.asDate()); break;
+    case DAL_TYPE_TIME:       this->setTime(var.asTime()); break;
+    case DAL_TYPE_DATETIME:   this->setDatetime(var.asDatetime()); break;
+    case DAL_TYPE_TIMESTAMP:  this->setTimestamp(var.asTimestamp()); break;
+    case DAL_TYPE_CIDR:       this->setCIDR(var.asCIDR()); break;
+    case DAL_TYPE_INTERVAL:   this->setInterval(var.asInterval()); break;
+    case DAL_TYPE_MACADDR:    this->setMacaddr(var.asMacaddr()); break;
+    case DAL_TYPE_INETADDR:   this->setInetaddr(var.asInetaddr()); break;
+    case DAL_TYPE_UUID:       this->setUUID(var.asUUID()); break;
+    case DAL_TYPE_XML:        this->setXML(var.asXML()); break;
     }
 }
 

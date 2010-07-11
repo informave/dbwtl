@@ -70,7 +70,6 @@ class SqliteVariant;
 class SqliteEngineState;
 class SqliteTable;
 class SqliteDatatype;
-class SqliteTypeInfo;
 
 class SqliteColumnDesc;
 
@@ -255,9 +254,9 @@ public:
     //virtual SqliteVariant&     field(i18n::UString name) = 0;
 
 
-    virtual const SqliteColumnDesc& metadata(colnum_t num) const = 0;
+    virtual const SqliteColumnDesc& describeColumn(colnum_t num) const = 0;
 
-    virtual const SqliteColumnDesc& metadata(i18n::UString name) const = 0;
+    virtual const SqliteColumnDesc& describeColumn(i18n::UString name) const = 0;
    
 };
 
@@ -369,24 +368,6 @@ protected:
 
 
 
-
-//------------------------------------------------------------------------------
-///
-/// @brief SQLite Type Info
-class DBWTL_EXPORT SqliteTypeInfo : public ITypeInfo
-{
-public:
-    SqliteTypeInfo(daltype_t id);
-    virtual ~SqliteTypeInfo(void);
-
-    virtual i18n::UString   sys_name(void) const;
-    virtual dal::daltype_t  daltype(void) const;
-    virtual int             radix(void) const;
-};
-
-
-
-
 //------------------------------------------------------------------------------
 ///
 /// @brief Main SQLite interface class 
@@ -399,7 +380,6 @@ struct sqlite
 	typedef SqliteVariant      VALUE;
 	typedef SqliteEngineState  STATE;
 	typedef SqliteTable        TABLE;
-	typedef SqliteTypeInfo     TYPEINFO;
 	typedef SqliteColumnDesc   COLUMNDESC;
 
 	static inline const STATE& engine_state(dalstate_t& state)

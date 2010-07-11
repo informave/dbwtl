@@ -419,12 +419,12 @@ public:
     virtual i18n::UString          columnName(dal::colnum_t num) const { return this->m_result->columnName(num); }
 
 
-    virtual const dal_columndesc_type& metadata(dal::colnum_t num) const { return this->m_result->metadata(num); }
+    virtual const dal_columndesc_type& describeColumn(dal::colnum_t num) const { return this->m_result->describeColumn(num); }
 
-    virtual const dal_columndesc_type& metadata(i18n::UString name) const { return this->m_result->metadata(name); }
+    virtual const dal_columndesc_type& describeColumn(i18n::UString name) const { return this->m_result->describeColumn(name); }
 
 
-    virtual const dal::ITypeInfo&  datatype(dal::colnum_t num) const   { return this->m_result->datatype(num); }
+    //virtual const dal::ITypeInfo&  datatype(dal::colnum_t num) const   { return this->m_result->datatype(num); }
 
     virtual dal::IDALDriver*       getDriver(void) const               { return this->m_result->getDriver(); }
 

@@ -1062,6 +1062,18 @@ public:
   virtual i18n::UString        schema(void) const = 0;
   virtual i18n::UString        catalog(void) const = 0;
 */
+
+/*
+Name
+Daltype
+Size
+LiteralPrefix
+LiteralSuffix
+CreateParams
+IsUnsigned
+*/
+
+
 };
 
 
@@ -1147,29 +1159,6 @@ public:
     virtual i18n::UString simpleNameFilter(void) const;
     virtual i18n::UString simpleCatalogFilter(void) const;
     virtual i18n::UString simpleSchemaFilter(void) const;
-};
-
-
-
-
-
-//------------------------------------------------------------------------------
-///
-/// @brief DAL Interface for type information
-class DBWTL_EXPORT ITypeInfo : IDALObject
-{
-public:
-    ITypeInfo(void);
-    virtual ~ITypeInfo(void);
-
-    virtual i18n::UString    name(void) const;
-    virtual i18n::UString    sys_name(void) const = 0;
-    virtual dal::daltype_t   daltype(void) const = 0;
-    virtual int              radix(void) const = 0;
-
-
-protected:
-    daltype_t m_typeid;
 };
 
 
@@ -1323,13 +1312,13 @@ public:
     virtual size_t           columnCount(void) const = 0;
     virtual colnum_t         columnID(i18n::UString name) const = 0;
     virtual i18n::UString    columnName(colnum_t num) const = 0;
-    virtual const ITypeInfo& datatype(colnum_t num) const = 0;
+    //virtual const ITypeInfo& datatype(colnum_t num) const = 0;
 
     /// @brief Returns the column descriptor for the given column number
-    virtual const IColumnDesc& metadata(colnum_t num) const = 0;
+    virtual const IColumnDesc& describeColumn(colnum_t num) const = 0;
 
     /// @brief Returns the column descriptor for the given column name
-    virtual const IColumnDesc& metadata(i18n::UString name) const = 0;
+    virtual const IColumnDesc& describeColumn(i18n::UString name) const = 0;
 
 
     virtual IDALDriver* getDriver(void) const = 0;

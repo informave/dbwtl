@@ -446,54 +446,6 @@ SqliteEngineState::dump(void) const
 
 
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//
-SqliteTypeInfo::SqliteTypeInfo(daltype_t id) 
-    : ITypeInfo()
-{ 
-    this->m_typeid = id;
-}
-
-
-
-//
-SqliteTypeInfo::~SqliteTypeInfo(void)
-{ }
-
-
-
-//
-i18n::UString
-SqliteTypeInfo::sys_name(void) const
-{
-    DBWTL_NOTIMPL();
-    return L"typename";
-}
-
-
-
-//
-dal::daltype_t
-SqliteTypeInfo::daltype(void) const
-{
-    return this->m_typeid;
-}
-
-
-
-//
-int
-SqliteTypeInfo::radix(void) const
-{
-    DBWTL_NOTIMPL();
-    return 0;
-}
-
-
-
-
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

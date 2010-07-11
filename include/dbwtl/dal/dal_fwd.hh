@@ -66,7 +66,6 @@ class EngineState;
 class IDALDriver;
 class IDALObject;
 class IBlob;
-class ITypeInfo;
 class IColumnDesc;
 class IVariant;
 class Variant;

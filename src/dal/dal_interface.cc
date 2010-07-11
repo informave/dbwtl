@@ -1240,76 +1240,6 @@ IDbc::~IDbc(void)
 
 
 
-//--------------------------------------------------------------------------
-///
-///
-ITypeInfo::ITypeInfo(void)
-    : IDALObject(),
-      m_typeid(DAL_TYPE_UNKNOWN)
-{ }
-
-
-///
-///
-ITypeInfo::~ITypeInfo(void)
-{ }
-
-
-///
-///
-i18n::UString
-ITypeInfo::name(void) const
-{
-    switch(this->m_typeid)
-    {
-    case DAL_TYPE_UNKNOWN:
-        return L"UNKNOWN";
-    case  DAL_TYPE_INT:
-        return L"INTEGER";
-    case  DAL_TYPE_CHAR:
-        return L"CHAR";
-    case  DAL_TYPE_VARCHAR:
-        return L"VARCHAR";
-    case  DAL_TYPE_NVARCHAR:
-        return L"NVARCHAR";
-    case  DAL_TYPE_NCHAR:
-        return L"NCHAR";
-    case  DAL_TYPE_BOOL:
-        return L"BOOL";
-    case  DAL_TYPE_SMALLINT:
-        return L"SMALLINT";
-    case  DAL_TYPE_BIGINT:
-        return L"BIGINT";
-    case  DAL_TYPE_BLOB:
-        return L"BLOB";
-    case  DAL_TYPE_NUMERIC:
-        return L"NUMERIC";
-    case  DAL_TYPE_DECIMAL:
-        return L"DECIMAL";
-    case  DAL_TYPE_MONEY:
-        return L"MONEY";
-    case  DAL_TYPE_FLOAT:
-        return L"FLOAT";
-    case  DAL_TYPE_DOUBLE:
-        return L"DOUBLE";
-    case  DAL_TYPE_DATE:
-        return L"DATE";
-    case  DAL_TYPE_TIME:
-        return L"TIME";
-    case  DAL_TYPE_DATETIME:
-        return L"DATETIME";
-    case  DAL_TYPE_TIMESTAMP:
-        return L"TIMESTAMP";
-    case  DAL_TYPE_CUSTOM:
-        return L"CUSTOM";
-    default:
-        throw std::runtime_error("unknow type");
-        return L"TYPENOTIMPL";
-    }
-    throw std::runtime_error("unknow type");
-}
-
-
 
 //--------------------------------------------------------------------------
 ///
@@ -1417,7 +1347,9 @@ StmtBase::bind(int num, const IVariant* data)
 void
 StmtBase::close(void)
 {
-    
+    this->m_isPrepared = false;
+    this->m_isBad = false; 
+
     this->m_params.clear(); // better use smartobjects?
     for_each(this->m_temp_params.begin(),
              this->m_temp_params.end(),

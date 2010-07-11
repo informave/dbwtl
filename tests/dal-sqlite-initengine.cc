@@ -44,7 +44,11 @@ int test(void)
 
     dbc->directCmd(L"CREATE TEMP TABLE test(id INTEGER, name TEXT);");
 
+
+
     stmt->prepare(L"INSERT INTO test(id, name) VALUES(?, 'foo');");
+
+
     //std::string v = "mynew";
     int v = 104;
     stmt->bind(1, &v);
@@ -54,10 +58,13 @@ int test(void)
     */
 
     stmt->execute();
+
     v = 105;
     stmt->execute();
+
     v = 106;
     stmt->execute();
+
 
     stmt->close();
 
@@ -89,7 +96,7 @@ int test(void)
     for(size_t i = 1; i <= res.columnCount(); ++i)
     {
         std::cout << i18n::conv_to(res.columnName(i), "UTF-8") << " (" 
-                  << i18n::conv_to(res.datatype(i).name(), "UTF-8") << ") ";
+                  << res.describeColumn(i).getName().asNarrowStr("UTF-8") << ") ";
     }
 
 
@@ -109,7 +116,7 @@ int test(void)
             {
                 std::cout << res.column(i).asNarrowStr("UTF-8") << " = ";
                 //std::cout << res.field(i).asStr("ISO-8859-15") << " | ";
-                if(res.datatype(i).daltype() == DAL_TYPE_BLOB)
+                if(res.describeColumn(i).getDatatype() == DAL_TYPE_BLOB)
                 {
                     SqliteBlob& myblob = res.column(i).asBlob();
                     

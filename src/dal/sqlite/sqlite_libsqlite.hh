@@ -178,7 +178,6 @@ public:
     virtual size_t             columnCount(void) const;
     virtual colnum_t           columnID(i18n::UString name) const;
     virtual i18n::UString      columnName(colnum_t num) const;
-    virtual const ITypeInfo&   datatype(colnum_t num) const;
 
     virtual rowid_t            getCurrentRowID(void) const;
 
@@ -187,9 +186,9 @@ public:
     virtual SQLite3Drv*        drv(void) const;
 
 
-    virtual const SqliteColumnDesc& metadata(colnum_t num) const;
+    virtual const SqliteColumnDesc& describeColumn(colnum_t num) const;
 
-    virtual const SqliteColumnDesc& metadata(i18n::UString name) const;
+    virtual const SqliteColumnDesc& describeColumn(i18n::UString name) const;
 
 
     virtual SqliteDbc_libsqlite& getDbc(void) const;
@@ -220,7 +219,6 @@ protected:
 
     ///
     /// @brief Stores the type information of all columns in the resultset
-    std::vector<SqliteTypeInfo>   m_column_meta; /// @bug remove me
     std::map<colnum_t, SqliteColumnDesc_libsqlite>     m_column_desc;
 
     ///
@@ -375,7 +373,6 @@ public:
 
     inline SQLite3Drv*     drv(void) const { return this->getDriver(); }
 
-    virtual SqliteTypeInfo getTypeInfo(int type);
 
 
 protected:

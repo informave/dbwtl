@@ -329,13 +329,13 @@ SqliteData_libsqlite::getString(void) const
 }
 
 
-
 //
 daltype_t
 SqliteData_libsqlite::daltype(void) const
 {
-    return this->m_resultset.datatype(this->m_colnum).daltype();
+    return this->m_resultset.describeColumn(this->m_colnum).getDatatype();
 }
+
 
 
 
@@ -350,7 +350,6 @@ SqliteResult_libsqlite::SqliteResult_libsqlite(SqliteStmt_libsqlite& stmt)
       m_current_tuple(DAL_TYPE_ROWID_NPOS),
       m_last_row_status(0),
       m_isopen(false),
-      m_column_meta(),
       m_column_desc(),
       m_column_accessors(),
       m_field_accessors(),
@@ -441,6 +440,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         case DAL_TYPE_BOOL:
             err = this->drv()->sqlite3_bind_int(this->getHandle(), param->first, var->asInt());
             break;
+            
             /*
         case DAL_TYPE_BITINT:
             err = this->drv()->sqlite3_bind_int64(this->m_stmt.getHandle(), pcount, var->asBigint());
@@ -461,11 +461,12 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         case SQLITE_NOMEM:
             throw std::bad_alloc();
         case SQLITE_RANGE:
+            throw ex::not_found(L"param not found");
             //break; // throw exception::RangeError;
         default:
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
             i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-            DRV_STATE(state, DALSTATE_SQL_ERROR, u_msg, this->m_last_row_status, "HY000");
+            DRV_STATE(state, DALSTATE_SQL_ERROR, u_msg, err, "HY000");
             throw ex::engine_error(state);
             break;
         };
@@ -475,22 +476,12 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     switch(this->m_last_row_status)
     {
     case SQLITE_OK:
-    	break;
     case SQLITE_ROW:
+    case SQLITE_DONE:
         this->m_current_tuple = 1;
         this->m_isOpen = true;
         this->refreshMetadata();
         break;
-    case SQLITE_DONE: /// @todo empty resultsets returns SQLITE_DONE
-        if(! this->m_isOpen)
-        {
-            this->m_isOpen = true;
-            this->refreshMetadata();
-        }
-        else
-            this->close(); /// @todo really?
-        break;
-
     case SQLITE_ERROR:
     case SQLITE_INTERNAL:
     case SQLITE_PERM:
@@ -811,23 +802,7 @@ SqliteResult_libsqlite::columnName(colnum_t num) const
     if(! this->isOpen())
         throw ex::engine_error(L"Resultset is not open.");
 
-    return this->metadata(num).getName().asStr(); /// @todo return empty string if null
-}
-
-
-
-//
-const ITypeInfo&
-SqliteResult_libsqlite::datatype(colnum_t num) const
-{
-    if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
-
-    if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
-
-    return this->m_column_meta.at(num);
-    /// @bug meta will be removed
+    return this->describeColumn(num).getName().asStr(); /// @todo return empty string if null
 }
 
 
@@ -883,8 +858,15 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
 
 //
 const SqliteColumnDesc&
-SqliteResult_libsqlite::metadata(colnum_t num) const
+SqliteResult_libsqlite::describeColumn(colnum_t num) const
 {
+    if(this->isBad())
+        throw ex::engine_error(L"Resultset is in bad state.");
+
+    if(! this->isOpen())
+        throw ex::engine_error(L"Resultset is not open.");
+
+
     std::map<colnum_t, SqliteColumnDesc_libsqlite>::const_iterator i =
         this->m_column_desc.find(num);
 
@@ -899,7 +881,7 @@ SqliteResult_libsqlite::metadata(colnum_t num) const
 
 //
 const SqliteColumnDesc&
-SqliteResult_libsqlite::metadata(i18n::UString name) const
+SqliteResult_libsqlite::describeColumn(i18n::UString name) const
 {
     DBWTL_NOTIMPL();
 }
@@ -1222,6 +1204,7 @@ SqliteStmt_libsqlite::resultset(void) const
 
 
 //
+/// @todo split sql
 void  
 SqliteStmt_libsqlite::prepare(i18n::UString sql)
 {
@@ -1379,34 +1362,6 @@ SqliteStmt_libsqlite::newResultset(void)
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-
-
-
-
-
-
-
-SqliteTypeInfo 
-SqliteDbc_libsqlite::getTypeInfo(int type)
-{
-    daltype_t t;
-    switch(type)
-    {
-    case SQLITE_INTEGER: t = DAL_TYPE_INT; break;
-    case SQLITE_FLOAT: t = DAL_TYPE_FLOAT; break;
-    case SQLITE_TEXT: t = DAL_TYPE_VARCHAR; break;
-    case SQLITE_BLOB: t = DAL_TYPE_BLOB; break;
-
-    case SQLITE_NULL: 
-    default:
-        t = DAL_TYPE_CUSTOM; break;
-    }
-    SqliteTypeInfo a(t);
-    //a.setLength(100);
-    //a.setPrecision(5);
-    return a;
-}
 
 
 

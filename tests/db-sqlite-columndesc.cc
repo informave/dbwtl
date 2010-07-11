@@ -50,7 +50,7 @@ int test(void)
 
     for(dal::colnum_t i = 0; i <= res.columnCount(); ++i)
     {
-    	const DBMS::ColumnDesc &desc = res.metadata(i);
+    	const DBMS::ColumnDesc &desc = res.describeColumn(i);
         std::cout << "name:      " << (desc.getName().isnull() ? "<null>" :
                                        desc.getName().asNarrowStr("UTF-8")) << std::endl;
         std::cout << "catalog:   " << (desc.getCatalogName().isnull() ? "<null>" :

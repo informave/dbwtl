@@ -93,6 +93,39 @@ IStoredVariant* new_default_storage(daltype_t type)
 
 
 
+//--------------------------------------------------------------------------
+//
+DatatypeBase::DatatypeBase(void)
+    : IDatatype(),
+      m_name(DAL_TYPE_VARCHAR, L"DatatypeBase::name"),
+      m_size(DAL_TYPE_INT, L"DatatypeBase::size"),
+      m_literal_prefix(DAL_TYPE_VARCHAR, L"DatatypeBase::literal_prefix"),
+      m_literal_suffix(DAL_TYPE_VARCHAR, L"DatatypeBase::literal_suffix"),
+      m_is_unsigned(DAL_TYPE_BOOL, L"DatatypeBase::is_unsigned"),
+      m_daltype(DAL_TYPE_UNKNOWN)
+{}
+
+
+
+//
+//
+DatatypeBase::~DatatypeBase(void)
+{}
+
+
+//
+//
+const IDatatype::value_type& DatatypeBase::getName(void) const            { return this->m_name; }
+const IDatatype::value_type& DatatypeBase::getSize(void) const            { return this->m_size; }
+const IDatatype::value_type& DatatypeBase::getLiteralPrefix(void) const   { return this->m_literal_prefix; }
+const IDatatype::value_type& DatatypeBase::getLiteralSuffix(void) const   { return this->m_literal_suffix; }
+const IDatatype::value_type& DatatypeBase::getIsUnsigned(void) const      { return this->m_is_unsigned; }
+daltype_t DatatypeBase::daltype(void) const                               { return this->m_daltype; }
+
+
+
+
+
 
 //--------------------------------------------------------------------------
 //

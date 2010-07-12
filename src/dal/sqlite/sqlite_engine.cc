@@ -151,9 +151,8 @@ const ITable::value_type& SqliteTable::isSystemObject(void) const
 
 ///
 ///
-SqliteDatatype::SqliteDatatype(SqliteDbc& dbc)
-    : m_name(),
-      m_daltype()
+SqliteDatatype::SqliteDatatype(void)
+    : DatatypeBase()
 {}
 
 
@@ -162,23 +161,6 @@ SqliteDatatype::SqliteDatatype(SqliteDbc& dbc)
 SqliteDatatype::~SqliteDatatype(void)
 {}
 
-
-///
-///
-i18n::UString
-SqliteDatatype::name(void) const
-{
-    return this->m_name;
-}
-
-
-///
-///
-daltype_t
-SqliteDatatype::daltype(void) const
-{
-    return this->m_daltype;
-}
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -242,29 +224,39 @@ SqliteDbc::getTables(const ITableFilter&)
 DatatypeList
 SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
 {
-    DatatypeList list;
-    SqliteDatatype* var;
+    DatatypeList dtlist;
+    SqliteDatatype *dt = 0;
+    
+    dt = new SqliteDatatype();
+    dt->m_name.setStr(L"BLOB");
+    dt->m_size.setInt(-1);
+    dt->m_daltype = DAL_TYPE_BLOB;
+    dtlist.push_back(dt);
 
-    var = new SqliteDatatype(*this);
-    var->m_name = L"BLOB";
-    var->m_daltype = DAL_TYPE_BLOB;
-    list.push_back(var);
+    dt = new SqliteDatatype();
+    dt->m_name.setStr(L"INTEGER");
+    dt->m_size.setInt(-1);
+    dt->m_daltype = DAL_TYPE_BIGINT;
+    dt->m_is_unsigned.setBool(false);
+    dtlist.push_back(dt);
 
-    var = new SqliteDatatype(*this);
-    var->m_name = L"INTEGER";
-    var->m_daltype = DAL_TYPE_BIGINT;
-    list.push_back(var);
+    dt = new SqliteDatatype();
+    dt->m_name.setStr(L"REAL");
+    dt->m_size.setInt(sizeof(double));
+    dt->m_daltype = DAL_TYPE_DOUBLE;
+    dt->m_is_unsigned.setBool(false);
+    dtlist.push_back(dt);
 
-    var = new SqliteDatatype(*this);
-    var->m_name = L"REAL";
-    var->m_daltype = DAL_TYPE_DOUBLE;
-    list.push_back(var);
-
-    var = new SqliteDatatype(*this);
-    var->m_name = L"TEXT";
-    var->m_daltype = DAL_TYPE_VARCHAR;
-    list.push_back(var);
-    return list;
+    dt = new SqliteDatatype();
+    dt->m_name.setStr(L"TEXT");
+    dt->m_size.setInt(65000);
+    dt->m_daltype = DAL_TYPE_VARCHAR;
+    dt->m_literal_prefix.setStr(L"'");
+    dt->m_literal_suffix.setStr(L"'");
+    dtlist.push_back(dt);
+    
+   
+    return dtlist;
 }
 
 

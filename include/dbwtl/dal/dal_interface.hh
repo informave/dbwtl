@@ -1054,26 +1054,22 @@ public:
         util::RefCounted,
         util::AllowConversion> ptr;
 
-    virtual i18n::UString        name(void) const = 0;
-    virtual daltype_t            daltype(void) const = 0;
-/*
-  virtual int                  maxLength(void) const = 0;
-  virtual systype_t            systype(void) const = 0;
-  virtual i18n::UString        schema(void) const = 0;
-  virtual i18n::UString        catalog(void) const = 0;
-*/
+    typedef IVariant value_type;
 
-/*
-Name
-Daltype
-Size
-LiteralPrefix
-LiteralSuffix
-CreateParams
-IsUnsigned
-*/
+    /// @brief Returns the name of the table
+    virtual const value_type& getName(void) const = 0;
 
+    /// @brief Returns the maximum size for variable length types
+    /// or the size for fixed length types (like INT)
+    virtual const value_type& getSize(void) const = 0;
 
+    virtual const value_type& getLiteralPrefix(void) const = 0;
+
+    virtual const value_type& getLiteralSuffix(void) const = 0;
+
+    virtual const value_type& getIsUnsigned(void) const = 0;
+
+    virtual daltype_t         daltype(void) const = 0;
 };
 
 
@@ -1663,6 +1659,38 @@ protected:
 
     daltype_t m_daltype;
 };
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+class DBWTL_EXPORT DatatypeBase : public IDatatype
+{
+public:
+    virtual const value_type& getName(void) const;
+    virtual const value_type& getSize(void) const;
+    virtual const value_type& getLiteralPrefix(void) const;
+    virtual const value_type& getLiteralSuffix(void) const;
+    virtual const value_type& getIsUnsigned(void) const;
+    virtual daltype_t         daltype(void) const;
+
+protected:
+    DatatypeBase(void);
+
+    virtual ~DatatypeBase(void);
+
+    Variant m_name;
+    Variant m_size;
+    Variant m_literal_prefix;
+    Variant m_literal_suffix;
+    Variant m_is_unsigned;
+
+    daltype_t m_daltype;
+};
+
+
 
 
 DAL_NAMESPACE_END
@@ -2936,7 +2964,7 @@ public:
 
     virtual i18n::UString asStr(std::locale loc) const
         {
-            return L"Implement me";
+            return this->getValue(); // no conversion with locale needed
         }
 
     virtual daltype_t datatype() const

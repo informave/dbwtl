@@ -206,7 +206,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Datatype
-class DBWTL_EXPORT SqliteDatatype : public IDatatype
+class DBWTL_EXPORT SqliteDatatype : public DatatypeBase
 {
 public:
     friend class SqliteDbc;
@@ -215,17 +215,9 @@ public:
                            util::RefCounted,
                            util::AllowConversion> ptr;
 
-    SqliteDatatype(SqliteDbc& dbc);
+    SqliteDatatype(void);
 
     virtual ~SqliteDatatype(void);
-
-    virtual i18n::UString        name(void) const;
-    virtual daltype_t            daltype(void) const;
-
-
-protected:
-    i18n::UString     m_name;
-    daltype_t         m_daltype;
 };
 
 

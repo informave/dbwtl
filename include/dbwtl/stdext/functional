@@ -1,0 +1,80 @@
+#ifndef INFORMAVE_STDEXT_FUNCTIONAL
+#define INFORMAVE_STDEXT_FUNCTIONAL
+
+
+#include <functional>
+#include <map>
+
+namespace informave
+{
+
+///
+/// @cond DEV_DOCS
+
+    namespace stdext 
+    {
+        
+        template<typename Pair>
+        struct select1st : public std::unary_function<Pair, typename Pair::first_type>
+        {
+            typename Pair::first_type& operator()(Pair& x) const
+                { return x.first; }
+            
+            const typename Pair::first_type& operator()(const Pair& x) const
+                { return x.first; }
+        };
+
+        
+
+
+
+        template<typename Pair>
+        struct select2nd : public std::unary_function<Pair, typename Pair::second_type>
+        {
+            typename Pair::second_type& operator()(Pair& x) const
+                { return x.second; }
+            
+            const typename Pair::second_type& operator()(const Pair& x) const
+                { return x.second; }
+        };
+
+
+
+
+
+        template <class OP1, class OP2>
+        class unary_compose : public std::unary_function<typename OP2::argument_type,
+                                                         typename OP1::result_type>
+        {
+        public:
+            unary_compose(const OP1& op1, const OP2& op2)
+                : m_op1(op1),
+                  m_op2(op2)
+                {}
+
+
+            typename OP1::result_type operator()(typename OP2::argument_type& x)
+                { return m_op1(m_op2(x)); }
+
+
+        protected:
+            OP1 m_op1;
+            OP2 m_op2;
+        };
+
+
+
+
+
+        template <class OP1, class OP2>
+        inline unary_compose<OP1, OP2> compose1(const OP1& op1, const OP2& op2)
+        { return unary_compose<OP1, OP2>(op1, op2); }
+
+    }
+
+/// @endcond
+
+}
+
+#endif
+

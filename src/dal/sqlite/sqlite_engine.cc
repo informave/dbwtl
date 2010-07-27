@@ -355,9 +355,9 @@ SqliteVariant::~SqliteVariant(void)
 
 
 //
-SqliteBlob& SqliteVariant::asBlob(void) const
+void SqliteVariant::refresh(void)
 {
-    return dynamic_cast<SqliteBlob&>(Variant::asBlob());
+	/// @bug implement refresh()
 }
 
 

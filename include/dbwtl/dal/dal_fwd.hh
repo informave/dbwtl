@@ -65,7 +65,12 @@ class IEngineState;
 class EngineState;
 class IDALDriver;
 class IDALObject;
-class IBlob;
+
+class IBlobBuffer;
+class IMemoBuffer;
+class Blob;
+class Memo;
+
 class IColumnDesc;
 class IVariant;
 class Variant;

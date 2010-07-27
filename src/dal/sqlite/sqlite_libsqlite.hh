@@ -35,6 +35,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+///
+/// @cond DEV_DOCS
 /// @file
 /// @brief SQLite Backend libsqlite
 /// @author Daniel Vogelbacher
@@ -70,25 +72,18 @@ public:
 
     virtual ~SqliteBlob_libsqlite(void);
 
-    virtual size_t  read(void *buf, size_t count);
-    virtual size_t  write(void *buf, size_t count);
-    virtual size_t  seek(off_t offset, enum IBlob::seekdir whence);
-    virtual off_t   tell(void) const;
-    virtual size_t  size(void) const;
+    virtual void reset_ptr(const void *buf, size_t size);
 
-    virtual bool isNull(void) const;
+    //virtual bool isNull(void) const; /// @bug implement me
 
-    virtual void clear(void);
-
-    virtual void fromStream(std::ifstream& stream);
-
-    virtual void toStream(std::ofstream& stream);
 
 protected:
+	virtual int_type underflow(void);
+
     const SqliteData_libsqlite& m_data;
     const unsigned char *m_buf;
     size_t m_size;
-    size_t m_pos;
+    //size_t m_pos;
 
 private:
     SqliteBlob_libsqlite(const SqliteBlob_libsqlite&);
@@ -111,7 +106,7 @@ public:
     virtual ~SqliteData_libsqlite(void);
 
 
-    virtual SqliteBlob_libsqlite&       getBlob(void) const;
+    virtual SqliteBlob_libsqlite*       getBlob(void) const;
     virtual double       getDouble(void) const;
     virtual int          getInt(void) const;
     virtual int64_t      getInt64(void) const;
@@ -131,6 +126,7 @@ protected:
     colnum_t   m_colnum;
     bool       m_locked;
     rowid_t    m_rowid;
+    mutable std::auto_ptr<SqliteBlob_libsqlite> m_blobbuf;
 
 };
 
@@ -247,8 +243,10 @@ protected:
     ///
     /// @notice Do not delete (free) any of the elements, this task is
     /// done by m_allocated_accessors's  destructor.
+    /// 
+    /// @bug delete me
     VariantListT           m_field_accessors;
-
+    
     ///
     /// @brief Stores all allocated accessors (IVariants) requested by an user for
     /// the current resultset.
@@ -411,7 +409,7 @@ protected:
 };
 
 
-
+/// @endcond
 
 
 DAL_NAMESPACE_END

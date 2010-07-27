@@ -153,6 +153,7 @@ enum DatatypeEnumeration
     //DAL_TYPE_BIT,
     //DAL_TYPE_VARBIT,
     DAL_TYPE_BLOB,
+    DAL_TYPE_MEMO,
     DAL_TYPE_NUMERIC,
     DAL_TYPE_DECIMAL,
     DAL_TYPE_MONEY,
@@ -386,76 +387,63 @@ public:
 
 
 //--------------------------------------------------------------------------
-/// @brief DAL Interface for BLOB data
-class DBWTL_EXPORT IBlob : public IDALObject
+/// @brief DAL Interface for BLOB buffers
+class IBlobBuffer : public std::streambuf
 {
 public:
-    enum seekdir { DAL_SEEK_SET, DAL_SEEK_CUR, DAL_SEEK_END };
-
-    virtual ~IBlob(void);
-
-    virtual size_t  read(void *buf, size_t count) = 0;
-    virtual size_t  write(void *buf, size_t count) = 0;
-    virtual size_t  seek(off_t offset, enum seekdir whence) = 0;
-    virtual off_t   tell(void) const = 0;
-    virtual size_t  size(void) const = 0;
-
-
-    /// @brief Checks if BLOB field is NULL.
-    virtual bool isNull(void) const = 0;
-
-
-    ///
-    /// @brief Clears out the BLOB field (set value to NULL).
-    ///
-    /// @post size() and tell() returns 0, isNull() returns true.
-    virtual void clear(void) = 0;
-
-
-    ///
-    /// @brief Reads data from the stream into the BLOB.
-    ///
-    /// @post Data has written to the blob, beginning on the
-    /// current blob cursor position.
-    ///
-    /// @note If the BLOB contains data, the stream data replaces
-    /// the data of the BLOB or is append, depending on the BLOB cursor position.
-    /// If you want to override the BLOB data securely, call clear() before
-    /// writing data to the BLOB.
-    ///
-    /// @param[in] stream Input Stream
-    virtual void fromStream(std::ifstream& stream) = 0;
-
-
-    ///
-    /// @brief Writes data from the BLOB into the stream.
-    ///
-    /// @post Data has written to the stream, beginning on the
-    /// current stream position.
-    ///
-    /// @param[in] stream Output Stream
-    virtual void toStream(std::ofstream& stream) = 0;
+protected:
 };
 
 
 
-
-
-class blob_buf : std::streambuf
-{
-};
-
-#if 0
-class BlobStream : public std::iostream
+//--------------------------------------------------------------------------
+/// @brief DAL Interface for MEMO buffers
+class IMemoBuffer : public std::wstringbuf
 {
 public:
-    BlobStream(IBlob& blob) { }
-
-    BlobStream(void) { }
-
-    void open(IBlob& blob) { }
+protected:
 };
-#endif
+
+
+
+//--------------------------------------------------------------------------
+/// @brief BLOB stream
+class Blob : public std::istream
+{
+public:
+	Blob(std::streambuf *buf);
+	virtual ~Blob();
+
+protected:
+    std::streambuf *m_buf;
+private:
+	Blob(const Blob&);
+	Blob& operator=(const Blob&);
+};
+
+
+
+//--------------------------------------------------------------------------
+/// @brief MEMO stream
+class Memo : public std::wistream
+{
+public:
+	Memo(std::wstreambuf *buf);
+	virtual ~Memo(void);
+
+	std::string   narrow_str(const char *charset) const;
+	std::wstring  str() const;
+
+protected:
+	std::wstreambuf *m_buf;
+private:
+	Memo(const Memo&);
+	Memo& operator=(const Memo&);
+};
+
+
+
+
 
 
 /// @todo just a workaround for now
@@ -503,73 +491,75 @@ public:
     virtual ~IVariant(void) { }
 
     //  basic functions
-    virtual daltype_t      datatype(void) const = 0;
-    virtual bool            isnull(void) const = 0;
-    virtual void            setNull(void) = 0;
-    virtual void            assign(const IVariant& var);
+    virtual daltype_t   datatype(void) const = 0;
+    virtual bool        isnull(void) const = 0;
+    virtual void        setNull(void) = 0;
+    virtual void        assign(const IVariant& var);
 
     // getter methods
-    virtual signed int      asInt(void) const = 0;
-    virtual unsigned int    asUInt(void) const = 0;
-    virtual signed char     asChar(void) const = 0;
-    virtual unsigned char   asUChar(void) const = 0;
+    virtual signed int           asInt(void) const = 0;
+    virtual unsigned int         asUInt(void) const = 0;
+    virtual signed char          asChar(void) const = 0;
+    virtual unsigned char        asUChar(void) const = 0;
 
-    virtual i18n::UString   asStr(void) const = 0;
-    virtual i18n::UString   asStr(std::locale loc) const = 0;
-    virtual std::string     asNarrowStr(const char *charset) const = 0;
-    virtual std::string     asNarrowStr(const char *charset, std::locale loc) const = 0;
+    virtual i18n::UString        asStr(void) const = 0;
+    virtual i18n::UString        asStr(std::locale loc) const = 0;
+    virtual std::string          asNarrowStr(const char *charset) const = 0;
+    virtual std::string          asNarrowStr(const char *charset, std::locale loc) const = 0;
 
-    virtual bool            asBool(void) const = 0;
-    virtual signed short    asSmallint(void) const = 0;
-    virtual unsigned short  asUSmallint(void) const = 0;
-    virtual signed long long    asBigint(void) const = 0;
-    virtual unsigned long long  asUBigint(void) const = 0;
-    virtual TNumeric        asNumeric(void) const = 0;
-    virtual TMoney          asMoney(void) const = 0;
-    virtual float           asReal(void) const = 0;
-    virtual double          asDouble(void) const = 0;
-    virtual TDate           asDate(void) const = 0;
-    virtual TTime           asTime(void) const = 0;
-    virtual TDatetime       asDatetime(void) const = 0;
-    virtual signed int      asTimestamp(void) const = 0;
+    virtual bool                 asBool(void) const = 0;
+    virtual signed short         asSmallint(void) const = 0;
+    virtual unsigned short       asUSmallint(void) const = 0;
+    virtual signed long long     asBigint(void) const = 0;
+    virtual unsigned long long   asUBigint(void) const = 0;
+    virtual TNumeric             asNumeric(void) const = 0;
+    virtual TMoney               asMoney(void) const = 0;
+    virtual float                asReal(void) const = 0;
+    virtual double               asDouble(void) const = 0;
+    virtual TDate                asDate(void) const = 0;
+    virtual TTime                asTime(void) const = 0;
+    virtual TDatetime            asDatetime(void) const = 0;
+    virtual signed int           asTimestamp(void) const = 0;
     //virtual TCustom&        asCustom(void) const = 0;
-    virtual TCidr           asCIDR(void) const = 0;
-    virtual TInterval       asInterval(void) const = 0;
-    virtual TMacaddr        asMacaddr(void) const = 0;
-    virtual TInetaddr       asInetaddr(void) const = 0;
-    virtual TUuid           asUUID(void) const = 0;
-    virtual TXml            asXML(void) const = 0;
-    virtual IBlob&          asBlob(void) const = 0;
+    virtual TCidr                asCIDR(void) const = 0;
+    virtual TInterval            asInterval(void) const = 0;
+    virtual TMacaddr             asMacaddr(void) const = 0;
+    virtual TInetaddr            asInetaddr(void) const = 0;
+    virtual TUuid                asUUID(void) const = 0;
+    virtual TXml                 asXML(void) const = 0;
+    virtual std::streambuf*      asBlob(void) const = 0;
+    virtual std::wstreambuf*     asMemo(void) const = 0;
 
     // setter methods
-    virtual void            setInt(const signed int&) = 0;
-    virtual void            setUInt(const unsigned int&) = 0;
-    virtual void            setChar(const signed char&) = 0;
-    virtual void            setUChar(const unsigned char&) = 0;
-    virtual void            setStr(const i18n::UString&) = 0;
-    virtual void            setStr(const char* data, std::size_t len, const char* charset) = 0;
-    virtual void            setStr(const std::string&, const char* charset) = 0;
-    virtual void            setBool(const bool&) = 0;
-    virtual void            setSmallint(const signed short&) = 0;
-    virtual void            setUSmallint(const unsigned short&) = 0;
-    virtual void            setBigint(const signed long long&) = 0;
-    virtual void            setUBigint(const unsigned long long&) = 0;
-    virtual void            setNumeric(const TNumeric&) = 0;
-    virtual void            setMoney(const TMoney&) = 0;
-    virtual void            setReal(const float&) = 0;
-    virtual void            setDouble(const double&) = 0;
-    virtual void            setDate(const TDate&) = 0;
-    virtual void            setTime(const TTime&) = 0;
-    virtual void            setDatetime(const TDatetime&) = 0;
-    virtual void            setTimestamp(const signed int&) = 0;
-    //virtual void        asCustom(void) const = 0;
-    virtual void            setCIDR(const TCidr&) = 0;
-    virtual void            setInterval(const TInterval&) = 0;
-    virtual void            setMacaddr(const TMacaddr&) = 0;
-    virtual void            setInetaddr(const TInetaddr&) = 0;
-    virtual void            setUUID(const TUuid&) = 0;
-    virtual void            setXML(const TXml&) = 0;
-    virtual void            setBlob(IBlob&) = 0;
+    virtual void                 setInt(const signed int&) = 0;
+    virtual void                 setUInt(const unsigned int&) = 0;
+    virtual void                 setChar(const signed char&) = 0;
+    virtual void                 setUChar(const unsigned char&) = 0;
+    virtual void                 setStr(const i18n::UString&) = 0;
+    virtual void                 setStr(const char* data, std::size_t len, const char* charset) = 0;
+    virtual void                 setStr(const std::string&, const char* charset) = 0;
+    virtual void                 setBool(const bool&) = 0;
+    virtual void                 setSmallint(const signed short&) = 0;
+    virtual void                 setUSmallint(const unsigned short&) = 0;
+    virtual void                 setBigint(const signed long long&) = 0;
+    virtual void                 setUBigint(const unsigned long long&) = 0;
+    virtual void                 setNumeric(const TNumeric&) = 0;
+    virtual void                 setMoney(const TMoney&) = 0;
+    virtual void                 setReal(const float&) = 0;
+    virtual void                 setDouble(const double&) = 0;
+    virtual void                 setDate(const TDate&) = 0;
+    virtual void                 setTime(const TTime&) = 0;
+    virtual void                 setDatetime(const TDatetime&) = 0;
+    virtual void                 setTimestamp(const signed int&) = 0;
+    //virtual void           asCustom(void) const = 0;
+    virtual void                 setCIDR(const TCidr&) = 0;
+    virtual void                 setInterval(const TInterval&) = 0;
+    virtual void                 setMacaddr(const TMacaddr&) = 0;
+    virtual void                 setInetaddr(const TInetaddr&) = 0;
+    virtual void                 setUUID(const TUuid&) = 0;
+    virtual void                 setXML(const TXml&) = 0;
+    virtual void                 setBlob(std::streambuf*) = 0;
+    virtual void                 setMemo(std::wstreambuf*) = 0;
   
 private:
     IVariant&               operator=(const IVariant& o);
@@ -584,6 +574,8 @@ DBWTL_EXPORT std::ostream&   operator<<(std::ostream& o,  const IVariant &var);
 
 
 //--------------------------------------------------------------------------
+///
+/// @cond DEV_DOCS
 /// @brief Base implementation for Variant
 template<class Base>
 class DBWTL_EXPORT BaseVariantImplFor : public Base
@@ -608,27 +600,28 @@ public:
     virtual std::string     asNarrowStr(const char *charset, std::locale loc) const;
 
 
-    virtual bool            asBool(void) const;
-    virtual signed short    asSmallint(void) const;
-    virtual unsigned short  asUSmallint(void) const;
-    virtual signed long long     asBigint(void) const;
-    virtual unsigned long long  asUBigint(void) const;
-    virtual TNumeric        asNumeric(void) const;
-    virtual TMoney          asMoney(void) const;
-    virtual float           asReal(void) const;
-    virtual double          asDouble(void) const;
-    virtual TDate           asDate(void) const;
-    virtual TTime           asTime(void) const;
-    virtual TDatetime       asDatetime(void) const;
-    virtual signed int      asTimestamp(void) const;
+    virtual bool                  asBool(void) const;
+    virtual signed short          asSmallint(void) const;
+    virtual unsigned short        asUSmallint(void) const;
+    virtual signed long long      asBigint(void) const;
+    virtual unsigned long long    asUBigint(void) const;
+    virtual TNumeric              asNumeric(void) const;
+    virtual TMoney                asMoney(void) const;
+    virtual float                 asReal(void) const;
+    virtual double                asDouble(void) const;
+    virtual TDate                 asDate(void) const;
+    virtual TTime                 asTime(void) const;
+    virtual TDatetime             asDatetime(void) const;
+    virtual signed int            asTimestamp(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
-    virtual TCidr           asCIDR(void) const;
-    virtual TInterval       asInterval(void) const;
-    virtual TMacaddr        asMacaddr(void) const;
-    virtual TInetaddr       asInetaddr(void) const;
-    virtual TUuid           asUUID(void) const;
-    virtual TXml            asXML(void) const;
-    virtual IBlob&          asBlob(void) const;
+    virtual TCidr                 asCIDR(void) const;
+    virtual TInterval             asInterval(void) const;
+    virtual TMacaddr              asMacaddr(void) const;
+    virtual TInetaddr             asInetaddr(void) const;
+    virtual TUuid                 asUUID(void) const;
+    virtual TXml                  asXML(void) const;
+    virtual std::streambuf*       asBlob(void) const;
+    virtual std::wstreambuf*      asMemo(void) const;
 
 
     virtual void            setInt(const signed int&);
@@ -658,17 +651,18 @@ public:
     virtual void            setInetaddr(const TInetaddr&);
     virtual void            setUUID(const TUuid&);
     virtual void            setXML(const TXml&);
-    virtual void            setBlob(IBlob&);
+    virtual void            setBlob(std::streambuf*);
+    virtual void            setMemo(std::wstreambuf*);
 
 
 protected:
     bool m_isnull;
 };
 
-
 //--------------------------------------------------------------------------
+///
 /// @brief Internal stored variants needs a clone method
-class DBWTL_EXPORT IStoredVariant : public IVariant//BaseVariantImplFor
+class DBWTL_EXPORT IStoredVariant : public IVariant
 {
 public:
     virtual IStoredVariant* clone(void) const = 0;
@@ -692,7 +686,7 @@ public:
     virtual const T& getValue() const = 0;
     virtual T&       getValue() = 0;
 };
-
+/// @endcond
 
 
 //--------------------------------------------------------------------------
@@ -931,31 +925,32 @@ public:
 
 
 
-    virtual i18n::UString   asStr(void) const;
-    virtual i18n::UString   asStr(std::locale loc) const;
-    virtual std::string     asNarrowStr(const char *charset) const;
-    virtual std::string     asNarrowStr(const char *charset, std::locale loc) const;
-    virtual bool            asBool(void) const;
-    virtual signed short    asSmallint(void) const;
-    virtual unsigned short  asUSmallint(void) const;
-    virtual signed long long     asBigint(void) const;
+    virtual i18n::UString       asStr(void) const;
+    virtual i18n::UString       asStr(std::locale loc) const;
+    virtual std::string         asNarrowStr(const char *charset) const;
+    virtual std::string         asNarrowStr(const char *charset, std::locale loc) const;
+    virtual bool                asBool(void) const;
+    virtual signed short        asSmallint(void) const;
+    virtual unsigned short      asUSmallint(void) const;
+    virtual signed long long    asBigint(void) const;
     virtual unsigned long long  asUBigint(void) const;
-    virtual TNumeric        asNumeric(void) const;
-    virtual TMoney          asMoney(void) const;
-    virtual float           asReal(void) const;
-    virtual double          asDouble(void) const;
-    virtual TDate           asDate(void) const;
-    virtual TTime           asTime(void) const;
-    virtual TDatetime       asDatetime(void) const;
-    virtual signed int      asTimestamp(void) const;
+    virtual TNumeric            asNumeric(void) const;
+    virtual TMoney              asMoney(void) const;
+    virtual float               asReal(void) const;
+    virtual double              asDouble(void) const;
+    virtual TDate               asDate(void) const;
+    virtual TTime               asTime(void) const;
+    virtual TDatetime           asDatetime(void) const;
+    virtual signed int          asTimestamp(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
-    virtual TCidr           asCIDR(void) const;
-    virtual TInterval       asInterval(void) const;
-    virtual TMacaddr        asMacaddr(void) const;
-    virtual TInetaddr       asInetaddr(void) const;
-    virtual TUuid           asUUID(void) const;
-    virtual TXml            asXML(void) const;
-    virtual IBlob&          asBlob(void) const;
+    virtual TCidr               asCIDR(void) const;
+    virtual TInterval           asInterval(void) const;
+    virtual TMacaddr            asMacaddr(void) const;
+    virtual TInetaddr           asInetaddr(void) const;
+    virtual TUuid               asUUID(void) const;
+    virtual TXml                asXML(void) const;
+    virtual std::streambuf*     asBlob(void) const;
+    virtual std::wstreambuf*    asMemo(void) const;
 
 
     virtual void            setInt(const signed int&);
@@ -985,7 +980,8 @@ public:
     virtual void            setInetaddr(const TInetaddr&);
     virtual void            setUUID(const TUuid&);
     virtual void            setXML(const TXml&);
-    virtual void            setBlob(IBlob&);
+    virtual void            setBlob(std::streambuf*);
+    virtual void            setMemo(std::wstreambuf*);
 
 
 protected:
@@ -1278,10 +1274,6 @@ public:
 
     virtual ~IResult(void);
 
-    /*
-      virtual void   prepare(i18n::UString sql) = 0;
-      virtual void   execute(void) = 0;
-    */
 
     virtual bool   isPrepared(void) const = 0;
     virtual bool   isBad(void) const = 0;
@@ -1297,12 +1289,10 @@ public:
     virtual size_t           paramCount(void) const = 0;
     virtual rowcount_t       affectedRows(void) const = 0;
 
-    virtual const value_type&        column(colnum_t num) = 0;
-    //virtual value_type&        field(colnum_t num) = 0;
-    virtual const value_type&        column(i18n::UString name) = 0;
+    virtual const value_type&      column(colnum_t num) = 0;
+    virtual const value_type&      column(i18n::UString name) = 0;
+    //virtual value_type&          field(colnum_t num) = 0;
     //virtual variant_type&        field(i18n::UString name) = 0;
-
-    //virtual IBlob&           getBlob(colnum_t num) = 0;
 
     // column methods
     virtual size_t           columnCount(void) const = 0;
@@ -1357,7 +1347,9 @@ public:
     virtual size_t    paramCount(void) const = 0;
     virtual void      bind(int num, IVariant* data) = 0;
     virtual void      bind(int num, const IVariant* data) = 0;
-    virtual void      bind(int num, Variant data) = 0;
+    virtual void      bind(int num, Variant data) = 0; /// @bug are we using clone() here? is this ok?
+    virtual void      bind(int num, std::streambuf *data) = 0;
+    virtual void      bind(int num, std::wstreambuf *data) = 0;
 
     virtual rowcount_t  affectedRows(void) const = 0;
 
@@ -1535,6 +1527,8 @@ public:
     virtual void      bind(int num, IVariant* data);
     virtual void      bind(int num, const IVariant* data);
     virtual void      bind(int num, Variant data);
+    virtual void      bind(int num, std::streambuf *data);
+    virtual void      bind(int num, std::wstreambuf *data);
 
     virtual bool      isPrepared(void) const;
 
@@ -1702,12 +1696,86 @@ DAL_NAMESPACE_END
 
 
 
+
+
+
+
+
+
+
+
+
+
+///
+/// @cond DEV_DOCS
+
 DAL_NAMESPACE_BEGIN
 
 
+template<>
+class storage_accessor<std::streambuf*> : public BaseVariantImplFor<sa_base<std::streambuf*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_BLOB; }
+
+/*
+    virtual i18n::UString asStr(void) const
+        {
+            std::stringstream ss;
+            //ss << this->getValue();
+            ss << "need impl-x";
+            return i18n::conv_from(ss.str(), "UTF-8");
+        }
 
 
-//#define DAL_CODE_POS __FUNCTION__
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::stringstream ss;
+            ss.imbue(loc);
+            //ss << this->getValue();
+            return i18n::conv_from(ss.str(), "UTF-8");
+        }
+*/
+   virtual std::streambuf* asBlob(void) const
+   {
+   	return this->getValue();
+   }
+};
+
+template<>
+class storage_accessor<std::wstreambuf*> : public BaseVariantImplFor<sa_base<std::wstreambuf*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_MEMO; }
+
+/*
+    virtual i18n::UString asStr(void) const
+        {
+            std::stringstream ss;
+            //ss << this->getValue();
+            ss << "need impl-x";
+            return i18n::conv_from(ss.str(), "UTF-8");
+        }
+
+
+    virtual i18n::UString asStr(std::locale loc) const
+        {
+            std::stringstream ss;
+            ss.imbue(loc);
+            //ss << this->getValue();
+            return i18n::conv_from(ss.str(), "UTF-8");
+        }
+*/
+   virtual std::wstreambuf* asMemo(void) const
+   {
+        return this->getValue();
+   }
+};
+
 
 
 
@@ -3185,8 +3253,13 @@ TXml            BaseVariantImplFor<Base>::asXML(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_XML); }
 
 template<class Base>
-IBlob&          BaseVariantImplFor<Base>::asBlob(void) const
+std::streambuf*         BaseVariantImplFor<Base>::asBlob(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_BLOB); }
+
+template<class Base>
+std::wstreambuf*         BaseVariantImplFor<Base>::asMemo(void) const
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_MEMO); }
+
 
 template<class Base>
 void            BaseVariantImplFor<Base>::setInt(const signed int&) 
@@ -3296,11 +3369,17 @@ void            BaseVariantImplFor<Base>::setXML(const TXml&)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setBlob(IBlob&)
+void            BaseVariantImplFor<Base>::setBlob(std::streambuf*)
+{ throw ex::read_only(); }
+
+template<class Base>
+void            BaseVariantImplFor<Base>::setMemo(std::wstreambuf*)
 { throw ex::read_only(); }
 
 
 
 DAL_NAMESPACE_END
+
+/// @endcond
 
 #endif

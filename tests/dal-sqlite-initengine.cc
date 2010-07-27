@@ -118,13 +118,16 @@ int test(void)
                 //std::cout << res.field(i).asStr("ISO-8859-15") << " | ";
                 if(res.describeColumn(i).getDatatype() == DAL_TYPE_BLOB)
                 {
+                    /*
                     SqliteBlob& myblob = res.column(i).asBlob();
+                 
                     
                     char *buf = new char[myblob.size() + 1];
                     myblob.read(buf, myblob.size());
                     buf[myblob.size()] = '\0';
                     std::cout << "BLOB: " << buf;
                     delete[] buf;
+                    */
 
                     /*
                       BlobStream bs(myblob);

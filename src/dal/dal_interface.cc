@@ -48,10 +48,75 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
-
+#include <typeinfo>
 
 DAL_NAMESPACE_BEGIN
 
+
+
+
+//--------------------------------------------------------------------------
+//
+Blob::Blob(std::streambuf *buf) : std::istream(), m_buf(buf)
+{
+    this->rdbuf(buf);
+}
+
+
+//
+//
+Blob::~Blob(void)
+{}
+
+
+//--------------------------------------------------------------------------
+//
+Memo::Memo(std::wstreambuf *buf) : std::wistream(), m_buf(buf)
+{
+    this->rdbuf(buf);
+}
+
+
+
+//
+//
+Memo::~Memo(void)
+{}
+
+
+
+//
+//
+std::string
+Memo::narrow_str(const char *charset) const
+{
+    return i18n::conv_to(this->str(), charset);
+}
+
+
+//
+//
+std::wstring
+Memo::str() const
+{
+    try
+    {
+        return dynamic_cast<std::wstringbuf&>(*this->m_buf).str();
+    }
+    catch(std::bad_cast &)
+    {
+        std::wstringstream ss;
+        ss << this->m_buf;
+        return ss.str();
+    }
+}
+
+
+
+
+
+//--------------------------------------------------------------------------
+//
 IStoredVariant* new_default_storage(daltype_t type)
 {
     switch(type)
@@ -70,7 +135,8 @@ IStoredVariant* new_default_storage(daltype_t type)
     case DAL_TYPE_USMALLINT: return new var_storage<unsigned short int>();
     case DAL_TYPE_BIGINT: return new var_storage<signed long long>();
     case DAL_TYPE_UBIGINT: return new var_storage<unsigned long long>();
-    case DAL_TYPE_BLOB: return new var_storage<i18n::UString>();
+    case DAL_TYPE_BLOB: return new var_storage<std::streambuf*>();
+    case DAL_TYPE_MEMO: return new var_storage<std::wstreambuf*>();
     case DAL_TYPE_NUMERIC: return new var_storage<TNumeric>();
     case DAL_TYPE_DECIMAL: return new var_storage<TDecimal>();
     case DAL_TYPE_MONEY: return new var_storage<TMoney>();
@@ -196,6 +262,8 @@ std::ostream& operator<<(std::ostream& o,  const IVariant &var)
 
 
 //--------------------------------------------------------------------------
+///
+/// @cond DEV_DOCS
 /// Deletes a object
 struct delete_object
 {
@@ -205,7 +273,7 @@ struct delete_object
     template<typename U, typename V>
     void operator()(std::pair<U, V> val){ delete val.second;}
 };
-
+/// @endcond
 
 
 //--------------------------------------------------------------------------
@@ -230,6 +298,7 @@ i18n::UString daltype2string(daltype_t type)
     case DAL_TYPE_BIGINT: return i18n::UString(L"DAL_TYPE_BIGINT");
     case DAL_TYPE_UBIGINT: return i18n::UString(L"DAL_TYPE_UBIGINT");
     case DAL_TYPE_BLOB: return i18n::UString(L"DAL_TYPE_BLOB");
+    case DAL_TYPE_MEMO: return i18n::UString(L"DAL_TYPE_MEMO");
     case DAL_TYPE_NUMERIC: return i18n::UString(L"DAL_TYPE_NUMERIC");
     case DAL_TYPE_DECIMAL: return i18n::UString(L"DAL_TYPE_DECIMAL");
     case DAL_TYPE_MONEY: return i18n::UString(L"DAL_TYPE_MONEY");
@@ -272,6 +341,7 @@ i18n::UString daltype2sqlname(daltype_t type)
     case DAL_TYPE_BIGINT: return i18n::UString(L"BIGINT");
     case DAL_TYPE_UBIGINT: return i18n::UString(L"BIGINT");
     case DAL_TYPE_BLOB: return i18n::UString(L"BLOB");
+    case DAL_TYPE_MEMO: return i18n::UString(L"MEMO");
     case DAL_TYPE_NUMERIC: return i18n::UString(L"NUMERIC");
     case DAL_TYPE_DECIMAL: return i18n::UString(L"DECIMAL");
     case DAL_TYPE_MONEY: return i18n::UString(L"MONEY");
@@ -291,12 +361,6 @@ i18n::UString daltype2sqlname(daltype_t type)
     return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
 }
 
-
-//--------------------------------------------------------------------------
-///
-///
-IBlob::~IBlob(void)
-{}
 
 
 
@@ -324,6 +388,7 @@ IVariant::assign(const IVariant& var)
     case DAL_TYPE_BIGINT:     this->setBigint(var.asBigint()); break;
     case DAL_TYPE_UBIGINT:    this->setUBigint(var.asUBigint()); break;
     case DAL_TYPE_BLOB:       this->setBlob(var.asBlob()); break;
+    case DAL_TYPE_MEMO:       this->setMemo(var.asMemo()); break; /// @bug setMemo should COPY the content to own stream
     case DAL_TYPE_NUMERIC:    this->setNumeric(var.asNumeric()); break;
     case DAL_TYPE_DECIMAL:    this->setNumeric(var.asNumeric()); break; /// @todo ok?
     case DAL_TYPE_MONEY:      this->setMoney(var.asMoney()); break;
@@ -488,8 +553,12 @@ TXml
 Variant::asXML(void) const { return this->getStorageImpl()->asXML(); }
 
 ///
-IBlob&     
+std::streambuf*
 Variant::asBlob(void) const { return this->getStorageImpl()->asBlob(); }
+
+///
+std::wstreambuf*
+Variant::asMemo(void) const { return this->getStorageImpl()->asMemo(); }
 
 
 ///
@@ -584,11 +653,22 @@ DBWTL_VARIANT_SETTER(XML, TXml)
 
 ///
 void      
-Variant::setBlob(IBlob& value)         
+Variant::setBlob(std::streambuf* value)         
 {
+    /// @bug is init required?
     //init_if_null<IBlob>(this->m_storage);
     this->m_storage->setBlob(value); 
 }
+
+
+///
+void
+Variant::setMemo(std::wstreambuf* value)
+{
+    //init_if_null<IBlob>(this->m_storage);
+    this->m_storage->setMemo(value);
+}
+   
 
 
 ///
@@ -904,11 +984,14 @@ std::wostream& operator<<(std::wostream& o, const informave::db::dal::IEngineSta
 
 
 //--------------------------------------------------------------------------
+///
+/// @cond DEV_DOCS
 struct dal_state_text_t
 {
     int code;
     const char *text;
 };
+/// @endcond
 
 #define ADD_ENTRY(name) {name, #name}
 
@@ -1367,6 +1450,27 @@ StmtBase::bind(int num, IVariant* data)
 ///
 void
 StmtBase::bind(int num, const IVariant* data)
+{
+    DALTRACE_VISIT;
+    Variant* tmp = new Variant(data);
+    this->m_temp_params.push_back(tmp);
+    this->m_params[num] = tmp;
+}
+
+
+///
+///
+void
+StmtBase::bind(int num, std::streambuf *data)
+{
+    DALTRACE_VISIT;
+    Variant* tmp = new Variant(data);
+    this->m_temp_params.push_back(tmp);
+    this->m_params[num] = tmp;
+}
+
+void
+StmtBase::bind(int num, std::wstreambuf *data)
 {
     DALTRACE_VISIT;
     Variant* tmp = new Variant(data);

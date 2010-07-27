@@ -43,6 +43,7 @@
 
 #include "sqlite_libsqlite.hh"
 #include "dbwtl/db_exceptions.hh"
+#include "dbwtl/stdext/functional"
 #include "../dal_debug.hh"
 #include "../sqlutils.hh"
 
@@ -87,82 +88,53 @@ static void delete_resultset(SqliteResult_libsqlite* rs)
 
 
 
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-
+//
+//
 SqliteBlob_libsqlite::SqliteBlob_libsqlite(const SqliteData_libsqlite& data,
                                            const void *buf, size_t size)
     : SqliteBlob(),
       m_data(data),
       m_buf(static_cast<const unsigned char*>(buf)),
-      m_size(size),
-      m_pos(0)
-{ }
+      m_size(size)
+{
+    char* ptr = const_cast<char*>(static_cast<const char*>(buf));/// @bug test workaround, remove me!
+    this->setg(ptr, ptr, ptr+size);
+}
 
 
+//
+//
 SqliteBlob_libsqlite::~SqliteBlob_libsqlite(void)
 {
 }
 
-size_t  
-SqliteBlob_libsqlite::read(void *buf, size_t count)
+///
+/// @todo move to base class
+SqliteBlob_libsqlite::int_type
+SqliteBlob_libsqlite::underflow()
 {
-    ::memcpy(buf, this->m_buf, count);
-    return count;
-}
-
-size_t  
-SqliteBlob_libsqlite::write(void *buf, size_t count)
-{
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
-}
-
-size_t  
-SqliteBlob_libsqlite::seek(off_t offset, enum seekdir whence)
-{
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
-}
-
-off_t   
-SqliteBlob_libsqlite::tell(void) const
-{
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
-}
-
-size_t 
-SqliteBlob_libsqlite::size(void) const
-{
-    return this->m_size;
-}
-
-bool 
-SqliteBlob_libsqlite::isNull(void) const
-{
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
-}
-
-void 
-SqliteBlob_libsqlite::clear(void)
-{
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    
+    if (gptr() < egptr())
+        return *gptr();
+    else
+        return traits_type::eof();
 }
 
 
-void 
-SqliteBlob_libsqlite::fromStream(std::ifstream& stream)
+///
+///
+void
+SqliteBlob_libsqlite::reset_ptr(const void *buf, size_t size)
 {
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
+    this->m_buf = static_cast<const unsigned char*>(buf);
+    this->m_size = size;
+    char* ptr = const_cast<char*>(static_cast<const char*>(buf));/// @bug test workaround, remove me!
+    this->setg(ptr, ptr, ptr+size);
 }
-
-void 
-SqliteBlob_libsqlite::toStream(std::ofstream& stream)
-{
-    throw std::runtime_error(__PRETTY_FUNCTION__); /// @bug implement me
-}
-
-
-
-
 
 
 
@@ -173,12 +145,14 @@ SqliteBlob_libsqlite::toStream(std::ofstream& stream)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //
+/// @bug locked is not used, remove it
 SqliteData_libsqlite::SqliteData_libsqlite(SqliteResult_libsqlite& result, colnum_t colnum, bool locked)
     : SqliteData(),
       m_resultset(result),
       m_colnum(colnum),
-      m_locked(locked),
-      m_rowid(DAL_TYPE_ROWID_NPOS) // ???????????????????????????????????????????????
+      m_locked(locked), /// @todo is not longer required
+      m_rowid(DAL_TYPE_ROWID_NPOS), /// @todo is not longer required
+      m_blobbuf()
 { }
 
 
@@ -190,23 +164,39 @@ SqliteData_libsqlite::~SqliteData_libsqlite(void)
 
 
 //
-SqliteBlob_libsqlite&   
+SqliteBlob_libsqlite*
 SqliteData_libsqlite::getBlob(void) const
 {
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
-    if(this->isnull())
-        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
-    else
+
+    size_t size = 0;
+    const void *buf = NULL;
+
+    // get ptr if column is not null
+    if(! this->isnull())
     {
         size_t size = this->m_resultset.drv()->sqlite3_column_bytes(this->m_resultset.getHandle(),
                                                                     this->m_colnum - 1);
         const void* buf = this->m_resultset.drv()->sqlite3_column_blob(this->m_resultset.getHandle(),
                                                                        this->m_colnum - 1);
-        
-        SqliteBlob_libsqlite *blob = new SqliteBlob_libsqlite(*this, buf, size); /// @bug store in object
-        return *blob;
     }
+
+    // prepare or reset stream buffer
+    if(this->m_blobbuf.get())
+    {
+        this->m_blobbuf->reset_ptr(buf, size);
+    }
+    else
+    {
+        this->m_blobbuf.reset(new SqliteBlob_libsqlite(*this, buf, size));
+    }
+
+    // everything is up-to-date now...
+    if(this->isnull())
+        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+    else
+        return this->m_blobbuf.get();
 }
 
 
@@ -400,7 +390,6 @@ SqliteResult_libsqlite::prepare(i18n::UString sql)
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
         i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
         DRV_STATE(state, DALSTATE_SQL_ERROR, u_msg, err, "HY000");
-    //    throw exception::SqlError(state);
         throw ex::sql_error(state, sql, u_msg);
         break;
     };
@@ -416,6 +405,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
 {
     DALTRACE_ENTER;
     sqlite::STATE state;
+    std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
         throw ex::engine_error(L"Resultset is in bad state.");
@@ -431,8 +421,14 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     for(param = params.begin(); param != params.end(); ++param)
     {
         IVariant *var = param->second;
+        std::stringstream tmp_stream;
+
 
         int err;
+
+        if(var->isnull())
+            continue;
+
         switch(var->datatype())
         {
         case DAL_TYPE_SMALLINT:
@@ -442,14 +438,25 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             break;
             
             /*
-        case DAL_TYPE_BITINT:
-            err = this->drv()->sqlite3_bind_int64(this->m_stmt.getHandle(), pcount, var->asBigint());
-            break;            
-        case DAL_TYPE_FLOAT:
-        case DAL_TYPE_DOUBLE:
-            err = this->drv()->sqlite3_bind_double(this->m_stmt.getHandle(), pcount, var->asDouble());
-            break;
+              case DAL_TYPE_BITINT:
+              err = this->drv()->sqlite3_bind_int64(this->m_stmt.getHandle(), pcount, var->asBigint());
+              break;            
+              case DAL_TYPE_FLOAT:
+              case DAL_TYPE_DOUBLE:
+              err = this->drv()->sqlite3_bind_double(this->m_stmt.getHandle(), pcount, var->asDouble());
+              break;
             */
+        case DAL_TYPE_BLOB:
+            if(var->asBlob())
+            {
+                tmp_stream << var->asBlob();
+                
+                std::string& tmp_string = tmp_strings[param->first];
+                tmp_string = tmp_stream.str();
+                err = this->drv()->sqlite3_bind_blob(this->getHandle(), param->first, tmp_string.c_str(),
+                                                     tmp_string.size(), NULL);
+            }
+            break;
         default:
             err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,
                                                  var->asNarrowStr("UTF-8").c_str(), -1, SQLITE_TRANSIENT);
@@ -567,6 +574,10 @@ SqliteResult_libsqlite::next(void)
     switch(this->m_last_row_status)
     {   
     case SQLITE_ROW:
+        std::for_each(this->m_column_accessors.begin(),
+                      this->m_column_accessors.end(),
+                      informave::stdext::compose1(std::mem_fun(&SqliteVariant::refresh),
+                                                  informave::stdext::select2nd<VariantListT::value_type>()));
         ++this->m_current_tuple;
         break;
     case SQLITE_DONE:
@@ -616,12 +627,12 @@ SqliteResult_libsqlite::close(void)
             this->m_handle = 0;
             break;
         default:
-        sqlite::STATE state;
-        const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
-        i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-        DRV_STATE(state, DALSTATE_ERROR, u_msg, err, "HY000");
-        throw ex::engine_error(state);
-        break;            
+            sqlite::STATE state;
+            const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
+            i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
+            DRV_STATE(state, DALSTATE_ERROR, u_msg, err, "HY000");
+            throw ex::engine_error(state);
+            break;            
         };
     }
 }
@@ -665,12 +676,12 @@ SqliteResult_libsqlite::column(i18n::UString name)
 
 //
 /*
-const SqliteVariant&
-SqliteResult_libsqlite::field(i18n::UString name)
-{
-    colnum_t num = this->columnID(name);
-    return this->field(num);
-}
+  const SqliteVariant&
+  SqliteResult_libsqlite::field(i18n::UString name)
+  {
+  colnum_t num = this->columnID(name);
+  return this->field(num);
+  }
 */
 
 
@@ -687,7 +698,7 @@ SqliteResult_libsqlite::column(colnum_t num)
         throw ex::engine_error(L"Resultset is not open.");
 
     if(num > this->columnCount())
-    	throw ex::not_found(L"column number out of range");
+        throw ex::not_found(L"column number out of range");
 
 
     VariantListT::iterator p = this->m_column_accessors.find(num);
@@ -707,29 +718,29 @@ SqliteResult_libsqlite::column(colnum_t num)
 
 //
 /*
-SqliteVariant&
-SqliteResult_libsqlite::field(colnum_t num)
-{
-    DALTRACE_ENTER;
+  SqliteVariant&
+  SqliteResult_libsqlite::field(colnum_t num)
+  {
+  DALTRACE_ENTER;
 
-    if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+  if(this->isBad())
+  throw ex::engine_error(L"Resultset is in bad state.");
 
-    if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+  if(! this->isOpen())
+  throw ex::engine_error(L"Resultset is not open.");
 
-    VariantListT::iterator p = this->m_field_accessors.find(num);
-    if(this->m_field_accessors.end() == p)
-    {
-        std::pair<VariantListT::iterator,bool> r;
-        SqliteVariant* v = new SqliteVariant(new SqliteData_libsqlite(*this, num, true));
-        this->m_allocated_accessors.push_back(v);
-        r = this->m_field_accessors.insert(VariantListT::value_type(num, v));
-        p = r.first;
-    }
-    DALTRACE_LEAVE;
-    return *(p->second);
-}
+  VariantListT::iterator p = this->m_field_accessors.find(num);
+  if(this->m_field_accessors.end() == p)
+  {
+  std::pair<VariantListT::iterator,bool> r;
+  SqliteVariant* v = new SqliteVariant(new SqliteData_libsqlite(*this, num, true));
+  this->m_allocated_accessors.push_back(v);
+  r = this->m_field_accessors.insert(VariantListT::value_type(num, v));
+  p = r.first;
+  }
+  DALTRACE_LEAVE;
+  return *(p->second);
+  }
 */
 
 
@@ -829,21 +840,21 @@ SqliteResult_libsqlite::getDbc(void) const
 //
 //
 SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_libsqlite &result)
-	: SqliteColumnDesc()
+    : SqliteColumnDesc()
 {
-	if(i == 0)
-	{
-		//this->m_daltype = DAL_TYPE_BOOKMARK;
-		this->m_name.setStr(L"__DBWTL_BOOKMARK__");
-	}
-	else
-	{
+    if(i == 0)
+    {
+        //this->m_daltype = DAL_TYPE_BOOKMARK;
+        this->m_name.setStr(L"__DBWTL_BOOKMARK__");
+    }
+    else
+    {
         // set name
         const char *s = result.drv()->sqlite3_column_name(result.getHandle(), i-1);
         this->m_name.setStr(s ? s : "", "UTF-8");
 
         // set type
-		const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
+        const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
         SqlTypeParser pt;
         pt.registerType(DAL_TYPE_VARCHAR, L"TEXT*");
         pt.parse(i18n::conv_from(type, "UTF-8"));
@@ -852,7 +863,7 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
         this->m_size.setInt(pt.getSize());
         this->m_precision.setUSmallint(pt.getPrecision());
         this->m_scale.setUSmallint(pt.getSize());
-	}
+    }
 }
 
 
@@ -890,23 +901,23 @@ SqliteResult_libsqlite::describeColumn(i18n::UString name) const
 void
 SqliteResult_libsqlite::refreshMetadata(void)
 {
-	DALTRACE_ENTER;
-	this->m_column_desc.clear();
-	if(! this->getHandle())
-		return;
-	
-	size_t colcount = this->columnCount();
-	SqliteColumnDesc desc;
-	//desc.m_name.setStr(L"foo");
-	//for(size_t i = 0; i < colCount; ++i)
-	//
-	
-	for(size_t i = 0; i <= colcount; ++i)
-	{
-		SqliteColumnDesc_libsqlite x(i, *this);
-		//x = y;
-		this->m_column_desc.insert(std::pair<colnum_t, SqliteColumnDesc_libsqlite>(i, x));
-	}
+    DALTRACE_ENTER;
+    this->m_column_desc.clear();
+    if(! this->getHandle())
+        return;
+    
+    size_t colcount = this->columnCount();
+    SqliteColumnDesc desc;
+    //desc.m_name.setStr(L"foo");
+    //for(size_t i = 0; i < colCount; ++i)
+    //
+    
+    for(size_t i = 0; i <= colcount; ++i)
+    {
+        SqliteColumnDesc_libsqlite x(i, *this);
+        //x = y;
+        this->m_column_desc.insert(std::pair<colnum_t, SqliteColumnDesc_libsqlite>(i, x));
+    }
 }
 
 //
@@ -1272,21 +1283,21 @@ SqliteStmt_libsqlite::close(void)
     // clear params from prepared statements
     // clean only PodVariant types with special delete flag?!
     /*
-    for_each(this->m_paramlist.begin(),
-             this->m_paramlist.end(),
-             delete_object());
+      for_each(this->m_paramlist.begin(),
+      this->m_paramlist.end(),
+      delete_object());
     */
 
 
     SqliteStmt::close();
 
     /* now done in StmtBase?
-    this->m_paramlist.clear(); // better use smartobjects?
-    for_each(this->m_paramlistPod.begin(),
-             this->m_paramlistPod.end(),
-             delete_object());
+       this->m_paramlist.clear(); // better use smartobjects?
+       for_each(this->m_paramlistPod.begin(),
+       this->m_paramlistPod.end(),
+       delete_object());
 
-    this->m_paramlistPod.clear();
+       this->m_paramlistPod.clear();
     */
 
     DALTRACE_LEAVE;

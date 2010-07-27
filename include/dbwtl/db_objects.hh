@@ -307,6 +307,10 @@ public:
 
     virtual void      bind(int num, dal::Variant data)          { this->m_stmt->bind(num, data); }
 
+    virtual void      bind(int num, std::streambuf *data)       { this->m_stmt->bind(num, data); }
+
+    virtual void      bind(int num, std::wstreambuf *data)      { this->m_stmt->bind(num, data); }
+
     virtual dal::rowcount_t  affectedRows(void) const           { return this->m_stmt->affectedRows(); }
 
     virtual dal::IDALDriver* getDriver(void) const              { return this->m_stmt->getDriver(); }
@@ -660,10 +664,145 @@ private:
 //GSUPPDB.001 ~~~~~~
 //GSUPPDB.001 libsqlite:: Uses the libsqlite3.so or sqlite3.dll to access
 //GSUPPDB.001 a database file.
-//GSUPPDB.001 odbc:: Uses a installed ODBC driver.
+//GSUPPDB.001 odbc:: Uses a installed ODBC driver to connect to a SQLite database.
 //GSUPPDB.001 
 
 
+
+
+//GCORE.001 The Database<> template
+//GCORE.001 -----------------------
+//GCORE.001 
+//GCORE.001 The 'Database<>' template defines all important types required to work
+//GCORE.001 with a database, depending on the selected engine.
+//GCORE.001 The engine is a class name from the 'dal' namespace, e.g. 'dal::sqlite'.
+//GCORE.001 If you want to choose the engine at runtime, you can use 'dal::generic' and
+//GCORE.001 set the engine later.
+//GCORE.001 
+
+//GCORE.001 Environment
+//GCORE.001 ~~~~~~~~~~~
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ---------------------------------------------
+//GCORE.001 Database<dal::engine_name>::Environment
+//GCORE.001 ---------------------------------------------
+//GCORE.001 
+
+
+
+//GCORE.001 
+//GCORE.001 Connection
+//GCORE.001 ~~~~~~~~~~
+//GCORE.001 [source,cpp]
+//GCORE.001 ---------------------------------------------
+//GCORE.001 Database<dal::engine_name>::Connection
+//GCORE.001 ---------------------------------------------
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 Statement
+//GCORE.001 ~~~~~~~~~
+//GCORE.001 [source,cpp]
+//GCORE.001 ---------------------------------------------
+//GCORE.001 Database<dal::engine_name>::Statement
+//GCORE.001 ---------------------------------------------
+//GCORE.001 
+
+
+//GCORE.001 Binding BLOB and MEMO types
+//GCORE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//GCORE.001 
+//GCORE.001 A DBMS::Statement object provides two overloaded bind() methods for
+//GCORE.001 std::streambuf* and std::wstreambuf*.
+//GCORE.001 
+//GCORE.001 Binding std::streambuf*::
+//GCORE.001 The data is threated as binary data.
+//GCORE.001 
+//GCORE.001 Binding std::wstreambuf*::
+//GCORE.001 A character set conversion is performed (from UCS-2 or UCS-4 to connection encoding)
+//GCORE.001 before the data is sent to the database.
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 The following examples shows how stream buffers can be bound to a statement:
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 std::ifstream binFile("photo.jpg", std::ios::binary);
+//GCORE.001 stmt.bind(1, binFile.rdbuf()); // binary data
+//GCORE.001 
+//GCORE.001 std::wifstream textFile("example.txt");
+//GCORE.001 stmt.bind(2, textFile.rdbuf()); // text data
+//GCORE.001 
+//GCORE.001 std::ifstream utf8File("utf8.txt");
+//GCORE.001 std::wstreambuf *wbuf = new std::wbuffer_convert<std::codecvt_utf8>(utf8File.rdbuf());
+//GCORE.001 stmt.bind(3, wbuf); // text data
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 The last one is a special case where a char stream buffer is first converted
+//GCORE.001 to a wide char stream buffer. 
+//GCORE.001 
+
+
+
+
+
+//GCORE.001 
+//GCORE.001 Resultset
+//GCORE.001 ~~~~~~~~~
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ---------------------------------------------
+//GCORE.001 Database<dal::engine_name>::Resultset
+//GCORE.001 ---------------------------------------------
+//GCORE.001 
+
+
+//GCORE.001 Wokring with BLOB and MEMO types
+//GCORE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//GCORE.001 For receiving BLOB or MEMO fields, the Variant class provides two
+//GCORE.001 methods: 'asBlob()' and 'asMemo()'.
+//GCORE.001
+
+//GCORE.001 asBlob::
+//GCORE.001 Returns a pointer to std::streambuf and performs no charset conversion.
+//GCORE.001 You just get the raw data from the database.
+//GCORE.001 
+//GCORE.001 asMemo::
+//GCORE.001 Returns a pointer to a std::wstreambuf and performs charset conversion (from
+//GCORE.001 connection encoding to UCS-2 or UCS-4 [depends on sizeof(wchar_t]).
+//GCORE.001 If the underlaying column type is of type BLOB (Variant::daltype() == DAL_TYPE_BLOB),
+//GCORE.001 a convert_error exception is raised.
+//GCORE.001 All other types are converted into a std::wstreambuf.
+//GCORE.001 
+//GCORE.001 If you have obtained a buffer pointer with asBlob() or asMemo(), the pointer
+//GCORE.001 is valid (for all rows) until you close the resultset or statement.
+//GCORE.001 Scrolling through the dataset (e.g. next()) only resets the buffer to the new
+//GCORE.001 row data. If the new field is NULL, the buffer is marked as bad (std::ios::bad).
+//GCORE.001 
+
+//GCORE.001 Value
+//GCORE.001 ~~~~~
+//GCORE.001 ColumnDesc
+//GCORE.001 ~~~~~~~~~~
+//GCORE.001 Variant
+//GCORE.001 ~~~~~~~
+//GCORE.001 
+//GCORE.001 Blob
+//GCORE.001 ~~~~
+//GCORE.001 
+//GCORE.001 Memo
+//GCORE.001 ~~~~
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 Exceptions
+//GCORE.001 ----------
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 Internals
+//GCORE.001 ---------
+//GCORE.001 
+//GCORE.001 DAL Layer
+//GCORE.001 ~~~~~~~~~
+//GCORE.001 
 
 
 //------------------------------------------------------------------------------
@@ -680,6 +819,8 @@ struct Database
     typedef typename db_traits<Engine, tag>::value_type               Value;
     typedef typename db_traits<Engine, tag>::dal_columndesc_type      ColumnDesc;
     typedef dal::Variant                                              Variant;
+    typedef dal::Blob                                                 Blob;
+    typedef dal::Memo                                                 Memo;
 };
 
 //GSUPP.001 

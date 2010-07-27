@@ -81,7 +81,7 @@ struct sqlite;
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite BLOB
-class DBWTL_EXPORT SqliteBlob : public IBlob
+class DBWTL_EXPORT SqliteBlob : public IBlobBuffer
 {
     // no sqlite specific extensions
 };
@@ -103,7 +103,7 @@ public:
     SqliteData(void);
     virtual ~SqliteData(void);
 
-    virtual SqliteBlob&  getBlob(void) const = 0;
+    virtual SqliteBlob*  getBlob(void) const = 0;
     virtual double       getDouble(void) const = 0;
     virtual int          getInt(void) const = 0;
     virtual int64_t      getInt64(void) const = 0;
@@ -132,10 +132,11 @@ public:
 
     virtual ~SqliteVariant(void);
 
-    virtual SqliteBlob& asBlob(void) const;
 
+    virtual void refresh(void);
+ 
 private:
-	SqliteVariant(const SqliteVariant& ref);
+    SqliteVariant(const SqliteVariant& ref);
     SqliteVariant(void);
     SqliteVariant& operator=(const SqliteVariant&);
 };
@@ -151,8 +152,8 @@ class DBWTL_EXPORT SqliteTable : public ITable
 {
 public:
     typedef util::SmartPtr<SqliteTable,
-                           util::RefCounted,
-                           util::AllowConversion> ptr;
+        util::RefCounted,
+        util::AllowConversion> ptr;
     
     SqliteTable(i18n::UString dbname, SqliteResult& src);
     
@@ -176,13 +177,13 @@ protected:
     Variant  m_systemobject;
 
 /*
-    i18n::UString   m_tablename;
-    i18n::UString   m_schemaname;
-    i18n::UString   m_catalogname;
-    i18n::UString   m_typename;
-    bool            m_notnull;
-    bool            m_systemflag;
-    int             m_typelen;
+  i18n::UString   m_tablename;
+  i18n::UString   m_schemaname;
+  i18n::UString   m_catalogname;
+  i18n::UString   m_typename;
+  bool            m_notnull;
+  bool            m_systemflag;
+  int             m_typelen;
 */
 };
 
@@ -212,8 +213,8 @@ public:
     friend class SqliteDbc;
 
     typedef util::SmartPtr<SqliteDatatype,
-                           util::RefCounted,
-                           util::AllowConversion> ptr;
+        util::RefCounted,
+        util::AllowConversion> ptr;
 
     SqliteDatatype(void);
 
@@ -365,20 +366,20 @@ protected:
 /// @brief Main SQLite interface class 
 struct sqlite
 {
-	typedef SqliteDbc          DBC;
-	typedef SqliteResult       RESULT;
-	typedef SqliteStmt         STMT;
-	typedef SqliteEnv          ENV;
-	typedef SqliteVariant      VALUE;
-	typedef SqliteEngineState  STATE;
-	typedef SqliteTable        TABLE;
-	typedef SqliteColumnDesc   COLUMNDESC;
+    typedef SqliteDbc          DBC;
+    typedef SqliteResult       RESULT;
+    typedef SqliteStmt         STMT;
+    typedef SqliteEnv          ENV;
+    typedef SqliteVariant      VALUE;
+    typedef SqliteEngineState  STATE;
+    typedef SqliteTable        TABLE;
+    typedef SqliteColumnDesc   COLUMNDESC;
 
-	static inline const STATE& engine_state(dalstate_t& state)
-	{
-        const IEngineState* es = state.getImpl();
-        return dynamic_cast<const STATE&>(*es);
-	}
+    static inline const STATE& engine_state(dalstate_t& state)
+        {
+            const IEngineState* es = state.getImpl();
+            return dynamic_cast<const STATE&>(*es);
+        }
 
     ///
     /// @brief Create a new Environment
@@ -408,7 +409,7 @@ public:
         { return this->getValue()->getInt(); }
 
 
-    virtual SqliteBlob& asBlob(void) const
+    virtual std::streambuf* asBlob(void) const
         {
             return this->getValue()->getBlob();
         }
@@ -485,24 +486,24 @@ struct sqlite_v4 { };
 
 class SqliteConnection;
 /*
-template<>
-struct db_traits<DAL::Sqlite, sqlite_v4>
-{
-    typedef Environment<DAL::Sqlite, sqlite_v4>      environment_type;
-	typedef SqliteConnection  connection_type;
-    typedef int                                statement_type;
-    typedef Result<DAL::Sqlite, sqlite_v4>           resultset_type;
-    typedef CachedResult<DAL::Sqlite, sqlite_v4>     cached_resultset_type;
-    typedef int                                variant_type;
+  template<>
+  struct db_traits<DAL::Sqlite, sqlite_v4>
+  {
+  typedef Environment<DAL::Sqlite, sqlite_v4>      environment_type;
+  typedef SqliteConnection  connection_type;
+  typedef int                                statement_type;
+  typedef Result<DAL::Sqlite, sqlite_v4>           resultset_type;
+  typedef CachedResult<DAL::Sqlite, sqlite_v4>     cached_resultset_type;
+  typedef int                                variant_type;
 
-    typedef DAL::Sqlite::RESULT                dal_resultset_type;
+  typedef DAL::Sqlite::RESULT                dal_resultset_type;
 
-    enum { DB_SYSTEM_ID = 0 };
-};
+  enum { DB_SYSTEM_ID = 0 };
+  };
 
 
-class SqliteConnection : public Connection<DAL::Sqlite, sqlite_v4, DAL::SqliteDbc>
-{ };
+  class SqliteConnection : public Connection<DAL::Sqlite, sqlite_v4, DAL::SqliteDbc>
+  { };
 */
 
 

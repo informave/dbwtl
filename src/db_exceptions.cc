@@ -145,10 +145,13 @@ namespace ex
     }
 
 
-    convert_error::convert_error(informave::db::dal::daltype_t, informave::db::dal::DatatypeEnumeration)
+    convert_error::convert_error(informave::db::dal::daltype_t src, informave::db::dal::DatatypeEnumeration dest)
         : exception(),
           m_varname()
     {
+    	i18n::UString msg;
+	msg = L"Conversion error: Can't convert type " + daltype2string(src) + L" to " + daltype2string(dest) + L".";
+	this->setMessage(msg);
     }
 
 

@@ -73,6 +73,8 @@ namespace informave
         {
 
             //--------------------------------------------------------------------------
+	    /// 
+	    /// @cond DEV_DOCS
             /// This template class represent a converter state
             /// @brief converter state
             template<class T>
@@ -96,6 +98,7 @@ namespace informave
                         return cast(state) & 0xf0;
                     }
             };
+	    /// @endcond
 
 
             //--------------------------------------------------------------------------

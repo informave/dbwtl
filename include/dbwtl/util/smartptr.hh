@@ -6,6 +6,8 @@
 #include <functional>
 #include <stdexcept>
 
+///
+/// @cond DEV_DOCS
 
 #define NS_BEGIN namespace informave { namespace util {
 
@@ -725,5 +727,6 @@ namespace std
     };
 }
 
+/// @endcond
 
 #endif

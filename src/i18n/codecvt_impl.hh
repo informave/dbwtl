@@ -35,6 +35,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+///
+/// @cond DEV_DOCS
 /// @file
 /// @brief codecvt facet implementation
 /// @author Daniel Vogelbacher
@@ -211,5 +213,6 @@ namespace informave
     }
 }
 
+/// @endcond
 
 #endif

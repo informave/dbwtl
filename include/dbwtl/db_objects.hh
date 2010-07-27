@@ -829,8 +829,16 @@ struct Database
 //GSUPP.001 
 //GSUPP.001 [format="csv",cols="^1,4*2",separator=";"]
 //GSUPP.001 |===================================================
-//GSUPP.001 DBMS;Version;Status;Write Support;Version indroduced
+//GSUPP.001 DBMS;Version;Status;Write Support;Version introduced
 //GSUPP.001 include::../../doc/dbms_support.csv[]
+//GSUPP.001 |===================================================
+//GSUPP.001 
+//GSUPP.001 Drivers implemented as SDA connector
+//GSUPP.001 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//GSUPP.001 [format="csv",cols="^1,4*2",separator=";"]
+//GSUPP.001 |===================================================
+//GSUPP.001 DBMS;Version;Status;Write Support;Version introduced
+//GSUPP.001 include::../../doc/sda_drivers.csv[]
 //GSUPP.001 |===================================================
 //GSUPP.001 
 

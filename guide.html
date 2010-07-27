@@ -734,12 +734,129 @@ odbc
 </dt>
 <dd>
 <p>
-Uses a installed ODBC driver.
+Uses a installed ODBC driver to connect to a SQLite database.
 </p>
 </dd>
 </dl></div>
 </div>
-<h2 id="_supported_systems">3. Supported systems</h2>
+<h2 id="_the_database_lt_gt_template">3. The Database&lt;&gt; template</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>The <em>Database&lt;&gt;</em> template defines all important types required to work
+with a database, depending on the selected engine.
+The engine is a class name from the <em>dal</em> namespace, e.g. <em>dal::sqlite</em>.
+If you want to choose the engine at runtime, you can use <em>dal::generic</em> and
+set the engine later.</p></div>
+<h3 id="_environment">3.1. Environment</h3><div style="clear:left"></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Environment</tt></pre></div></div>
+<h3 id="_connection">3.2. Connection</h3><div style="clear:left"></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Connection</tt></pre></div></div>
+<h3 id="_statement">3.3. Statement</h3><div style="clear:left"></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Statement</tt></pre></div></div>
+<h4 id="_binding_blob_and_memo_types">3.3.1. Binding BLOB and MEMO types</h4>
+<div class="paragraph"><p>A DBMS::Statement object provides two overloaded bind() methods for
+std::streambuf* and std::wstreambuf*.</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+Binding std::streambuf*
+</dt>
+<dd>
+<p>
+The data is threated as binary data.
+</p>
+</dd>
+<dt class="hdlist1">
+Binding std::wstreambuf*
+</dt>
+<dd>
+<p>
+A character set conversion is performed (from UCS-2 or UCS-4 to connection encoding)
+before the data is sent to the database.
+</p>
+</dd>
+</dl></div>
+<div class="paragraph"><p>The following examples shows how stream buffers can be bound to a statement:</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>std<span style="color: #990000">::</span>ifstream <span style="font-weight: bold"><span style="color: #000000">binFile</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"photo.jpg"</span><span style="color: #990000">,</span> std<span style="color: #990000">::</span>ios<span style="color: #990000">::</span>binary<span style="color: #990000">);</span>
+stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #993399">1</span><span style="color: #990000">,</span> binFile<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">rdbuf</span></span><span style="color: #990000">());</span> <span style="font-style: italic"><span style="color: #9A1900">// binary data</span></span>
+
+std<span style="color: #990000">::</span>wifstream <span style="font-weight: bold"><span style="color: #000000">textFile</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"example.txt"</span><span style="color: #990000">);</span>
+stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #993399">2</span><span style="color: #990000">,</span> textFile<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">rdbuf</span></span><span style="color: #990000">());</span> <span style="font-style: italic"><span style="color: #9A1900">// text data</span></span>
+
+std<span style="color: #990000">::</span>ifstream <span style="font-weight: bold"><span style="color: #000000">utf8File</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"utf8.txt"</span><span style="color: #990000">);</span>
+std<span style="color: #990000">::</span>wstreambuf <span style="color: #990000">*</span>wbuf <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">new</span></span> std<span style="color: #990000">::</span>wbuffer_convert<span style="color: #990000">&lt;</span>std<span style="color: #990000">::</span>codecvt_utf8<span style="color: #990000">&gt;(</span>utf8File<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">rdbuf</span></span><span style="color: #990000">());</span>
+stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #993399">3</span><span style="color: #990000">,</span> wbuf<span style="color: #990000">);</span> <span style="font-style: italic"><span style="color: #9A1900">// text data</span></span></tt></pre></div></div>
+<div class="paragraph"><p>The last one is a special case where a char stream buffer is first converted
+to a wide char stream buffer.</p></div>
+<h3 id="_resultset">3.4. Resultset</h3><div style="clear:left"></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Resultset</tt></pre></div></div>
+<h4 id="_wokring_with_blob_and_memo_types">3.4.1. Wokring with BLOB and MEMO types</h4>
+<div class="paragraph"><p>For receiving BLOB or MEMO fields, the Variant class provides two
+methods: <em>asBlob()</em> and <em>asMemo()</em>.</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+asBlob
+</dt>
+<dd>
+<p>
+Returns a pointer to std::streambuf and performs no charset conversion.
+You just get the raw data from the database.
+</p>
+</dd>
+<dt class="hdlist1">
+asMemo
+</dt>
+<dd>
+<p>
+Returns a pointer to a std::wstreambuf and performs charset conversion (from
+connection encoding to UCS-2 or UCS-4 [depends on sizeof(wchar_t]).
+If the underlaying column type is of type BLOB (Variant::daltype() == DAL_TYPE_BLOB),
+a convert_error exception is raised.
+All other types are converted into a std::wstreambuf.
+</p>
+</dd>
+</dl></div>
+<div class="paragraph"><p>If you have obtained a buffer pointer with asBlob() or asMemo(), the pointer
+is valid (for all rows) until you close the resultset or statement.
+Scrolling through the dataset (e.g. next()) only resets the buffer to the new
+row data. If the new field is NULL, the buffer is marked as bad (std::ios::bad).</p></div>
+<h3 id="_value">3.5. Value</h3><div style="clear:left"></div>
+<h3 id="_columndesc">3.6. ColumnDesc</h3><div style="clear:left"></div>
+<h3 id="_variant">3.7. Variant</h3><div style="clear:left"></div>
+<h3 id="_blob">3.8. Blob</h3><div style="clear:left"></div>
+<h3 id="_memo">3.9. Memo</h3><div style="clear:left"></div>
+</div>
+<h2 id="_exceptions">4. Exceptions</h2>
+<div class="sectionbody">
+</div>
+<h2 id="_internals">5. Internals</h2>
+<div class="sectionbody">
+<h3 id="_dal_layer">5.1. DAL Layer</h3><div style="clear:left"></div>
+</div>
+<h2 id="_supported_systems">6. Supported systems</h2>
 <div class="sectionbody">
 <div class="tableblock">
 <table rules="all"
@@ -757,14 +874,14 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table">Version</p></td>
 <td align="left" valign="top"><p class="table">Status</p></td>
 <td align="left" valign="top"><p class="table">Write Support</p></td>
-<td align="left" valign="top"><p class="table">Version indroduced</p></td>
+<td align="left" valign="top"><p class="table">Version introduced</p></td>
 </tr>
 <tr>
-<td align="center" valign="top"><p class="table">SQLite</p></td>
-<td align="left" valign="top"><p class="table">&gt;= 3.6.0</p></td>
+<td align="center" valign="top"><p class="table">General ODBC</p></td>
+<td align="left" valign="top"><p class="table"></p></td>
 <td align="left" valign="top"><p class="table">IN PROGRESS</p></td>
 <td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table">0.1.1</p></td>
+<td align="left" valign="top"><p class="table"></p></td>
 </tr>
 <tr>
 <td align="center" valign="top"><p class="table">PostgreSQL</p></td>
@@ -774,6 +891,35 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table">0.1.2</p></td>
 </tr>
 <tr>
+<td align="center" valign="top"><p class="table">SQLite</p></td>
+<td align="left" valign="top"><p class="table">&gt;= 3.6.0</p></td>
+<td align="left" valign="top"><p class="table">IN PROGRESS</p></td>
+<td align="left" valign="top"><p class="table">Yes</p></td>
+<td align="left" valign="top"><p class="table">0.1.0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="_drivers_implemented_as_sda_connector">6.1. Drivers implemented as SDA connector</h3><div style="clear:left"></div>
+<div class="tableblock">
+<table rules="all"
+width="100%"
+frame="border"
+cellspacing="0" cellpadding="4">
+<col width="11%" />
+<col width="22%" />
+<col width="22%" />
+<col width="22%" />
+<col width="22%" />
+<tbody>
+<tr>
+<td align="center" valign="top"><p class="table">DBMS</p></td>
+<td align="left" valign="top"><p class="table">Version</p></td>
+<td align="left" valign="top"><p class="table">Status</p></td>
+<td align="left" valign="top"><p class="table">Write Support</p></td>
+<td align="left" valign="top"><p class="table">Version introduced</p></td>
+</tr>
+<tr>
 <td align="center" valign="top"><p class="table">Btrieve</p></td>
 <td align="left" valign="top"><p class="table">&#8656; 6.15</p></td>
 <td align="left" valign="top"><p class="table">IN PROGRESS</p></td>
@@ -781,77 +927,7 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table"></p></td>
 </tr>
 <tr>
-<td align="center" valign="top"><p class="table">Oracle</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Teradata</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">MySQL</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">MS-SQL Server</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Ingres</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Sybase</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Pervasive</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">DB2</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Informix</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Firebird</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Interbase</p></td>
+<td align="center" valign="top"><p class="table">DBase</p></td>
 <td align="left" valign="top"><p class="table"></p></td>
 <td align="left" valign="top"><p class="table">PLANNED</p></td>
 <td align="left" valign="top"><p class="table">Yes</p></td>
@@ -865,73 +941,24 @@ cellspacing="0" cellpadding="4">
 <td align="left" valign="top"><p class="table"></p></td>
 </tr>
 <tr>
-<td align="center" valign="top"><p class="table">DBase</p></td>
+<td align="center" valign="top"><p class="table">Superbase</p></td>
 <td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
+<td align="left" valign="top"><p class="table">IN PROGRESS</p></td>
+<td align="left" valign="top"><p class="table">No</p></td>
 <td align="left" valign="top"><p class="table"></p></td>
 </tr>
 <tr>
 <td align="center" valign="top"><p class="table">TopSpeed</p></td>
 <td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
+<td align="left" valign="top"><p class="table">IN PROGRESS</p></td>
 <td align="left" valign="top"><p class="table">No</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Adabas D</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">NOT SUPPORTED</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">MaxDB</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">NOT SUPPORTED</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">MonetSQL</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">NOT SUPPORTED</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">General ODBC</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">PLANNED</p></td>
-<td align="left" valign="top"><p class="table">Yes</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Blackfish SQL</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">NOT SUPPORTED</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Ocelot</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">NOT SUPPORTED</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-</tr>
-<tr>
-<td align="center" valign="top"><p class="table">Mimer</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
-<td align="left" valign="top"><p class="table">NOT SUPPORTED</p></td>
-<td align="left" valign="top"><p class="table"></p></td>
 <td align="left" valign="top"><p class="table"></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<h2 id="_copying">4. COPYING</h2>
+<h2 id="_copying">7. COPYING</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Copyright (C) 2008-2010 Daniel Vogelbacher.
 Free use of this software is
@@ -941,7 +968,7 @@ granted under the terms of the BSD License.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2010-07-10 17:56:16 CEST
+Last updated 2010-07-27 20:51:11 CEST
 </div>
 </div>
 </body>

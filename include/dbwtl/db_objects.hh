@@ -109,6 +109,230 @@ struct extended_api_tag { };
 
 //------------------------------------------------------------------------------
 ///
+/// @brief SQLSTATE template
+template<int T, class U = informave::db::ex::sqlstate_exception>
+struct sqlstate : public U
+{
+    sqlstate(const dal::IDiagnostic& diag_to_clone)
+        : U(diag_to_clone)
+    {}
+    
+    sqlstate(const sqlstate& orig) : U(orig)
+    {}
+
+    virtual ~sqlstate(void) throw()
+    {}
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Basic SQLSTATE's (SQL:2008)
+struct basic_states
+{
+    typedef enum
+    {
+        DAL_SQLSTATE_07000, // dynamic SQL error
+        DAL_SQLSTATE_07001, // using clause does not match dynamic parameter specification
+        DAL_SQLSTATE_07002, // using clause does not match target specification
+        DAL_SQLSTATE_07003, // cursor specification cannot be executed
+        DAL_SQLSTATE_07004, // using clause required for dynamic parameters
+        DAL_SQLSTATE_07005, // prepared statement not a cursor specification
+        DAL_SQLSTATE_07006, // restricted data type attribute violation
+        DAL_SQLSTATE_07007, // using clause required for result fields
+        DAL_SQLSTATE_07008, // invalid descriptor count
+        DAL_SQLSTATE_07009, // invalid descriptor index
+        DAL_SQLSTATE_0700B, // data type transform function violation
+        DAL_SQLSTATE_0700C, // undefined DATA value
+        DAL_SQLSTATE_0700D, // invalid DATA target
+        DAL_SQLSTATE_0700E, // invalid LEVEL value
+        DAL_SQLSTATE_0700F, // invalid DATETIME_INTERVAL_CODE
+        DAL_SQLSTATE_08000, // connection exception
+        DAL_SQLSTATE_08001, // SQL-client unable to establish SQL-connection
+        DAL_SQLSTATE_08002, // connection name in use
+        DAL_SQLSTATE_08003, // connection does not exist
+        DAL_SQLSTATE_08004, // SQL-server rejected establishment of SQL-connection
+        DAL_SQLSTATE_08006, // connection failure
+        DAL_SQLSTATE_08007, // transaction resolution unknown
+        DAL_SQLSTATE_09000, // trigger action exception
+        DAL_SQLSTATE_0A000, // feature not supported
+        DAL_SQLSTATE_0A001, // multiple server transactions
+        DAL_SQLSTATE_0D000, // invalid target type specification
+        DAL_SQLSTATE_0E000, // invalid schema name list specification
+        DAL_SQLSTATE_0F000, // locator exception
+        DAL_SQLSTATE_0F001, // invalid specification
+        DAL_SQLSTATE_0L000, // invalid grantor
+        DAL_SQLSTATE_0M000, // invalid SQL-invoked procedure reference
+        DAL_SQLSTATE_0P000, // invalid role specification
+        DAL_SQLSTATE_0S000, // invalid transform group name specification
+        DAL_SQLSTATE_0T000, // target table disagrees with cursor specification
+        DAL_SQLSTATE_0U000, // attempt to assign to non-updatable column
+        DAL_SQLSTATE_0V000, // attempt to assign to ordering column
+        DAL_SQLSTATE_0W000, // prohibited statement encountered during trigger execution
+        DAL_SQLSTATE_0Z000, // diagnostics exception
+        DAL_SQLSTATE_0Z001, // maximum number of stacked diagnostics areas exceeded
+        DAL_SQLSTATE_21000, // cardinality violation
+        DAL_SQLSTATE_22000, // data exception
+        DAL_SQLSTATE_22001, // string data, right truncation
+        DAL_SQLSTATE_22002, // null value, no indicator parameter
+        DAL_SQLSTATE_22003, // numeric value out of range
+        DAL_SQLSTATE_22004, // null value not allowed
+        DAL_SQLSTATE_22005, // error in assignment
+        DAL_SQLSTATE_22006, // invalid interval format
+        DAL_SQLSTATE_22007, // invalid datetime format
+        DAL_SQLSTATE_22008, // datetime field overflow
+        DAL_SQLSTATE_22009, // invalid time zone displacement value
+        DAL_SQLSTATE_2200B, // escape character conflict
+        DAL_SQLSTATE_2200C, // invalid use of escape character
+        DAL_SQLSTATE_2200D, // invalid escape octet
+        DAL_SQLSTATE_2200E, // null value in array target
+        DAL_SQLSTATE_2200F, // zero-length character string
+        DAL_SQLSTATE_2200G, // most specific type mismatch
+        DAL_SQLSTATE_2200H, // sequence generator limit exceeded
+        DAL_SQLSTATE_2200P, // interval value out of range
+        DAL_SQLSTATE_2200Q, // multiset value overflow
+        DAL_SQLSTATE_22010, // invalid indicator parameter value
+        DAL_SQLSTATE_22011, // substring error
+        DAL_SQLSTATE_22012, // division by zero
+        DAL_SQLSTATE_22013, // invalid preceding or following size in window function
+        DAL_SQLSTATE_22014, // invalid argument for NTILE function
+        DAL_SQLSTATE_22015, // interval field overflow
+        DAL_SQLSTATE_22016, // invalid argument for NTH_VALUE function
+        DAL_SQLSTATE_22018, // invalid character value for cast
+        DAL_SQLSTATE_22019, // invalid escape character
+        DAL_SQLSTATE_2201B, // invalid regular expression
+        DAL_SQLSTATE_2201C, // null row not permitted in table
+        DAL_SQLSTATE_2201E, // invalid argument for natural logarithm
+        DAL_SQLSTATE_2201F, // invalid argument for power function
+        DAL_SQLSTATE_2201G, // invalid argument for width bucket function
+        DAL_SQLSTATE_2201S, // invalid XQuery regular expression
+        DAL_SQLSTATE_2201T, // invalid XQuery option flag
+        DAL_SQLSTATE_2201U, // attempt to replace a zero-length string
+        DAL_SQLSTATE_2201V, // invalid XQuery replacement string
+        DAL_SQLSTATE_2201W, // invalid row count in fetch first clause
+        DAL_SQLSTATE_2201X, // invalid row count in result offset clause
+        DAL_SQLSTATE_22021, // character not in repertoire
+        DAL_SQLSTATE_22022, // indicator overflow
+        DAL_SQLSTATE_22023, // invalid parameter value
+        DAL_SQLSTATE_22024, // unterminated C string
+        DAL_SQLSTATE_22025, // invalid escape sequence
+        DAL_SQLSTATE_22026, // string data, length mismatch
+        DAL_SQLSTATE_22027, // trim error
+        DAL_SQLSTATE_22029, // noncharacter in UCS string
+        DAL_SQLSTATE_2202D, // null value substitued for mutator subject parameter
+        DAL_SQLSTATE_2202E, // array element error
+        DAL_SQLSTATE_2202F, // array data, right truncation
+        DAL_SQLSTATE_2202G, // invalid repeat argument in a sample clause
+        DAL_SQLSTATE_2202H, // invalid sample size
+        DAL_SQLSTATE_23000, // integrity constraint violation
+        DAL_SQLSTATE_23001, // restrict violation
+        DAL_SQLSTATE_24000, // invalid cursor state
+        DAL_SQLSTATE_25000, // invalid transaction state
+        DAL_SQLSTATE_25001, // active SQL-transaction
+        DAL_SQLSTATE_25002, // branch transaction already active
+        DAL_SQLSTATE_25003, // inappropriate access mode for branch transaction
+        DAL_SQLSTATE_25004, // inappropriate isolation level for branch transaction
+        DAL_SQLSTATE_25005, // no active SQL-transaction for branch transaction
+        DAL_SQLSTATE_25006, // read-only SQL-transaction
+        DAL_SQLSTATE_25007, // schema and data statement mixing not supported
+        DAL_SQLSTATE_25008, // held cursor requires same isolation level
+        DAL_SQLSTATE_26000, // invalid SQL statement name
+        DAL_SQLSTATE_27000, // riggered data change violation
+        DAL_SQLSTATE_28000, // invalid authorization specification
+        DAL_SQLSTATE_2B000, // dependent privilege descriptors still exist
+        DAL_SQLSTATE_2C000, // invalid character set name
+        DAL_SQLSTATE_2D000, // invalid transaction termination
+        DAL_SQLSTATE_2E000, // invalid connection name
+        DAL_SQLSTATE_2F000, // SQL routine exception
+        DAL_SQLSTATE_2F002, // modifying SQL-data not permitted
+        DAL_SQLSTATE_2F003, // prohibited SQL-statement attempted
+        DAL_SQLSTATE_2F004, // reading SQL-data not permitted
+        DAL_SQLSTATE_2F005, // function executed no return statement
+        DAL_SQLSTATE_2H000, // invalid collation name
+        DAL_SQLSTATE_30000, // invalid SQL statement identifier
+        DAL_SQLSTATE_33000, // invalid SQL descriptor name
+        DAL_SQLSTATE_34000, // invalid cursor name
+        DAL_SQLSTATE_35000, // invalid condition number
+        DAL_SQLSTATE_36000, // cursor sensitivity exception
+        DAL_SQLSTATE_36001, // request rejected
+        DAL_SQLSTATE_36002, // request failed
+        DAL_SQLSTATE_38000, // external routine exception
+        DAL_SQLSTATE_38001, // containg SQL not permitted
+        DAL_SQLSTATE_38002, // modifying SQL-data not permitted
+        DAL_SQLSTATE_38003, // prohibited SQL-statement attempted
+        DAL_SQLSTATE_38004, // reading SQL-data not permitted
+        DAL_SQLSTATE_39000, // external routine invocation exception
+        DAL_SQLSTATE_39004, // null value not allowed
+        DAL_SQLSTATE_3B000, // savepoint exception
+        DAL_SQLSTATE_3B001, // invalid specification
+        DAL_SQLSTATE_3B002, // too many savepoints
+        DAL_SQLSTATE_3C000, // ambigous cursor name
+        DAL_SQLSTATE_3D000, // invalid catalog name
+        DAL_SQLSTATE_3F000, // invalid schema name
+        DAL_SQLSTATE_42000, // syntax error or access rule violation
+        DAL_SQLSTATE_44000, // with check option violation
+        DAL_SQLSTATE_50000, // transaction rollback
+        DAL_SQLSTATE_50001, // serialization failure
+        DAL_SQLSTATE_50002, // integrity constraint violation
+        DAL_SQLSTATE_50003, // statement completion unknown
+        DAL_SQLSTATE_50004, // triggered action exception
+        DAL_SQLSTATE_LAST
+    } states_t;
+
+};
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief get the value from variant or (if null) return second argument
+template<typename T>
+struct coalesce
+{
+    /// requested type
+    typedef T value_type;
+
+    /// @param[in] var A IVariant reference
+    /// @param[in] def Default value which is returned if var is null
+    coalesce(const dal::IVariant &var, value_type def) : m_var(var), m_def(def)
+    {}
+
+    /// cast operator to the requested type
+    operator value_type() const
+    { return m_var.isnull() ? m_def : dal::variant_dispatch_method<value_type>(m_var)(); }
+
+private:
+    const dal::IVariant &m_var;
+    value_type           m_def;
+};
+
+
+
+/// @brief Helper operator for coalesce
+template<typename T>
+DBWTL_EXPORT inline std::wostream&  operator<<(std::wostream& o, const coalesce<T> &value)
+{
+    T tmp = value;
+    return o << tmp;
+}
+
+/// @brief Helper operator for coalesce
+template<typename T>
+DBWTL_EXPORT inline std::ostream&  operator<<(std::ostream& o, const coalesce<T> &value)
+{
+    T tmp = value;
+    return o << tmp;
+}
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+///
 /// @brief Database traits class
 template<typename Engine, typename tag = default_tag>
 struct db_traits
@@ -128,23 +352,30 @@ class Environment : public EnvInterface
 {
     typedef typename db_traits<Engine, tag>::dal_dbc_type    dal_dbc_type;
     typedef typename db_traits<Engine, tag>::dal_env_type    dal_env_type;
+    typedef typename db_traits<Engine, tag>::dal_diag_type   dal_diag_type;
 
 public:
     Environment(i18n::UString str)
         : EnvInterface(),
-	      m_env( dal::Factory::create<Engine>(str) )
-        {}
+          m_env( dal::Factory::create<Engine>(str) )
+    {}
 
     Environment(std::string str) 
         : EnvInterface(),
           m_env( dal::Factory::create<Engine>(i18n::conv_from(str, "UTF-8") ) )
-        {}
+    {}
 
     virtual ~Environment(void)
-        {}
+    {}
 
 
     virtual dal_dbc_type* newConnection(void) { return this->m_env->newConnection(); }
+
+
+
+    virtual bool                 diagAvail(void) const { return this->m_env->diagAvail(); }
+    virtual const dal_diag_type&   fetchDiag(void) { return this->m_env->fetchDiag(); }
+
 
     virtual dal_env_type* getImpl(void) { return this->m_env.get(); }
 
@@ -168,30 +399,31 @@ class Connection : public ConnectionInterface
 {
     typedef typename db_traits<Engine, tag>::dal_dbc_type     dal_dbc_type;
     typedef typename db_traits<Engine, tag>::dal_stmt_type    dal_stmt_type;
+    typedef typename db_traits<Engine, tag>::dal_diag_type       dal_diag_type;
 
 public:
     Connection( typename db_traits<Engine, tag>::environment_type &env )
         : ConnectionInterface(),
           m_dbc( env.newConnection() )
-        {}
+    {}
 
     virtual ~Connection(void)
-        {}
+    {}
 
 
-    virtual dal::dalstate_t   connect(i18n::UString database,
+    virtual void   connect(i18n::UString database,
                                       i18n::UString user = i18n::UString(),
                                       i18n::UString password = i18n::UString())
-        { return this->m_dbc->connect(database, user, password); }
+    { this->m_dbc->connect(database, user, password); }
 
 
-    virtual dal::dalstate_t   connect(dal::IDbc::Options& options)
-        { return this->m_dbc->connect(options); }
+    virtual void   connect(dal::IDbc::Options& options)
+    { this->m_dbc->connect(options); }
 
 
     virtual bool              isConnected(void) const       { return this->m_dbc->isConnected(); }
 
-    virtual dal::dalstate_t   disconnect(void)              { return this->m_dbc->disconnect(); }
+    virtual void   disconnect(void)              { this->m_dbc->disconnect(); }
 
     virtual i18n::UString     driverName(void) const        { return this->m_dbc->driverName(); }
 
@@ -214,14 +446,14 @@ public:
     virtual void              beginTrans(dal::IDbc::trx_mode mode,
                                          dal::IDbc::access_mode access = dal::IDbc::trx_default,
                                          i18n::UString name = i18n::UString())
-        { this->m_dbc->beginTrans(mode, access, name); }
+    { this->m_dbc->beginTrans(mode, access, name); }
 
 
     virtual dal::TableList    getTables(const dal::ITableFilter& filter = dal::EmptyTableFilter())
-        { return this->m_dbc->getTables(filter); }
+    { return this->m_dbc->getTables(filter); }
 
     virtual dal::DatatypeList getDatatypes(const dal::IDatatypeFilter& filter = dal::EmptyDatatypeFilter())
-        { return this->m_dbc->getDatatypes(filter); }
+    { return this->m_dbc->getDatatypes(filter); }
 
     /*
       virtual ColumnList     getTables(const IColumnFilter& = EmptyColumnFilter()) = 0;
@@ -232,13 +464,17 @@ public:
       virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
     */
 
+
+    virtual bool                 diagAvail(void) const { return this->m_dbc->diagAvail(); }
+    virtual const dal_diag_type&   fetchDiag(void) { return this->m_dbc->fetchDiag(); }
+
     virtual dal_dbc_type*     getImpl(void)   { return this->m_dbc.get(); }
 
 protected:
     virtual void           setDbcEncoding(std::string encoding)
-        {
-            //return this->m_dbc->setDbcEncoding(encoding); // FIX Protcted error
-        }
+    {
+        //return this->m_dbc->setDbcEncoding(encoding); // FIX Protcted error
+    }
 
 
 protected:
@@ -265,16 +501,17 @@ class Statement : public StmtInterface
 {
     typedef typename db_traits<Engine, tag>::dal_resultset_type  dal_resultset_type;
     typedef typename db_traits<Engine, tag>::dal_stmt_type       dal_stmt_type;
+    typedef typename db_traits<Engine, tag>::dal_diag_type       dal_diag_type;
 
 
 public:
     Statement( typename db_traits<Engine, tag>::connection_type &dbc )
         : StmtInterface(),
           m_stmt( dbc.newStatement() )
-        {}
+    {}
 
     virtual ~Statement(void)
-        {}
+    {}
 
 
     virtual bool      isBad(void) const              { return this->m_stmt->isBad(); }
@@ -314,6 +551,13 @@ public:
     virtual dal::rowcount_t  affectedRows(void) const           { return this->m_stmt->affectedRows(); }
 
     virtual dal::IDALDriver* getDriver(void) const              { return this->m_stmt->getDriver(); }
+
+
+
+
+    virtual bool                 diagAvail(void) const { return this->m_stmt->diagAvail(); }
+    virtual const dal_diag_type&   fetchDiag(void) { return this->m_stmt->fetchDiag(); }
+
 
 
     virtual dal_stmt_type*     getImpl(void)   { return this->m_stmt.get(); }
@@ -364,17 +608,17 @@ public:
     Result(void)
         : ResultInterface(),
           m_result()
-        {}
+    {}
 
     Result(statement_type &stmt)
         : ResultInterface(),
           m_result(*stmt.resultset())
-        {}
+    {}
 
     Result(dal_resultset_type *result)
         : ResultInterface(),
           m_result(result)
-        {}
+    {}
 
 
     void attach(statement_type &statement)  { this->m_result = &statement.resultset(); }
@@ -436,13 +680,14 @@ public:
     virtual dal_resultset_type*    getImpl(void)   { return this->m_result; }
 
 
+
     iterator begin(void) 
-        { 
-            throw std::runtime_error("not implemented"); /// @bug fixme
-        }
+    { 
+        throw std::runtime_error("not implemented"); /// @bug fixme
+    }
 
 protected:
-	dal_resultset_type *m_result;
+    dal_resultset_type *m_result;
 
 private:
     Result(const Result&);
@@ -574,9 +819,7 @@ private:
 //GEXAMPLE.001 Now we can open the database:
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 dalstate_t state = dbc.connect(L"sampledb.sqlitedb");
-//GEXAMPLE.001 if(! dbc.isConnected() )
-//GEXAMPLE.001    throw std::runtime_error("not connected");
+//GEXAMPLE.001 dbc.connect(L"sampledb.sqlitedb");
 //GEXAMPLE.001 std::cout << i18n::conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
@@ -629,14 +872,14 @@ private:
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 for(rs.begin(); !rs.eof(); rs.next())
 //GEXAMPLE.001 {
-//GEXAMPLE.001 	for(int i = 1; i <= rs.columnCount(); ++i)
-//GEXAMPLE.001    	{
-//GEXAMPLE.001 		if(rs.column(i).isNull())
-//GEXAMPLE.001 			std::cout << "<NULL>";
-//GEXAMPLE.001 		else
-//GEXAMPLE.001 			std::cout << rs.column(i).asNarrowStr("UTF-8");
-//GEXAMPLE.001 	}
-//GEXAMPLE.001 	std::cout << std::endl;
+//GEXAMPLE.001  for(int i = 1; i <= rs.columnCount(); ++i)
+//GEXAMPLE.001      {
+//GEXAMPLE.001      if(rs.column(i).isNull())
+//GEXAMPLE.001          std::cout << "<NULL>";
+//GEXAMPLE.001      else
+//GEXAMPLE.001          std::cout << rs.column(i).asNarrowStr("UTF-8");
+//GEXAMPLE.001  }
+//GEXAMPLE.001  std::cout << std::endl;
 //GEXAMPLE.001 }
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //
@@ -781,10 +1024,36 @@ private:
 
 //GCORE.001 Value
 //GCORE.001 ~~~~~
-//GCORE.001 ColumnDesc
-//GCORE.001 ~~~~~~~~~~
+//GCORE.001 The 'Value' type is for column values returned from the engine. You can't create
+//GCORE.001 new objects of type 'Value', you can only get (mostly const) references
+//GCORE.001 from a 'Resultset' object.
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ---------------------------------------------
+//GCORE.001 const DBMS::Value &val = rs.column(i);
+//GCORE.001 ---------------------------------------------
+//GCORE.001 
+//GCORE.001 It is a requirement that the 'Value' type implements the IVariant interface.
+//GCORE.001 This allows you to pass column values to all methods which  accepts IVariant references,
+//GCORE.001 for example Statement::bind()
+//GCORE.001 
 //GCORE.001 Variant
 //GCORE.001 ~~~~~~~
+//GCORE.001 The 'Variant' type can be used to create own variant objects.
+//GCORE.001 This type can store all the POD types and pointers to such types.
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ------------------------------------------------------
+//GCORE.001 int myint = 5;
+//GCORE.001 DBMS::Variant var(&myint);
+//GCORE.001 var.setInt(10);
+//GCORE.001 assert(myint == 10); // myint was changed through setInt()
+//GCORE.001 ------------------------------------------------------
+//GCORE.001 
+
+//GCORE.001 ColumnDesc
+//GCORE.001 ~~~~~~~~~~
+
 //GCORE.001 
 //GCORE.001 Blob
 //GCORE.001 ~~~~
@@ -792,9 +1061,150 @@ private:
 //GCORE.001 Memo
 //GCORE.001 ~~~~
 //GCORE.001 
+
 //GCORE.001 
-//GCORE.001 Exceptions
-//GCORE.001 ----------
+//GCORE.001 Diagnostic and error handling
+//GCORE.001 -----------------------------
+//GCORE.001 
+//GCORE.001 Each handle (Environment, Connection and Statement) logs warnings and errors
+//GCORE.001 as a diagnostic record to an internal buffer. If a buffer reaches DBWTL_DIAG_SIZE,
+//GCORE.001 older records are overriden (it works like a circular buffer).
+//GCORE.001 
+//GCORE.001 With 'diagAvail()' you can check if there are any diagnostic records available and
+//GCORE.001 with 'fetchDiag()' you can fetch them which moves an internal cursor to the next record. 
+//GCORE.001 
+//GCORE.001 If an error occours, the DBWTL performs two steps: all information about
+//GCORE.001 the error are collected and written to a diagnostic record, and second, a SQLSTATE
+//GCORE.001 exception with a copy of the diagnostic record is thrown.
+//GCORE.001 
+//GCORE.001 Hints and warnings are just logged, no exception is raised.
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ------------------------------------------------------
+//GCORE.001 while(dbc.diagAvail())
+//GCORE.001 {
+//GCORE.001     const DBMS::Diag &diag = dbc.fetchDiag();
+//GCORE.001     // print information
+//GCORE.001 }
+//GCORE.001 ------------------------------------------------------
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 Exception handling
+//GCORE.001 ~~~~~~~~~~~~~~~~~~
+//GCORE.001 There are two categories of exceptions implemented in DBWTL.
+//GCORE.001 
+//GCORE.001 Engine exceptions::
+//GCORE.001 	Exceptions inside the DBWTL or DAL code like unknown driver strings,
+//GCORE.001 	reading NULL values and so on.
+//GCORE.001 
+//GCORE.001 SQLSTATE exceptions::
+//GCORE.001 	Exceptions for SQLSTATEs which are classified as errors, for example
+//GCORE.001 	SQL syntax erros, constraint violations or authentification errors.
+//GCORE.001 
+//GCORE.001 There are only a small set of engine errors:
+//GCORE.001 
+//GCORE.001  * 'ex::exception': Base class for exceptions
+//GCORE.001  * 'ex::convert_error': A variant value could not be converted to the requested type.
+//GCORE.001  * 'ex::null_value': A variant value is set to NULL and you have tried to read the value
+//GCORE.001  * 'ex::engine_error': Base class for all exceptions raised in DAL code
+//GCORE.001  * 'ex::sqlstate_exception': Base class for all SQLSATE error conditions
+//GCORE.001  * 'ex::not_found': Raised if you have requested a column or parameter which does not exists
+//GCORE.001  * 'ex::charset_error': The source string could not be converted to the requested charset.
+//GCORE.001  * 'ex::read_only': Raised if you try to write to a read-only variant
+//GCORE.001  * 'ex::missing_function': A required function in the external driver library could not be found
+//GCORE.001  * 'ex::engine_busy': Raised if the engine is busy and your request could not be handled
+//GCORE.001 
+//GCORE.001 The SQLSTATE exceptions are far more complex. The list of SQLSTATE exceptions
+//GCORE.001 you can catch depends on the selected engine. Each engine defines their own
+//GCORE.001 list of supported ISO 9075 SQLSATE exceptions (and maybe engine-dependend custom SQLSTATES).
+//GCORE.001 Only the generic engine defines the full set of ISO SQLSTATE error codes, specific
+//GCORE.001 engines defines only thoose where are supported (plus their own states).
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 DBMS::Statement stmt(dbc);
+//GCORE.001 try
+//GCORE.001 {
+//GCORE.001 	stmt.prepare(L"INSERT INTO customers VALUES(1, 'Dave Miller');");
+//GCORE.001 	stmt.execute();
+//GCORE.001 }
+//GCORE.001 catch(DBMS::SQLSTATE_23000 &state)
+//GCORE.001 {
+//GCORE.001 	std::cout << "Constraint violation" << std::endl;
+//GCORE.001 }
+//GCORE.001 catch(DBMS::SQLSTATE_22000 &state)
+//GCORE.001 {
+//GCORE.001 	std::cout << "General data exception or other 22xxx state" << std::endl;
+//GCORE.001 }
+//GCORE.001 catch(DBMS::SQLSTATE_42000 &state)
+//GCORE.001 {
+//GCORE.001 	std::cout << "Syntax error or access violation" << std::endl;
+//GCORE.001 }
+//GCORE.001 catch(ex::engine_error &err)
+//GCORE.001 {
+//GCORE.001 	std::cout << "Other errors" << std::endl;
+//GCORE.001 }
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 
+//GCORE.001 A SQLSTATE subclass (last 3 chars) is derived from the SQLSTATE class (first
+//GCORE.001 2 chars) which makes it possible to catch a specific subclass SQLSTATE or all
+//GCORE.001 subclasses by catching the class (e.g. SQLSTATE_22000).
+//GCORE.001 
+//GCORE.001 An engine can define additional SQLSTATES which can be catched by
+//GCORE.001 the same way as regular ISO SQLSTATEs. The only exception is when you are
+//GCORE.001 using the generic engine: only the ISO SQLSTATEs are defined.
+//GCORE.001 If a specific engine defines for example SQLSTATE_XYZ01, you can catch them
+//GCORE.001 only with ex::sqlstate_error which is the base class for all SQLSTATE exceptions.
+//GCORE.001 Inside the exception handler you can fetch the SQLSTATE as a string to make
+//GCORE.001 your decisions:
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 DBMS::Statement stmt(dbc);
+//GCORE.001 try
+//GCORE.001 {
+//GCORE.001 	stmt.prepare(L"INSERT INTO customers VALUES(1, 'Dave Miller');");
+//GCORE.001 	stmt.execute();
+//GCORE.001 }
+//GCORE.001 catch(DBMS::SQLSTATE_42000 &state)
+//GCORE.001 {
+//GCORE.001 	// catched ISO defined SQLSTATE
+//GCORE.001 }
+//GCORE.001 catch(ex::sqlstate_error &state)
+//GCORE.001 {
+//GCORE.001     // catched engine specific SQLSTATE
+//GCORE.001 	std::string s = state.diag().sqlstate().asNarrowStr("ASCII");
+//GCORE.001 	if(s.compare("XYZ01") == 0)
+//GCORE.001 	{
+//GCORE.001 		// handle XYZ001
+//GCORE.001 	}
+//GCORE.001 	else if(s.compare("ZZZ55") == 0)
+//GCORE.001 	{
+//GCORE.001 		// handle ZZZ55
+//GCORE.001 	}
+//GCORE.001 	else
+//GCORE.001 	{
+//GCORE.001 		// other states
+//GCORE.001 	}
+//GCORE.001 }
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 
+//GCORE.001 This provides a powerful method if you want to use the generic layer, but also
+//GCORE.001 have to handle engine specific SQLSTATEs.
+//GCORE.001 
+
+
+
+
+
+
+
+
+
+
 //GCORE.001 
 //GCORE.001 
 //GCORE.001 Internals
@@ -809,7 +1219,7 @@ private:
 ///
 /// @brief Defines the main types
 template<typename Engine, typename tag = default_tag>
-struct Database
+struct Database : public db_traits<Engine, tag>::sqlstate_types
 {
     typedef typename db_traits<Engine, tag>::environment_type         Environment;
     typedef typename db_traits<Engine, tag>::connection_type          Connection;
@@ -818,6 +1228,7 @@ struct Database
     typedef typename db_traits<Engine, tag>::cached_resultset_type    CachedResultset;
     typedef typename db_traits<Engine, tag>::value_type               Value;
     typedef typename db_traits<Engine, tag>::dal_columndesc_type      ColumnDesc;
+    typedef typename db_traits<Engine, tag>::dal_diag_type            Diag;
     typedef dal::Variant                                              Variant;
     typedef dal::Blob                                                 Blob;
     typedef dal::Memo                                                 Memo;
@@ -847,3 +1258,13 @@ struct Database
 DB_NAMESPACE_END
 
 #endif
+
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

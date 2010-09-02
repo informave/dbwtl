@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.5.1" />
+<meta name="generator" content="AsciiDoc 8.5.3" />
 <title>DBWTL Programmers Guide</title>
 <style type="text/css">
 /* Debug borders */
@@ -118,12 +118,14 @@ div#preamble {
 div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
 div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
 div.admonitionblock {
-  margin-top: 0.25em;
+  margin-top: 1.0em;
   margin-bottom: 1.5em;
 }
 div.admonitionblock {
-  margin-top: 2.5em;
-  margin-bottom: 2.5em;
+  margin-top: 2.0em;
+  margin-bottom: 2.0em;
+  margin-right: 10%;
+  color: #606060;
 }
 
 div.content { /* Block element content. */
@@ -165,21 +167,21 @@ div.listingblock > div.content {
   padding: 0.5em;
 }
 
-div.quoteblock {
-  padding-left: 2.0em;
+div.quoteblock, div.verseblock {
+  padding-left: 1.0em;
+  margin-left: 1.0em;
   margin-right: 10%;
+  border-left: 5px solid #dddddd;
+  color: #777777;
 }
+
 div.quoteblock > div.attribution {
   padding-top: 0.5em;
   text-align: right;
 }
 
-div.verseblock {
-  padding-left: 2.0em;
-  margin-right: 10%;
-}
-div.verseblock > div.content {
-  white-space: pre;
+div.verseblock > pre.content {
+  font-family: inherit;
 }
 div.verseblock > div.attribution {
   padding-top: 0.75em;
@@ -200,12 +202,12 @@ div.admonitionblock .icon {
 }
 div.admonitionblock td.content {
   padding-left: 0.5em;
-  border-left: 2px solid silver;
+  border-left: 3px solid #dddddd;
 }
 
 div.exampleblock > div.content {
-  border-left: 2px solid silver;
-  padding: 0.5em;
+  border-left: 3px solid #dddddd;
+  padding-left: 0.5em;
 }
 
 div.imageblock div.content { padding-left: 0; }
@@ -255,7 +257,7 @@ div.compact div, div.compact div {
 div.tableblock > table {
   border: 3px solid #527bbd;
 }
-thead {
+thead, p.table.header {
   font-family: sans-serif;
   font-weight: bold;
 }
@@ -342,6 +344,10 @@ span.footnote, span.footnoteref {
   div#footer-badges { display: none; }
 }
 
+div#toc {
+  margin-bottom: 2.5em;
+}
+
 div#toctitle {
   color: #527bbd;
   font-family: sans-serif;
@@ -393,8 +399,8 @@ div.quoteblock-attribution {
   text-align: right;
 }
 
-div.verseblock-content {
-  white-space: pre;
+pre.verseblock-content {
+  font-family: inherit;
 }
 div.verseblock-attribution {
   padding-top: 0.75em;
@@ -402,7 +408,7 @@ div.verseblock-attribution {
 }
 
 div.exampleblock-content {
-  border-left: 2px solid silver;
+  border-left: 3px solid #dddddd;
   padding-left: 0.5em;
 }
 
@@ -461,8 +467,9 @@ toc: function (toclevels) {
       for (var i = el.firstChild; i != null; i = i.nextSibling) {
         if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
           var mo = re.exec(i.tagName);
-          if (mo)
+          if (mo && (i.getAttribute("class") || i.getAttribute("className")) != "float") {
             result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
+          }
           iterate(i);
         }
       }
@@ -631,9 +638,7 @@ http://www.gnu.org/software/src-highlite -->
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>dalstate_t state <span style="color: #990000">=</span> dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">connect</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"sampledb.sqlitedb"</span><span style="color: #990000">);</span>
-<span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(!</span> dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">isConnected</span></span><span style="color: #990000">()</span> <span style="color: #990000">)</span>
-   <span style="font-weight: bold"><span style="color: #0000FF">throw</span></span> std<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">runtime_error</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"not connected"</span><span style="color: #990000">);</span>
+<pre><tt>dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">connect</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"sampledb.sqlitedb"</span><span style="color: #990000">);</span>
 std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> i18n<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">conv_to</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">dbmsName</span></span><span style="color: #990000">(),</span> <span style="color: #FF0000">"ISO-8859-1"</span><span style="color: #990000">)</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span></tt></pre></div></div>
 <h3 id="_run_a_sql_query">1.2. Run a SQL query</h3><div style="clear:left"></div>
 <div class="paragraph"><p>To run a query, we need to create a Statement object.
@@ -690,14 +695,14 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">begin</span></span><span style="color: #990000">();</span> <span style="color: #990000">!</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">eof</span></span><span style="color: #990000">();</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">next</span></span><span style="color: #990000">())</span>
 <span style="color: #FF0000">{</span>
-        <span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> i <span style="color: #990000">=</span> <span style="color: #993399">1</span><span style="color: #990000">;</span> i <span style="color: #990000">&lt;=</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">columnCount</span></span><span style="color: #990000">();</span> <span style="color: #990000">++</span>i<span style="color: #990000">)</span>
-        <span style="color: #FF0000">{</span>
-                <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">isNull</span></span><span style="color: #990000">())</span>
-                        std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"&lt;NULL&gt;"</span><span style="color: #990000">;</span>
-                <span style="font-weight: bold"><span style="color: #0000FF">else</span></span>
-                        std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">asNarrowStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"UTF-8"</span><span style="color: #990000">);</span>
-        <span style="color: #FF0000">}</span>
-        std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
+ <span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> i <span style="color: #990000">=</span> <span style="color: #993399">1</span><span style="color: #990000">;</span> i <span style="color: #990000">&lt;=</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">columnCount</span></span><span style="color: #990000">();</span> <span style="color: #990000">++</span>i<span style="color: #990000">)</span>
+     <span style="color: #FF0000">{</span>
+     <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">isNull</span></span><span style="color: #990000">())</span>
+         std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"&lt;NULL&gt;"</span><span style="color: #990000">;</span>
+     <span style="font-weight: bold"><span style="color: #0000FF">else</span></span>
+         std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">asNarrowStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"UTF-8"</span><span style="color: #990000">);</span>
+ <span style="color: #FF0000">}</span>
+ std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
 <span style="color: #FF0000">}</span></tt></pre></div></div>
 <h4 id="_access_the_column_descriptor">1.2.3. Access the column descriptor</h4>
 <div class="paragraph"><p>The <em>describeColumn()</em> method provides a getter for all column descriptors.</p></div>
@@ -844,13 +849,206 @@ is valid (for all rows) until you close the resultset or statement.
 Scrolling through the dataset (e.g. next()) only resets the buffer to the new
 row data. If the new field is NULL, the buffer is marked as bad (std::ios::bad).</p></div>
 <h3 id="_value">3.5. Value</h3><div style="clear:left"></div>
-<h3 id="_columndesc">3.6. ColumnDesc</h3><div style="clear:left"></div>
-<h3 id="_variant">3.7. Variant</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The <em>Value</em> type is for column values returned from the engine. You can&#8217;t create
+new objects of type <em>Value</em>, you can only get (mostly const) references
+from a <em>Resultset</em> object.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> DBMS<span style="color: #990000">::</span>Value <span style="color: #990000">&amp;</span>val <span style="color: #990000">=</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>It is a requirement that the <em>Value</em> type implements the IVariant interface.
+This allows you to pass column values to all methods which  accepts IVariant references,
+for example Statement::bind()</p></div>
+<h3 id="_variant">3.6. Variant</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The <em>Variant</em> type can be used to create own variant objects.
+This type can store all the POD types and pointers to such types.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #009900">int</span> myint <span style="color: #990000">=</span> <span style="color: #993399">5</span><span style="color: #990000">;</span>
+DBMS<span style="color: #990000">::</span>Variant <span style="font-weight: bold"><span style="color: #000000">var</span></span><span style="color: #990000">(&amp;</span>myint<span style="color: #990000">);</span>
+var<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">setInt</span></span><span style="color: #990000">(</span><span style="color: #993399">10</span><span style="color: #990000">);</span>
+<span style="font-weight: bold"><span style="color: #000000">assert</span></span><span style="color: #990000">(</span>myint <span style="color: #990000">==</span> <span style="color: #993399">10</span><span style="color: #990000">);</span> <span style="font-style: italic"><span style="color: #9A1900">// myint was changed through setInt()</span></span></tt></pre></div></div>
+<h3 id="_columndesc">3.7. ColumnDesc</h3><div style="clear:left"></div>
 <h3 id="_blob">3.8. Blob</h3><div style="clear:left"></div>
 <h3 id="_memo">3.9. Memo</h3><div style="clear:left"></div>
 </div>
-<h2 id="_exceptions">4. Exceptions</h2>
+<h2 id="_diagnostic_and_error_handling">4. Diagnostic and error handling</h2>
 <div class="sectionbody">
+<div class="paragraph"><p>Each handle (Environment, Connection and Statement) logs warnings and errors
+as a diagnostic record to an internal buffer. If a buffer reaches DBWTL_DIAG_SIZE,
+older records are overriden (it works like a circular buffer).</p></div>
+<div class="paragraph"><p>With <em>diagAvail()</em> you can check if there are any diagnostic records available and
+with <em>fetchDiag()</em> you can fetch them which moves an internal cursor to the next record.</p></div>
+<div class="paragraph"><p>If an error occours, the DBWTL performs two steps: all information about
+the error are collected and written to a diagnostic record, and second, a SQLSTATE
+exception with a copy of the diagnostic record is thrown.</p></div>
+<div class="paragraph"><p>Hints and warnings are just logged, no exception is raised.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">while</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">diagAvail</span></span><span style="color: #990000">())</span>
+<span style="color: #FF0000">{</span>
+    <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> DBMS<span style="color: #990000">::</span>Diag <span style="color: #990000">&amp;</span>diag <span style="color: #990000">=</span> dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">fetchDiag</span></span><span style="color: #990000">();</span>
+    <span style="font-style: italic"><span style="color: #9A1900">// print information</span></span>
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<h3 id="_exception_handling">4.1. Exception handling</h3><div style="clear:left"></div>
+<div class="paragraph"><p>There are two categories of exceptions implemented in DBWTL.</p></div>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+Engine exceptions
+</dt>
+<dd>
+<p>
+        Exceptions inside the DBWTL or DAL code like unknown driver strings,
+        reading NULL values and so on.
+</p>
+</dd>
+<dt class="hdlist1">
+SQLSTATE exceptions
+</dt>
+<dd>
+<p>
+        Exceptions for SQLSTATEs which are classified as errors, for example
+        SQL syntax erros, constraint violations or authentification errors.
+</p>
+</dd>
+</dl></div>
+<div class="paragraph"><p>There are only a small set of engine errors:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<em>ex::exception</em>: Base class for exceptions
+</p>
+</li>
+<li>
+<p>
+<em>ex::convert_error</em>: A variant value could not be converted to the requested type.
+</p>
+</li>
+<li>
+<p>
+<em>ex::null_value</em>: A variant value is set to NULL and you have tried to read the value
+</p>
+</li>
+<li>
+<p>
+<em>ex::engine_error</em>: Base class for all exceptions raised in DAL code
+</p>
+</li>
+<li>
+<p>
+<em>ex::sqlstate_exception</em>: Base class for all SQLSATE error conditions
+</p>
+</li>
+<li>
+<p>
+<em>ex::not_found</em>: Raised if you have requested a column or parameter which does not exists
+</p>
+</li>
+<li>
+<p>
+<em>ex::charset_error</em>: The source string could not be converted to the requested charset.
+</p>
+</li>
+<li>
+<p>
+<em>ex::read_only</em>: Raised if you try to write to a read-only variant
+</p>
+</li>
+<li>
+<p>
+<em>ex::missing_function</em>: A required function in the external driver library could not be found
+</p>
+</li>
+<li>
+<p>
+<em>ex::engine_busy</em>: Raised if the engine is busy and your request could not be handled
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>The SQLSTATE exceptions are far more complex. The list of SQLSTATE exceptions
+you can catch depends on the selected engine. Each engine defines their own
+list of supported ISO 9075 SQLSATE exceptions (and maybe engine-dependend custom SQLSTATES).
+Only the generic engine defines the full set of ISO SQLSTATE error codes, specific
+engines defines only thoose where are supported (plus their own states).</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>DBMS<span style="color: #990000">::</span>Statement <span style="font-weight: bold"><span style="color: #000000">stmt</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">);</span>
+<span style="font-weight: bold"><span style="color: #0000FF">try</span></span>
+<span style="color: #FF0000">{</span>
+        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">prepare</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"INSERT INTO customers VALUES(1, 'Dave Miller');"</span><span style="color: #990000">);</span>
+        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">execute</span></span><span style="color: #990000">();</span>
+<span style="color: #FF0000">}</span>
+<span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>DBMS<span style="color: #990000">::</span>SQLSTATE_23000 <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
+<span style="color: #FF0000">{</span>
+        std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"Constraint violation"</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
+<span style="color: #FF0000">}</span>
+<span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>DBMS<span style="color: #990000">::</span>SQLSTATE_22000 <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
+<span style="color: #FF0000">{</span>
+        std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"General data exception or other 22xxx state"</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
+<span style="color: #FF0000">}</span>
+<span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>DBMS<span style="color: #990000">::</span>SQLSTATE_42000 <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
+<span style="color: #FF0000">{</span>
+        std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"Syntax error or access violation"</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
+<span style="color: #FF0000">}</span>
+<span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>ex<span style="color: #990000">::</span>engine_error <span style="color: #990000">&amp;</span>err<span style="color: #990000">)</span>
+<span style="color: #FF0000">{</span>
+        std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"Other errors"</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<div class="paragraph"><p>A SQLSTATE subclass (last 3 chars) is derived from the SQLSTATE class (first
+2 chars) which makes it possible to catch a specific subclass SQLSTATE or all
+subclasses by catching the class (e.g. SQLSTATE_22000).</p></div>
+<div class="paragraph"><p>An engine can define additional SQLSTATES which can be catched by
+the same way as regular ISO SQLSTATEs. The only exception is when you are
+using the generic engine: only the ISO SQLSTATEs are defined.
+If a specific engine defines for example SQLSTATE_XYZ01, you can catch them
+only with ex::sqlstate_error which is the base class for all SQLSTATE exceptions.
+Inside the exception handler you can fetch the SQLSTATE as a string to make
+your decisions:</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>DBMS<span style="color: #990000">::</span>Statement <span style="font-weight: bold"><span style="color: #000000">stmt</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">);</span>
+<span style="font-weight: bold"><span style="color: #0000FF">try</span></span>
+<span style="color: #FF0000">{</span>
+        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">prepare</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"INSERT INTO customers VALUES(1, 'Dave Miller');"</span><span style="color: #990000">);</span>
+        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">execute</span></span><span style="color: #990000">();</span>
+<span style="color: #FF0000">}</span>
+<span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>DBMS<span style="color: #990000">::</span>SQLSTATE_42000 <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
+<span style="color: #FF0000">{</span>
+        <span style="font-style: italic"><span style="color: #9A1900">// catched ISO defined SQLSTATE</span></span>
+<span style="color: #FF0000">}</span>
+<span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>ex<span style="color: #990000">::</span>sqlstate_error <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
+<span style="color: #FF0000">{</span>
+    <span style="font-style: italic"><span style="color: #9A1900">// catched engine specific SQLSTATE</span></span>
+        std<span style="color: #990000">::</span>string s <span style="color: #990000">=</span> state<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">diag</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">sqlstate</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">asNarrowStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"ASCII"</span><span style="color: #990000">);</span>
+        <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>s<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">compare</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"XYZ01"</span><span style="color: #990000">)</span> <span style="color: #990000">==</span> <span style="color: #993399">0</span><span style="color: #990000">)</span>
+        <span style="color: #FF0000">{</span>
+                <span style="font-style: italic"><span style="color: #9A1900">// handle XYZ001</span></span>
+        <span style="color: #FF0000">}</span>
+        <span style="font-weight: bold"><span style="color: #0000FF">else</span></span> <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>s<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">compare</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"ZZZ55"</span><span style="color: #990000">)</span> <span style="color: #990000">==</span> <span style="color: #993399">0</span><span style="color: #990000">)</span>
+        <span style="color: #FF0000">{</span>
+                <span style="font-style: italic"><span style="color: #9A1900">// handle ZZZ55</span></span>
+        <span style="color: #FF0000">}</span>
+        <span style="font-weight: bold"><span style="color: #0000FF">else</span></span>
+        <span style="color: #FF0000">{</span>
+                <span style="font-style: italic"><span style="color: #9A1900">// other states</span></span>
+        <span style="color: #FF0000">}</span>
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<div class="paragraph"><p>This provides a powerful method if you want to use the generic layer, but also
+have to handle engine specific SQLSTATEs.</p></div>
 </div>
 <h2 id="_internals">5. Internals</h2>
 <div class="sectionbody">
@@ -968,7 +1166,7 @@ granted under the terms of the BSD License.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2010-07-27 20:51:11 CEST
+Last updated 2010-09-02 21:27:06 CEST
 </div>
 </div>
 </body>

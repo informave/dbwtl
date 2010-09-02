@@ -15,7 +15,6 @@ int test(void)
     //using namespace informave;
     using namespace informave::db;
     using namespace informave::i18n;
-    using informave::db::dal::dalstate_t;
     //using namespace informave::db::DAL;
 
     
@@ -28,9 +27,7 @@ int test(void)
     //env.create("sqlite:libsqlite");
 
     DBMS::Connection dbc(env);
-    dalstate_t state = dbc.connect(L"sampledb.sqlitedb");
-    if(! dbc.isConnected() )
-        throw std::runtime_error("not connected");
+    dbc.connect(L"sampledb.sqlitedb");
 
     std::cout << conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
 

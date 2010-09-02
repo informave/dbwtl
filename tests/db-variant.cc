@@ -14,7 +14,6 @@ int test(void)
     //using namespace informave;
     using namespace informave::db::dal;
     using namespace informave::i18n;
-    using informave::db::dal::dalstate_t;
     //using namespace informave::db::DAL;
 
     signed int a = 5;

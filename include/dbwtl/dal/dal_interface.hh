@@ -62,8 +62,9 @@
 #include <stdexcept>
 #include <memory>
 #include <fstream>
+#include <deque>
+#include <algorithm>
 #include <sstream>
-
 
 
 
@@ -93,25 +94,17 @@ typedef size_t             colnum_t;
 typedef signed int systype_t;
 
 
-///
-/// @brief Type for DAL state codes
-typedef signed short dalstate_code_t;
-
-#define DALSTATE_OK                      0
-#define DALSTATE_ERROR                  -1
-#define DALSTATE_BAD_CONNECTION         -2
-#define DALSTATE_API_ERR                -3
-#define DALSTATE_DB_NOTFOUND            -4
-#define DALSTATE_AUTH_ERR               -5
-#define DALSTATE_SQL_ERROR              -6
-#define DALSTATE_PARAM_UNKNOW           -7
-#define DALSTATE_EPERM                  -8
-#define DALSTATE_LIB_ERROR              -9
 
 #define DAL_MSG_SUCCESS                 L"Success."
 
 
-#define DAL_DEFAULT_SQL_CODE  "HY000"
+
+typedef enum
+{
+	DAL_STATE_OK,
+	DAL_STATE_INFO,
+	DAL_STATE_ERROR
+} dalstate_t;
 
 
 ///
@@ -119,6 +112,7 @@ typedef signed short dalstate_code_t;
 const char* dal_state_msg(int code);
 
 #define DAL_CODE(codename) dal_state_msg(codename)
+
 
 
 
@@ -188,177 +182,122 @@ i18n::UString daltype2sqlname(daltype_t type);
 
 
 
-//--------------------------------------------------------------------------
-/// Interface for engine state implemetations
-/// 
-/// @since 0.0.1
-/// @brief Interface for engine state implemetations
-class DBWTL_EXPORT IEngineState
-{
-public:
-    IEngineState(void);
-
-    virtual ~IEngineState(void);
-
-    /// @brief Set a state message
-    virtual void setMsg(i18n::UString msg) = 0;
-
-
-    /// @brief Set a state message
-    virtual i18n::UString getMsg(void) const = 0;
-
-
-    /// @brief Set a state description
-    virtual void setDescription(i18n::UString desc) = 0;
-
-
-    /// @brief Set a state source type
-    virtual void setSource(std::string file, std::string func) = 0;
-
-
-    /// @brief Set the DAL state code
-    virtual void setDALCode(int code) = 0;
-
-
-    /// @brief Get the DAL state code
-    virtual int getDALCode(void) const = 0;
-
-
-    /// @brief Add a file or path which is important for the state
-    virtual void addUsedFile(std::string file) = 0;
-
-
-    /// @brief Set the SQLSTATE
-    virtual void setSQLState(std::string state) = 0;
-
-    
-    /// @brief Dumps all state contents to a string
-    virtual i18n::UString dump(void) const = 0;
-
-
-    /// @brief Clone a State object
-    virtual IEngineState* clone(void) const = 0;
-};
-
-
-DBWTL_EXPORT std::wostream&  operator<<(std::wostream& o, const informave::db::dal::IEngineState& state);
-DBWTL_EXPORT std::ostream&   operator<<(std::ostream& o,  const informave::db::dal::IEngineState& state);
-
-
-
 
 //--------------------------------------------------------------------------
-/// If a specific driver implementation returns a dalstate object,
-/// the object is returned by value.
-/// The "real" IEngineState object is encapsulated by this general
-/// EngineState class.
-/// 
-/// @since 0.0.1
-/// @brief EngineState Proxy
-class DBWTL_EXPORT EngineState : public IEngineState
-{
-public:
-    EngineState(void);
-    EngineState(int code);
-    EngineState(const IEngineState& newstate);
-    EngineState(const EngineState& newstate);
-
-    virtual ~EngineState(void);
-
-    virtual EngineState*        clone(void) const;
-    virtual const IEngineState* getImpl(void) const;
-    virtual IEngineState*       getImpl(void);
-
-
-    /// @brief Resets the internal engine state and saves the new code
-    EngineState& operator=(int code);
-
-
-    /// @brief Resets the internal engine state by newstate
-    EngineState& operator=(const EngineState& newstate);
-
-    bool operator!=(int code);
-    bool operator==(int code);
-
-
-    /// @brief Set the state message
-    virtual void setMsg(i18n::UString msg);
-
-
-    /// @brief Get the state message
-    virtual i18n::UString getMsg(void) const;
-
-
-    /// @brief Set the state message as UTF-8 String 
-    virtual std::string getMsgUTF8(void) const;
-
-
-    /// @brief Set a state description
-    virtual void setDescription(i18n::UString desc);
-
-
-    /// @brief Set a state source type
-    virtual void setSource(std::string file, std::string func);
-
-
-    /// @brief Set the DAL state code
-    virtual void setDALCode(int code);
-
-    
-    /// @brief Get the DAL state code
-    virtual int getDALCode(void) const;
-
-
-    /// @brief Add a file or path which is important for the state.
-    virtual void addUsedFile(std::string file);
-
-
-    /// @brief Set the SQLSTATE
-    virtual void setSQLState(std::string state);
-    
-
-    /// @brief Dumps all state contents to a string
-    virtual i18n::UString dump(void) const;
-
-
-protected:
-    std::auto_ptr<IEngineState>  m_state;
-    int                          m_state_code;
-};
-
-typedef EngineState dalstate_t;
-
-
-
-
-//--------------------------------------------------------------------------
-/// Base class for all driver-specific implementations of IEngineState
+/// Controller for diagnostic records
 ///
 /// @since 0.0.1
-/// @brief Base class for all driver-specific implementations of IEngineState
-class DBWTL_EXPORT BaseEngineState : public IEngineState
+/// @brief Controller for diagnostic records
+template<class T>
+class DiagController
 {
 public:
-    BaseEngineState(void);
-    virtual ~BaseEngineState(void);
+    DiagController(void)
+        : m_list(),
+          m_cur()
+    {
+        m_cur = m_list.begin();
+    }
+    
 
-    virtual void           setMsg(i18n::UString);
-    virtual i18n::UString  getMsg(void) const;
-    virtual void           setDescription(i18n::UString);
-    virtual void           setSource(std::string, std::string);
-    virtual void           setDALCode(int);
-    virtual int            getDALCode(void) const;
-    virtual void           addUsedFile(std::string);
-    virtual void           setSQLState(std::string);
+    /// Free all records
+    ~DiagController(void)
+    {
+        std::for_each(this->m_list.begin(), this->m_list.end(), delete_object());
+    }
+
+
+    /// Push back a diagnostic record. The livetime is now controlled by
+    /// this controller class.
+    ///
+    /// @todo Use an option variable for the max. size of the deque.
+    void push_back(T *diag)
+    {
+        this->m_list.push_back(diag);
+    	if(m_cur == m_list.end())
+            m_cur = m_list.begin();
+
+        // remove older records
+        if(m_list.size() > 10)
+        {
+            typename std::deque<T*>::iterator
+                from = this->m_list.begin(),
+                to = this->m_list.begin();
+
+            std::advance(to, m_list.size() - 10);
+            if(this->m_cur <= to)
+            {
+                this->m_cur = to;
+                this->m_cur++;
+            }
+            std::for_each(from, to, delete_object());
+            this->m_list.erase(from, to);
+        }
+    }
+    
+    
+    /// Checks if there are any records available
+    bool diagAvail(void) const
+    {
+        return this->m_cur != this->m_list.end();
+    }
+
+    
+    /// The reference keeps valid until no other method is called.
+    const T& fetchDiag(void)
+    {
+        if(this->m_cur != this->m_list.end())
+        {
+            return **this->m_cur++;
+        }
+        else
+            throw std::range_error("No diagnostic records available");
+    }
 
 protected:
-    i18n::UString             m_msg;
-    i18n::UString             m_desc;
-    std::string               m_srcfile;
-    std::string               m_srcfunc;
-    int                       m_dalcode;
-    std::vector<std::string>  m_files; /// @todo use i18n::UString
-    std::string               m_sqlstate;
+    std::deque<T*>                     m_list;
+    typename std::deque<T*>::iterator  m_cur;
+};
+
+
+
+
+//--------------------------------------------------------------------------
+/// Interface for diagnostic records
+///
+/// @since 0.0.1
+/// @brief Interface for diagnostic records
+class DBWTL_EXPORT IDiagnostic
+{
+public:
+    virtual ~IDiagnostic(void)
+    {}
+
+    virtual dalstate_t         getState(void) const = 0;
+//     virtual const Variant&     getQuery(void) const = 0;
+//     virtual const Variant&     getNativeErrorCode(void) const = 0;
+    virtual const Variant&     getMsg(void) const = 0;
+    virtual const Variant&     getDescription(void) const = 0;
+    virtual const Variant&     getCodepos(void) const = 0;
+    virtual const Variant&     getSqlstate(void) const = 0;
+
+//     virtual const Variant&     getRowNumber(void) const = 0;
+//     virtual const Variant&     getServerName(void) const = 0;
+//     virtual const Variant&     getColumnNumber(void) const = 0;
+//     virtual const Variant&     getUsedFiles(void) const = 0;
+
+
+    /// SQLSTATE exceptions stores an own copy of a diagnostic record.
+    /// It must be save to clone a complete record even if the handle that
+    /// has initially created the record is destroyed.
+    virtual IDiagnostic* clone(void) const = 0;
+
+    /// Dumps the information as as string
+    virtual i18n::UString str(void) const = 0;
+
+    /// Checks the stored information and error codes and raises a
+    /// appropriate SQLSTATE exception.
+    virtual void raiseException(void) const = 0;
 };
 
 
@@ -372,6 +311,22 @@ public:
     virtual ~IDALObject(void) { }
 };
 
+
+
+
+//--------------------------------------------------------------------------
+/// @brief Base class for Handles
+class DBWTL_EXPORT IHandle : public IDALObject
+{
+public:
+    IHandle(void);
+    virtual ~IHandle(void) {}
+
+    virtual bool                 diagAvail(void) const = 0;
+
+    /// The reference keeps valid until no other method is called.
+    virtual const IDiagnostic&   fetchDiag(void) = 0;
+};
 
 
 
@@ -794,9 +749,40 @@ protected:
 
 
 
-
-
+/// @brief create a new default storage object
 IStoredVariant* new_default_storage(daltype_t type);
+
+
+
+//------------------------------------------------------------------------------
+/// Dispatches the template argument type to a variant getter method
+/// Required specialization for each type which should be dispatched.
+///
+/// @since 0.0.1
+/// @brief Dispatches the template argument type to a variant getter method
+template<typename T>
+struct variant_dispatch_method
+{};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Base class for variant_dispatch_method
+struct variant_dispatch_storage
+{
+protected:
+    explicit variant_dispatch_storage(const IVariant &var) : m_var(var)
+    {}
+
+    inline const IVariant& get(void) const
+    { return this->m_var; }
+
+private:
+    const IVariant &m_var;
+};
+
 
 
 
@@ -1160,7 +1146,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for Environments
-class DBWTL_EXPORT IEnv : public IDALObject
+class DBWTL_EXPORT IEnv : public IHandle
 {
 public:
     typedef std::auto_ptr<IEnv> ptr;
@@ -1177,7 +1163,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for connections
-class DBWTL_EXPORT IDbc : public IDALObject
+class DBWTL_EXPORT IDbc : public IHandle
 {
 public:
     typedef std::auto_ptr<IDbc>                      ptr;
@@ -1210,18 +1196,18 @@ public:
     /// The value of database depends on the selected driver.
     /// Some drivers (filebased) requires a path to a directory or file
     /// and other drivers needs the name of the database.
-    virtual dalstate_t     connect(i18n::UString database,
-                                   i18n::UString user = i18n::UString(),
-                                   i18n::UString password = i18n::UString()) = 0;
+    virtual void     connect(i18n::UString database,
+                             i18n::UString user = i18n::UString(),
+                             i18n::UString password = i18n::UString()) = 0;
 
 
     ///
     /// @brief Connect to a database by options
-    virtual dalstate_t     connect(IDbc::Options& options) = 0;
+    virtual void     connect(IDbc::Options& options) = 0;
 
 
     virtual bool           isConnected(void) const = 0;
-    virtual dalstate_t     disconnect(void) = 0;
+    virtual void     disconnect(void) = 0;
     virtual i18n::UString  driverName(void) const = 0;
     virtual i18n::UString  dbmsName(void) const = 0;
     virtual IStmt*         newStatement(void) = 0;
@@ -1242,6 +1228,8 @@ public:
     { 
         throw std::runtime_error("not impl");
     }
+
+
     /*
       virtual ColumnList     getTables(const IColumnFilter& = EmptyColumnFilter()) = 0;
       virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
@@ -1317,7 +1305,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for statements
-class DBWTL_EXPORT IStmt : public IDALObject
+class DBWTL_EXPORT IStmt : public IHandle
 {
 public:
     typedef std::map<int, IVariant*> ParamMapT;
@@ -1513,6 +1501,56 @@ public:
 
 
 
+
+
+
+
+//--------------------------------------------------------------------------
+/// Base implementation for IDiagnostic
+///
+/// @since 0.0.1
+/// @brief Base implementation for IDiagnostic
+class DBWTL_EXPORT DiagBase : public IDiagnostic
+{
+public:
+    virtual ~DiagBase(void)
+    {}
+
+    DiagBase(dalstate_t state,
+             const char *codepos,
+             const char *func,
+             i18n::UString message,
+             i18n::UString description);
+    
+    DiagBase(const DiagBase& ref);
+
+
+
+    virtual dalstate_t         getState(void) const;
+//     virtual const Variant&     getQuery(void) const;
+//     virtual const Variant&     getNativeErrorCode(void) const;
+    virtual const Variant&     getMsg(void) const;
+    virtual const Variant&     getDescription(void) const;
+    virtual const Variant&     getCodepos(void) const;
+    virtual const Variant&     getSqlstate(void) const;
+//     virtual const Variant&     getRowNumber(void) const;
+//     virtual const Variant&     getServerName(void) const;
+//     virtual const Variant&     getColumnNumber(void) const;
+//     virtual const Variant&     getUsedFiles(void) const = 0;
+//     virtual const Variant&     getSourcePos(void) const = 0;
+
+protected:
+    dalstate_t m_state;
+    Variant m_sqlstate;
+    Variant m_codepos;
+    Variant m_func;
+    Variant m_message;
+    Variant m_description;
+};
+
+
+
+
 //------------------------------------------------------------------------------
 ///
 /// @brief Base implementation for IStmt
@@ -1541,6 +1579,7 @@ public:
     //virtual void      bind(i18n::UString name, IVariant* data);
     //virtual void      bind(i18n::UString name, PodVariant data);
     //virtual int       getParamNumberByName(i18n::UString name) const = 0;
+
 
 protected:
     StmtBase(void) : m_params(),
@@ -1573,6 +1612,8 @@ public:
     virtual bool      isBad(void) const;
     virtual bool      isOpen(void) const;
 
+
+
 protected:
 
     ResultBase(void) : m_isPrepared(false),
@@ -1596,6 +1637,7 @@ class DBWTL_EXPORT DbcBase : public IDbc
 public:
     virtual bool      isConnected(void) const;
     virtual bool      isBad(void) const;
+
 
 protected:
 
@@ -1710,6 +1752,52 @@ DAL_NAMESPACE_END
 /// @cond DEV_DOCS
 
 DAL_NAMESPACE_BEGIN
+
+
+
+#define DBWTL_VARIANT_DISPATCHER(method, type)                          \
+    template<>                                                          \
+    struct variant_dispatch_method<type>                                \
+        : public variant_dispatch_storage                               \
+    {                                                                   \
+        variant_dispatch_method(const dal::IVariant &var)               \
+            : variant_dispatch_storage(var)                             \
+        {}                                                              \
+                                                                        \
+        type operator()(void) const                                     \
+        {                                                               \
+            return this->get().method();                                \
+        }                                                               \
+    };
+
+
+DBWTL_VARIANT_DISPATCHER(asInt, signed int)
+DBWTL_VARIANT_DISPATCHER(asUInt, unsigned int)
+DBWTL_VARIANT_DISPATCHER(asChar, signed char)
+DBWTL_VARIANT_DISPATCHER(asUChar, unsigned char)
+DBWTL_VARIANT_DISPATCHER(asStr, i18n::UString)
+DBWTL_VARIANT_DISPATCHER(asBool, bool)
+DBWTL_VARIANT_DISPATCHER(asSmallint, signed short)
+DBWTL_VARIANT_DISPATCHER(asUSmallint, unsigned short)
+DBWTL_VARIANT_DISPATCHER(asBigint, signed long long)
+DBWTL_VARIANT_DISPATCHER(asUBigint, unsigned long long)
+DBWTL_VARIANT_DISPATCHER(asNumeric, TNumeric)
+DBWTL_VARIANT_DISPATCHER(asMoney, TMoney)
+DBWTL_VARIANT_DISPATCHER(asReal, float)
+DBWTL_VARIANT_DISPATCHER(asDouble, double)
+DBWTL_VARIANT_DISPATCHER(asDate, TDate)
+DBWTL_VARIANT_DISPATCHER(asTime, TTime)
+DBWTL_VARIANT_DISPATCHER(asDatetime, TDatetime)
+//DBWTL_VARIANT_DISPATCHER(asTimestamp, signed int) /// @bug sure? TTimestamp
+DBWTL_VARIANT_DISPATCHER(asCIDR, TCidr)
+DBWTL_VARIANT_DISPATCHER(asInterval, TInterval)
+DBWTL_VARIANT_DISPATCHER(asMacaddr, TMacaddr)
+DBWTL_VARIANT_DISPATCHER(asInetaddr, TInetaddr)
+//DBWTL_VARIANT_DISPATCHER(asUUID, TUuid)
+//DBWTL_VARIANT_DISPATCHER(asXML, TXml)
+
+
+
 
 
 template<>
@@ -3383,3 +3471,14 @@ DAL_NAMESPACE_END
 /// @endcond
 
 #endif
+
+
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

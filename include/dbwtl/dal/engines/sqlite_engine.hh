@@ -53,8 +53,6 @@
 #error "DBWTL was compiled without SQLite support!"
 #endif
 
-#include <cstdlib>
-
 
 DAL_NAMESPACE_BEGIN
 
@@ -69,12 +67,114 @@ class SqliteEnv;
 class SqliteVariant;
 class SqliteEngineState;
 class SqliteTable;
+class SqliteDiag;
 class SqliteDatatype;
-
 class SqliteColumnDesc;
 
-struct sqlite;
 
+struct sqlite;
+struct sqlite_sqlstates;
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief SQLite SQLSTATEs
+struct sqlite_sqlstates : public basic_states
+{
+    typedef enum 
+    {
+        DAL_SQLITE_SQLSTATE_08000 = DAL_SQLSTATE_08000, // connection exception
+        DAL_SQLITE_SQLSTATE_08001 = DAL_SQLSTATE_08001, // SQL-client unable to establish SQL-connection
+        DAL_SQLITE_SQLSTATE_0A000 = DAL_SQLSTATE_0A000, // feature not supported
+        DAL_SQLITE_SQLSTATE_22000 = DAL_SQLSTATE_22000, // data exception
+        DAL_SQLITE_SQLSTATE_23000 = DAL_SQLSTATE_23000, // integrity constraint violation
+        DAL_SQLITE_SQLSTATE_25000 = DAL_SQLSTATE_25000, // invalid transaction state
+        DAL_SQLITE_SQLSTATE_25001 = DAL_SQLSTATE_25001, // active SQL-transaction
+        DAL_SQLITE_SQLSTATE_25006 = DAL_SQLSTATE_25006, // read-only SQL-transaction
+        DAL_SQLITE_SQLSTATE_28000 = DAL_SQLSTATE_28000, // invalid authorization specification
+        DAL_SQLITE_SQLSTATE_42000 = DAL_SQLSTATE_42000  // syntax error or access rule violation
+
+        //DAL_SQLITE_SQLSTATE_XY000 = DAL_SQLSTATE_LAST + 1
+    } engine_states_t;
+    
+
+// connection exception
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_08000>                         SQLSTATE_08000;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_08000>                         SQLSTATE_connection_exception;
+
+// SQL-client unable to establish SQL-connection
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_08001, SQLSTATE_08000>         SQLSTATE_08001;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_08001, SQLSTATE_08000>         SQLSTATE_sql_client_unable_to_establish_sql_connection;
+
+// feature not supported
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_0A000>                         SQLSTATE_0A000;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_0A000>                         SQLSTATE_feature_not_supported;
+
+// data exception
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_22000>                         SQLSTATE_22000;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_22000>                         SQLSTATE_data_exception;
+
+// integrity constraint violation
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_23000>                         SQLSTATE_23000;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_23000>                         SQLSTATE_integrity_constraint_violation;
+
+// invalid transaction state
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_25000>                         SQLSTATE_25000;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_25000>                         SQLSTATE_invalid_transaction_state;
+
+// active SQL-transaction
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_25001, SQLSTATE_25000>         SQLSTATE_25001;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_25001, SQLSTATE_25000>         SQLSTATE_active_sql_transaction;
+
+// read-only SQL-transaction
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_25006, SQLSTATE_25000>         SQLSTATE_25006;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_25006, SQLSTATE_25000>         SQLSTATE_read_only_sql_transaction;
+
+// invalid authorization specification
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_28000>                         SQLSTATE_28000;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_28000>                         SQLSTATE_invalid_authorization_specification;
+
+// syntax error or access rule violation
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_42000>                         SQLSTATE_42000;
+    typedef sqlstate<DAL_SQLITE_SQLSTATE_42000>                         SQLSTATE_syntax_error_or_access_rule_violation;
+
+
+//     typedef sqlstate<DAL_SQLITE_SQLSTATE_XY000>                         SQLSTATE_XY000;
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief SQLite Diagnostic
+class DBWTL_EXPORT SqliteDiag : public DiagBase
+{
+public:
+    virtual ~SqliteDiag(void)
+    {}
+
+
+    virtual SqliteDiag* clone(void) const = 0;
+    virtual void raiseException(void) const;
+
+
+protected:
+    SqliteDiag(dalstate_t state,
+               const char *codepos,
+               const char *func,
+               i18n::UString message,
+               i18n::UString description);
+    
+    SqliteDiag(const SqliteDiag& ref);
+
+    sqlite_sqlstates::engine_states_t m_sqlstate_id;
+};
+
+
+
+typedef DiagController<SqliteDiag> SqliteDiagController;
 
 
 
@@ -238,8 +338,9 @@ public:
     typedef SqliteVariant               value_type;
     typedef std::vector<value_type*>    row_type; /// @todo required?
 
-    SqliteResult(void) : ResultBase()
-    {}
+    SqliteResult(SqliteDiagController &dc) : ResultBase(),
+        m_diag(dc)
+        {}
 
     virtual const value_type&     column(colnum_t num) = 0;
     //virtual SqliteVariant&     field(colnum_t num) = 0;
@@ -250,7 +351,9 @@ public:
     virtual const SqliteColumnDesc& describeColumn(colnum_t num) const = 0;
 
     virtual const SqliteColumnDesc& describeColumn(i18n::UString name) const = 0;
-   
+  
+protected:
+    SqliteDiagController &m_diag;
 };
 
 
@@ -270,6 +373,12 @@ public:
 
     virtual SqliteResult&        resultset(void) = 0;
     virtual const SqliteResult&  resultset(void) const = 0;
+
+    virtual bool                 diagAvail(void) const;
+    virtual const SqliteDiag&   fetchDiag(void);
+
+protected:
+    SqliteDiagController m_diag;
 };
 
 
@@ -301,6 +410,13 @@ public:
     virtual void           rollback(i18n::UString name = i18n::UString());
 
     virtual void           directCmd(i18n::UString cmd);
+
+
+    virtual bool                diagAvail(void) const;
+    virtual const SqliteDiag&   fetchDiag(void);
+
+protected:
+    SqliteDiagController m_diag;
 };
 
 
@@ -319,43 +435,16 @@ public:
     virtual ~SqliteEnv(void);
     
     virtual SqliteDbc* newConnection(void) = 0;
-};
 
 
-
-
-
-
-//------------------------------------------------------------------------------
-///
-/// @brief SQLite Engine State
-class DBWTL_EXPORT SqliteEngineState : public BaseEngineState
-{
-public:
-    SqliteEngineState(void);
-
-    virtual ~SqliteEngineState(void);
-
-
-    inline operator EngineState(void) const { return EngineState(*this); }
-
-
-    /** @brief Clones the current State object */
-    virtual SqliteEngineState* clone(void) const;
-
-
-    /** @brief Set the driver-dependend status code */
-    virtual void setDrvCode(int code, i18n::UString name);
-
-
-    /** @brief Dumps the State content into a string */
-    virtual i18n::UString dump(void) const;
-
+    virtual bool                 diagAvail(void) const;
+    virtual const SqliteDiag&    fetchDiag(void);
 
 protected:
-    int              m_drvcode;
-    i18n::UString    m_drvcode_name;
+    SqliteDiagController m_diag;
 };
+
+
 
 
 
@@ -371,15 +460,17 @@ struct sqlite
     typedef SqliteStmt         STMT;
     typedef SqliteEnv          ENV;
     typedef SqliteVariant      VALUE;
-    typedef SqliteEngineState  STATE;
+    typedef SqliteDiag         DIAG;
+    typedef sqlite_sqlstates   STATES;
     typedef SqliteTable        TABLE;
     typedef SqliteColumnDesc   COLUMNDESC;
 
-    static inline const STATE& engine_state(dalstate_t& state)
-        {
-            const IEngineState* es = state.getImpl();
-            return dynamic_cast<const STATE&>(*es);
-        }
+
+
+    //typedef STATES::engine_states_t 
+
+    DBWTL_EXPORT static const char* sqlstate2string(STATES::engine_states_t id);
+
 
     ///
     /// @brief Create a new Environment
@@ -406,38 +497,38 @@ public:
     virtual ~storage_accessor(void) { }
 
     virtual int asInt() const
-        { return this->getValue()->getInt(); }
+    { return this->getValue()->getInt(); }
 
 
     virtual std::streambuf* asBlob(void) const
-        {
-            return this->getValue()->getBlob();
-        }
+    {
+        return this->getValue()->getBlob();
+    }
 
 
     virtual i18n::UString asStr() const
-        {
-            return this->getValue()->getString();
-        }
+    {
+        return this->getValue()->getString();
+    }
 
 
     virtual i18n::UString asStr(std::locale loc) const
-        {
-            throw std::runtime_error("not implemented"); /// @bug fixme
-            ///return this->getValue()->getString();
-        }
+    {
+        throw std::runtime_error("not implemented"); /// @bug fixme
+        ///return this->getValue()->getString();
+    }
 
 
     virtual bool isnull() const
-        {
-            return this->getValue()->isnull();
-        }
+    {
+        return this->getValue()->isnull();
+    }
 
 
     virtual daltype_t datatype() const
-        {
-            return this->getValue()->daltype();
-        }
+    {
+        return this->getValue()->daltype();
+    }
 };
 
 
@@ -473,11 +564,12 @@ struct db_traits<dal::sqlite, tag>
     typedef dal::sqlite::STMT                  dal_stmt_type;
     typedef dal::sqlite::ENV                   dal_env_type;
     typedef dal::sqlite::DBC                   dal_dbc_type;
+    typedef dal::sqlite::DIAG                  dal_diag_type;    
 
     typedef dal::sqlite::COLUMNDESC            dal_columndesc_type;
-    
-    enum { DB_SYSTEM_ID = 0 };
+    typedef dal::sqlite::STATES                sqlstate_types;
 
+    enum { DB_SYSTEM_ID = 1 };
 };
 
 struct sqlite_v4 { };
@@ -490,13 +582,12 @@ class SqliteConnection;
   struct db_traits<DAL::Sqlite, sqlite_v4>
   {
   typedef Environment<DAL::Sqlite, sqlite_v4>      environment_type;
-  typedef SqliteConnection  connection_type;
-  typedef int                                statement_type;
+  typedef SqliteConnection                         connection_type;
+  typedef int                                      statement_type;
   typedef Result<DAL::Sqlite, sqlite_v4>           resultset_type;
   typedef CachedResult<DAL::Sqlite, sqlite_v4>     cached_resultset_type;
-  typedef int                                variant_type;
-
-  typedef DAL::Sqlite::RESULT                dal_resultset_type;
+  typedef int                                      variant_type;
+  typedef DAL::Sqlite::RESULT                      dal_resultset_type;
 
   enum { DB_SYSTEM_ID = 0 };
   };
@@ -507,8 +598,17 @@ class SqliteConnection;
 */
 
 
-
 DB_NAMESPACE_END
 
 
 #endif
+
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

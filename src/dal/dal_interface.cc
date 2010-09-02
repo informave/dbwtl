@@ -112,7 +112,33 @@ Memo::str() const
 }
 
 
+//--------------------------------------------------------------------------
+//
+IHandle::IHandle(void)
+  : IDALObject()
+{}
 
+/*
+bool
+IHandle::diagAvail(void) const
+{
+    return false;
+}
+
+
+const IDiagnostic&
+IHandle::fetchDiag(void)
+{
+    throw std::range_error("no diagnostic records available");
+}
+
+
+void
+IHandle::setDiagBufferSize(size_t n)
+{
+    this->m_diagbuffer_max = n;
+}
+*/
 
 
 //--------------------------------------------------------------------------
@@ -261,19 +287,6 @@ std::ostream& operator<<(std::ostream& o,  const IVariant &var)
 
 
 
-//--------------------------------------------------------------------------
-///
-/// @cond DEV_DOCS
-/// Deletes a object
-struct delete_object
-{
-    template <typename T>
-    void operator()(T ptr){ delete ptr;}
-
-    template<typename U, typename V>
-    void operator()(std::pair<U, V> val){ delete val.second;}
-};
-/// @endcond
 
 
 //--------------------------------------------------------------------------
@@ -701,291 +714,14 @@ void Variant::setNull(void)
 
 
 
-//--------------------------------------------------------------------------
-///
-///
-IEngineState::IEngineState(void)
-{}
-
-
-///
-///
-IEngineState::~IEngineState(void)
-{}
-
-
-
-
-
-//--------------------------------------------------------------------------
-///
-///
-EngineState::EngineState(void) 
-    : m_state(0), m_state_code(DALSTATE_OK)
-{}
-
-
-///
-///
-EngineState::EngineState(int code) 
-    : m_state(0), m_state_code(code)
-{}
-
-
-///
-///
-EngineState& 
-EngineState::operator=(int code)
-{
-    this->m_state.release();
-    this->m_state_code = code;
-    return *this;
-}
-
-
-///
-///
-bool 
-EngineState::operator!=(int code)
-{
-    return ! this->operator==(code);
-}
-
-
-///
-///
-bool 
-EngineState::operator==(int code)
-{
-    if(this->m_state.get())
-        return this->m_state->getDALCode() == code;
-    else
-        return this->m_state_code == code;
-}
-
-
-///
-///
-EngineState::EngineState(const IEngineState& newstate) 
-    : m_state(0), 
-      m_state_code(0)
-{
-    this->m_state.reset( newstate.clone() );
-}
-
-
-///
-///
-EngineState::EngineState(const EngineState& newstate)
-    : m_state(0), 
-      m_state_code(newstate.m_state_code)
-{
-    if(this->m_state.get())
-        this->m_state.reset( newstate.m_state->clone() );
-}
-
-
-///
-///
-EngineState&
-EngineState::operator=(const EngineState& newstate)
-{
-    if(newstate.m_state.get())
-        this->m_state.reset( newstate.m_state->clone() );
-    this->m_state_code = newstate.m_state_code;
-    return *this;
-}
-
-
-
-///
-///
-const IEngineState*
-EngineState::getImpl(void) const
-{
-    return this->m_state.get();
-}
-
-
-///
-///
-IEngineState*
-EngineState::getImpl(void)
-{
-    return this->m_state.get();
-}
-
-
-///
-///
-EngineState::~EngineState(void)
-{}
-
-
-///
-///
-void
-EngineState::setMsg(i18n::UString msg)
-{
-    assert(this->m_state.get());
-    this->m_state->setMsg(msg);
-}
-
-
-///
-///
-i18n::UString
-EngineState::getMsg(void) const
-{
-    assert(this->m_state.get());
-    return this->m_state->getMsg();
-}
-
-
-
-///
-///
-std::string
-EngineState::getMsgUTF8(void) const
-{
-    assert(this->m_state.get());
-    return i18n::conv_to(this->m_state->getMsg(), "UTF-8");
-}
-
-
-
-///
-///
-void 
-EngineState::setDescription(i18n::UString desc)
-{
-    assert(this->m_state.get());
-    this->m_state->setDescription(desc);
-}
-
-
-///
-///
-void 
-EngineState::setSource(std::string file, std::string func)
-{
-    assert(this->m_state.get());
-    this->m_state->setSource(file, func);    
-}
-
-
-///
-///
-void 
-EngineState::setDALCode(int code)
-{
-    if(this->m_state.get())
-        this->m_state->setDALCode(code);
-    else
-        this->m_state_code = code;
-}
-
-
-///
-///
-int
-EngineState::getDALCode(void) const
-{
-    if(this->m_state.get())
-        return this->m_state->getDALCode();
-    else
-        return this->m_state_code;
-}
-
-
-///
-///
-void 
-EngineState::addUsedFile(std::string file)
-{
-    assert(this->m_state.get());
-    this->m_state->addUsedFile(file);
-}
-
-
-
-///
-///
-void 
-EngineState::setSQLState(std::string state)
-{
-    assert(this->m_state.get());
-    this->m_state->setSQLState(state);
-}
-
-
-///
-///
-i18n::UString
-EngineState::dump(void) const
-{
-    if(! this->m_state.get())
-    {
-        std::string s = "State code: ";
-        s.append(dal_state_msg(this->m_state_code));
-        return i18n::conv_from(s, "ASCII");
-    }
-    return this->m_state->dump();
-}
-
-
-///
-///
-EngineState*
-EngineState::clone(void) const
-{
-    DBWTL_NOTIMPL();
-}
-
-
-
-///
-///
-std::ostream& operator<<(std::ostream& o, const informave::db::dal::IEngineState& state)
-{
-    o << i18n::conv_to(state.dump(), "UTF-8");
-    return o;
-}
-
-
-///
-///
-std::wostream& operator<<(std::wostream& o, const informave::db::dal::IEngineState& state)
-{
-    o << state.dump();
-    return o;
-    /*
-      o << std::endl
-      << "(((DAL STATE)))" << std::endl
-      << "[DAL_STATE = OK (Code: 0 / 0x0)]" << std::endl
-      << "[SQL_STATE = HY0100]" << std::endl
-      << "[DRV_CODE  = PG_INVALID_USER (Code: -298, Extended: -2938728)]" << std::endl
-      << "[SOURCE    = DALInterface::Fooo]" << std::endl
-      << "[......    = foobar.cc line 2343]" << std::endl
-      << "[CATCHED   = foo.cc]" << std::endl
-      << "[.......   = bar.cc]" << std::endl
-      << "[.......   = bar.cc]" << std::endl
-      << "[.......   = bar.cc]" << std::endl
-      << "[FILES     = /usr/lib/libpq.so]" << std::endl
-      << "The server refused the connection." << std::endl
-      << std::endl;
-    */
-}
-
-
-
-
 
 
 
 //--------------------------------------------------------------------------
 ///
 /// @cond DEV_DOCS
+
+/*
 struct dal_state_text_t
 {
     int code;
@@ -1034,7 +770,7 @@ const char* dal_state_msg(int code)
     return msg;
 }
 
-
+*/
 
 
 
@@ -1242,101 +978,6 @@ TDatetime::asStr(std::locale loc) const
 //--------------------------------------------------------------------------
 ///
 ///
-BaseEngineState::BaseEngineState(void)
-    : m_msg(),
-      m_desc(),
-      m_srcfile(),
-      m_srcfunc(),
-      m_dalcode(DALSTATE_OK),
-      m_files(),
-      m_sqlstate("00000")
-{}
-
-
-///
-///
-BaseEngineState::~BaseEngineState(void)
-{}
-
-
-///
-///
-void 
-BaseEngineState::setMsg(i18n::UString msg)
-{
-    this->m_msg = msg;
-}
-
-
-///
-///
-i18n::UString 
-BaseEngineState::getMsg(void) const
-{
-    return this->m_msg;
-}
-
-
-///
-///
-void 
-BaseEngineState::setDescription(i18n::UString desc)
-{
-    this->m_desc = desc;
-}
-
-
-///
-///
-void 
-BaseEngineState::setSource(std::string file, std::string func)
-{
-    this->m_srcfile = file;
-    this->m_srcfunc = func;
-}
-
-
-///
-///
-void 
-BaseEngineState::setDALCode(int code)
-{ 
-    this->m_dalcode = code;
-}
-
-
-///
-///
-int
-BaseEngineState::getDALCode(void) const
-{ 
-    return this->m_dalcode;
-}
-
-
-///
-///
-void 
-BaseEngineState::addUsedFile(std::string file)
-{ 
-    this->m_files.push_back(file);
-}
-
-
-///
-///
-void 
-BaseEngineState::setSQLState(std::string state)
-{ 
-    this->m_sqlstate = state;
-}
-
-
-
-
-//--------------------------------------------------------------------------
-///
-///
 IResult::~IResult(void)
 { DALTRACE("VISIT"); }
 
@@ -1415,6 +1056,116 @@ EmptyDatatypeFilter::simpleSchemaFilter(void) const
 {
     DBWTL_NOTIMPL(); /// @bug implement me
 }
+
+
+
+//--------------------------------------------------------------------------
+///
+///
+
+
+//
+DiagBase::DiagBase(dalstate_t state,
+                   const char *codepos,
+                   const char *func,
+                   i18n::UString message,
+                   i18n::UString description)
+    : IDiagnostic(),
+      m_state(state),
+      m_sqlstate(DAL_TYPE_VARCHAR, L"SqliteDiag::sqlstate"),
+      m_codepos(DAL_TYPE_VARCHAR, L"SqliteDiag::codepos"),
+      m_func(DAL_TYPE_VARCHAR, L"SqliteDiag::func"),
+      m_message(DAL_TYPE_VARCHAR, L"SqliteDiag::message"),
+      m_description(DAL_TYPE_VARCHAR, L"SqliteDiag::description")
+      //m_sqlstate_id() // fix?
+{
+    m_codepos.setStr(codepos, "UTF-8");
+    m_func.setStr(func, "UTF-8");
+    m_message = message;
+    m_description = description;
+}
+
+
+//
+DiagBase::DiagBase(const DiagBase& ref)
+    : IDiagnostic(),
+      m_state(ref.m_state),
+      m_sqlstate(ref.m_sqlstate),
+      m_codepos(ref.m_codepos),
+      m_func(ref.m_func),
+      m_message(ref.m_message),
+      m_description(ref.m_description)
+      //m_sqlstate_id(ref.m_sqlstate_id)
+{}
+
+
+
+
+dalstate_t
+DiagBase::getState(void) const
+{
+    return this->m_state;
+}
+
+/*
+const Variant&
+DiagBase::getQuery(void) const
+{
+    //return this->m_
+}
+
+const Variant&
+DiagBase::getNativeErrorCode(void) const
+{
+    //ret
+}
+*/
+
+
+
+const Variant&
+DiagBase::getMsg(void) const
+{
+    return this->m_message;
+}
+
+const Variant&
+DiagBase::getDescription(void) const
+{
+    return this->m_description;
+}
+
+const Variant&
+DiagBase::getSqlstate(void) const
+{
+    return this->m_sqlstate;
+}
+
+const Variant&
+DiagBase::getCodepos(void) const
+{
+    return this->m_codepos;
+}
+
+
+/*
+const Variant&
+DiagBase::getRowNumber(void) const
+{
+}
+
+
+const Variant&
+DiagBase::getServerName(void) const
+{
+}
+
+const Variant&
+DiagBase::getColumnNumber(void) const
+{
+}
+*/
+
 
 
 

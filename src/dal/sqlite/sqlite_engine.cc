@@ -53,6 +53,46 @@
 DAL_NAMESPACE_BEGIN
 
 
+bool
+SqliteEnv::diagAvail(void) const
+{
+    return this->m_diag.diagAvail();
+}
+
+const SqliteDiag&
+SqliteEnv::fetchDiag(void)
+{
+    return this->m_diag.fetchDiag();
+}
+
+
+
+bool
+SqliteStmt::diagAvail(void) const
+{
+    return this->m_diag.diagAvail();
+}
+
+const SqliteDiag&
+SqliteStmt::fetchDiag(void)
+{
+    return this->m_diag.fetchDiag();
+}
+
+
+bool
+SqliteDbc::diagAvail(void) const
+{
+    return this->m_diag.diagAvail();
+}
+
+const SqliteDiag&
+SqliteDbc::fetchDiag(void)
+{
+    return this->m_diag.fetchDiag();
+}
+
+
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -364,78 +404,6 @@ void SqliteVariant::refresh(void)
 
 
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//
-SqliteEngineState::SqliteEngineState(void)
-    : BaseEngineState(),
-      m_drvcode(),
-      m_drvcode_name()
-{ }
-
-
-
-//
-SqliteEngineState::~SqliteEngineState(void)
-{ }
-
-
-
-//
-SqliteEngineState*
-SqliteEngineState::clone(void) const
-{
-    return new SqliteEngineState(*this);
-}
-
-
-
-//
-void
-SqliteEngineState::setDrvCode(int code, i18n::UString name)
-{
-    this->m_drvcode = code;
-    this->m_drvcode_name = name;
-}
-
-
-
-//
-i18n::UString
-SqliteEngineState::dump(void) const
-{
-    std::wstringstream ss;
-
-    ss << L"Message:" << std::endl 
-       << this->m_msg << std::endl
-       << L"[DAL_STATE = " << DAL_CODE(this->m_dalcode) 
-       << L" (Code: " << this->m_dalcode << L" / 0x" << std::hex << this->m_dalcode << std::dec << ")]"
-       << std::endl
-       << L"[SQL_STATE = " << i18n::conv_from(&this->m_sqlstate[0], "ASCII") << L"]" << std::endl
-       << L"[DRV_CODE  = " << this->m_drvcode_name << L" (Code: "<< this->m_drvcode << L")]" << std::endl;
-  
-    if( ! this->m_srcfunc.empty())
-        ss << L"[SOURCE    = " << i18n::conv_from(this->m_srcfunc, "UTF-8") << L"]" << std::endl
-           << L"[......    = " << i18n::conv_from(this->m_srcfile, "UTF-8") << L"]" << std::endl;
-
-
-    for(std::vector<std::string>::const_iterator i = this->m_files.begin();
-        i != this->m_files.end();
-        ++i)
-    {
-        if(this->m_files.begin() == i)
-            ss << L"[FILES     = " << i18n::conv_from(*i, "UTF-8") << L"]" << std::endl;
-        else
-            ss << L"[.....     = " << i18n::conv_from(*i, "UTF-8") << L"]" << std::endl;
-    }
-
-    ss << this->m_desc << std::endl << std::endl;
-    return ss.str();
-}
-
-
-
 
 
 
@@ -446,7 +414,6 @@ SqliteEngineState::dump(void) const
 sqlite::ENV*
 sqlite::createEnv(i18n::UString driver)
 {
-    sqlite::STATE state;
     i18n::UString drv;
 
     drv = parse_driver(driver)["driver"];
@@ -457,20 +424,40 @@ sqlite::createEnv(i18n::UString driver)
         return new SqliteEnv_libsqlite(parse_driver(driver)["lib"]);
 
 /*
-    else if(drv.compare(L"odbc") == 0)
-        return new SqliteEnv_odbc(parse_driver(driver)["lib"]);
+  else if(drv.compare(L"odbc") == 0)
+  return new SqliteEnv_odbc(parse_driver(driver)["lib"]);
 */
 
     // nothing found..
 err:
-    state.setDALCode(DALSTATE_LIB_ERROR);
-    state.setMsg(L"Driver \"" + drv + L"\" is not a valid driver name.");
-    state.setSource(__FILE__, __FUNCTION__);
-    throw ex::engine_error(state);
+    throw ex::engine_error(L"Driver \"" + drv + L"\" is not a valid driver name.");
 }
 
 
 
+#define DAL_NAMEOF_STATE(state)	case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: return #state
+
+const char*
+sqlite::sqlstate2string(STATES::engine_states_t id)
+{
+	switch(id)
+    {
+        DAL_NAMEOF_STATE(08000);
+        DAL_NAMEOF_STATE(08001);
+        DAL_NAMEOF_STATE(0A000);
+        DAL_NAMEOF_STATE(22000);
+        DAL_NAMEOF_STATE(23000);
+        DAL_NAMEOF_STATE(25000);
+        DAL_NAMEOF_STATE(25001);
+        DAL_NAMEOF_STATE(25006);
+        DAL_NAMEOF_STATE(28000);
+        DAL_NAMEOF_STATE(42000);
+
+        //DAL_NAMEOF_STATE(XY000);
+    }
+    throw ex::engine_error(L"Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+}
+#undef DAL_NAMEOF_STATE
 
 
 
@@ -478,7 +465,57 @@ err:
 
 
 
+//
+SqliteDiag::SqliteDiag(dalstate_t state,
+                       const char *codepos,
+                       const char *func,
+                       i18n::UString message,
+                       i18n::UString description)
+    : DiagBase(state, codepos, func, message, description),
+      m_sqlstate_id() // fix?
+{
+    //m_sqlstate_id = sqlite3error_to_sqlstate(sqlite_code);
+    //m_sqlstate.setStr(sqlstate_to_name(m_sqlstate_id), "UTF-8");
+}
 
+
+//
+SqliteDiag::SqliteDiag(const SqliteDiag& ref)
+    : DiagBase(ref),
+      m_sqlstate_id(ref.m_sqlstate_id)
+{}
+
+
+
+
+
+#define DAL_THROW_STATE(state)                              \
+        case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: \
+            throw sqlite::STATES::SQLSTATE_##state(*this)
+
+//
+void
+SqliteDiag::raiseException(void) const
+{
+	switch(this->m_sqlstate_id)
+    {
+        DAL_THROW_STATE(08000);
+        DAL_THROW_STATE(08001);
+        DAL_THROW_STATE(0A000);
+        DAL_THROW_STATE(22000);
+        DAL_THROW_STATE(23000);
+        DAL_THROW_STATE(25000);
+        DAL_THROW_STATE(25001);
+        DAL_THROW_STATE(25006);
+        DAL_THROW_STATE(28000);
+        DAL_THROW_STATE(42000);
+
+        //DAL_THROW_STATE(XY000);
+    }
+    throw ex::engine_error(L"Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+}
+
+#undef DAL_THROW_STATE
 
 
 DAL_NAMESPACE_END

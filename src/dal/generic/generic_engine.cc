@@ -41,6 +41,7 @@
 /// @since 0.0.1
 
 
+#include "dbwtl/dal/dal_fwd.hh"
 #include "dbwtl/dal/engines/generic_engine.hh"
 #include "dbwtl/dal/active_engines.hh"
 #include "../dal_debug.hh"
@@ -91,7 +92,7 @@ generic::createEnv(i18n::UString driver)
     if(! engine.length())
         goto err;
 
-#if defined(WITH_SQLITE)
+#if defined(DBWTL_WITH_SQLITE)
     else if(engine.compare(L"sqlite") == 0)
         return sqlite::createEnv(driver);
 #endif

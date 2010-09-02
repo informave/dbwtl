@@ -61,8 +61,7 @@
 DAL_NAMESPACE_BEGIN
 
 
-class IEngineState;
-class EngineState;
+
 class IDALDriver;
 class IDALObject;
 

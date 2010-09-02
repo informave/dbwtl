@@ -57,7 +57,39 @@ class SqliteStmt_libsqlite;
 class SqliteDbc_libsqlite;
 class SqliteEnv_libsqlite;
 class SqliteData_libsqlite;
+class SqliteDiag_libsqlite;
 
+
+
+//------------------------------------------------------------------------------
+///
+/// @internal
+/// @brief SqliteDiag implementation for libsqlite
+class SqliteDiag_libsqlite : public SqliteDiag
+{
+public:
+
+    SqliteDiag_libsqlite(dalstate_t state,
+//                         const char *sqlstate,
+                         const char *codepos,
+                         const char *func,
+                         i18n::UString message,
+                         i18n::UString description,
+                         int sqlite_code,
+                         int sqlite_excode);
+
+    SqliteDiag_libsqlite(const SqliteDiag_libsqlite& ref);
+    virtual ~SqliteDiag_libsqlite(void);
+    
+    virtual i18n::UString str(void) const;
+    virtual SqliteDiag_libsqlite* clone(void) const;    
+
+protected:
+
+    Variant m_sqlite_code;
+    Variant m_sqlite_excode;
+
+};
 
 
 
@@ -131,13 +163,18 @@ protected:
 };
 
 
+
+//------------------------------------------------------------------------------
+///
+/// @internal
+/// @brief SqliteColumnDesc implementation for libsqlite
 class SqliteColumnDesc_libsqlite : public SqliteColumnDesc
 {
 public:
 	SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_libsqlite &result);
 
 	virtual ~SqliteColumnDesc_libsqlite(void)
-	{}
+        {}
 };
 
 
@@ -276,6 +313,8 @@ class SqliteStmt_libsqlite : public SqliteStmt
 {
     typedef std::vector<SqliteResult_libsqlite*> ResultsetVectorT;
     
+    friend class SqliteResult_libsqlite;
+
 public:
     SqliteStmt_libsqlite(SqliteDbc_libsqlite& conn);
     virtual ~SqliteStmt_libsqlite(void);
@@ -341,11 +380,11 @@ public:
 
     virtual SqliteStmt_libsqlite*    newStatement(void);
 
-    virtual dalstate_t     connect(i18n::UString database,
-                                   i18n::UString user = i18n::UString(),
-                                   i18n::UString password = i18n::UString());
-    virtual dalstate_t     connect(IDbc::Options& options);
-    virtual dalstate_t     disconnect(void);
+    virtual void     connect(i18n::UString database,
+                             i18n::UString user = i18n::UString(),
+                             i18n::UString password = i18n::UString());
+    virtual void     connect(IDbc::Options& options);
+    virtual void     disconnect(void);
 
     virtual i18n::UString  driverName(void) const;
     virtual i18n::UString  dbmsName(void) const;
@@ -353,16 +392,16 @@ public:
     virtual SQLite3Drv*    getDriver(void) const;
 
 /*
-    virtual void           beginTrans(IDbc::trx_mode mode,
-                                      IDbc::access_mode access = IDbc::trx_default,
-                                      std::string name = std::string());
+  virtual void           beginTrans(IDbc::trx_mode mode,
+  IDbc::access_mode access = IDbc::trx_default,
+  std::string name = std::string());
 
-    virtual void           commit(void);
+  virtual void           commit(void);
 
-    virtual void           savepoint(std::string name);
-    virtual void           rollback(std::string name = std::string());
+  virtual void           savepoint(std::string name);
+  virtual void           rollback(std::string name = std::string());
 
-    virtual void           directCmd(i18n::UString cmd);
+  virtual void           directCmd(i18n::UString cmd);
 */
 
     virtual std::string    getDbcEncoding(void) const;
@@ -415,3 +454,13 @@ protected:
 DAL_NAMESPACE_END
 
 #endif
+
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

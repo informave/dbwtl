@@ -26,13 +26,7 @@ int test(void)
 
 
     // now connect
-    dalstate_t state = dbc->connect(L"sampledb.sqlitedb");
-    if(state != DALSTATE_OK)
-    {
-        i18n::UString s = state.dump();
-        //throw std::runtime_error(state.getMsgUTF8());
-        throw std::runtime_error(i18n::conv_to(s, "UTF-8"));
-    }
+    dbc->connect(L"sampledb.sqlitedb");
 
 
     // print current state
@@ -67,10 +61,10 @@ int test(void)
 
     stmt->close();
 
-    state = dbc->disconnect();
+    dbc->disconnect();
     //std::cout << Sqlite::engine_state(state);
 
-    return state == DALSTATE_OK ? 0 : -1;
+    return 0;
 }
 
 

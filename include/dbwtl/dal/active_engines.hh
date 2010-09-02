@@ -4,7 +4,7 @@
 
 #include "dbwtl/dbwtl_config.hh"
 
-#if defined(WITH_SQLITE)
+#if defined(DBWTL_WITH_SQLITE)
 #include "engines/sqlite_engine.hh"
 #endif
 

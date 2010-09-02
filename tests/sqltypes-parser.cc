@@ -14,7 +14,6 @@ int test(void)
     //using namespace informave::db::sqlutils;
     using namespace informave::i18n;
     using namespace informave::db::dal;
-    using informave::db::dal::dalstate_t;
     //using namespace informave::db::DAL;
 
     

@@ -116,33 +116,33 @@ namespace ex
 
     //
     //
-    convert_error::convert_error(dal::dalstate_t state, const i18n::UString &varname)
-        : exception(),
-          m_varname()
-    {
-        i18n::UString msg;
-        msg = L"Conversion error: Can't convert the variant (identified by \"" +
-            varname + 
-            L"\") to the requested type.";
+//     convert_error::convert_error(dal::dalstate_t state, const i18n::UString &varname)
+//         : exception(),
+//           m_varname()
+//     {
+//         i18n::UString msg;
+//         msg = L"Conversion error: Can't convert the variant (identified by \"" +
+//             varname + 
+//             L"\") to the requested type.";
 
-        this->setMessage(msg);
-    }
+//         this->setMessage(msg);
+//     }
 
 
 
     //
     //
-    convert_error::convert_error(dal::dalstate_t state, const dal::Variant &var)
-        : exception(),
-          m_varname()
-    {
-        i18n::UString msg;
-        msg = L"Conversion error: Can't convert the variant (identified by \"" +
-            var.getName() + 
-            L"\") to the requested type.";
+//     convert_error::convert_error(dal::dalstate_t state, const dal::Variant &var)
+//         : exception(),
+//           m_varname()
+//     {
+//         i18n::UString msg;
+//         msg = L"Conversion error: Can't convert the variant (identified by \"" +
+//             var.getName() + 
+//             L"\") to the requested type.";
 
-        this->setMessage(msg);
-    }
+//         this->setMessage(msg);
+//     }
 
 
     convert_error::convert_error(informave::db::dal::daltype_t src, informave::db::dal::DatatypeEnumeration dest)
@@ -191,17 +191,17 @@ namespace ex
 
     //
     //
-    null_value::null_value(dal::dalstate_t state, const i18n::UString &varname)
-        : exception(),
-          m_varname()
-    {
-        i18n::UString msg;
-        msg = L"NULL exception: The variant (identified by \"" +
-            varname + 
-            L"\") is null.";
+//     null_value::null_value(dal::dalstate_t state, const i18n::UString &varname)
+//         : exception(),
+//           m_varname()
+//     {
+//         i18n::UString msg;
+//         msg = L"NULL exception: The variant (identified by \"" +
+//             varname + 
+//             L"\") is null.";
 
-        this->setMessage(msg);
-    }
+//         this->setMessage(msg);
+//     }
 
 
 
@@ -210,11 +210,11 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    engine_error::engine_error(dal::dalstate_t state)
-        : exception()
-    {
-    	this->setMessage(state.dump());
-    }
+//     engine_error::engine_error(dal::dalstate_t state)
+//         : exception()
+//     {
+//     	this->setMessage(L"remove dalstate here");
+//     }
 
 
     //
@@ -254,13 +254,13 @@ namespace ex
 
     //
     //
-    sql_error::sql_error(dal::dalstate_t state, const i18n::UString &sql, const i18n::UString &what)
-        : engine_error(),
-          m_sql(sql),
-          m_what(what)
-    {
-        this->setMessage(what);
-    }
+//     sql_error::sql_error(dal::dalstate_t state, const i18n::UString &sql, const i18n::UString &what)
+//         : engine_error(),
+//           m_sql(sql),
+//           m_what(what)
+//     {
+//         this->setMessage(what);
+//     }
 
 
 
@@ -289,11 +289,11 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    not_found::not_found(dal::dalstate_t state, const i18n::UString &what)
-        : exception()
-    {
-        this->setMessage(what);
-    }
+//     not_found::not_found(dal::dalstate_t state, const i18n::UString &what)
+//         : exception()
+//     {
+//         this->setMessage(what);
+//     }
 
 
     //
@@ -310,7 +310,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    charset_error::charset_error(dal::dalstate_t state, std::string data, i18n::UString from_charset,
+    charset_error::charset_error(std::string data, i18n::UString from_charset,
                                  i18n::UString to_charset)
         : exception()
     {
@@ -321,7 +321,7 @@ namespace ex
 
     //
     //
-    charset_error::charset_error(dal::dalstate_t state, i18n::UString data, i18n::UString from_charset,
+    charset_error::charset_error(i18n::UString data, i18n::UString from_charset,
                                  i18n::UString to_charset)
         : exception()
     {
@@ -335,11 +335,11 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    read_only::read_only(dal::dalstate_t state, const i18n::UString &resource_name)
-        : exception()
-    {
-        this->setMessage(L"The resource \"" + resource_name + L"\" is read only.");
-    }
+//     read_only::read_only(dal::dalstate_t state, const i18n::UString &resource_name)
+//         : exception()
+//     {
+//         this->setMessage(L"The resource \"" + resource_name + L"\" is read only.");
+//     }
 
 
 
@@ -388,10 +388,10 @@ namespace ex
 
     //
     //
-    logic_error::logic_error(dal::dalstate_t state)
-    {
-        this->setMessage(L"Needs dalstate impl");
-    }
+//     logic_error::logic_error(dal::dalstate_t state)
+//     {
+//         this->setMessage(L"Needs dalstate impl");
+//     }
 
 
 
@@ -410,10 +410,10 @@ namespace ex
 
     //
     //
-    busy_error::busy_error(dal::dalstate_t state, const i18n::UString &what)
-    {
-        this->setMessage(what);
-    }
+//     busy_error::busy_error(dal::dalstate_t state, const i18n::UString &what)
+//     {
+//         this->setMessage(what);
+//     }
 
 }
 

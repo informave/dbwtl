@@ -1022,15 +1022,15 @@ public:
                 throw ex::missing_function(__FUNCTION__);
         }
 
-/*
-  inline int sqlite3_extended_errcode(sqlite3 *db)
-  {
-  if(this->m_func_sqlite3_extended_errcode)
-  return this->m_func_sqlite3_extended_errcode(db);
-  else
-  throw ex::missing_function(__FUNCTION__);
-  }
-*/
+
+    inline int sqlite3_extended_errcode(sqlite3 *db)
+        {
+            if(this->m_func_sqlite3_extended_errcode)
+                return this->m_func_sqlite3_extended_errcode(db);
+            else
+                throw ex::missing_function(__FUNCTION__);
+        }
+
 
     inline const char *sqlite3_errmsg(sqlite3* db)
         {

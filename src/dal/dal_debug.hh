@@ -45,6 +45,7 @@
 #define INFORMAVE_DB_DAL_DEBUG_HH
 
 #include "dbwtl/dal/dal_fwd.hh"
+#include "dbwtl/util/devutils.hh"
 
 #include <cassert>
 
@@ -61,29 +62,9 @@
 DAL_NAMESPACE_BEGIN
 
 
-#if defined(__GNUC__)
- #define DBWTL_FUNC_NAME __PRETTY_FUNCTION__
-#elif defined(_MSC_VER)
- #define DBWTL_FUNC_NAME __FUNCTION__
-#else
- #define DBWTL_FUNC_NAME "<func-macro-not-supported>"
-#endif
-
-
-/// @brief Convert a number to string
-#define DBWTL_STRINGIFY(x) #x
-#define DBWTL_TOSTRING(x) DBWTL_STRINGIFY(x)
-
-
-
-/// @brief Current code position as string
-#define DBWTL_CODE_POS() __FILE__ ":"          \
-    DBWTL_TOSTRING(__LINE__)
-
-
 /// 
 #define DBWTL_UNHANDLED(str)                                            \
-    throw std::runtime_error(std::string("[ERR][").append(DBWTL_CODE_POS()) \
+    throw std::runtime_error(std::string("[ERR][").append(DBWTL_CODE_POS) \
                              .append("][")                              \
                              .append(DBWTL_FUNC_NAME)                   \
                              .append("] ==>>> ")                        \
@@ -94,7 +75,7 @@ DAL_NAMESPACE_BEGIN
 /// Throws if function is not implemented
 #define DBWTL_NOTIMPL()                                             \
     throw std::runtime_error(std::string("[ERR][")                  \
-                             .append(DBWTL_CODE_POS())              \
+                             .append(DBWTL_CODE_POS)              \
                              .append("][")                          \
                              .append(DBWTL_FUNC_NAME)               \
                              .append("] ==>>> ")                    \

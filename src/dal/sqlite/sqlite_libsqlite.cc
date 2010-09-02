@@ -65,6 +65,20 @@
     }
 
 
+
+#define DAL_SQLITE_LIBSQLITE_DIAG_ERROR(handle, msg, desc, code, excode) \
+    {                                                                   \
+        sqlite::DIAG *__dal__diag =                                     \
+            new SqliteDiag_libsqlite(DAL_STATE_ERROR,                   \
+                                     DBWTL_CODE_POS,                    \
+                                     DBWTL_FUNC_NAME,                   \
+                                     msg, desc, code, excode);          \
+        handle->m_diag.push_back(__dal__diag);                          \
+        __dal__diag->raiseException();                                  \
+    } 
+
+
+
 DAL_NAMESPACE_BEGIN
 
 
@@ -334,7 +348,7 @@ SqliteData_libsqlite::daltype(void) const
 
 //
 SqliteResult_libsqlite::SqliteResult_libsqlite(SqliteStmt_libsqlite& stmt)
-    : SqliteResult(),
+    : SqliteResult(stmt.m_diag),
       m_stmt(stmt),
       m_handle(NULL),
       m_current_tuple(DAL_TYPE_ROWID_NPOS),
@@ -386,11 +400,13 @@ SqliteResult_libsqlite::prepare(i18n::UString sql)
         this->m_isPrepared = true;
         break;
     default:
-        sqlite::STATE state;
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
         i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-        DRV_STATE(state, DALSTATE_SQL_ERROR, u_msg, err, "HY000");
-        throw ex::sql_error(state, sql, u_msg);
+        DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
+                                        L"Can not prepare query",
+                                        u_msg,
+                                        this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
+                                        this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
         break;
     };
 
@@ -404,7 +420,6 @@ void
 SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
 {
     DALTRACE_ENTER;
-    sqlite::STATE state;
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
@@ -424,7 +439,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         std::stringstream tmp_stream;
 
 
-        int err;
+        int err = SQLITE_OK;
 
         if(var->isnull())
             continue;
@@ -471,10 +486,14 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             throw ex::not_found(L"param not found");
             //break; // throw exception::RangeError;
         default:
+
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
             i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-            DRV_STATE(state, DALSTATE_SQL_ERROR, u_msg, err, "HY000");
-            throw ex::engine_error(state);
+            DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
+                                            L"Can not prepare query",
+                                            u_msg,
+                                            this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
+                                            this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
             break;
         };
     }
@@ -516,8 +535,11 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     default:
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
         i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-        DRV_STATE(state, DALSTATE_SQL_ERROR, u_msg, this->m_last_row_status, "HY000");
-        throw ex::engine_error(state);
+        DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
+                                        L"Can not prepare query",
+                                        u_msg,
+                                        this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
+                                        this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
         break;
     };
     DALTRACE_LEAVE;
@@ -585,11 +607,13 @@ SqliteResult_libsqlite::next(void)
     case SQLITE_BUSY:
         //break;
     default:
-        sqlite::STATE state;
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
         i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-        DRV_STATE(state, DALSTATE_SQL_ERROR, u_msg, this->m_last_row_status, "HY000");
-        throw ex::engine_error(state);
+        DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
+                                        L"Can not prepare query",
+                                        u_msg,
+                                        this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
+                                        this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
         break;
     };
 }
@@ -627,12 +651,15 @@ SqliteResult_libsqlite::close(void)
             this->m_handle = 0;
             break;
         default:
-            sqlite::STATE state;
+
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
             i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-            DRV_STATE(state, DALSTATE_ERROR, u_msg, err, "HY000");
-            throw ex::engine_error(state);
-            break;            
+            DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
+                                            L"Can not prepare query",
+                                            u_msg,
+                                            this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
+                                            this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
+            break;
         };
     }
 }
@@ -1037,7 +1064,7 @@ SqliteDbc_libsqlite::newStatement(void)
 
 
 //
-dalstate_t
+void
 SqliteDbc_libsqlite::connect(i18n::UString database,
                              i18n::UString user,
                              i18n::UString password)
@@ -1050,56 +1077,181 @@ SqliteDbc_libsqlite::connect(i18n::UString database,
 
 
 
-//
-dalstate_t    
-SqliteDbc_libsqlite::connect(IDbc::Options& options)
+
+static sqlite_sqlstates::engine_states_t sqlite3error_to_sqlstate(int code)
 {
-    DALTRACE_ENTER;
-    sqlite::STATE state;
-
-    try
+    switch(code)
     {
-        std::string dbc_db = i18n::conv_to(options[ L"database" ], "UTF-8");
-
-        int err = this->drv()->sqlite3_open_v2(dbc_db.c_str(), &this->m_dbh,
-                                               SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-                                               NULL);
-        // allocation error?
-        if(this->m_dbh == NULL)
-            throw std::bad_alloc();
-        switch(err)
-        {
-        case SQLITE_OK:
-            DRV_STATE(state, DALSTATE_OK, DAL_MSG_SUCCESS, err, "00000");
-            this->m_isConnected = true;
-            break;
-        default:
-            const char *msg = this->drv()->sqlite3_errmsg(this->m_dbh);
-            i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-            DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
-            break;
-        };
+    case SQLITE_ERROR:         /* SQL error or missing database */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_INTERNAL:       /* Internal logic error in SQLite */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_PERM:           /* Access permission denied */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_28000;
+    case SQLITE_ABORT:          /* Callback routine requested an abort */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_BUSY:           /* The database file is locked */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_25001;
+    case SQLITE_LOCKED:         /* A table in the database is locked */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_NOMEM:          /* A malloc() failed */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_READONLY:       /* Attempt to write a readonly database */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_25006;
+    case SQLITE_INTERRUPT:      /* Operation terminated by sqlite3_interrupt()*/
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_IOERR:          /* Some kind of disk I/O error occurred */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_CORRUPT:        /* The database disk image is malformed */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_NOTFOUND:       /* NOT USED. Table or record not found */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_FULL:           /* Insertion failed because database is full */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_CANTOPEN:       /* Unable to open the database file */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_08001;
+    case SQLITE_PROTOCOL:       /* Database lock protocol error */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_EMPTY:          /* Database is empty */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_SCHEMA:         /* The database schema changed */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_TOOBIG:         /* String or BLOB exceeds size limit */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_22000;
+    case SQLITE_CONSTRAINT:     /* Abort due to constraint violation */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_23000;
+    case SQLITE_MISMATCH:       /* Data type mismatch */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_MISUSE:         /* Library used incorrectly */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_NOLFS:          /* Uses OS features not supported on host */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_0A000;
+    case SQLITE_AUTH:           /* Authorization denied */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_28000;
+    case SQLITE_FORMAT:         /* Auxiliary database format error */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_42000;
+    case SQLITE_RANGE:          /* 2nd parameter to sqlite3_bind out of range */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_22000;
+    case SQLITE_NOTADB:         /* File opened that is not a database file */
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_08001;
+    default:
+        return sqlite_sqlstates::DAL_SQLITE_SQLSTATE_08000;
+        //throw sqlite::STATES::SQLSTATE_08006(*this);
     }
-    catch(ex::exception& e)
-    {
-        DRV_STATE(state, DALSTATE_API_ERR, e.getMessage(), 0, "HY000");
-    }
+}
 
-    if(this->isConnected())
-        this->setDbcEncoding("UTF-8");
 
-    DALTRACE_LEAVE;
-    return state;
+//
+SqliteDiag_libsqlite::SqliteDiag_libsqlite(dalstate_t state,
+                                           const char *codepos,
+                                           const char *func,
+                                           i18n::UString message,
+                                           i18n::UString description,
+                                           int sqlite_code,
+                                           int sqlite_excode)
+    : SqliteDiag(state, codepos, func, message, description),
+      m_sqlite_code(DAL_TYPE_VARCHAR, L"SqliteDiag::sqlite_code"),
+      m_sqlite_excode(DAL_TYPE_VARCHAR, L"SqliteDiag::sqlite_excode")
+{
+    m_sqlite_code = sqlite_code;
+    m_sqlite_excode = sqlite_excode;
+
+    m_sqlstate_id = sqlite3error_to_sqlstate(sqlite_code);
+    m_sqlstate.setStr(sqlite::sqlstate2string(m_sqlstate_id), "UTF-8");
+}
+
+
+//
+SqliteDiag_libsqlite*
+SqliteDiag_libsqlite::clone(void) const
+{
+    return new SqliteDiag_libsqlite(*this);
+}
+
+
+//
+SqliteDiag_libsqlite::SqliteDiag_libsqlite(const SqliteDiag_libsqlite& ref)
+    : SqliteDiag(ref),
+      m_sqlite_code(ref.m_sqlite_code),
+      m_sqlite_excode(ref.m_sqlite_excode)
+{}
+
+
+
+//
+SqliteDiag_libsqlite::~SqliteDiag_libsqlite(void)
+
+{}
+
+
+
+//
+i18n::UString
+SqliteDiag_libsqlite::str(void) const
+{
+    std::wstringstream ss;
+
+    ss << L"[SQLSTATE:" << coalesce<i18n::UString>(this->m_sqlstate, L"fooo") << L"] "
+       << coalesce<i18n::UString>(this->m_message, L"No message") << std::endl
+       << coalesce<i18n::UString>(this->m_description, L"No description") << std::endl
+       << L"SQLite errcode: " << coalesce<i18n::UString>(this->m_sqlite_code, L"NULL")
+       << L" (" << coalesce<i18n::UString>(this->m_sqlite_excode, L"NULL") << L")" << std::endl
+       << L"Raised at: " << coalesce<i18n::UString>(this->m_func, L"unknown") << L"()"
+       << L" [" << coalesce<i18n::UString>(this->m_codepos, L"unknown") << "]";
+
+    return ss.str();
 }
 
 
 
 //
-dalstate_t
+void
+SqliteDbc_libsqlite::connect(IDbc::Options& options)
+{
+    DALTRACE_ENTER;
+
+
+    std::string dbc_db = i18n::conv_to(options[ L"database" ], "UTF-8");
+
+    int err = this->drv()->sqlite3_open_v2(dbc_db.c_str(), &this->m_dbh,
+                                           SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+                                           NULL);
+    // allocation error?
+    if(this->m_dbh == NULL)
+        throw std::bad_alloc();
+    switch(err)
+    {
+    case SQLITE_OK:
+        this->m_isConnected = true;
+        break;
+    default:
+        const char *msg = this->drv()->sqlite3_errmsg(this->m_dbh);
+        i18n::UString u_msg = L"Database: " + options[ L"database" ] + L"\r\n" + i18n::conv_from(msg, "UTF-8");
+        //DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
+
+        DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
+                                        L"connection failure",
+                                        u_msg,
+                                        this->drv()->sqlite3_errcode(this->m_dbh),
+                                        this->drv()->sqlite3_extended_errcode(this->m_dbh));
+
+        break;
+    };
+
+
+    if(this->isConnected())
+        this->setDbcEncoding("UTF-8");
+
+    DALTRACE_LEAVE;
+}
+
+
+
+//
+void
 SqliteDbc_libsqlite::disconnect(void)
 {
     DALTRACE_ENTER;
-    sqlite::STATE state;
     
     if(this->isConnected())
     {
@@ -1110,19 +1262,32 @@ SqliteDbc_libsqlite::disconnect(void)
         case SQLITE_OK:
             this->m_dbh = 0;
             this->m_isConnected = false;
-            DRV_STATE(state, DALSTATE_OK, DAL_MSG_SUCCESS, err, "00000");
             break;
         case SQLITE_BUSY:
             
         default:
+
             const char *msg = this->drv()->sqlite3_errmsg(this->m_dbh);
             i18n::UString u_msg = i18n::conv_from(msg, "UTF-8");
-            DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
-            break;            
+            //DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
+
+            DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
+                                            L"connection failure",
+                                            u_msg,
+                                            this->drv()->sqlite3_errcode(this->m_dbh),
+                                            this->drv()->sqlite3_extended_errcode(this->m_dbh));
+
+            break;
         }
     }
+    else
+    {
+        this->drv()->sqlite3_close(this->m_dbh);
+        this->m_dbh = 0;
+    }
+
+
     DALTRACE_LEAVE;
-    return state;
 }
 
 
@@ -1388,7 +1553,6 @@ SqliteDbc_libsqlite::setDbcEncoding(std::string encoding)
 {
     // nothing to do, SQLite only can handle UTF-8 and UTF-16
 }
-
 
 
 

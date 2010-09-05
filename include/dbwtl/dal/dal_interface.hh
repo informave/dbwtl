@@ -114,6 +114,7 @@ const char* dal_state_msg(int code);
 #define DAL_CODE(codename) dal_state_msg(codename)
 
 
+typedef std::map<std::string, Variant> options_type;
 
 
 
@@ -326,6 +327,12 @@ public:
 
     /// The reference keeps valid until no other method is called.
     virtual const IDiagnostic&   fetchDiag(void) = 0;
+
+
+    virtual void             setOption(std::string name, Variant data) = 0;
+    virtual const Variant&   getOption(std::string name) const = 0;
+
+
 };
 
 
@@ -1581,12 +1588,14 @@ public:
     //virtual int       getParamNumberByName(i18n::UString name) const = 0;
 
 
+    virtual void             setOption(std::string name, Variant data);
+    virtual const Variant&   getOption(std::string name) const;
+
+    virtual ~StmtBase(void)
+    {}
+
 protected:
-    StmtBase(void) : m_params(),
-        m_temp_params(),
-        m_isPrepared(false),
-        m_isBad(false)
-        { }
+    StmtBase(void);
 
 
     /** @brief Variants* passed by user */
@@ -1596,6 +1605,7 @@ protected:
     bool                      m_isPrepared;
     bool                      m_isBad;
     //ResultsetMode             m_mode;
+    options_type m_options;
 };
 
 
@@ -1612,7 +1622,8 @@ public:
     virtual bool      isBad(void) const;
     virtual bool      isOpen(void) const;
 
-
+    virtual ~ResultBase(void)
+    {}
 
 protected:
 
@@ -1629,6 +1640,28 @@ protected:
 
 
 
+
+//------------------------------------------------------------------------------
+///
+/// 
+class DBWTL_EXPORT EnvBase : public IEnv
+{
+public:
+    virtual void             setOption(std::string name, Variant data);
+    virtual const Variant&   getOption(std::string name) const;
+
+protected:
+    EnvBase(void);
+
+    virtual ~EnvBase(void)
+    {}
+            
+
+    options_type m_options;
+};
+
+
+
 //------------------------------------------------------------------------------
 ///
 /// 
@@ -1638,15 +1671,19 @@ public:
     virtual bool      isConnected(void) const;
     virtual bool      isBad(void) const;
 
+    virtual void             setOption(std::string name, Variant data);
+    virtual const Variant&   getOption(std::string name) const;
+
+    virtual ~DbcBase(void)
+    {}
 
 protected:
 
-    DbcBase(void) : m_isConnected(false),
-        m_isBad(false)
-        { }
+    DbcBase(void);
 
     bool    m_isConnected;
     bool    m_isBad;
+    options_type m_options;
 };
 
 
@@ -1888,6 +1925,7 @@ public:
             this->m_isnull = false;
         }
 
+
     virtual i18n::UString asStr(void) const
         {
             std::wstringstream ss;
@@ -1992,6 +2030,13 @@ public:
     DAL_VARIANT_ACCESSOR;
     virtual ~storage_accessor(void) { }
     virtual daltype_t datatype() const { return DAL_TYPE_UINT; }
+
+    virtual void setUInt(const unsigned int &value)
+        {
+            this->getValue() = value;
+            this->m_isnull = false;
+        }
+
 };
 
 

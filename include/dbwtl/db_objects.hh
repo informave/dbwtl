@@ -289,14 +289,14 @@ struct basic_states
 ///
 /// @brief get the value from variant or (if null) return second argument
 template<typename T>
-struct coalesce
+struct ifnull
 {
     /// requested type
     typedef T value_type;
 
     /// @param[in] var A IVariant reference
     /// @param[in] def Default value which is returned if var is null
-    coalesce(const dal::IVariant &var, value_type def) : m_var(var), m_def(def)
+    ifnull(const dal::IVariant &var, value_type def) : m_var(var), m_def(def)
     {}
 
     /// cast operator to the requested type
@@ -310,17 +310,17 @@ private:
 
 
 
-/// @brief Helper operator for coalesce
+/// @brief Helper operator for ifnull
 template<typename T>
-DBWTL_EXPORT inline std::wostream&  operator<<(std::wostream& o, const coalesce<T> &value)
+DBWTL_EXPORT inline std::wostream&  operator<<(std::wostream& o, const ifnull<T> &value)
 {
     T tmp = value;
     return o << tmp;
 }
 
-/// @brief Helper operator for coalesce
+/// @brief Helper operator for ifnull
 template<typename T>
-DBWTL_EXPORT inline std::ostream&  operator<<(std::ostream& o, const coalesce<T> &value)
+DBWTL_EXPORT inline std::ostream&  operator<<(std::ostream& o, const ifnull<T> &value)
 {
     T tmp = value;
     return o << tmp;
@@ -350,9 +350,11 @@ template<typename Engine,
          typename EnvInterface = dal::IEnv>
 class Environment : public EnvInterface
 {
-    typedef typename db_traits<Engine, tag>::dal_dbc_type    dal_dbc_type;
-    typedef typename db_traits<Engine, tag>::dal_env_type    dal_env_type;
-    typedef typename db_traits<Engine, tag>::dal_diag_type   dal_diag_type;
+private:
+    typedef typename db_traits<Engine, tag>::dal_dbc_type     dal_dbc_type;
+    typedef typename db_traits<Engine, tag>::dal_env_type     dal_env_type;
+    typedef typename db_traits<Engine, tag>::dal_diag_type    dal_diag_type;
+    typedef typename db_traits<Engine, tag>::dal_variant_type dal_variant_type;
 
 public:
     Environment(i18n::UString str)
@@ -371,6 +373,9 @@ public:
 
     virtual dal_dbc_type* newConnection(void) { return this->m_env->newConnection(); }
 
+
+    virtual void                    setOption(std::string name, dal_variant_type data) { this->m_env->setOption(name, data); }
+    virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_env->getOption(name); }
 
 
     virtual bool                 diagAvail(void) const { return this->m_env->diagAvail(); }
@@ -397,9 +402,11 @@ private:
 template<typename Engine, typename tag, typename ConnectionInterface = dal::IDbc>
 class Connection : public ConnectionInterface
 {
+private:
     typedef typename db_traits<Engine, tag>::dal_dbc_type     dal_dbc_type;
     typedef typename db_traits<Engine, tag>::dal_stmt_type    dal_stmt_type;
     typedef typename db_traits<Engine, tag>::dal_diag_type       dal_diag_type;
+    typedef typename db_traits<Engine, tag>::dal_variant_type dal_variant_type;
 
 public:
     Connection( typename db_traits<Engine, tag>::environment_type &env )
@@ -468,6 +475,11 @@ public:
     virtual bool                 diagAvail(void) const { return this->m_dbc->diagAvail(); }
     virtual const dal_diag_type&   fetchDiag(void) { return this->m_dbc->fetchDiag(); }
 
+
+    virtual void                    setOption(std::string name, dal_variant_type data) { this->m_dbc->setOption(name, data); }
+    virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_dbc->getOption(name); }
+
+
     virtual dal_dbc_type*     getImpl(void)   { return this->m_dbc.get(); }
 
 protected:
@@ -499,9 +511,11 @@ private:
 template<typename Engine, typename tag, typename StmtInterface = dal::IStmt>
 class Statement : public StmtInterface
 {
+private:
     typedef typename db_traits<Engine, tag>::dal_resultset_type  dal_resultset_type;
     typedef typename db_traits<Engine, tag>::dal_stmt_type       dal_stmt_type;
     typedef typename db_traits<Engine, tag>::dal_diag_type       dal_diag_type;
+    typedef typename db_traits<Engine, tag>::dal_variant_type dal_variant_type;
 
 
 public:
@@ -559,6 +573,9 @@ public:
     virtual const dal_diag_type&   fetchDiag(void) { return this->m_stmt->fetchDiag(); }
 
 
+    virtual void                    setOption(std::string name, dal_variant_type data) { this->m_stmt->setOption(name, data); }
+    virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_stmt->getOption(name); }
+
 
     virtual dal_stmt_type*     getImpl(void)   { return this->m_stmt.get(); }
 
@@ -594,16 +611,17 @@ class CachedResult : public ResultInterface
 template<typename Engine, typename tag, typename ResultInterface = dal::IResult>
 class Result : public ResultInterface
 {
-public:
-    typedef int iterator;
-    typedef int const_iterator;
-
+private:
     typedef typename db_traits<Engine, tag>::statement_type      statement_type;
     typedef typename db_traits<Engine, tag>::dal_resultset_type  dal_resultset_type;
     typedef typename db_traits<Engine, tag>::dal_columndesc_type dal_columndesc_type;
     typedef typename db_traits<Engine, tag>::value_type          value_type;
 
 public:
+    typedef int iterator;
+    typedef int const_iterator;
+
+
 
     Result(void)
         : ResultInterface(),
@@ -923,6 +941,31 @@ private:
 //GCORE.001 set the engine later.
 //GCORE.001 
 
+
+//GCORE.001 
+//GCORE.001 Handles
+//GCORE.001 ~~~~~~~
+//GCORE.001 There are three handles: Environment, Connection and Statement.
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 Setting options for handles
+//GCORE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//GCORE.001 Each handle provides a 'setOption()' and 'getOption()' method.
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 DBMS::Environment env("sqlite:libsqlite");
+//GCORE.001 
+//GCORE.001 env.setOption("env_library_path", std::wstring(L"/path/to/libs"));
+//GCORE.001 
+//GCORE.001 std::string path = ifnull<std::string>(env.getOption("env_library_path"), ".");
+//GCORE.001 ------------------------------------------------------------------------------
+//GCORE.001 
+
+
+
+
 //GCORE.001 Environment
 //GCORE.001 ~~~~~~~~~~~
 //GCORE.001 
@@ -1229,7 +1272,7 @@ struct Database : public db_traits<Engine, tag>::sqlstate_types
     typedef typename db_traits<Engine, tag>::value_type               Value;
     typedef typename db_traits<Engine, tag>::dal_columndesc_type      ColumnDesc;
     typedef typename db_traits<Engine, tag>::dal_diag_type            Diag;
-    typedef dal::Variant                                              Variant;
+    typedef typename db_traits<Engine, tag>::dal_variant_type         Variant;
     typedef dal::Blob                                                 Blob;
     typedef dal::Memo                                                 Memo;
 };

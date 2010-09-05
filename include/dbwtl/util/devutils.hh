@@ -23,6 +23,18 @@ inline std::wstring to_widen(std::string s)
 #endif
 
 
+///
+/// @brief Adds a new option to Env, Dbc or Stmt
+///
+/// Should be only used in a cunstructor of one of these
+/// three classes.
+#define DAL_ADD_OPTION(name, type)                                      \
+    this->m_options.insert(options_type::value_type(name,               \
+                                                    Variant(type, L##name))) 
+
+
+
+
 /// @brief Convert a number to string
 #define DBWTL_STRINGIFY(x) #x
 #define DBWTL_TOSTRING(x) DBWTL_STRINGIFY(x)

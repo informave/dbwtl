@@ -349,7 +349,8 @@ namespace ex
                          const char *triggered_by)
         : exception()
     {
-        this->setMessage(L"The resource \"" + resource_name + L"\" is read only"
+        this->setMessage(L"The resource \"" + resource_name + L"\" is read only or a variant storage setter " +
+                         L"for the given type is not implemented." +
                          L" (triggered by: " + i18n::conv_from(triggered_by, "UTF-8") + L").");
     }
 

@@ -364,7 +364,7 @@ SqliteDbc::directCmd(i18n::UString cmd)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //
-SqliteEnv::SqliteEnv(void)
+SqliteEnv::SqliteEnv(void) : EnvBase()
 { }
 
 

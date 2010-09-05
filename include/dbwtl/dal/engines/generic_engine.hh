@@ -701,6 +701,8 @@ struct db_traits<dal::generic, tag>
     typedef dal::generic::COLUMNDESC            dal_columndesc_type;
     typedef dal::generic::STATES                sqlstate_types;
 
+    typedef dal::Variant                        dal_variant_type;
+
     enum { DB_SYSTEM_ID = 0 };
 };
 

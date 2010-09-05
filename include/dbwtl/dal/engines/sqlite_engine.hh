@@ -426,7 +426,7 @@ protected:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Environment
-class DBWTL_EXPORT SqliteEnv : public IEnv
+class DBWTL_EXPORT SqliteEnv : public EnvBase
 {
 public:
     typedef std::auto_ptr<SqliteEnv> ptr;
@@ -565,9 +565,10 @@ struct db_traits<dal::sqlite, tag>
     typedef dal::sqlite::ENV                   dal_env_type;
     typedef dal::sqlite::DBC                   dal_dbc_type;
     typedef dal::sqlite::DIAG                  dal_diag_type;    
-
     typedef dal::sqlite::COLUMNDESC            dal_columndesc_type;
     typedef dal::sqlite::STATES                sqlstate_types;
+
+    typedef dal::Variant                  dal_variant_type;
 
     enum { DB_SYSTEM_ID = 1 };
 };

@@ -143,6 +143,7 @@ IHandle::setDiagBufferSize(size_t n)
 
 //--------------------------------------------------------------------------
 //
+/// If the type is unknown, we must return a NULL pointer.
 IStoredVariant* new_default_storage(daltype_t type)
 {
     switch(type)
@@ -575,11 +576,17 @@ Variant::asMemo(void) const { return this->getStorageImpl()->asMemo(); }
 
 
 ///
+/// Initializes a variant storage smart pointer if it is NULL.
+/// We first try to get a new StoredVariant with new_default_storage.
+/// If the type is unknown, we use the given T type to get a valid
+/// storage object.
 template<class T>
-inline void init_if_null(typename Variant::storage_type &storage)
+inline void init_if_null(typename Variant::storage_type &storage, daltype_t type)
 {
+    IStoredVariant *sv = new_default_storage(type);
+   
     if(storage.get() == 0)
-        storage.reset(new var_storage<T>());
+        storage.reset(sv ? sv : new var_storage<T>());
 }
 
 
@@ -587,7 +594,7 @@ inline void init_if_null(typename Variant::storage_type &storage)
     void                                                        \
     Variant::set##postfix(const type& value)                    \
     {                                                           \
-        init_if_null<type>(this->m_storage);                    \
+        init_if_null<type>(this->m_storage, this->m_type);      \
         try                                                     \
         {                                                       \
             return this->getStorageImpl()->set##postfix(value); \
@@ -609,7 +616,7 @@ DBWTL_VARIANT_SETTER(Str, i18n::UString)
 void     
 Variant::setStr(const char* data, std::size_t len, const char* charset) 
 {
-    init_if_null<i18n::UString>(this->m_storage);
+    init_if_null<i18n::UString>(this->m_storage, this->m_type);
     try
     {
         this->getStorageImpl()->setStr(data, len, charset);
@@ -625,7 +632,7 @@ Variant::setStr(const char* data, std::size_t len, const char* charset)
 void        
 Variant::setStr(const std::string& value, const char* charset)
 { 
-    init_if_null<i18n::UString>(this->m_storage);
+    init_if_null<i18n::UString>(this->m_storage, this->m_type);
     try
     {
         this->getStorageImpl()->setStr(value, charset); 
@@ -1168,9 +1175,110 @@ DiagBase::getColumnNumber(void) const
 
 
 
+//--------------------------------------------------------------------------
+///
+///
+EnvBase::EnvBase(void)
+  : IEnv(),
+    m_options()
+{ 
+    DAL_ADD_OPTION("env_library_path", DAL_TYPE_VARCHAR);
+    DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
+    
+    this->m_options["env_diag_maxsize"].setUInt(50);
+}
+
+
+///
+///
+void
+EnvBase::setOption(std::string name, Variant data)
+{
+    options_type::iterator i = this->m_options.find(name);
+    if(i != this->m_options.end())
+    {
+        i->second = data;
+    }
+    else
+    {
+        throw std::exception();
+    }
+}
+
+///
+///
+const Variant&
+EnvBase::getOption(std::string name) const
+{
+    options_type::const_iterator i = this->m_options.find(name);
+    if(i != this->m_options.end())
+    {
+        return i->second;
+    }
+    else
+    {
+        throw std::exception();
+    }
+}
+
+
+
+
+
 
 //--------------------------------------------------------------------------
 ///
+///
+StmtBase::StmtBase(void)
+  : IStmt(),
+    m_params(),
+    m_temp_params(),
+    m_isPrepared(false),
+    m_isBad(false),
+    m_options()
+{ 
+    DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
+    
+    this->m_options["env_diag_maxsize"].setUInt(50);
+}
+
+
+
+///
+///
+void
+StmtBase::setOption(std::string name, Variant data)
+{
+    options_type::iterator i = this->m_options.find(name);
+    if(i != this->m_options.end())
+    {
+        i->second = data;
+    }
+    else
+    {
+        throw std::exception();
+    }
+}
+
+
+///
+///
+const Variant&
+StmtBase::getOption(std::string name) const
+{
+    options_type::const_iterator i = this->m_options.find(name);
+    if(i != this->m_options.end())
+    {
+        return i->second;
+    }
+    else
+    {
+        throw std::exception();
+    }
+}
+
+
+
 /// Support for binding POD types via an implicit constructor
 /// call.
 void 
@@ -1295,6 +1403,54 @@ ResultBase::isOpen(void) const
 
 
 //--------------------------------------------------------------------------
+///
+///
+DbcBase::DbcBase(void)
+  : IDbc(),
+    m_isConnected(false),
+    m_isBad(false),
+    m_options()
+{ 
+    DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
+    
+    this->m_options["env_diag_maxsize"].setUInt(50);
+}
+
+
+///
+///
+void
+DbcBase::setOption(std::string name, Variant data)
+{
+    options_type::iterator i = this->m_options.find(name);
+    if(i != this->m_options.end())
+    {
+        i->second = data;
+    }
+    else
+    {
+        throw std::exception();
+    }
+}
+
+
+///
+///
+const Variant&
+DbcBase::getOption(std::string name) const
+{
+    options_type::const_iterator i = this->m_options.find(name);
+    if(i != this->m_options.end())
+    {
+        return i->second;
+    }
+    else
+    {
+        throw std::exception();
+    }
+}
+
+
 ///
 ///
 bool

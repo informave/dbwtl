@@ -1191,13 +1191,13 @@ SqliteDiag_libsqlite::str(void) const
 {
     std::wstringstream ss;
 
-    ss << L"[SQLSTATE:" << coalesce<i18n::UString>(this->m_sqlstate, L"fooo") << L"] "
-       << coalesce<i18n::UString>(this->m_message, L"No message") << std::endl
-       << coalesce<i18n::UString>(this->m_description, L"No description") << std::endl
-       << L"SQLite errcode: " << coalesce<i18n::UString>(this->m_sqlite_code, L"NULL")
-       << L" (" << coalesce<i18n::UString>(this->m_sqlite_excode, L"NULL") << L")" << std::endl
-       << L"Raised at: " << coalesce<i18n::UString>(this->m_func, L"unknown") << L"()"
-       << L" [" << coalesce<i18n::UString>(this->m_codepos, L"unknown") << "]";
+    ss << L"[SQLSTATE:" << ifnull<i18n::UString>(this->m_sqlstate, L"fooo") << L"] "
+       << ifnull<i18n::UString>(this->m_message, L"No message") << std::endl
+       << ifnull<i18n::UString>(this->m_description, L"No description") << std::endl
+       << L"SQLite errcode: " << ifnull<i18n::UString>(this->m_sqlite_code, L"NULL")
+       << L" (" << ifnull<i18n::UString>(this->m_sqlite_excode, L"NULL") << L")" << std::endl
+       << L"Raised at: " << ifnull<i18n::UString>(this->m_func, L"unknown") << L"()"
+       << L" [" << ifnull<i18n::UString>(this->m_codepos, L"unknown") << "]";
 
     return ss.str();
 }

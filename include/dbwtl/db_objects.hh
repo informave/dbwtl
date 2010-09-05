@@ -335,8 +335,7 @@ DBWTL_EXPORT inline std::ostream&  operator<<(std::ostream& o, const ifnull<T> &
 ///
 /// @brief Database traits class
 template<typename Engine, typename tag = default_tag>
-struct db_traits
-{ };
+struct db_traits {};
 
 
 
@@ -373,16 +372,13 @@ public:
 
     virtual dal_dbc_type* newConnection(void) { return this->m_env->newConnection(); }
 
-
     virtual void                    setOption(std::string name, dal_variant_type data) { this->m_env->setOption(name, data); }
     virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_env->getOption(name); }
 
+    virtual bool                    diagAvail(void) const   { return this->m_env->diagAvail(); }
+    virtual const dal_diag_type&    fetchDiag(void)         { return this->m_env->fetchDiag(); }
 
-    virtual bool                 diagAvail(void) const { return this->m_env->diagAvail(); }
-    virtual const dal_diag_type&   fetchDiag(void) { return this->m_env->fetchDiag(); }
-
-
-    virtual dal_env_type* getImpl(void) { return this->m_env.get(); }
+    virtual dal_env_type*           getImpl(void)           { return this->m_env.get(); }
 
 protected:
     typename dal_env_type::ptr m_env;
@@ -403,10 +399,10 @@ template<typename Engine, typename tag, typename ConnectionInterface = dal::IDbc
 class Connection : public ConnectionInterface
 {
 private:
-    typedef typename db_traits<Engine, tag>::dal_dbc_type     dal_dbc_type;
-    typedef typename db_traits<Engine, tag>::dal_stmt_type    dal_stmt_type;
-    typedef typename db_traits<Engine, tag>::dal_diag_type       dal_diag_type;
-    typedef typename db_traits<Engine, tag>::dal_variant_type dal_variant_type;
+    typedef typename db_traits<Engine, tag>::dal_dbc_type      dal_dbc_type;
+    typedef typename db_traits<Engine, tag>::dal_stmt_type     dal_stmt_type;
+    typedef typename db_traits<Engine, tag>::dal_diag_type     dal_diag_type;
+    typedef typename db_traits<Engine, tag>::dal_variant_type  dal_variant_type;
 
 public:
     Connection( typename db_traits<Engine, tag>::environment_type &env )
@@ -419,8 +415,8 @@ public:
 
 
     virtual void   connect(i18n::UString database,
-                                      i18n::UString user = i18n::UString(),
-                                      i18n::UString password = i18n::UString())
+                           i18n::UString user = i18n::UString(),
+                           i18n::UString password = i18n::UString())
     { this->m_dbc->connect(database, user, password); }
 
 
@@ -430,7 +426,7 @@ public:
 
     virtual bool              isConnected(void) const       { return this->m_dbc->isConnected(); }
 
-    virtual void   disconnect(void)              { this->m_dbc->disconnect(); }
+    virtual void              disconnect(void)              { this->m_dbc->disconnect(); }
 
     virtual i18n::UString     driverName(void) const        { return this->m_dbc->driverName(); }
 
@@ -472,15 +468,15 @@ public:
     */
 
 
-    virtual bool                 diagAvail(void) const { return this->m_dbc->diagAvail(); }
-    virtual const dal_diag_type&   fetchDiag(void) { return this->m_dbc->fetchDiag(); }
+    virtual bool                   diagAvail(void) const    { return this->m_dbc->diagAvail(); }
+    virtual const dal_diag_type&   fetchDiag(void)          { return this->m_dbc->fetchDiag(); }
 
 
     virtual void                    setOption(std::string name, dal_variant_type data) { this->m_dbc->setOption(name, data); }
     virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_dbc->getOption(name); }
 
 
-    virtual dal_dbc_type*     getImpl(void)   { return this->m_dbc.get(); }
+    virtual dal_dbc_type*           getImpl(void)   { return this->m_dbc.get(); }
 
 protected:
     virtual void           setDbcEncoding(std::string encoding)
@@ -515,7 +511,7 @@ private:
     typedef typename db_traits<Engine, tag>::dal_resultset_type  dal_resultset_type;
     typedef typename db_traits<Engine, tag>::dal_stmt_type       dal_stmt_type;
     typedef typename db_traits<Engine, tag>::dal_diag_type       dal_diag_type;
-    typedef typename db_traits<Engine, tag>::dal_variant_type dal_variant_type;
+    typedef typename db_traits<Engine, tag>::dal_variant_type    dal_variant_type;
 
 
 public:
@@ -528,23 +524,21 @@ public:
     {}
 
 
-    virtual bool      isBad(void) const              { return this->m_stmt->isBad(); }
+    virtual bool      isBad(void) const                         { return this->m_stmt->isBad(); }
 
-    virtual void      prepare(i18n::UString sql)     { return this->m_stmt->prepare(sql); }
+    virtual void      prepare(i18n::UString sql)                { return this->m_stmt->prepare(sql); }
 
-    virtual bool      isPrepared(void) const         { return this->m_stmt->isPrepared(); }
+    virtual bool      isPrepared(void) const                    { return this->m_stmt->isPrepared(); }
 
-    virtual void      execute(void)                  { this->m_stmt->execute(); }
+    virtual void      execute(void)                             { this->m_stmt->execute(); }
 
-    virtual void      execDirect(i18n::UString sql)  { this->m_stmt->execDirect(sql); }
+    virtual void      execDirect(i18n::UString sql)             { this->m_stmt->execDirect(sql); }
 
-    virtual void      close(void)                    { this->m_stmt->close(); }
+    virtual void      close(void)                               { this->m_stmt->close(); }
 
     virtual dal_resultset_type&        resultset(void)          { return this->m_stmt->resultset(); }
 
     virtual const dal_resultset_type&  resultset(void) const    { return this->m_stmt->resultset(); }
-
-    //virtual void      setResultsetMode(dal::ResultsetMode mode) { } // delete me
 
     virtual bool      nextResultset(void)                       { return this->m_stmt->nextResultset(); }
 
@@ -566,18 +560,16 @@ public:
 
     virtual dal::IDALDriver* getDriver(void) const              { return this->m_stmt->getDriver(); }
 
+    // Diagnostic
+    virtual bool                   diagAvail(void) const        { return this->m_stmt->diagAvail(); }
+    virtual const dal_diag_type&   fetchDiag(void)              { return this->m_stmt->fetchDiag(); }
 
-
-
-    virtual bool                 diagAvail(void) const { return this->m_stmt->diagAvail(); }
-    virtual const dal_diag_type&   fetchDiag(void) { return this->m_stmt->fetchDiag(); }
-
-
+    // Options
     virtual void                    setOption(std::string name, dal_variant_type data) { this->m_stmt->setOption(name, data); }
     virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_stmt->getOption(name); }
 
 
-    virtual dal_stmt_type*     getImpl(void)   { return this->m_stmt.get(); }
+    virtual dal_stmt_type*          getImpl(void)               { return this->m_stmt.get(); }
 
 protected:
     typename dal_stmt_type::ptr m_stmt;

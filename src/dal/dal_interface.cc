@@ -53,6 +53,33 @@
 DAL_NAMESPACE_BEGIN
 
 
+/**
+ 
+@mainpage DBWTL - Database Wrapper Template Library
+
+
+@section sec_intro Introduction
+
+The DBWTL library is a wrapper around database management system APIs. It provides
+an uniform interface to all components and supports database specific features.
+
+
+@section sec_engines Supported engines
+
+ - dal::generic - Generic layer
+ - dal::sqlite - SQLite
+
+
+@section sec_crash Crashcourse building apps with DBWTL
+TODO
+
+@subsection sec_crash_link Linking against the DBWTL library
+
+Add the -ldbwtl option to g++
+
+
+ */
+
 
 
 //--------------------------------------------------------------------------

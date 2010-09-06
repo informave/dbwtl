@@ -9,6 +9,10 @@
 //GINTRO.001 ==========
 //GINTRO.001 
 //GINTRO.001 
+//GINTRO.001 The DBWTL library is a wrapper around database management system APIs. It
+//GINTRO.001 provides an uniform interface to all components and supports database specific
+//GINTRO.001 features.
+//GINTRO.001 
 //GINTRO.001 This manual describes how you can use the Informave DBWTL library.
 //GINTRO.001 
 

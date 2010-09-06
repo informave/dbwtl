@@ -561,6 +561,9 @@ footnotes: function () {
 </div>
 <div id="content">
 <h1 id="_user_guide">USER GUIDE</h1>
+<div class="paragraph"><p>The DBWTL library is a wrapper around database management system APIs. It
+provides an uniform interface to all components and supports database specific
+features.</p></div>
 <div class="paragraph"><p>This manual describes how you can use the Informave DBWTL library.</p></div>
 <h2 id="_introduction_with_a_step_by_step_example">1. Introduction with a step by step example</h2>
 <div class="sectionbody">
@@ -673,14 +676,14 @@ object is marked as <em>bad</em>. This state can only be changed by re-attaching
 the statement via <em>rs.attach(stmt)</em>.</td>
 </tr></table>
 </div>
-<div class="paragraph"><p>With the methods <em>begin()</em>, <em>next()</em> and <em>eof()</em> you can iterate over the
+<div class="paragraph"><p>With the methods <em>first()</em>, <em>next()</em> and <em>eof()</em> you can iterate over the
 records.</p></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 2.9
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">begin</span></span><span style="color: #990000">();</span> <span style="color: #990000">!</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">eof</span></span><span style="color: #990000">();</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">next</span></span><span style="color: #990000">())</span> <span style="color: #FF0000">{</span> <span style="font-style: italic"><span style="color: #9A1900">//for each record }</span></span></tt></pre></div></div>
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">first</span></span><span style="color: #990000">();</span> <span style="color: #990000">!</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">eof</span></span><span style="color: #990000">();</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">next</span></span><span style="color: #990000">())</span> <span style="color: #FF0000">{</span> <span style="font-style: italic"><span style="color: #9A1900">//for each record }</span></span></tt></pre></div></div>
 <h4 id="_access_the_record_fields">1.2.2. Access the record fields</h4>
 <div class="paragraph"><p>You can access the fields by name or by position (first field has position 1).
 To determine the number of available fields, use <em>columnCount()</em>.
@@ -693,7 +696,7 @@ To check if a field is null, call isNull() on the value reference.</p></div>
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">begin</span></span><span style="color: #990000">();</span> <span style="color: #990000">!</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">eof</span></span><span style="color: #990000">();</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">next</span></span><span style="color: #990000">())</span>
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">first</span></span><span style="color: #990000">();</span> <span style="color: #990000">!</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">eof</span></span><span style="color: #990000">();</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">next</span></span><span style="color: #990000">())</span>
 <span style="color: #FF0000">{</span>
  <span style="font-weight: bold"><span style="color: #0000FF">for</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> i <span style="color: #990000">=</span> <span style="color: #993399">1</span><span style="color: #990000">;</span> i <span style="color: #990000">&lt;=</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">columnCount</span></span><span style="color: #990000">();</span> <span style="color: #990000">++</span>i<span style="color: #990000">)</span>
      <span style="color: #FF0000">{</span>
@@ -751,28 +754,42 @@ with a database, depending on the selected engine.
 The engine is a class name from the <em>dal</em> namespace, e.g. <em>dal::sqlite</em>.
 If you want to choose the engine at runtime, you can use <em>dal::generic</em> and
 set the engine later.</p></div>
-<h3 id="_environment">3.1. Environment</h3><div style="clear:left"></div>
+<h3 id="_handles">3.1. Handles</h3><div style="clear:left"></div>
+<div class="paragraph"><p>There are three handles: Environment, Connection and Statement.</p></div>
+<h4 id="_setting_options_for_handles">3.1.1. Setting options for handles</h4>
+<div class="paragraph"><p>Each handle provides a <em>setOption()</em> and <em>getOption()</em> method.</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>DBMS<span style="color: #990000">::</span>Environment <span style="font-weight: bold"><span style="color: #000000">env</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"sqlite:libsqlite"</span><span style="color: #990000">);</span>
+
+env<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">setOption</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"env_library_path"</span><span style="color: #990000">,</span> std<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">wstring</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"/path/to/libs"</span><span style="color: #990000">));</span>
+
+std<span style="color: #990000">::</span>string path <span style="color: #990000">=</span> ifnull<span style="color: #990000">&lt;</span>std<span style="color: #990000">::</span>string<span style="color: #990000">&gt;(</span>env<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">getOption</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"env_library_path"</span><span style="color: #990000">),</span> <span style="color: #FF0000">"."</span><span style="color: #990000">);</span></tt></pre></div></div>
+<h3 id="_environment">3.2. Environment</h3><div style="clear:left"></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 2.9
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Environment</tt></pre></div></div>
-<h3 id="_connection">3.2. Connection</h3><div style="clear:left"></div>
+<h3 id="_connection">3.3. Connection</h3><div style="clear:left"></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 2.9
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Connection</tt></pre></div></div>
-<h3 id="_statement">3.3. Statement</h3><div style="clear:left"></div>
+<h3 id="_statement">3.4. Statement</h3><div style="clear:left"></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 2.9
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Statement</tt></pre></div></div>
-<h4 id="_binding_blob_and_memo_types">3.3.1. Binding BLOB and MEMO types</h4>
+<h4 id="_binding_blob_and_memo_types">3.4.1. Binding BLOB and MEMO types</h4>
 <div class="paragraph"><p>A DBMS::Statement object provides two overloaded bind() methods for
 std::streambuf* and std::wstreambuf*.</p></div>
 <div class="dlist"><dl>
@@ -811,14 +828,14 @@ std<span style="color: #990000">::</span>wstreambuf <span style="color: #990000"
 stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #993399">3</span><span style="color: #990000">,</span> wbuf<span style="color: #990000">);</span> <span style="font-style: italic"><span style="color: #9A1900">// text data</span></span></tt></pre></div></div>
 <div class="paragraph"><p>The last one is a special case where a char stream buffer is first converted
 to a wide char stream buffer.</p></div>
-<h3 id="_resultset">3.4. Resultset</h3><div style="clear:left"></div>
+<h3 id="_resultset">3.5. Resultset</h3><div style="clear:left"></div>
 <div class="listingblock">
 <div class="content"><!-- Generator: GNU source-highlight 2.9
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>Database<span style="color: #990000">&lt;</span>dal<span style="color: #990000">::</span>engine_name<span style="color: #990000">&gt;::</span>Resultset</tt></pre></div></div>
-<h4 id="_wokring_with_blob_and_memo_types">3.4.1. Wokring with BLOB and MEMO types</h4>
+<h4 id="_wokring_with_blob_and_memo_types">3.5.1. Wokring with BLOB and MEMO types</h4>
 <div class="paragraph"><p>For receiving BLOB or MEMO fields, the Variant class provides two
 methods: <em>asBlob()</em> and <em>asMemo()</em>.</p></div>
 <div class="dlist"><dl>
@@ -848,7 +865,7 @@ All other types are converted into a std::wstreambuf.
 is valid (for all rows) until you close the resultset or statement.
 Scrolling through the dataset (e.g. next()) only resets the buffer to the new
 row data. If the new field is NULL, the buffer is marked as bad (std::ios::bad).</p></div>
-<h3 id="_value">3.5. Value</h3><div style="clear:left"></div>
+<h3 id="_value">3.6. Value</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The <em>Value</em> type is for column values returned from the engine. You can&#8217;t create
 new objects of type <em>Value</em>, you can only get (mostly const) references
 from a <em>Resultset</em> object.</p></div>
@@ -861,7 +878,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="paragraph"><p>It is a requirement that the <em>Value</em> type implements the IVariant interface.
 This allows you to pass column values to all methods which  accepts IVariant references,
 for example Statement::bind()</p></div>
-<h3 id="_variant">3.6. Variant</h3><div style="clear:left"></div>
+<h3 id="_variant">3.7. Variant</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The <em>Variant</em> type can be used to create own variant objects.
 This type can store all the POD types and pointers to such types.</p></div>
 <div class="listingblock">
@@ -873,9 +890,9 @@ http://www.gnu.org/software/src-highlite -->
 DBMS<span style="color: #990000">::</span>Variant <span style="font-weight: bold"><span style="color: #000000">var</span></span><span style="color: #990000">(&amp;</span>myint<span style="color: #990000">);</span>
 var<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">setInt</span></span><span style="color: #990000">(</span><span style="color: #993399">10</span><span style="color: #990000">);</span>
 <span style="font-weight: bold"><span style="color: #000000">assert</span></span><span style="color: #990000">(</span>myint <span style="color: #990000">==</span> <span style="color: #993399">10</span><span style="color: #990000">);</span> <span style="font-style: italic"><span style="color: #9A1900">// myint was changed through setInt()</span></span></tt></pre></div></div>
-<h3 id="_columndesc">3.7. ColumnDesc</h3><div style="clear:left"></div>
-<h3 id="_blob">3.8. Blob</h3><div style="clear:left"></div>
-<h3 id="_memo">3.9. Memo</h3><div style="clear:left"></div>
+<h3 id="_columndesc">3.8. ColumnDesc</h3><div style="clear:left"></div>
+<h3 id="_blob">3.9. Blob</h3><div style="clear:left"></div>
+<h3 id="_memo">3.10. Memo</h3><div style="clear:left"></div>
 </div>
 <h2 id="_diagnostic_and_error_handling">4. Diagnostic and error handling</h2>
 <div class="sectionbody">
@@ -1166,7 +1183,7 @@ granted under the terms of the BSD License.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2010-09-02 21:27:06 CEST
+Last updated 2010-09-06 20:22:35 CEST
 </div>
 </div>
 </body>

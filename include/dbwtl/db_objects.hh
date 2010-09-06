@@ -861,11 +861,11 @@ private:
 //GEXAMPLE.001 
 
 
-//GEXAMPLE.001 With the methods 'begin()', 'next()' and 'eof()' you can iterate over the
+//GEXAMPLE.001 With the methods 'first()', 'next()' and 'eof()' you can iterate over the
 //GEXAMPLE.001 records.
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 for(rs.begin(); !rs.eof(); rs.next()) { //for each record }
+//GEXAMPLE.001 for(rs.first(); !rs.eof(); rs.next()) { //for each record }
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //
 //GEXAMPLE.001 Access the record fields
@@ -880,7 +880,7 @@ private:
 //GEXAMPLE.001 .Print all records and fields
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 for(rs.begin(); !rs.eof(); rs.next())
+//GEXAMPLE.001 for(rs.first(); !rs.eof(); rs.next())
 //GEXAMPLE.001 {
 //GEXAMPLE.001  for(int i = 1; i <= rs.columnCount(); ++i)
 //GEXAMPLE.001      {

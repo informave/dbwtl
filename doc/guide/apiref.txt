@@ -1,0 +1,99 @@
+API Reference
+-------------
+This chapter is a reference for the DBWTL classes, types and methods,
+including the syntax, method arguments and examples of use.
+
+
+DBMS::Environment
+~~~~~~~~~~~~~~~~~
+Handle for Statement.
+
+
+DBMS::Connection
+~~~~~~~~~~~~~~~~
+Handle for Statement.
+
+DBMS::Statement
+~~~~~~~~~~~~~~~
+Handle for Statement.
+
+bind()
+^^^^^^
+Binds a value or a pointer to a value to a parameter in a prepared
+SQL query.
+
+Syntax
+++++++
+
+[source,cpp]
+-------------------------------------------------------------------------------
+void Stmt::bind(size_t number, DBMS::Variant value);
+void Stmt::bind(size_t number, dal::IVariant* value);
+void Stmt::bind(size_t number, const dal::IVariant* value);
+-------------------------------------------------------------------------------
+
+
+[options="header",cols="<2,<2,<5",frame="topbot"]
+|===============================================================================
+|Parameter     | Type               | Description
+|'number'      | size_t             | Number of the parameter (starts at 1)
+|'value'       | dal::Variant       | Variant value
+|===============================================================================
+
+
+Output parameters
+
+
+Description
++++++++++++
+bind() passes data to parameters in a SQL query.
+
+Return Value
+++++++++++++
+No return value.
+
+Exceptions
+++++++++++
+not_found::
+not_found is thrown when the 'number' argument is out of range.
+
+Examples
+++++++++
+
+[source,cpp]
+-------------------------------------------------------------------------------
+DBMS::Stmt stmt(dbc);
+stmt.prepare(L"SELECT * FROM x WHERE a = ? and b = ?;");
+int valA = 4;
+std::wstring valB = L"data";
+stmt.bind(1, valA);
+stmt.bind(2, valB);
+stmt.execute();
+-------------------------------------------------------------------------------
+
+
+See Also
+++++++++
+prepare(), execute(), reset()
+
+
+
+DBMS::Resultset
+~~~~~~~~~~~~~~~
+Handle for Statement.
+
+
+DBMS::CachedResultset
+~~~~~~~~~~~~~~~~~~~~~
+Handle for Statement.
+
+
+
+DBMS::ColumnDesc
+~~~~~~~~~~~~~~~~
+Handle for Statement.
+
+
+DBMS::Diag
+~~~~~~~~~~
+Handle for Statement.

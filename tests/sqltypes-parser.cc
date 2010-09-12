@@ -79,12 +79,12 @@ int test(void)
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
     p.parse(L"DECIMAL");
-    if(p.getDaltype() != DAL_TYPE_DECIMAL)
+    if(p.getDaltype() != DAL_TYPE_NUMERIC)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
     p.parse(L"MONEY");
-    if(p.getDaltype() != DAL_TYPE_MONEY)
+    if(p.getDaltype() != DAL_TYPE_NUMERIC)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
@@ -113,10 +113,6 @@ int test(void)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"DATETIME");
-    if(p.getDaltype() != DAL_TYPE_DATETIME)
-        return -1;
-    std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
     p.parse(L"TIMESTAMP");
     if(p.getDaltype() != DAL_TYPE_TIMESTAMP)

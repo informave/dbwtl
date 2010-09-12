@@ -90,6 +90,14 @@ Blob::Blob(std::streambuf *buf) : std::istream(), m_buf(buf)
 }
 
 
+///
+///
+Blob::Blob(const IVariant &variant) : std::istream(), m_buf(variant.asBlob())
+{
+    this->rdbuf(m_buf);
+}
+
+
 //
 //
 Blob::~Blob(void)
@@ -100,8 +108,16 @@ Blob::~Blob(void)
 //
 Memo::Memo(std::wstreambuf *buf) : std::wistream(), m_buf(buf)
 {
-    this->rdbuf(buf);
+    this->rdbuf(m_buf);
 }
+
+///
+///
+Memo::Memo(const IVariant &variant) : std::wistream(), m_buf(variant.asMemo())
+{
+    this->rdbuf(m_buf);
+}
+
 
 
 
@@ -192,20 +208,12 @@ IStoredVariant* new_default_storage(daltype_t type)
     case DAL_TYPE_BLOB: return new var_storage<std::streambuf*>();
     case DAL_TYPE_MEMO: return new var_storage<std::wstreambuf*>();
     case DAL_TYPE_NUMERIC: return new var_storage<TNumeric>();
-    case DAL_TYPE_DECIMAL: return new var_storage<TDecimal>();
-    case DAL_TYPE_MONEY: return new var_storage<TMoney>();
     case DAL_TYPE_FLOAT: return new var_storage<float>();
     case DAL_TYPE_DOUBLE: return new var_storage<double>();
     case DAL_TYPE_DATE: return new var_storage<TDate>();
     case DAL_TYPE_TIME: return new var_storage<TTime>();
-    case DAL_TYPE_DATETIME: return new var_storage<TDatetime>();
     case DAL_TYPE_TIMESTAMP: return new var_storage<TTimestamp>();
-    case DAL_TYPE_CIDR: return new var_storage<TCidr>();
     case DAL_TYPE_INTERVAL: return new var_storage<TInterval>();
-    case DAL_TYPE_MACADDR: return new var_storage<TMacaddr>();
-    case DAL_TYPE_INETADDR: return new var_storage<TInetaddr>();
-    case DAL_TYPE_UUID: return new var_storage<TUuid>();
-    case DAL_TYPE_XML: return new var_storage<TXml>();
     }
     return 0;
 }
@@ -341,20 +349,12 @@ i18n::UString daltype2string(daltype_t type)
     case DAL_TYPE_BLOB: return i18n::UString(L"DAL_TYPE_BLOB");
     case DAL_TYPE_MEMO: return i18n::UString(L"DAL_TYPE_MEMO");
     case DAL_TYPE_NUMERIC: return i18n::UString(L"DAL_TYPE_NUMERIC");
-    case DAL_TYPE_DECIMAL: return i18n::UString(L"DAL_TYPE_DECIMAL");
-    case DAL_TYPE_MONEY: return i18n::UString(L"DAL_TYPE_MONEY");
     case DAL_TYPE_FLOAT: return i18n::UString(L"DAL_TYPE_FLOAT");
     case DAL_TYPE_DOUBLE: return i18n::UString(L"DAL_TYPE_DOUBLE");
     case DAL_TYPE_DATE: return i18n::UString(L"DAL_TYPE_DATE");
     case DAL_TYPE_TIME: return i18n::UString(L"DAL_TYPE_TIME");
-    case DAL_TYPE_DATETIME: return i18n::UString(L"DAL_TYPE_DATETIME");
     case DAL_TYPE_TIMESTAMP: return i18n::UString(L"DAL_TYPE_TIMESTAMP");
-    case DAL_TYPE_CIDR: return i18n::UString(L"DAL_TYPE_CIDR");
     case DAL_TYPE_INTERVAL: return i18n::UString(L"DAL_TYPE_INTERVAL");
-    case DAL_TYPE_MACADDR: return i18n::UString(L"DAL_TYPE_MACADDR");
-    case DAL_TYPE_INETADDR: return i18n::UString(L"DAL_TYPE_INETADDR");
-    case DAL_TYPE_UUID: return i18n::UString(L"DAL_TYPE_UUID");
-    case DAL_TYPE_XML: return i18n::UString(L"DAL_TYPE_XML");
     }
     return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
 }
@@ -384,20 +384,12 @@ i18n::UString daltype2sqlname(daltype_t type)
     case DAL_TYPE_BLOB: return i18n::UString(L"BLOB");
     case DAL_TYPE_MEMO: return i18n::UString(L"MEMO");
     case DAL_TYPE_NUMERIC: return i18n::UString(L"NUMERIC");
-    case DAL_TYPE_DECIMAL: return i18n::UString(L"DECIMAL");
-    case DAL_TYPE_MONEY: return i18n::UString(L"MONEY");
     case DAL_TYPE_FLOAT: return i18n::UString(L"FLOAT");
     case DAL_TYPE_DOUBLE: return i18n::UString(L"DOUBLE");
     case DAL_TYPE_DATE: return i18n::UString(L"DATE");
     case DAL_TYPE_TIME: return i18n::UString(L"TIME");
-    case DAL_TYPE_DATETIME: return i18n::UString(L"DATETIME");
     case DAL_TYPE_TIMESTAMP: return i18n::UString(L"TIMESTAMP");
-    case DAL_TYPE_CIDR: return i18n::UString(L"CIDR");
     case DAL_TYPE_INTERVAL: return i18n::UString(L"INTERVAL");
-    case DAL_TYPE_MACADDR: return i18n::UString(L"MACADDR");
-    case DAL_TYPE_INETADDR: return i18n::UString(L"INETADDR");
-    case DAL_TYPE_UUID: return i18n::UString(L"UUID");
-    case DAL_TYPE_XML: return i18n::UString(L"XML");
     }
     return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
 }
@@ -431,20 +423,12 @@ IVariant::assign(const IVariant& var)
     case DAL_TYPE_BLOB:       this->setBlob(var.asBlob()); break;
     case DAL_TYPE_MEMO:       this->setMemo(var.asMemo()); break; /// @bug setMemo should COPY the content to own stream
     case DAL_TYPE_NUMERIC:    this->setNumeric(var.asNumeric()); break;
-    case DAL_TYPE_DECIMAL:    this->setNumeric(var.asNumeric()); break; /// @todo ok?
-    case DAL_TYPE_MONEY:      this->setMoney(var.asMoney()); break;
     case DAL_TYPE_FLOAT:      this->setReal(var.asReal()); break;
     case DAL_TYPE_DOUBLE:     this->setDouble(var.asDouble()); break;
     case DAL_TYPE_DATE:       this->setDate(var.asDate()); break;
     case DAL_TYPE_TIME:       this->setTime(var.asTime()); break;
-    case DAL_TYPE_DATETIME:   this->setDatetime(var.asDatetime()); break;
     case DAL_TYPE_TIMESTAMP:  this->setTimestamp(var.asTimestamp()); break;
-    case DAL_TYPE_CIDR:       this->setCIDR(var.asCIDR()); break;
     case DAL_TYPE_INTERVAL:   this->setInterval(var.asInterval()); break;
-    case DAL_TYPE_MACADDR:    this->setMacaddr(var.asMacaddr()); break;
-    case DAL_TYPE_INETADDR:   this->setInetaddr(var.asInetaddr()); break;
-    case DAL_TYPE_UUID:       this->setUUID(var.asUUID()); break;
-    case DAL_TYPE_XML:        this->setXML(var.asXML()); break;
     }
 }
 
@@ -538,9 +522,6 @@ Variant::asUBigint(void) const { return this->getStorageImpl()->asUBigint(); }
 TNumeric  
 Variant::asNumeric(void) const { return this->getStorageImpl()->asNumeric(); }
 
-///
-TMoney   
-Variant::asMoney(void) const { return this->getStorageImpl()->asMoney(); }
 
 ///
 float         
@@ -559,39 +540,16 @@ TTime
 Variant::asTime(void) const { return this->getStorageImpl()->asTime(); }
 
 ///
-TDatetime      
-Variant::asDatetime(void) const { return this->getStorageImpl()->asDatetime(); }
-
-///
-signed int     
+TTimestamp
 Variant::asTimestamp(void) const { return this->getStorageImpl()->asTimestamp(); }
 
 ///
 //virtual TCustom&        asCustom(void) const = 0;
 
-///
-TCidr        
-Variant::asCIDR(void) const { return this->getStorageImpl()->asCIDR(); }
 
 ///
 TInterval    
 Variant::asInterval(void) const { return this->getStorageImpl()->asInterval(); }
-
-///
-TMacaddr    
-Variant::asMacaddr(void) const { return this->getStorageImpl()->asMacaddr(); }
-
-///
-TInetaddr    
-Variant::asInetaddr(void) const { return this->getStorageImpl()->asInetaddr(); }
-
-///
-TUuid      
-Variant::asUUID(void) const { return this->getStorageImpl()->asUUID(); }
-
-///
-TXml     
-Variant::asXML(void) const { return this->getStorageImpl()->asXML(); }
 
 ///
 std::streambuf*
@@ -677,25 +635,39 @@ DBWTL_VARIANT_SETTER(USmallint, unsigned short)
 DBWTL_VARIANT_SETTER(Bigint, signed long long)
 DBWTL_VARIANT_SETTER(UBigint, unsigned long long)
 DBWTL_VARIANT_SETTER(Numeric, TNumeric)
-DBWTL_VARIANT_SETTER(Money, TMoney)
 DBWTL_VARIANT_SETTER(Real, float)
 DBWTL_VARIANT_SETTER(Double, double)
 DBWTL_VARIANT_SETTER(Date, TDate)
 DBWTL_VARIANT_SETTER(Time, TTime)
-DBWTL_VARIANT_SETTER(Datetime, TDatetime)
-DBWTL_VARIANT_SETTER(Timestamp, signed int) /// @bug sure? TTimestamp
-DBWTL_VARIANT_SETTER(CIDR, TCidr)
+DBWTL_VARIANT_SETTER(Timestamp, TTimestamp)
 DBWTL_VARIANT_SETTER(Interval, TInterval)
-DBWTL_VARIANT_SETTER(Macaddr, TMacaddr)
-DBWTL_VARIANT_SETTER(Inetaddr, TInetaddr)
-DBWTL_VARIANT_SETTER(UUID, TUuid)
-DBWTL_VARIANT_SETTER(XML, TXml)
 
 
 //virtual void        asCustom(void) const = 0;
 
 
-
+IVariant::operator signed int            (void) const { return this->asInt(); }
+IVariant::operator unsigned int          (void) const { return this->asUInt(); }
+IVariant::operator signed char           (void) const { return this->asChar(); }
+IVariant::operator unsigned char         (void) const { return this->asUChar(); }
+IVariant::operator i18n::UString         (void) const { return this->asStr(); }
+IVariant::operator std::string           (void) const { return this->asNarrowStr("UTF-8"); }
+IVariant::operator bool                  (void) const { return this->asBool(); }
+IVariant::operator signed short          (void) const { return this->asSmallint(); }
+IVariant::operator unsigned short        (void) const { return this->asUSmallint(); }
+IVariant::operator signed long long      (void) const { return this->asBigint(); }
+IVariant::operator unsigned long long    (void) const { return this->asUBigint(); }
+IVariant::operator TNumeric              (void) const { return this->asNumeric(); }
+IVariant::operator float                 (void) const { return this->asReal(); }
+IVariant::operator double                (void) const { return this->asDouble(); }
+/*
+IVariant::operator TDate                 (void) const { return this->asDate(); }
+IVariant::operator TTime                 (void) const { return this->asTime(); }
+IVariant::operator TTimestamp            (void) const { return this->asTimestamp(); }
+IVariant::operator TInterval             (void) const { return this->asInterval(); }
+IVariant::operator std::wstreambuf*       (void) const { return this->asMemo(); }
+IVariant::operator std::streambuf*      (void) const { return this->asBlob(); }
+*/
 
 
 ///
@@ -810,19 +782,11 @@ const char* dal_state_msg(int code)
 
 
 //--------------------------------------------------------------------------
-daltype_t TCidr::datatype(void) const       {  return DAL_TYPE_CIDR;       }
 daltype_t TDate::datatype(void) const       {  return DAL_TYPE_DATE;       }
 daltype_t TTime::datatype(void) const       {  return DAL_TYPE_TIME;       }
 daltype_t TInterval::datatype(void) const   {  return DAL_TYPE_INTERVAL;   }
-daltype_t TMacaddr::datatype(void) const    {  return DAL_TYPE_MACADDR;    }
 daltype_t TNumeric::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
-daltype_t TDecimal::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
-daltype_t TMoney::datatype(void) const      {  return DAL_TYPE_MONEY;      }
-daltype_t TInetaddr::datatype(void) const   {  return DAL_TYPE_INETADDR;   }
-daltype_t TUuid::datatype(void) const       {  return DAL_TYPE_UUID;       }
-daltype_t TXml::datatype(void) const        {  return DAL_TYPE_XML;        }
 daltype_t TTimestamp::datatype(void) const  {  return DAL_TYPE_TIMESTAMP;  }
-daltype_t TDatetime::datatype(void) const   {  return DAL_TYPE_DATETIME;   }
 
 
 
@@ -831,12 +795,6 @@ daltype_t TDatetime::datatype(void) const   {  return DAL_TYPE_DATETIME;   }
 ///
 ///
 
-
-i18n::UString
-TCidr::asStr(void) const
-{
-    return L"FIXME";
-}
 
 i18n::UString
 TDate::asStr(void) const
@@ -857,45 +815,7 @@ TInterval::asStr(void) const
 }
 
 i18n::UString
-TMacaddr::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
 TNumeric::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TMoney::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TDecimal::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TInetaddr::asStr(void) const
-{
-    return L"FIXME";
-}
-
-
-i18n::UString
-TUuid::asStr(void) const
-{
-    return L"FIXME";
-}
-
-
-i18n::UString
-TXml::asStr(void) const
 {
     return L"FIXME";
 }
@@ -907,23 +827,9 @@ TTimestamp::asStr(void) const
 }
 
 
-i18n::UString
-TDatetime::asStr(void) const
-{
-    return L"FIXME";
-}
-
-
-
 ///////////////////////
 
 
-
-i18n::UString
-TCidr::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
 
 i18n::UString
 TDate::asStr(std::locale loc) const
@@ -943,11 +849,6 @@ TInterval::asStr(std::locale loc) const
     return L"FIXME";
 }
 
-i18n::UString
-TMacaddr::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
 
 i18n::UString
 TNumeric::asStr(std::locale loc) const
@@ -956,46 +857,7 @@ TNumeric::asStr(std::locale loc) const
 }
 
 i18n::UString
-TMoney::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TDecimal::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TInetaddr::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-
-i18n::UString
-TUuid::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-
-i18n::UString
-TXml::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
 TTimestamp::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-
-i18n::UString
-TDatetime::asStr(std::locale loc) const
 {
     return L"FIXME";
 }

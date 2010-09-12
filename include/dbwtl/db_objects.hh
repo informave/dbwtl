@@ -1033,7 +1033,6 @@ private:
 //GCORE.001 ---------------------------------------------
 //GCORE.001 
 
-
 //GCORE.001 Wokring with BLOB and MEMO types
 //GCORE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //GCORE.001 For receiving BLOB or MEMO fields, the Variant class provides two
@@ -1047,7 +1046,7 @@ private:
 //GCORE.001 asMemo::
 //GCORE.001 Returns a pointer to a std::wstreambuf and performs charset conversion (from
 //GCORE.001 connection encoding to UCS-2 or UCS-4 [depends on sizeof(wchar_t]).
-//GCORE.001 If the underlaying column type is of type BLOB (Variant::daltype() == DAL_TYPE_BLOB),
+//GCORE.001 If the underlaying column type is of type BLOB (Variant::daltype() == 'DAL_TYPE_BLOB'),
 //GCORE.001 a convert_error exception is raised.
 //GCORE.001 All other types are converted into a std::wstreambuf.
 //GCORE.001 
@@ -1056,6 +1055,49 @@ private:
 //GCORE.001 Scrolling through the dataset (e.g. next()) only resets the buffer to the new
 //GCORE.001 row data. If the new field is NULL, the buffer is marked as bad (std::ios::bad).
 //GCORE.001 
+
+
+
+//GCORE.001 General supported types
+//GCORE.001 ~~~~~~~~~~~~~~~~~~~~~~~
+//GCORE.001 The 'Database<>' template provides for every selected engine a basic set
+//GCORE.001 of types conforming to the SQL standard. An engine can extend this set
+//GCORE.001 with system specific types supported by the database.
+//GCORE.001 
+//GCORE.001 `--------------------------`----------------------
+//GCORE.001 *SQL:2008 Type*             *DBWTL Type Mapping*
+//GCORE.001 CHARACTER                   DBMS::Char
+//GCORE.001 CHARACTER VARING            DBMS::Char
+//GCORE.001 CHARACTER LARGE OBJECT      DBMS::Memo
+//GCORE.001 BINARY                      DBMS::Blob
+//GCORE.001 BINARY VARYING              DBMS::Blob
+//GCORE.001 BINARY LARGE OBJECT         DBMS::Blob
+//GCORE.001 NUMERIC                     DBMS::Numeric
+//GCORE.001 DECIMAL                     DBMS::Numeric
+//GCORE.001 SMALLINT                    DBMS::Smallint
+//GCORE.001 INTEGER                     DBMS::Integer
+//GCORE.001 BIGINT                      DBMS::Bigint
+//GCORE.001 FLOAT                       DBMS::Float
+//GCORE.001 REAL                        DBMS::Float
+//GCORE.001 DOUBLE PRECISION            DBMS::Double
+//GCORE.001 BOOLEAN                     DBMS::Boolean
+//GCORE.001 DATE                        DBMS::Date
+//GCORE.001 TIME                        DBMS::Time
+//GCORE.001 TIMESTAMP                   DBMS::Timestamp
+//GCORE.001 INTERVAL                    unsupported
+//GCORE.001 --------------------------------------------------
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 Values from resultsets are automatically converted to the variable type.
+//GCORE.001 So the following statement ist valid:
+//GCORE.001 
+//GCORE.001 [source,cpp]
+//GCORE.001 ---------------------------------------------
+//GCORE.001 const DBMS::Numeric val = rs.column(i); // auto conversion
+//GCORE.001 ---------------------------------------------
+//GCORE.001 
+
+
 
 //GCORE.001 Value
 //GCORE.001 ~~~~~
@@ -1237,24 +1279,52 @@ private:
 
 
 
+struct basic_datatypes
+{
+//     typedef signed char           Char; // these two types are covered by String!
+//     typedef unsigned char         UChar;
+    typedef i18n::UString         String;
+/*
+    typedef std::wstreambuf*      Memo;
+    typedef std::streambuf*       Blob; // better use dal::Blob with implicit ctor?
+*/
+    typedef dal::Blob             Blob;
+    typedef dal::Memo             Memo;
+    typedef dal::TNumeric         Numeric;
+    typedef signed short          Smallint;
+    typedef unsigned short        USmallint;
+    typedef signed int            Integer;
+    typedef unsigned int          UInteger;
+    typedef signed long long      Bigint;
+    typedef unsigned long long    UBigint;
+    typedef float                 Float;
+    // real
+    typedef double                Double;
+    typedef bool                  Boolean;
+    typedef dal::TDate            Date;
+    typedef dal::TTime            Time;
+    typedef dal::TTimestamp       Timestamp;
+    typedef dal::TInterval        Interval;
 
 
+    /*
+    typedef dal::TCidr            CIDR;
+    typedef dal::TMacaddr         MACAddr;
+    typedef dal::TInetaddr        INETAddr;
+    typedef dal::TUuid            UUID;
+    typedef dal::TXml             XML;
+    typedef dal::TDatetime        Datetime;
+    */
 
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 Internals
-//GCORE.001 ---------
-//GCORE.001 
-//GCORE.001 DAL Layer
-//GCORE.001 ~~~~~~~~~
-//GCORE.001 
+};
 
 
 //------------------------------------------------------------------------------
 ///
 /// @brief Defines the main types
 template<typename Engine, typename tag = default_tag>
-struct Database : public db_traits<Engine, tag>::sqlstate_types
+struct Database : public db_traits<Engine, tag>::sqlstate_types,
+                  public db_traits<Engine, tag>::datatype_types
 {
     typedef typename db_traits<Engine, tag>::environment_type         Environment;
     typedef typename db_traits<Engine, tag>::connection_type          Connection;
@@ -1265,8 +1335,10 @@ struct Database : public db_traits<Engine, tag>::sqlstate_types
     typedef typename db_traits<Engine, tag>::dal_columndesc_type      ColumnDesc;
     typedef typename db_traits<Engine, tag>::dal_diag_type            Diag;
     typedef typename db_traits<Engine, tag>::dal_variant_type         Variant;
+/*
     typedef dal::Blob                                                 Blob;
     typedef dal::Memo                                                 Memo;
+*/
 };
 
 //GSUPP.001 

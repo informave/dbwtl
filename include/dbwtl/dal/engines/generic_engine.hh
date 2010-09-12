@@ -700,6 +700,7 @@ struct db_traits<dal::generic, tag>
 
     typedef dal::generic::COLUMNDESC            dal_columndesc_type;
     typedef dal::generic::STATES                sqlstate_types;
+    typedef basic_datatypes                     datatype_types;
 
     typedef dal::Variant                        dal_variant_type;
 

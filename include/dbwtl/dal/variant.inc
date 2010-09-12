@@ -33,17 +33,12 @@ DBWTL_VARIANT_DISPATCHER(asUSmallint, unsigned short)
 DBWTL_VARIANT_DISPATCHER(asBigint, signed long long)
 DBWTL_VARIANT_DISPATCHER(asUBigint, unsigned long long)
 DBWTL_VARIANT_DISPATCHER(asNumeric, TNumeric)
-DBWTL_VARIANT_DISPATCHER(asMoney, TMoney)
 DBWTL_VARIANT_DISPATCHER(asReal, float)
 DBWTL_VARIANT_DISPATCHER(asDouble, double)
 DBWTL_VARIANT_DISPATCHER(asDate, TDate)
 DBWTL_VARIANT_DISPATCHER(asTime, TTime)
-DBWTL_VARIANT_DISPATCHER(asDatetime, TDatetime)
-//DBWTL_VARIANT_DISPATCHER(asTimestamp, signed int) /// @bug sure? TTimestamp
-DBWTL_VARIANT_DISPATCHER(asCIDR, TCidr)
-DBWTL_VARIANT_DISPATCHER(asInterval, TInterval)
-DBWTL_VARIANT_DISPATCHER(asMacaddr, TMacaddr)
-DBWTL_VARIANT_DISPATCHER(asInetaddr, TInetaddr)
+DBWTL_VARIANT_DISPATCHER(asTimestamp, TTimestamp)
+
 //DBWTL_VARIANT_DISPATCHER(asUUID, TUuid)
 //DBWTL_VARIANT_DISPATCHER(asXML, TXml)
 
@@ -787,75 +782,6 @@ public:
 
 
 
-//------------------------------------------------------------------------------
-///
-///
-template<>
-class storage_accessor<TDecimal> : public BaseVariantImplFor<sa_base<TDecimal> >
-{
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_DECIMAL; }
-};
-
-
-template<>
-class storage_accessor<TDecimal*> : public BaseVariantImplFor<sa_base<TDecimal*> >
-{
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_DECIMAL; }
-};
-
-
-template<>
-class storage_accessor<const TDecimal*> : public BaseVariantImplFor<sa_base<const TDecimal*> >
-{
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_DECIMAL; }
-};
-
-
-
-
-//------------------------------------------------------------------------------
-///
-///
-template<>
-class storage_accessor<TMoney> : public BaseVariantImplFor<sa_base<TMoney> >
-{
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_MONEY; }
-};
-
-
-template<>
-class storage_accessor<TMoney*> : public BaseVariantImplFor<sa_base<TMoney*> >
-{
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_MONEY; }
-};
-
-
-template<>
-class storage_accessor<const TMoney*> : public BaseVariantImplFor<sa_base<const TMoney*> >
-{
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_MONEY; }
-};
-
-
-
 
 
 //------------------------------------------------------------------------------
@@ -1001,6 +927,7 @@ public:
 //------------------------------------------------------------------------------
 ///
 ///
+/*
 template<>
 class storage_accessor<TDatetime> : public BaseVariantImplFor<sa_base<TDatetime> >
 {
@@ -1029,7 +956,7 @@ public:
     virtual ~storage_accessor(void) { }
     virtual daltype_t datatype() const { return DAL_TYPE_DATETIME; }
 };
-
+*/
 
 
 //------------------------------------------------------------------------------
@@ -1101,7 +1028,7 @@ public:
 
 
 
-
+/*
 //------------------------------------------------------------------------------
 ///
 ///
@@ -1280,7 +1207,7 @@ public:
 };
 
 
-
+*/
 
 
 
@@ -1543,10 +1470,6 @@ TNumeric        BaseVariantImplFor<Base>::asNumeric(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_NUMERIC); }
 
 template<class Base>
-TMoney          BaseVariantImplFor<Base>::asMoney(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_MONEY); }
-
-template<class Base>
 float           BaseVariantImplFor<Base>::asReal(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_FLOAT); }
 
@@ -1562,25 +1485,21 @@ template<class Base>
 TTime           BaseVariantImplFor<Base>::asTime(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_TIME); }
 
-template<class Base>
-TDatetime       BaseVariantImplFor<Base>::asDatetime(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_DATETIME); }
 
 template<class Base>
-signed int      BaseVariantImplFor<Base>::asTimestamp(void) const 
+TTimestamp      BaseVariantImplFor<Base>::asTimestamp(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_TIMESTAMP); }
-
-
-//virtual TCustom&        asCustom(void) const = 0;
-
-
-template<class Base>
-TCidr           BaseVariantImplFor<Base>::asCIDR(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_CIDR); }
 
 template<class Base>
 TInterval       BaseVariantImplFor<Base>::asInterval(void) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_INTERVAL); }
+
+//virtual TCustom&        asCustom(void) const = 0;
+
+/*
+template<class Base>
+TCidr           BaseVariantImplFor<Base>::asCIDR(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_CIDR); }
 
 template<class Base>
 TMacaddr        BaseVariantImplFor<Base>::asMacaddr(void) const 
@@ -1598,6 +1517,7 @@ TUuid           BaseVariantImplFor<Base>::asUUID(void) const
 template<class Base>
 TXml            BaseVariantImplFor<Base>::asXML(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_XML); }
+*/
 
 template<class Base>
 std::streambuf*         BaseVariantImplFor<Base>::asBlob(void) const
@@ -1660,9 +1580,6 @@ template<class Base>
 void            BaseVariantImplFor<Base>::setNumeric(const TNumeric&) 
 { throw ex::read_only(); }
 
-template<class Base>
-void            BaseVariantImplFor<Base>::setMoney(const TMoney&) 
-{ throw ex::read_only(); }
 
 template<class Base>
 void            BaseVariantImplFor<Base>::setReal(const float&) 
@@ -1681,22 +1598,18 @@ void            BaseVariantImplFor<Base>::setTime(const TTime&)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setDatetime(const TDatetime&) 
-{ throw ex::read_only(); }
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setTimestamp(const signed int&)
-{ throw ex::read_only(); }
-
-
-//virtual void        asCustom(void) const = 0;
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setCIDR(const TCidr&)
+void            BaseVariantImplFor<Base>::setTimestamp(const TTimestamp&)
 { throw ex::read_only(); }
 
 template<class Base>
 void            BaseVariantImplFor<Base>::setInterval(const TInterval&)
+{ throw ex::read_only(); }
+
+//virtual void        asCustom(void) const = 0;
+
+/*
+template<class Base>
+void            BaseVariantImplFor<Base>::setCIDR(const TCidr&)
 { throw ex::read_only(); }
 
 template<class Base>
@@ -1714,6 +1627,7 @@ void            BaseVariantImplFor<Base>::setUUID(const TUuid&)
 template<class Base>
 void            BaseVariantImplFor<Base>::setXML(const TXml&) 
 { throw ex::read_only(); }
+*/
 
 template<class Base>
 void            BaseVariantImplFor<Base>::setBlob(std::streambuf*)

@@ -65,15 +65,14 @@ SqlTypeParser::SqlTypeParser(void)
     this->registerType(DAL_TYPE_BLOB, L"BLOB");
     this->registerType(DAL_TYPE_NUMERIC, L"NUMERIC");
     this->registerType(DAL_TYPE_NUMERIC, L"NUMERIC(*");
-    this->registerType(DAL_TYPE_DECIMAL, L"DECIMAL");
-    this->registerType(DAL_TYPE_DECIMAL, L"DECIMAL(*");
-    this->registerType(DAL_TYPE_MONEY, L"MONEY");
+    this->registerType(DAL_TYPE_NUMERIC, L"DECIMAL");
+    this->registerType(DAL_TYPE_NUMERIC, L"DECIMAL(*");
+    this->registerType(DAL_TYPE_NUMERIC, L"MONEY");
     this->registerType(DAL_TYPE_FLOAT, L"FLOAT");
     this->registerType(DAL_TYPE_FLOAT, L"REAL");
     this->registerType(DAL_TYPE_DOUBLE, L"DOUBLE");
     this->registerType(DAL_TYPE_DATE, L"DATE");
     this->registerType(DAL_TYPE_TIME, L"TIME");  
-    this->registerType(DAL_TYPE_DATETIME, L"DATETIME"); 
     this->registerType(DAL_TYPE_TIMESTAMP, L"TIMESTAMP");
 
     // reset state

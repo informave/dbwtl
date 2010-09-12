@@ -221,6 +221,28 @@ public:
 
 
 
+namespace sqlite_ext
+{
+
+class DBWTL_EXPORT Text : public TCustomType
+{
+public:
+    Text(void) { }
+    Text(const SqliteVariant&) { }
+    Text& operator=(const SqliteVariant&) { return *this; }
+
+
+    virtual daltype_t  datatype(void) const { return DAL_TYPE_CUSTOM; }
+    virtual i18n::UString asStr(std::locale loc) const { return L"foo"; }
+    virtual i18n::UString asStr() const { return L"foo"; }
+};
+
+}
+
+
+
+
+
 
 //------------------------------------------------------------------------------
 ///
@@ -232,9 +254,13 @@ public:
 
     virtual ~SqliteVariant(void);
 
-
+    /// @bug add documentation!
     virtual void refresh(void);
- 
+
+    virtual sqlite_ext::Text asText(void) const
+    { return sqlite_ext::Text(); }
+
+
 private:
     SqliteVariant(const SqliteVariant& ref);
     SqliteVariant(void);
@@ -535,6 +561,50 @@ public:
 
 
 
+
+
+
+
+
+
+
+
+
+
+template<>
+class storage_accessor<sqlite_ext::Text> : public BaseVariantImplFor<sa_base<sqlite_ext::Text> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }
+};
+
+
+template<>
+class storage_accessor<sqlite_ext::Text*> : public BaseVariantImplFor<sa_base<sqlite_ext::Text*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }
+};
+
+
+template<>
+class storage_accessor<const sqlite_ext::Text*> : public BaseVariantImplFor<sa_base<const sqlite_ext::Text*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
+    virtual ~storage_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }
+};
+
+
+
+
+
+
 DAL_NAMESPACE_END
 
 
@@ -547,13 +617,44 @@ DB_NAMESPACE_BEGIN
 
 
 
+struct sqlite_datatypes : public basic_datatypes
+{
+	typedef dal::sqlite_ext::Text Text;
+};
+
+
+template<typename tag>
+class SqliteEnvironment : public Environment<dal::sqlite, tag>
+{
+public:
+
+    SqliteEnvironment(i18n::UString str)
+        : Environment<dal::sqlite, tag>(str)
+    {}
+
+    SqliteEnvironment(std::string str)
+        : Environment<dal::sqlite, tag>(str)
+    {}
+
+    virtual ~SqliteEnvironment(void)
+    {}
+
+    virtual void specialFunc(void)
+    {
+    	this->m_env;
+    }
+
+};
+
+
 //------------------------------------------------------------------------------
 ///
 /// 
 template<typename tag>
 struct db_traits<dal::sqlite, tag>
 {
-    typedef Environment<dal::sqlite, tag>      environment_type;
+    //typedef Environment<dal::sqlite, tag>      environment_type;
+    typedef SqliteEnvironment<tag>             environment_type;
     typedef Connection<dal::sqlite, tag>       connection_type;
     typedef Statement<dal::sqlite, tag>        statement_type;
     typedef Result<dal::sqlite, tag>           resultset_type;
@@ -568,7 +669,10 @@ struct db_traits<dal::sqlite, tag>
     typedef dal::sqlite::COLUMNDESC            dal_columndesc_type;
     typedef dal::sqlite::STATES                sqlstate_types;
 
-    typedef dal::Variant                  dal_variant_type;
+    typedef sqlite_datatypes                   datatype_types;
+
+
+    typedef dal::Variant                       dal_variant_type;
 
     enum { DB_SYSTEM_ID = 1 };
 };

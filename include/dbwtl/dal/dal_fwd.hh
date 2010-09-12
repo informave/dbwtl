@@ -83,22 +83,20 @@ class Factory;
 class TType;
 
 class StmtBase;
+class DbcBase;
+class ResultBase;
+class EnvBase;
+/// @todo add missing classes
 
 
 
-class TCidr;
 class TDate;
 class TTime;
 class TInterval;
-class TMacaddr;
 class TNumeric;
-class TMoney;
-class TDecimal;
-class TInetaddr;
-class TUuid;
-class TXml;
 class TTimestamp;
-class TDatetime;
+class TCustomType;
+//class TDatetime;
 
 
 DAL_NAMESPACE_END

@@ -161,20 +161,29 @@ endif(NOT CMAKE_BUILD_TYPE)
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 
 
-if(USE_LOCAL_HEADERS)
+if(DBWTL_USE_LOCAL_HEADERS)
+	set(DBWTL_LOCAL_HEADERS_INCLUDE_DIR
+	"${DBWTL_MAIN_INCLUDE_DIR}/headers")
         include_directories(${DBWTL_MAIN_INCLUDE_DIR}/headers)
 endif()
 
 
 
 include(CheckIncludeFiles)
-if(DBWTL_WITH_SQLITE)
-	check_include_files("sqlite3.h" HAVE_SQLITE3_H)
-	if(NOT HAVE_SQLITE3_H)
-		message(FATAL_ERROR "Required header sqlite3.h not found.")
-	endif()
-endif()
 
+
+if(DBWTL_WITH_SQLITE)
+	if(DBWTL_USE_LOCAL_HEADERS)
+		IF (EXISTS "${DBWTL_LOCAL_HEADERS_INCLUDE_DIR}/sqlite3.h")
+			SET(DBWTL_HAVE_SQLITE3_H true)
+		endif()
+	else()
+		check_include_files("sqlite3.h" DBWTL_HAVE_SQLITE3_H)
+	endif()
+	if(NOT DBWTL_HAVE_SQLITE3_H)
+		message(FATAL_ERROR "Required header sqlite3.h not found.")
+  	endif()
+endif()
 
 
 configure_file(
@@ -247,7 +256,7 @@ endif()
 include(FindICU)
 
 if(DBWTL_USE_ICU)
-	include_directories(ICU_INCLUDE_DIRS)
+	include_directories(${ICU_INCLUDE_DIRS})
 	target_link_libraries(dbwtl ${ICU_LIBRARIES})
 endif()
 

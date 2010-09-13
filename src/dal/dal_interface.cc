@@ -84,7 +84,7 @@ Add the -ldbwtl option to g++
 
 //--------------------------------------------------------------------------
 //
-Blob::Blob(std::streambuf *buf) : std::istream(), m_buf(buf)
+Blob::Blob(std::streambuf *buf) : std::istream(0), m_buf(buf)
 {
     this->rdbuf(buf);
 }
@@ -92,7 +92,7 @@ Blob::Blob(std::streambuf *buf) : std::istream(), m_buf(buf)
 
 ///
 ///
-Blob::Blob(const IVariant &variant) : std::istream(), m_buf(variant.asBlob())
+Blob::Blob(const IVariant &variant) : std::istream(0), m_buf(variant.asBlob())
 {
     this->rdbuf(m_buf);
 }
@@ -106,14 +106,14 @@ Blob::~Blob(void)
 
 //--------------------------------------------------------------------------
 //
-Memo::Memo(std::wstreambuf *buf) : std::wistream(), m_buf(buf)
+Memo::Memo(std::wstreambuf *buf) : std::wistream(0), m_buf(buf)
 {
     this->rdbuf(m_buf);
 }
 
 ///
 ///
-Memo::Memo(const IVariant &variant) : std::wistream(), m_buf(variant.asMemo())
+Memo::Memo(const IVariant &variant) : std::wistream(0), m_buf(variant.asMemo())
 {
     this->rdbuf(m_buf);
 }
@@ -584,7 +584,7 @@ inline void init_if_null(typename Variant::storage_type &storage, daltype_t type
         {                                                       \
             return this->getStorageImpl()->set##postfix(value); \
         }                                                       \
-        catch(ex::read_only &e)                                 \
+        catch(ex::read_only &)                                  \
         {                                                       \
             throw ex::read_only(this->getName(), __FUNCTION__); \
         }                                                       \
@@ -606,7 +606,7 @@ Variant::setStr(const char* data, std::size_t len, const char* charset)
     {
         this->getStorageImpl()->setStr(data, len, charset);
     }
-    catch(ex::read_only &e)
+    catch(ex::read_only &)
     {
         throw ex::read_only(this->getName(), __FUNCTION__);
     }
@@ -622,7 +622,7 @@ Variant::setStr(const std::string& value, const char* charset)
     {
         this->getStorageImpl()->setStr(value, charset); 
     }
-    catch(ex::read_only &e)
+    catch(ex::read_only &)
     {
         throw ex::read_only(this->getName(), __FUNCTION__);
     }

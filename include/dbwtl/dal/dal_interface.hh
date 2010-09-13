@@ -162,9 +162,9 @@ typedef enum DatatypeEnumeration daltype_t;
 
 
 /// @brief Maps a daltype ID to a string name
-i18n::UString daltype2string(daltype_t type);
+DBWTL_EXPORT i18n::UString daltype2string(daltype_t type);
 
-i18n::UString daltype2sqlname(daltype_t type);
+DBWTL_EXPORT i18n::UString daltype2sqlname(daltype_t type);
 
 
 
@@ -742,7 +742,7 @@ protected:
 
 
 /// @brief create a new default storage object
-IStoredVariant* new_default_storage(daltype_t type);
+DBWTL_EXPORT IStoredVariant* new_default_storage(daltype_t type);
 
 
 

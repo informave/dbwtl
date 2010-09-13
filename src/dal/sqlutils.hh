@@ -60,7 +60,7 @@ DAL_NAMESPACE_BEGIN
 /// 
 /// @since 0.0.1
 /// @brief SQL Type parser
-class SqlTypeParser
+class DBWTL_EXPORT SqlTypeParser
 {
 public:
     SqlTypeParser(void);

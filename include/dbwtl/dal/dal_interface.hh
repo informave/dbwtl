@@ -59,10 +59,9 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <stdexcept>
 #include <memory>
-#include <fstream>
-#include <deque>
+#include <iosfwd>
+#include <list>
 #include <algorithm>
 #include <sstream>
 
@@ -101,9 +100,9 @@ typedef signed int systype_t;
 
 typedef enum
 {
-	DAL_STATE_OK,
-	DAL_STATE_INFO,
-	DAL_STATE_ERROR
+    DAL_STATE_OK,
+    DAL_STATE_INFO,
+    DAL_STATE_ERROR
 } dalstate_t;
 
 
@@ -200,28 +199,21 @@ public:
     void push_back(T *diag)
     {
         this->m_list.push_back(diag);
-    	if(m_cur == m_list.end())
+        if(m_cur == m_list.end())
             m_cur = m_list.begin();
 
         // remove older records
-        if(m_list.size() > 10)
+        while(m_list.size() > 10)
         {
-            typename std::deque<T*>::iterator
-                from = this->m_list.begin(),
-                to = this->m_list.begin();
-
-            std::advance(to, m_list.size() - 10);
-            if(this->m_cur <= to)
-            {
-                this->m_cur = to;
+            typename std::list<T*>::iterator f = m_list.begin();
+            if(f == this->m_cur)
                 this->m_cur++;
-            }
-            std::for_each(from, to, delete_object());
-            this->m_list.erase(from, to);
+            delete *f;
+            m_list.pop_front();
         }
     }
-    
-    
+
+
     /// Checks if there are any records available
     bool diagAvail(void) const
     {
@@ -241,8 +233,8 @@ public:
     }
 
 protected:
-    std::deque<T*>                     m_list;
-    typename std::deque<T*>::iterator  m_cur;
+    std::list<T*>                     m_list;
+    typename std::list<T*>::iterator  m_cur;
 };
 
 
@@ -358,15 +350,15 @@ protected:
 class DBWTL_EXPORT Blob : public std::istream
 {
 public:
-	Blob(std::streambuf *buf);
+    Blob(std::streambuf *buf);
     Blob(const IVariant &variant);
-	virtual ~Blob();
+    virtual ~Blob();
 
 protected:
     std::streambuf *m_buf;
 private:
-	Blob(const Blob&);
-	Blob& operator=(const Blob&);
+    Blob(const Blob&);
+    Blob& operator=(const Blob&);
 };
 
 
@@ -376,18 +368,18 @@ private:
 class DBWTL_EXPORT Memo : public std::wistream
 {
 public:
-	Memo(std::wstreambuf *buf);
+    Memo(std::wstreambuf *buf);
     Memo(const IVariant &variant);
-	virtual ~Memo(void);
+    virtual ~Memo(void);
 
-	std::string   narrow_str(const char *charset) const;
-	std::wstring  str() const;
+    std::string   narrow_str(const char *charset) const;
+    std::wstring  str() const;
 
 protected:
-	std::wstreambuf *m_buf;
+    std::wstreambuf *m_buf;
 private:
-	Memo(const Memo&);
-	Memo& operator=(const Memo&);
+    Memo(const Memo&);
+    Memo& operator=(const Memo&);
 };
 
 

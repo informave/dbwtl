@@ -49,29 +49,29 @@ int test(void)
     {
     	const DBMS::ColumnDesc &desc = res.describeColumn(i);
         std::cout << "name:      " << (desc.getName().isnull() ? "<null>" :
-                                       desc.getName().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getName().asStr("UTF-8")) << std::endl;
         std::cout << "catalog:   " << (desc.getCatalogName().isnull() ? "<null>" :
-                                       desc.getCatalogName().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getCatalogName().asStr("UTF-8")) << std::endl;
         std::cout << "schema:    " << (desc.getSchemaName().isnull() ? "<null>" :
-                                       desc.getSchemaName().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getSchemaName().asStr("UTF-8")) << std::endl;
         std::cout << "base name  " << (desc.getBaseColumnName().isnull() ? "<null>" :
-                                       desc.getBaseColumnName().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getBaseColumnName().asStr("UTF-8")) << std::endl;
         std::cout << "typename:  " << (desc.getTypeName().isnull() ? "<null>" :
-                                       desc.getTypeName().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getTypeName().asStr("UTF-8")) << std::endl;
         std::cout << "table:     " << (desc.getBaseTableName().isnull() ? "<null>" :
-                                       desc.getBaseTableName().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getBaseTableName().asStr("UTF-8")) << std::endl;
         std::cout << "size:      " << (desc.getSize().isnull() ? "<null>" :
-                                       desc.getSize().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getSize().asStr("UTF-8")) << std::endl;
         std::cout << "comment    " << (desc.getComment().isnull() ? "<null>" :
-                                       desc.getComment().asNarrowStr("UTF-8")) << std::endl; 
+                                       desc.getComment().asStr("UTF-8")) << std::endl; 
         std::cout << "nullable:  " << (desc.getIsNullable().isnull() ? "<null>" :
-                                       desc.getIsNullable().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getIsNullable().asStr("UTF-8")) << std::endl;
         std::cout << "precision  " << (desc.getPrecision().isnull() ? "<null>" :
-                                       desc.getPrecision().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getPrecision().asStr("UTF-8")) << std::endl;
         std::cout << "scale:     " << (desc.getScale().isnull() ? "<null>" :
-                                       desc.getScale().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getScale().asStr("UTF-8")) << std::endl;
         std::cout << "searchable " << (desc.getIsSearchable().isnull() ? "<null>" :
-                                       desc.getIsSearchable().asNarrowStr("UTF-8")) << std::endl;
+                                       desc.getIsSearchable().asStr("UTF-8")) << std::endl;
 
         std::cout << "type:      " << conv_to(daltype2string(desc.getDatatype()), "UTF-8") << std::endl;
         std::cout << std::endl;

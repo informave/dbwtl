@@ -49,19 +49,15 @@ namespace informave
 {
     namespace i18n
     {
-        /// UString is just a typename for wstring.
-        /// If possible, you should use UString.
-        typedef std::wstring UString;
-
 
         /// @brief Convert from narrow to wide string
-        DBWTL_EXPORT UString conv_from(const std::string& str, const char *encoding);
+        DBWTL_EXPORT std::wstring conv_from(const std::string& str, const char *encoding);
 
         /// @brief Convert from narrow to wide string
-        DBWTL_EXPORT UString conv_from(const char *str, const char *encoding);
+        DBWTL_EXPORT std::wstring conv_from(const char *str, const char *encoding);
 
         /// @brief Convert from wide to narrow string
-        DBWTL_EXPORT std::string conv_to(UString str, const char *encoding);
+        DBWTL_EXPORT std::string conv_to(std::wstring str, const char *encoding);
     }
 }
 

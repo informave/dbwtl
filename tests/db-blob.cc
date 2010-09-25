@@ -64,8 +64,8 @@ int test(void)
     for(rs.first(); !rs.eof(); rs.next())
     {
         std::cout << "row ";
-        std::cout << rs.column(1).asNarrowStr("UTF-8") << std::endl;
-        //std::cout << conv_to(stmt.resultset().column(2).asStr(), "UTF-8") << std::endl;
+        std::cout << rs.column(1).asStr("UTF-8") << std::endl;
+        //std::cout << conv_to(stmt.resultset().column(2).asWideStr(), "UTF-8") << std::endl;
         if(! rs.column(2).isnull())
         {
             DBMS::Blob bl(rs.column(2).asBlob());

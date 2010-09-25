@@ -22,12 +22,15 @@ DAL_NAMESPACE_BEGIN
     };
 
 
+
+
+
 DBWTL_VARIANT_DISPATCHER(asInt, signed int)
 DBWTL_VARIANT_DISPATCHER(asUInt, unsigned int)
 DBWTL_VARIANT_DISPATCHER(asChar, signed char)
 DBWTL_VARIANT_DISPATCHER(asUChar, unsigned char)
-DBWTL_VARIANT_DISPATCHER(asStr, i18n::UString)
-//DBWTL_VARIANT_DISPATCHER(asNarrowStr, std::string)
+DBWTL_VARIANT_DISPATCHER(asWideStr, std::wstring)
+DBWTL_VARIANT_DISPATCHER(asStr, std::string)
 DBWTL_VARIANT_DISPATCHER(asBool, bool)
 DBWTL_VARIANT_DISPATCHER(asSmallint, signed short)
 DBWTL_VARIANT_DISPATCHER(asUSmallint, unsigned short)
@@ -39,6 +42,22 @@ DBWTL_VARIANT_DISPATCHER(asDouble, double)
 DBWTL_VARIANT_DISPATCHER(asDate, TDate)
 DBWTL_VARIANT_DISPATCHER(asTime, TTime)
 DBWTL_VARIANT_DISPATCHER(asTimestamp, TTimestamp)
+
+/*
+template<>                                              
+struct variant_dispatch_method<std::string>
+    : public variant_dispatch_storage
+{
+    variant_dispatch_method(const dal::IVariant &var)   
+        : variant_dispatch_storage(var)                 
+    {}                                                  
+    
+    std::string operator()(void) const                         
+    {                                                   
+        return this->get().asStr();                    
+    }                                                   
+};
+*/
 
 //DBWTL_VARIANT_DISPATCHER(asUUID, TUuid)
 //DBWTL_VARIANT_DISPATCHER(asXML, TXml)
@@ -56,7 +75,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_BLOB; }
 
 /*
-  virtual i18n::UString asStr(void) const
+  virtual std::wstring asWideStr(void) const
   {
   std::stringstream ss;
   //ss << this->getValue();
@@ -65,7 +84,7 @@ public:
   }
 
 
-  virtual i18n::UString asStr(std::locale loc) const
+  virtual std::wstring asWideStr(std::locale loc = std::locale()) const
   {
   std::stringstream ss;
   ss.imbue(loc);
@@ -88,7 +107,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_MEMO; }
 
 /*
-  virtual i18n::UString asStr(void) const
+  virtual std::wstring asWideStr(void) const
   {
   std::stringstream ss;
   //ss << this->getValue();
@@ -97,7 +116,7 @@ public:
   }
 
 
-  virtual i18n::UString asStr(std::locale loc) const
+  virtual std::wstring asWideStr(std::locale loc = std::locale()) const
   {
   std::stringstream ss;
   ss.imbue(loc);
@@ -136,15 +155,7 @@ public:
     }
 
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -175,16 +186,7 @@ public:
     }
 
 
-
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -208,16 +210,7 @@ public:
     { return *this->getValue(); }
 
 
-
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -383,15 +376,7 @@ public:
     }
 
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -422,15 +407,8 @@ public:
         return *this->getValue();
     }
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
 
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -450,15 +428,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_BOOL; }
 
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -492,15 +462,7 @@ public:
     }
 
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -526,15 +488,7 @@ public:
     }
 
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -553,15 +507,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_SMALLINT; }
 
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -593,16 +539,7 @@ public:
         this->m_isnull = false;
     }
 
-
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -626,16 +563,7 @@ public:
         this->m_isnull = false;
     }
 
-
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -654,15 +582,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_USMALLINT; }
 
 
-    virtual i18n::UString asStr(void) const
-    {
-        std::wstringstream ss;
-        ss << *this->getValue();
-        return ss.str();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -1231,18 +1151,13 @@ virtual daltype_t datatype() const { return DAL_TYPE_XML; }
 ///
 ///
 template<>
-class storage_accessor<i18n::UString> : public BaseVariantImplFor<sa_base<i18n::UString> >
+class storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::wstring> >
 {
 public:
     DAL_VARIANT_ACCESSOR;
 
     virtual ~storage_accessor(void) { }
 
-    virtual void setStr(const i18n::UString &str)
-    {
-        this->getValue() = str;
-        this->m_isnull = false;
-    }
 
 
     virtual void setInt(const signed int& value)
@@ -1279,9 +1194,10 @@ public:
 
 
 
-    virtual void setStr(const std::string& value, const char* charset)
+    virtual void setWideStr(const std::wstring& value, std::locale loc = std::locale())
     {
-        this->setStr(i18n::conv_from(value, charset));
+        this->getValue() = value;
+        this->m_isnull = false;
     }
 
     virtual void setBool(const bool& value)
@@ -1309,18 +1225,9 @@ public:
     }
 
 
-
-
-
-    virtual i18n::UString asStr() const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
-        
-        return this->getValue();
-    }
-
-    virtual i18n::UString asStr(std::locale loc) const
-    {
-        return this->getValue(); // no conversion with locale needed
+        return this->getValue(); // no conversion with loc = std::locale()ale needed
     }
 
     virtual daltype_t datatype() const
@@ -1348,13 +1255,7 @@ public:
     { return this->getValue()->asInt(); }
 
 
-
-    virtual i18n::UString asStr() const
-    {
-        return this->getValue()->asStr();
-    }
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         return L"Implement me";
     }
@@ -1379,12 +1280,7 @@ public:
 
 
 
-    virtual i18n::UString asStr() const
-    {
-        return this->getValue()->asStr();
-    }
-
-    virtual i18n::UString asStr(std::locale loc) const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         return L"Implement me";
     }
@@ -1442,20 +1338,9 @@ unsigned char   BaseVariantImplFor<Base>::asUChar(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_UCHAR); }
 
 template<class Base>
-i18n::UString   BaseVariantImplFor<Base>::asStr(void) const 
+std::wstring   BaseVariantImplFor<Base>::asWideStr(std::locale loc) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_VARCHAR); }
 
-template<class Base>
-i18n::UString   BaseVariantImplFor<Base>::asStr(std::locale loc) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_VARCHAR); }
-
-template<class Base>
-std::string     BaseVariantImplFor<Base>::asNarrowStr(const char *charset) const 
-{ return i18n::conv_to(this->asStr(), charset); }
-
-template<class Base>
-std::string     BaseVariantImplFor<Base>::asNarrowStr(const char *charset, std::locale loc) const
-{ return i18n::conv_to(this->asStr(loc), charset); }
 
 template<class Base>
 bool            BaseVariantImplFor<Base>::asBool(void) const 
@@ -1559,15 +1444,7 @@ void            BaseVariantImplFor<Base>::setUChar(const unsigned char&)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setStr(const i18n::UString&) 
-{ throw ex::read_only(); }
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setStr(const char* data, std::size_t len, const char* charset) 
-{ throw ex::read_only(); }
-
-template<class Base>
-void            BaseVariantImplFor<Base>::setStr(const std::string&, const char* charset) 
+void            BaseVariantImplFor<Base>::setWideStr(const std::wstring&, std::locale loc) 
 { throw ex::read_only(); }
 
 template<class Base>

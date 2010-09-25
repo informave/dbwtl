@@ -71,9 +71,9 @@ namespace ex
         virtual ~exception(void) throw()
         {}
         
-        virtual void setMessage(const i18n::UString &msg);
+        virtual void setMessage(const std::wstring &msg);
 
-        virtual const i18n::UString& getMessage() const;
+        virtual const std::wstring& getMessage() const;
 
         /// Reimplement to provide our own message
         virtual const char* what(void) const throw();
@@ -88,7 +88,7 @@ namespace ex
             {}
 
 
-        i18n::UString        m_msg;
+        std::wstring        m_msg;
         std::string          m_msg_narrow;
         //dal::dalstate_t      m_state;
     };
@@ -104,12 +104,12 @@ namespace ex
     class DBWTL_EXPORT convert_error : public exception
     {
     public:
-        convert_error(const i18n::UString &varname = i18n::UString());
+        convert_error(const std::wstring &varname = std::wstring());
 
         /// @note The name of the variant is extracted from the argument
         convert_error(const dal::Variant &var);
 
-        //convert_error(dal::dalstate_t state, const i18n::UString &varname = i18n::UString());
+        //convert_error(dal::dalstate_t state, const std::wstring &varname = std::wstring());
 
         /// @note The name of the variant is extracted from the argument
         //convert_error(dal::dalstate_t state, const dal::Variant &var);
@@ -121,7 +121,7 @@ namespace ex
         {}
 
     protected:
-        i18n::UString m_varname;
+        std::wstring m_varname;
     };
 
 
@@ -134,17 +134,17 @@ namespace ex
     class DBWTL_EXPORT null_value : public exception
     {
     public:
-        null_value(const i18n::UString &varname = i18n::UString());
+        null_value(const std::wstring &varname = std::wstring());
 
         null_value(const dal::Variant &var);
 
-        //null_value(dal::dalstate_t state, const i18n::UString &varname = i18n::UString());
+        //null_value(dal::dalstate_t state, const std::wstring &varname = std::wstring());
 
         virtual ~null_value(void) throw()
         {}
 
     protected:
-        i18n::UString m_varname;
+        std::wstring m_varname;
     };
 
 
@@ -158,7 +158,7 @@ namespace ex
     public:
         //engine_error(dal::dalstate_t state);
 
-        engine_error(const i18n::UString &what);
+        engine_error(const std::wstring &what);
 
         virtual ~engine_error(void) throw()
         {}
@@ -175,22 +175,22 @@ namespace ex
     class DBWTL_EXPORT sql_error : public engine_error
     {
     public:
-        sql_error(const i18n::UString &sql, const i18n::UString &what);
+        sql_error(const std::wstring &sql, const std::wstring &what);
 
-        //sql_error(dal::dalstate_t state, const i18n::UString &sql, const i18n::UString &what);
+        //sql_error(dal::dalstate_t state, const std::wstring &sql, const std::wstring &what);
 
         virtual ~sql_error(void) throw()
         {}
 
         /// @brief Returns the SQL that caused the error
-        virtual const i18n::UString& getSQL(void) const;
+        virtual const std::wstring& getSQL(void) const;
         
         /// @brief Returns the error message reported by the backend engine
-        virtual const i18n::UString& getError(void) const;
+        virtual const std::wstring& getError(void) const;
         
     protected:
-        i18n::UString m_sql;
-        i18n::UString m_what;
+        std::wstring m_sql;
+        std::wstring m_what;
     };
 
 
@@ -243,9 +243,9 @@ namespace ex
     class DBWTL_EXPORT not_found : public exception
     {
     public:
-        //not_found(dal::dalstate_t state, const i18n::UString &what = i18n::UString());
+        //not_found(dal::dalstate_t state, const std::wstring &what = std::wstring());
 
-        not_found(const i18n::UString &what);
+        not_found(const std::wstring &what);
 
         virtual ~not_found(void) throw()
         {}
@@ -262,11 +262,11 @@ namespace ex
     class DBWTL_EXPORT charset_error : public exception
     {
     public:
-        charset_error(std::string data, i18n::UString from_charset,
-                      i18n::UString to_charset);
+        charset_error(std::string data, std::wstring from_charset,
+                      std::wstring to_charset);
 
-        charset_error(i18n::UString data, i18n::UString from_charset,
-                      i18n::UString to_charset);
+        charset_error(std::wstring data, std::wstring from_charset,
+                      std::wstring to_charset);
 
         virtual ~charset_error(void) throw()
         {}
@@ -282,9 +282,9 @@ namespace ex
     class DBWTL_EXPORT read_only : public exception
     {
     public:
-        //read_only(dal::dalstate_t state, const i18n::UString &resource_name);
+        //read_only(dal::dalstate_t state, const std::wstring &resource_name);
 
-        read_only(const i18n::UString &resource_name = i18n::UString(L"<unnamed>"),
+        read_only(const std::wstring &resource_name = std::wstring(L"<unnamed>"),
                   const char *triggered_by = "<unknown>");
 
         virtual ~read_only(void) throw()
@@ -302,14 +302,14 @@ namespace ex
     class DBWTL_EXPORT missing_function : public engine_error
     {
     public:
-        missing_function(const std::string &func_name, const i18n::UString &module_path = L"<unknown module>");
+        missing_function(const std::string &func_name, const std::wstring &module_path = L"<unknown module>");
 
         virtual ~missing_function(void) throw()
         {}
 
     protected:
         std::string m_func_name;
-        i18n::UString m_module_path;
+        std::wstring m_module_path;
     };
 
 
@@ -322,7 +322,7 @@ namespace ex
     class DBWTL_EXPORT logic_error : public exception
     {
     public:
-        logic_error(const i18n::UString &what);
+        logic_error(const std::wstring &what);
 
         //logic_error(dal::dalstate_t state);
 
@@ -340,9 +340,9 @@ namespace ex
     class DBWTL_EXPORT busy_error : public engine_error
     {
     public:
-        busy_error(const i18n::UString &what);
+        busy_error(const std::wstring &what);
 
-        //busy_error(dal::dalstate_t state, const i18n::UString &what);
+        //busy_error(dal::dalstate_t state, const std::wstring &what);
 
         virtual ~busy_error(void) throw()
         {}

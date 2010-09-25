@@ -164,8 +164,8 @@ protected:
     SqliteDiag(dalstate_t state,
                const char *codepos,
                const char *func,
-               i18n::UString message,
-               i18n::UString description);
+               std::wstring message,
+               std::wstring description);
     
     SqliteDiag(const SqliteDiag& ref);
 
@@ -212,7 +212,7 @@ public:
  
     virtual rowid_t getCurrentRowID(void) const = 0;
 
-    virtual i18n::UString getString(void) const = 0;
+    virtual std::wstring getString(void) const = 0;
 
     virtual bool isnull(void) const = 0;
 
@@ -233,8 +233,8 @@ public:
 
 
     virtual daltype_t  datatype(void) const { return DAL_TYPE_CUSTOM; }
-    virtual i18n::UString asStr(std::locale loc) const { return L"foo"; }
-    virtual i18n::UString asStr() const { return L"foo"; }
+    virtual std::wstring asWideStr(std::locale loc) const { return L"foo"; }
+    virtual std::wstring asWideStr() const { return L"foo"; }
 };
 
 }
@@ -281,7 +281,7 @@ public:
         util::RefCounted,
         util::AllowConversion> ptr;
     
-    SqliteTable(i18n::UString dbname, SqliteResult& src);
+    SqliteTable(std::wstring dbname, SqliteResult& src);
     
     virtual ~SqliteTable(void);
 
@@ -303,10 +303,10 @@ protected:
     Variant  m_systemobject;
 
 /*
-  i18n::UString   m_tablename;
-  i18n::UString   m_schemaname;
-  i18n::UString   m_catalogname;
-  i18n::UString   m_typename;
+  std::wstring   m_tablename;
+  std::wstring   m_schemaname;
+  std::wstring   m_catalogname;
+  std::wstring   m_typename;
   bool            m_notnull;
   bool            m_systemflag;
   int             m_typelen;
@@ -369,13 +369,13 @@ public:
 
     virtual const value_type&     column(colnum_t num) = 0;
     //virtual SqliteVariant&     field(colnum_t num) = 0;
-    virtual const value_type&     column(i18n::UString name) = 0;
-    //virtual SqliteVariant&     field(i18n::UString name) = 0;
+    virtual const value_type&     column(std::wstring name) = 0;
+    //virtual SqliteVariant&     field(std::wstring name) = 0;
 
 
     virtual const SqliteColumnDesc& describeColumn(colnum_t num) const = 0;
 
-    virtual const SqliteColumnDesc& describeColumn(i18n::UString name) const = 0;
+    virtual const SqliteColumnDesc& describeColumn(std::wstring name) const = 0;
   
 protected:
     SqliteDiagController &m_diag;
@@ -426,15 +426,15 @@ public:
 
     virtual void           beginTrans(IDbc::trx_mode mode,
                                       IDbc::access_mode access,
-                                      i18n::UString name = i18n::UString());
+                                      std::wstring name = std::wstring());
 
     virtual void           commit(void);
  
-    virtual void           savepoint(i18n::UString name);
+    virtual void           savepoint(std::wstring name);
 
-    virtual void           rollback(i18n::UString name = i18n::UString());
+    virtual void           rollback(std::wstring name = std::wstring());
 
-    virtual void           directCmd(i18n::UString cmd);
+    virtual void           directCmd(std::wstring cmd);
 
 
     virtual bool                diagAvail(void) const;
@@ -503,7 +503,7 @@ struct sqlite
     /// Current supported drivers are:
     ///  - libsqlite
     ///
-    DBWTL_EXPORT static ENV* createEnv(i18n::UString driver);
+    DBWTL_EXPORT static ENV* createEnv(std::wstring driver);
 };
 
 
@@ -535,16 +535,9 @@ public:
     }
 
 
-    virtual i18n::UString asStr() const
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
     {
         return this->getValue()->getString();
-    }
-
-
-    virtual i18n::UString asStr(std::locale loc) const
-    {
-        throw std::runtime_error("not implemented"); /// @bug fixme
-        ///return this->getValue()->getString();
     }
 
 
@@ -631,7 +624,7 @@ class SqliteEnvironment : public Environment<dal::sqlite, tag>
 {
 public:
 
-    SqliteEnvironment(i18n::UString str)
+    SqliteEnvironment(std::wstring str)
         : Environment<dal::sqlite, tag>(str)
     {}
 

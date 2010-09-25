@@ -81,6 +81,20 @@ Add the -ldbwtl option to g++
  */
 
 
+std::string
+IVariant::asStr(const std::string &charset, std::locale loc) const
+{
+    return i18n::conv_to(this->asWideStr(loc), charset.empty() ? "UTF-8" : charset.c_str());
+}
+
+
+void
+IVariant::setStr(const std::string &data, const std::string &charset,
+                 std::locale loc)
+{
+    this->setWideStr(i18n::conv_from(data, charset.empty() ? "UTF-8" : charset.c_str()), loc);
+}
+
 
 //--------------------------------------------------------------------------
 //
@@ -197,9 +211,9 @@ IStoredVariant* new_default_storage(daltype_t type)
     case DAL_TYPE_UINT: return new var_storage<unsigned int>();
     case DAL_TYPE_CHAR: return new var_storage<signed char>();
     case DAL_TYPE_UCHAR: return new var_storage<unsigned char>();
-    case DAL_TYPE_VARCHAR: return new var_storage<i18n::UString>();
-    case DAL_TYPE_NVARCHAR: return new var_storage<i18n::UString>();
-    case DAL_TYPE_NCHAR: return new var_storage<i18n::UString>();
+    case DAL_TYPE_VARCHAR: return new var_storage<std::wstring>();
+    case DAL_TYPE_NVARCHAR: return new var_storage<std::wstring>();
+    case DAL_TYPE_NCHAR: return new var_storage<std::wstring>();
     case DAL_TYPE_BOOL: return new var_storage<bool>();
     case DAL_TYPE_SMALLINT: return new var_storage<signed short int>();
     case DAL_TYPE_USMALLINT: return new var_storage<unsigned short int>();
@@ -307,7 +321,7 @@ daltype_t ColumnDescBase::getDatatype(void) const { return this->m_daltype; }
 /// 
 std::wostream&  operator<<(std::wostream& o, const IVariant &var)
 {
-    o << var.asStr(o.getloc());
+    o << var.asWideStr(o.getloc());
     return o;
 }
 
@@ -315,7 +329,7 @@ std::wostream&  operator<<(std::wostream& o, const IVariant &var)
 ///
 std::ostream& operator<<(std::ostream& o,  const IVariant &var)
 {
-    o << var.asNarrowStr("UTF-8", o.getloc());
+    o << var.asStr("UTF-8", o.getloc());
     return o;
 }
 
@@ -328,33 +342,33 @@ std::ostream& operator<<(std::ostream& o,  const IVariant &var)
 //--------------------------------------------------------------------------
 ///
 /// Get type of variant as string
-i18n::UString daltype2string(daltype_t type)
+std::wstring daltype2string(daltype_t type)
 {
     switch(type)
     {
-    case DAL_TYPE_CUSTOM: return i18n::UString(L"DAL_TYPE_CUSTOM");
-    case DAL_TYPE_UNKNOWN: return i18n::UString(L"DAL_TYPE_UNKNOWN");
-    case DAL_TYPE_INT: return i18n::UString(L"DAL_TYPE_INT");
-    case DAL_TYPE_UINT: return i18n::UString(L"DAL_TYPE_UINT");
-    case DAL_TYPE_CHAR: return i18n::UString(L"DAL_TYPE_CHAR");
-    case DAL_TYPE_UCHAR: return i18n::UString(L"DAL_TYPE_UCHAR");
-    case DAL_TYPE_VARCHAR: return i18n::UString(L"DAL_TYPE_VARCHAR");
-    case DAL_TYPE_NVARCHAR: return i18n::UString(L"DAL_TYPE_NVARCHAR");
-    case DAL_TYPE_NCHAR: return i18n::UString(L"DAL_TYPE_NCHAR");
-    case DAL_TYPE_BOOL: return i18n::UString(L"DAL_TYPE_BOOL");
-    case DAL_TYPE_SMALLINT: return i18n::UString(L"DAL_TYPE_SMALLINT");
-    case DAL_TYPE_USMALLINT: return i18n::UString(L"DAL_TYPE_USMALLINT");
-    case DAL_TYPE_BIGINT: return i18n::UString(L"DAL_TYPE_BIGINT");
-    case DAL_TYPE_UBIGINT: return i18n::UString(L"DAL_TYPE_UBIGINT");
-    case DAL_TYPE_BLOB: return i18n::UString(L"DAL_TYPE_BLOB");
-    case DAL_TYPE_MEMO: return i18n::UString(L"DAL_TYPE_MEMO");
-    case DAL_TYPE_NUMERIC: return i18n::UString(L"DAL_TYPE_NUMERIC");
-    case DAL_TYPE_FLOAT: return i18n::UString(L"DAL_TYPE_FLOAT");
-    case DAL_TYPE_DOUBLE: return i18n::UString(L"DAL_TYPE_DOUBLE");
-    case DAL_TYPE_DATE: return i18n::UString(L"DAL_TYPE_DATE");
-    case DAL_TYPE_TIME: return i18n::UString(L"DAL_TYPE_TIME");
-    case DAL_TYPE_TIMESTAMP: return i18n::UString(L"DAL_TYPE_TIMESTAMP");
-    case DAL_TYPE_INTERVAL: return i18n::UString(L"DAL_TYPE_INTERVAL");
+    case DAL_TYPE_CUSTOM: return std::wstring(L"DAL_TYPE_CUSTOM");
+    case DAL_TYPE_UNKNOWN: return std::wstring(L"DAL_TYPE_UNKNOWN");
+    case DAL_TYPE_INT: return std::wstring(L"DAL_TYPE_INT");
+    case DAL_TYPE_UINT: return std::wstring(L"DAL_TYPE_UINT");
+    case DAL_TYPE_CHAR: return std::wstring(L"DAL_TYPE_CHAR");
+    case DAL_TYPE_UCHAR: return std::wstring(L"DAL_TYPE_UCHAR");
+    case DAL_TYPE_VARCHAR: return std::wstring(L"DAL_TYPE_VARCHAR");
+    case DAL_TYPE_NVARCHAR: return std::wstring(L"DAL_TYPE_NVARCHAR");
+    case DAL_TYPE_NCHAR: return std::wstring(L"DAL_TYPE_NCHAR");
+    case DAL_TYPE_BOOL: return std::wstring(L"DAL_TYPE_BOOL");
+    case DAL_TYPE_SMALLINT: return std::wstring(L"DAL_TYPE_SMALLINT");
+    case DAL_TYPE_USMALLINT: return std::wstring(L"DAL_TYPE_USMALLINT");
+    case DAL_TYPE_BIGINT: return std::wstring(L"DAL_TYPE_BIGINT");
+    case DAL_TYPE_UBIGINT: return std::wstring(L"DAL_TYPE_UBIGINT");
+    case DAL_TYPE_BLOB: return std::wstring(L"DAL_TYPE_BLOB");
+    case DAL_TYPE_MEMO: return std::wstring(L"DAL_TYPE_MEMO");
+    case DAL_TYPE_NUMERIC: return std::wstring(L"DAL_TYPE_NUMERIC");
+    case DAL_TYPE_FLOAT: return std::wstring(L"DAL_TYPE_FLOAT");
+    case DAL_TYPE_DOUBLE: return std::wstring(L"DAL_TYPE_DOUBLE");
+    case DAL_TYPE_DATE: return std::wstring(L"DAL_TYPE_DATE");
+    case DAL_TYPE_TIME: return std::wstring(L"DAL_TYPE_TIME");
+    case DAL_TYPE_TIMESTAMP: return std::wstring(L"DAL_TYPE_TIMESTAMP");
+    case DAL_TYPE_INTERVAL: return std::wstring(L"DAL_TYPE_INTERVAL");
     }
     throw ex::engine_error(L"Found BUG: daltype2string(): Given type is not handled");
 }
@@ -363,33 +377,33 @@ i18n::UString daltype2string(daltype_t type)
 //--------------------------------------------------------------------------
 ///
 /// Get type of variant as string
-i18n::UString daltype2sqlname(daltype_t type)
+std::wstring daltype2sqlname(daltype_t type)
 {
     switch(type)
     {
-    case DAL_TYPE_CUSTOM: return i18n::UString(L"CUSTOM");
-    case DAL_TYPE_UNKNOWN: return i18n::UString(L"UNKNOWN");
-    case DAL_TYPE_INT: return i18n::UString(L"INTEGER");
-    case DAL_TYPE_UINT: return i18n::UString(L"INTEGER");
-    case DAL_TYPE_CHAR: return i18n::UString(L"CHAR");
-    case DAL_TYPE_UCHAR: return i18n::UString(L"CHAR");
-    case DAL_TYPE_VARCHAR: return i18n::UString(L"VARCHAR");
-    case DAL_TYPE_NVARCHAR: return i18n::UString(L"NVARCHAR");
-    case DAL_TYPE_NCHAR: return i18n::UString(L"NCHAR");
-    case DAL_TYPE_BOOL: return i18n::UString(L"BOOL");
-    case DAL_TYPE_SMALLINT: return i18n::UString(L"SMALLINT");
-    case DAL_TYPE_USMALLINT: return i18n::UString(L"SMALLINT");
-    case DAL_TYPE_BIGINT: return i18n::UString(L"BIGINT");
-    case DAL_TYPE_UBIGINT: return i18n::UString(L"BIGINT");
-    case DAL_TYPE_BLOB: return i18n::UString(L"BLOB");
-    case DAL_TYPE_MEMO: return i18n::UString(L"MEMO");
-    case DAL_TYPE_NUMERIC: return i18n::UString(L"NUMERIC");
-    case DAL_TYPE_FLOAT: return i18n::UString(L"FLOAT");
-    case DAL_TYPE_DOUBLE: return i18n::UString(L"DOUBLE");
-    case DAL_TYPE_DATE: return i18n::UString(L"DATE");
-    case DAL_TYPE_TIME: return i18n::UString(L"TIME");
-    case DAL_TYPE_TIMESTAMP: return i18n::UString(L"TIMESTAMP");
-    case DAL_TYPE_INTERVAL: return i18n::UString(L"INTERVAL");
+    case DAL_TYPE_CUSTOM: return std::wstring(L"CUSTOM");
+    case DAL_TYPE_UNKNOWN: return std::wstring(L"UNKNOWN");
+    case DAL_TYPE_INT: return std::wstring(L"INTEGER");
+    case DAL_TYPE_UINT: return std::wstring(L"INTEGER");
+    case DAL_TYPE_CHAR: return std::wstring(L"CHAR");
+    case DAL_TYPE_UCHAR: return std::wstring(L"CHAR");
+    case DAL_TYPE_VARCHAR: return std::wstring(L"VARCHAR");
+    case DAL_TYPE_NVARCHAR: return std::wstring(L"NVARCHAR");
+    case DAL_TYPE_NCHAR: return std::wstring(L"NCHAR");
+    case DAL_TYPE_BOOL: return std::wstring(L"BOOL");
+    case DAL_TYPE_SMALLINT: return std::wstring(L"SMALLINT");
+    case DAL_TYPE_USMALLINT: return std::wstring(L"SMALLINT");
+    case DAL_TYPE_BIGINT: return std::wstring(L"BIGINT");
+    case DAL_TYPE_UBIGINT: return std::wstring(L"BIGINT");
+    case DAL_TYPE_BLOB: return std::wstring(L"BLOB");
+    case DAL_TYPE_MEMO: return std::wstring(L"MEMO");
+    case DAL_TYPE_NUMERIC: return std::wstring(L"NUMERIC");
+    case DAL_TYPE_FLOAT: return std::wstring(L"FLOAT");
+    case DAL_TYPE_DOUBLE: return std::wstring(L"DOUBLE");
+    case DAL_TYPE_DATE: return std::wstring(L"DATE");
+    case DAL_TYPE_TIME: return std::wstring(L"TIME");
+    case DAL_TYPE_TIMESTAMP: return std::wstring(L"TIMESTAMP");
+    case DAL_TYPE_INTERVAL: return std::wstring(L"INTERVAL");
     }
     throw ex::engine_error(L"Found BUG: daltype2sqlname(): Given type is not handled");
 }
@@ -412,16 +426,16 @@ IVariant::assign(const IVariant& var)
     {
         switch(var.datatype())
         {
-        case DAL_TYPE_CUSTOM:     this->setStr(var.asStr()); break;
-        case DAL_TYPE_UNKNOWN:    this->setStr(var.asStr()); break;
+        case DAL_TYPE_CUSTOM:     this->setWideStr(var.asWideStr()); break;
+        case DAL_TYPE_UNKNOWN:    this->setWideStr(var.asWideStr()); break;
             
         case DAL_TYPE_INT:        this->setInt(var.asInt()); break;
         case DAL_TYPE_UINT:       this->setUInt(var.asUInt()); break;
         case DAL_TYPE_CHAR:       this->setChar(var.asChar()); break;
         case DAL_TYPE_UCHAR:      this->setUChar(var.asUChar()); break;
-        case DAL_TYPE_VARCHAR:    this->setStr(var.asStr()); break;
-        case DAL_TYPE_NVARCHAR:   this->setStr(var.asStr()); break;
-        case DAL_TYPE_NCHAR:      this->setStr(var.asStr()); break;
+        case DAL_TYPE_VARCHAR:    this->setWideStr(var.asWideStr()); break;
+        case DAL_TYPE_NVARCHAR:   this->setWideStr(var.asWideStr()); break;
+        case DAL_TYPE_NCHAR:      this->setWideStr(var.asWideStr()); break;
         case DAL_TYPE_BOOL:       this->setBool(var.asBool()); break;
         case DAL_TYPE_SMALLINT:   this->setSmallint(var.asSmallint()); break;
         case DAL_TYPE_USMALLINT:  this->setUSmallint(var.asUSmallint()); break;
@@ -466,7 +480,7 @@ Variant::getStorageImpl(void) const
 
 
 ///
-const i18n::UString&
+const std::wstring&
 Variant::getName(void) const
 {
     return this->m_name;
@@ -506,36 +520,13 @@ Variant::asUChar(void) const
 }
 
 ///
-i18n::UString 
-Variant::asStr(void) const
+std::wstring 
+Variant::asWideStr(std::locale loc) const
 {
     if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asStr(); 
+    return this->getStorageImpl()->asWideStr(loc); 
 }
 
-///
-i18n::UString
-Variant::asStr(std::locale loc) const
-{ 
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asStr(loc); 
-}
-
-///
-std::string
-Variant::asNarrowStr(const char *charset) const 
-{
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asNarrowStr(charset); 
-}
-
-///
-std::string
-Variant::asNarrowStr(const char *charset, std::locale loc) const
-{
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asNarrowStr(charset, loc); 
-}
 
 ///
 bool
@@ -689,39 +680,24 @@ DBWTL_VARIANT_SETTER(Int, signed int)
 DBWTL_VARIANT_SETTER(UInt, unsigned int)
 DBWTL_VARIANT_SETTER(Char, signed char)
 DBWTL_VARIANT_SETTER(UChar, unsigned char)
-DBWTL_VARIANT_SETTER(Str, i18n::UString)
 
 
-///
-void     
-Variant::setStr(const char* data, std::size_t len, const char* charset) 
-{
-    init_if_null<i18n::UString>(this->m_storage, this->m_type);
-    try
-    {
-        this->getStorageImpl()->setStr(data, len, charset);
-    }
-    catch(ex::read_only &)
-    {
-        throw ex::read_only(this->getName(), __FUNCTION__);
-    }
+//DBWTL_VARIANT_SETTER(WideStr, std::wstring)
+
+void                                                        
+Variant::setWideStr(const std::wstring& value, std::locale loc)
+{                                                           
+    init_if_null<std::wstring>(this->m_storage, this->m_type);     
+    try                                                     
+    {                                                       
+        return this->getStorageImpl()->setWideStr(value, loc); 
+    }                                                       
+    catch(ex::read_only &)                                  
+    {                                                       
+        throw ex::read_only(this->getName(), __FUNCTION__); 
+    }                                                       
 }
 
-
-///
-void        
-Variant::setStr(const std::string& value, const char* charset)
-{ 
-    init_if_null<i18n::UString>(this->m_storage, this->m_type);
-    try
-    {
-        this->getStorageImpl()->setStr(value, charset); 
-    }
-    catch(ex::read_only &)
-    {
-        throw ex::read_only(this->getName(), __FUNCTION__);
-    }
-}
 
 
 DBWTL_VARIANT_SETTER(Bool, bool)
@@ -745,8 +721,8 @@ IVariant::operator signed int            (void) const { return this->asInt(); }
 IVariant::operator unsigned int          (void) const { return this->asUInt(); }
 IVariant::operator signed char           (void) const { return this->asChar(); }
 IVariant::operator unsigned char         (void) const { return this->asUChar(); }
-IVariant::operator i18n::UString         (void) const { return this->asStr(); }
-IVariant::operator std::string           (void) const { return this->asNarrowStr("UTF-8"); }
+IVariant::operator std::wstring         (void) const { return this->asWideStr(); }
+IVariant::operator std::string           (void) const { return this->asStr("UTF-8"); }
 IVariant::operator bool                  (void) const { return this->asBool(); }
 IVariant::operator signed short          (void) const { return this->asSmallint(); }
 IVariant::operator unsigned short        (void) const { return this->asUSmallint(); }
@@ -894,68 +870,34 @@ daltype_t TTimestamp::datatype(void) const  {  return DAL_TYPE_TIMESTAMP;  }
 ///
 
 
-i18n::UString
-TDate::asStr(void) const
+
+std::wstring
+TDate::asWideStr(std::locale loc) const
 {
     return L"FIXME";
 }
 
-i18n::UString
-TTime::asStr(void) const
+std::wstring
+TTime::asWideStr(std::locale loc) const
 {
     return L"FIXME";
 }
 
-i18n::UString
-TInterval::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TNumeric::asStr(void) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TTimestamp::asStr(void) const
+std::wstring
+TInterval::asWideStr(std::locale loc) const
 {
     return L"FIXME";
 }
 
 
-///////////////////////
-
-
-
-i18n::UString
-TDate::asStr(std::locale loc) const
+std::wstring
+TNumeric::asWideStr(std::locale loc) const
 {
     return L"FIXME";
 }
 
-i18n::UString
-TTime::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TInterval::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-
-i18n::UString
-TNumeric::asStr(std::locale loc) const
-{
-    return L"FIXME";
-}
-
-i18n::UString
-TTimestamp::asStr(std::locale loc) const
+std::wstring
+TTimestamp::asWideStr(std::locale loc) const
 {
     return L"FIXME";
 }
@@ -1003,8 +945,8 @@ IDbc::~IDbc(void)
 DiagBase::DiagBase(dalstate_t state,
                    const char *codepos,
                    const char *func,
-                   i18n::UString message,
-                   i18n::UString description)
+                   std::wstring message,
+                   std::wstring description)
     : IDiagnostic(),
       m_state(state),
       m_sqlstate(DAL_TYPE_VARCHAR, L"SqliteDiag::sqlstate"),

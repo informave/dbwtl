@@ -104,7 +104,7 @@ SqlTypeParser::reset(void)
 //
 //
 void
-SqlTypeParser::registerType(daltype_t type, i18n::UString pattern)
+SqlTypeParser::registerType(daltype_t type, std::wstring pattern)
 {
     this->m_pattern.push_back(pattern_entry_type(type, pattern));
 }
@@ -114,10 +114,10 @@ SqlTypeParser::registerType(daltype_t type, i18n::UString pattern)
 //
 //
 bool
-SqlTypeParser::parseSpecial(i18n::UString::const_iterator &si,
-                            const i18n::UString &str,
-                            i18n::UString::const_iterator &pi,
-                            const i18n::UString &pattern)
+SqlTypeParser::parseSpecial(std::wstring::const_iterator &si,
+                            const std::wstring &str,
+                            std::wstring::const_iterator &pi,
+                            const std::wstring &pattern)
 {
     switch(*pi)
     {
@@ -137,7 +137,7 @@ SqlTypeParser::parseSpecial(i18n::UString::const_iterator &si,
 //
 //
 bool
-SqlTypeParser::parse(const i18n::UString &str)
+SqlTypeParser::parse(const std::wstring &str)
 {
     pattern_vector_type::iterator i;
 
@@ -145,8 +145,8 @@ SqlTypeParser::parse(const i18n::UString &str)
     for(i = this->m_pattern.begin(); i != this->m_pattern.end(); ++i)
     {
         //std::wcout << "Testing: " << i->second << " against " << str << std::endl;
-        i18n::UString::const_iterator si, pi;
-        i18n::UString value;
+        std::wstring::const_iterator si, pi;
+        std::wstring value;
 
         si = str.begin();
         pi = i->second.begin();
@@ -190,11 +190,11 @@ SqlTypeParser::getDaltype(void) const
 signed int
 SqlTypeParser::getSize(void) const
 {
-    std::map<int, i18n::UString>::const_iterator i = this->m_values.find(2);
+    std::map<int, std::wstring>::const_iterator i = this->m_values.find(2);
 
     if(i != this->m_values.end())
     {
-        i18n::UString size = i->second;
+        std::wstring size = i->second;
         if(size.empty())
             return 0;
         return 50; /// @todo fixme

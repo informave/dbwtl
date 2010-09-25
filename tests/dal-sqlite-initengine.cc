@@ -90,7 +90,7 @@ int test(void)
     for(size_t i = 1; i <= res.columnCount(); ++i)
     {
         std::cout << i18n::conv_to(res.columnName(i), "UTF-8") << " (" 
-                  << res.describeColumn(i).getName().asNarrowStr("UTF-8") << ") ";
+                  << res.describeColumn(i).getName().asStr("UTF-8") << ") ";
     }
 
 
@@ -108,8 +108,8 @@ int test(void)
                 std::cout << "<NULL>" << " | ";
             else
             {
-                std::cout << res.column(i).asNarrowStr("UTF-8") << " = ";
-                //std::cout << res.field(i).asStr("ISO-8859-15") << " | ";
+                std::cout << res.column(i).asStr("UTF-8") << " = ";
+                //std::cout << res.field(i).asWideStr("ISO-8859-15") << " | ";
                 if(res.describeColumn(i).getDatatype() == DAL_TYPE_BLOB)
                 {
                     /*

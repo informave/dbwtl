@@ -73,15 +73,15 @@ public:
 //                         const char *sqlstate,
                          const char *codepos,
                          const char *func,
-                         i18n::UString message,
-                         i18n::UString description,
+                         std::wstring message,
+                         std::wstring description,
                          int sqlite_code,
                          int sqlite_excode);
 
     SqliteDiag_libsqlite(const SqliteDiag_libsqlite& ref);
     virtual ~SqliteDiag_libsqlite(void);
     
-    virtual i18n::UString str(void) const;
+    virtual std::wstring str(void) const;
     virtual SqliteDiag_libsqlite* clone(void) const;    
 
 protected:
@@ -148,7 +148,7 @@ public:
     virtual bool         isnull(void) const;
     virtual rowid_t      getCurrentRowID(void) const;
 
-    virtual i18n::UString getString(void) const;
+    virtual std::wstring getString(void) const;
 
     virtual daltype_t daltype(void) const;
 
@@ -202,15 +202,15 @@ public:
 
     virtual const SqliteVariant&     column(colnum_t num);
     //virtual SqliteVariant&     field(colnum_t num);
-    virtual const SqliteVariant&     column(i18n::UString name);
-    //virtual SqliteVariant&     field(i18n::UString name);
+    virtual const SqliteVariant&     column(std::wstring name);
+    //virtual SqliteVariant&     field(std::wstring name);
 
     //virtual IBlob&           getBlob(colnum_t num) = 0;
 
     // column methods
     virtual size_t             columnCount(void) const;
-    virtual colnum_t           columnID(i18n::UString name) const;
-    virtual i18n::UString      columnName(colnum_t num) const;
+    virtual colnum_t           columnID(std::wstring name) const;
+    virtual std::wstring      columnName(colnum_t num) const;
 
     virtual rowid_t            getCurrentRowID(void) const;
 
@@ -221,7 +221,7 @@ public:
 
     virtual const SqliteColumnDesc& describeColumn(colnum_t num) const;
 
-    virtual const SqliteColumnDesc& describeColumn(i18n::UString name) const;
+    virtual const SqliteColumnDesc& describeColumn(std::wstring name) const;
 
 
     virtual SqliteDbc_libsqlite& getDbc(void) const;
@@ -232,7 +232,7 @@ public:
         }
 
     // sqlite specific
-    virtual void   prepare(i18n::UString sql);
+    virtual void   prepare(std::wstring sql);
     virtual void   execute(StmtBase::ParamMap& params);
 
 
@@ -322,10 +322,10 @@ public:
     virtual SqliteResult&        resultset(void);
     virtual const SqliteResult&  resultset(void) const;
 
-    virtual void      prepare(i18n::UString sql);
+    virtual void      prepare(std::wstring sql);
     virtual bool      isPrepared(void) const;
     virtual void      execute(void);
-    virtual void      execDirect(i18n::UString sql);
+    virtual void      execDirect(std::wstring sql);
     //virtual void      execDirect(std::istream src) = 0;
     virtual void      close(void);
 
@@ -380,14 +380,14 @@ public:
 
     virtual SqliteStmt_libsqlite*    newStatement(void);
 
-    virtual void     connect(i18n::UString database,
-                             i18n::UString user = i18n::UString(),
-                             i18n::UString password = i18n::UString());
+    virtual void     connect(std::wstring database,
+                             std::wstring user = std::wstring(),
+                             std::wstring password = std::wstring());
     virtual void     connect(IDbc::Options& options);
     virtual void     disconnect(void);
 
-    virtual i18n::UString  driverName(void) const;
-    virtual i18n::UString  dbmsName(void) const;
+    virtual std::wstring  driverName(void) const;
+    virtual std::wstring  dbmsName(void) const;
 
     virtual SQLite3Drv*    getDriver(void) const;
 
@@ -401,7 +401,7 @@ public:
   virtual void           savepoint(std::string name);
   virtual void           rollback(std::string name = std::string());
 
-  virtual void           directCmd(i18n::UString cmd);
+  virtual void           directCmd(std::wstring cmd);
 */
 
     virtual std::string    getDbcEncoding(void) const;
@@ -436,7 +436,7 @@ private:
 class SqliteEnv_libsqlite : public SqliteEnv
 {
 public:
-    SqliteEnv_libsqlite(i18n::UString lib = i18n::UString());
+    SqliteEnv_libsqlite(std::wstring lib = std::wstring());
     virtual ~SqliteEnv_libsqlite(void);
 
     virtual SqliteDbc_libsqlite* newConnection(void);

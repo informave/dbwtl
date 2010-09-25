@@ -47,7 +47,9 @@ int test(void)
         std::cout << "DB  : " << (*i)->getCatalog() << std::endl;
         std::cout << "NAME: " << (*i)->getName() << std::endl;
         std::cout << "SYS : " << (*i)->isSystemObject().asBool() << std::endl;
-        std::cout << "DLL : " << conv_to(ifnull<std::wstring>((*i)->getDDL(), std::wstring(L"NULL")), "UTF-8") << std::endl;
+        std::cout << "DLL : " << ifnull<std::string>((*i)->getDDL(),
+                                                     std::string("NULL"))
+                  << std::endl;
 
         
 

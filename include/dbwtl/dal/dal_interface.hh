@@ -164,9 +164,9 @@ typedef enum DatatypeEnumeration daltype_t;
 
 
 /// @brief Maps a daltype ID to a string name
-DBWTL_EXPORT i18n::UString daltype2string(daltype_t type);
+DBWTL_EXPORT std::wstring daltype2string(daltype_t type);
 
-DBWTL_EXPORT i18n::UString daltype2sqlname(daltype_t type);
+DBWTL_EXPORT std::wstring daltype2sqlname(daltype_t type);
 
 
 
@@ -275,7 +275,7 @@ public:
     virtual IDiagnostic* clone(void) const = 0;
 
     /// Dumps the information as as string
-    virtual i18n::UString str(void) const = 0;
+    virtual std::wstring str(void) const = 0;
 
     /// Checks the stored information and error codes and raises a
     /// appropriate SQLSTATE exception.
@@ -438,7 +438,7 @@ public:
     operator unsigned int          (void) const;
     operator signed char           (void) const;
     operator unsigned char         (void) const;
-    operator i18n::UString         (void) const;
+    operator std::wstring          (void) const;
     operator std::string           (void) const;
     operator bool                  (void) const;
     operator signed short          (void) const;
@@ -448,14 +448,6 @@ public:
     operator TNumeric              (void) const;
     operator float                 (void) const;
     operator double                (void) const;
-    /*
-    operator TDate                 (void) const;
-    operator TTime                 (void) const;
-    operator TTimestamp            (void) const;
-    operator TInterval             (void) const;
-    operator std::streambuf*       (void) const;
-    operator std::wstreambuf*      (void) const;
-    */
 
     // getter methods
     virtual signed int           asInt(void) const = 0;
@@ -463,12 +455,8 @@ public:
     /// @bug char means char string in ISO SQL, we should remove this types
     virtual signed char          asChar(void) const = 0;
     virtual unsigned char        asUChar(void) const = 0;
-
-    virtual i18n::UString        asStr(void) const = 0;
-    virtual i18n::UString        asStr(std::locale loc) const = 0;
-    virtual std::string          asNarrowStr(const char *charset) const = 0;
-    virtual std::string          asNarrowStr(const char *charset, std::locale loc) const = 0;
-
+    virtual std::wstring         asWideStr(std::locale loc = std::locale()) const = 0;
+    virtual std::string          asStr(const std::string &charset = std::string(), std::locale loc = std::locale()) const;
     virtual bool                 asBool(void) const = 0;
     virtual signed short         asSmallint(void) const = 0;
     virtual unsigned short       asUSmallint(void) const = 0;
@@ -480,10 +468,10 @@ public:
     virtual TDate                asDate(void) const = 0;
     virtual TTime                asTime(void) const = 0;
     virtual TTimestamp           asTimestamp(void) const = 0;
-//     virtual const TCustomType&   asCustom(void) const = 0;
     virtual TInterval            asInterval(void) const = 0;
     virtual std::streambuf*      asBlob(void) const = 0;
     virtual std::wstreambuf*     asMemo(void) const = 0;
+//     virtual const TCustomType&   asCustom(void) const = 0;
 
 
     // setter methods
@@ -491,9 +479,9 @@ public:
     virtual void                 setUInt(const unsigned int&) = 0;
     virtual void                 setChar(const signed char&) = 0;
     virtual void                 setUChar(const unsigned char&) = 0;
-    virtual void                 setStr(const i18n::UString&) = 0;
-    virtual void                 setStr(const char* data, std::size_t len, const char* charset) = 0;
-    virtual void                 setStr(const std::string&, const char* charset) = 0;
+    virtual void                 setWideStr(const std::wstring &, std::locale loc = std::locale()) = 0;
+    virtual void                 setStr(const std::string &data, const std::string &charset = std::string(),
+                                        std::locale loc = std::locale());
     virtual void                 setBool(const bool&) = 0;
     virtual void                 setSmallint(const signed short&) = 0;
     virtual void                 setUSmallint(const unsigned short&) = 0;
@@ -505,10 +493,10 @@ public:
     virtual void                 setDate(const TDate&) = 0;
     virtual void                 setTime(const TTime&) = 0;
     virtual void                 setTimestamp(const TTimestamp&) = 0;
-//     virtual void                 setCustom(const TCustomType&) const = 0;
     virtual void                 setInterval(const TInterval&) = 0;
     virtual void                 setBlob(std::streambuf*) = 0;
     virtual void                 setMemo(std::wstreambuf*) = 0;
+//     virtual void                 setCustom(const TCustomType&) const = 0;
   
 private:
     IVariant&               operator=(const IVariant& o);
@@ -537,18 +525,11 @@ public:
     virtual bool            isnull(void) const;
     virtual void            setNull(void);
 
-    virtual signed int      asInt(void) const;
-    virtual unsigned int    asUInt(void) const;
-    virtual signed char     asChar(void) const;
-    virtual unsigned char   asUChar(void) const;
-
-
-    virtual i18n::UString   asStr(void) const;
-    virtual i18n::UString   asStr(std::locale loc) const;
-    virtual std::string     asNarrowStr(const char *charset) const;
-    virtual std::string     asNarrowStr(const char *charset, std::locale loc) const;
-
-
+    virtual signed int            asInt(void) const;
+    virtual unsigned int          asUInt(void) const;
+    virtual signed char           asChar(void) const;
+    virtual unsigned char         asUChar(void) const;
+    virtual std::wstring          asWideStr(std::locale loc = std::locale()) const;
     virtual bool                  asBool(void) const;
     virtual signed short          asSmallint(void) const;
     virtual unsigned short        asUSmallint(void) const;
@@ -560,19 +541,17 @@ public:
     virtual TDate                 asDate(void) const;
     virtual TTime                 asTime(void) const;
     virtual TTimestamp            asTimestamp(void) const;
-    //virtual TCustom&        asCustom(void) const = 0;
     virtual TInterval             asInterval(void) const;
     virtual std::streambuf*       asBlob(void) const;
     virtual std::wstreambuf*      asMemo(void) const;
+    //virtual TCustom&        asCustom(void) const = 0;
 
 
     virtual void            setInt(const signed int&);
     virtual void            setUInt(const unsigned int&);
     virtual void            setChar(const signed char&);
     virtual void            setUChar(const unsigned char&);
-    virtual void            setStr(const i18n::UString&);
-    virtual void            setStr(const char* data, std::size_t len, const char* charset);
-    virtual void            setStr(const std::string&, const char* charset);
+    virtual void            setWideStr(const std::wstring &, std::locale loc = std::locale());
     virtual void            setBool(const bool&);
     virtual void            setSmallint(const signed short&);
     virtual void            setUSmallint(const unsigned short&);
@@ -584,11 +563,10 @@ public:
     virtual void            setDate(const TDate&);
     virtual void            setTime(const TTime&);
     virtual void            setTimestamp(const TTimestamp&);
-    //virtual void        asCustom(void) const = 0;
     virtual void            setInterval(const TInterval&);
     virtual void            setBlob(std::streambuf*);
     virtual void            setMemo(std::wstreambuf*);
-
+    //virtual void        asCustom(void) const = 0;
 
 protected:
     bool m_isnull;
@@ -790,7 +768,7 @@ public:
     /// The optional name can be used to identify the value (e.g. exeptions).
     /// @brief Creates a Variant object from the given value/type
     template<class T>
-        Variant(T value, const i18n::UString &name = i18n::UString(L"<unnamed>"))
+        Variant(T value, const std::wstring &name = std::wstring(L"<unnamed>"))
         : IVariant(),
         m_storage(new var_storage<T>(value)),
         m_name(name),
@@ -834,7 +812,7 @@ public:
     /// called.
     /// @brief Creates an empty Variant object
     explicit Variant(daltype_t type = DAL_TYPE_UNKNOWN,
-                     const i18n::UString &name = i18n::UString(L"<unnamed>"))
+                     const std::wstring &name = std::wstring(L"<unnamed>"))
         : IVariant(),
         m_storage(),
         m_name(name),
@@ -844,7 +822,7 @@ public:
         }
 
 
-    virtual const i18n::UString& getName(void) const;
+    virtual const std::wstring& getName(void) const;
 
     typedef util::SmartPtr<IStoredVariant,
         util::RefCounted,
@@ -890,11 +868,7 @@ public:
     virtual unsigned char  asUChar(void) const;
 
 
-
-    virtual i18n::UString       asStr(void) const;
-    virtual i18n::UString       asStr(std::locale loc) const;
-    virtual std::string         asNarrowStr(const char *charset) const;
-    virtual std::string         asNarrowStr(const char *charset, std::locale loc) const;
+    virtual std::wstring        asWideStr(std::locale loc = std::locale()) const;
     virtual bool                asBool(void) const;
     virtual signed short        asSmallint(void) const;
     virtual unsigned short      asUSmallint(void) const;
@@ -906,35 +880,31 @@ public:
     virtual TDate               asDate(void) const;
     virtual TTime               asTime(void) const;
     virtual TTimestamp          asTimestamp(void) const;
-    //virtual TCustom&        asCustom(void) const = 0;
     virtual TInterval           asInterval(void) const;
     virtual std::streambuf*     asBlob(void) const;
     virtual std::wstreambuf*    asMemo(void) const;
+    //virtual TCustom&        asCustom(void) const = 0;
 
-
-    virtual void            setInt(const signed int&);
-    virtual void            setUInt(const unsigned int&);
-    virtual void            setChar(const signed char&);
-    virtual void            setUChar(const unsigned char&);
-    virtual void            setStr(const i18n::UString&);
-    virtual void            setStr(const char* data, std::size_t len, const char* charset);
-    virtual void            setStr(const std::string&, const char* charset);
-    virtual void            setBool(const bool&);
-    virtual void            setSmallint(const signed short&);
-    virtual void            setUSmallint(const unsigned short&);
-    virtual void            setBigint(const signed long long&);
-    virtual void            setUBigint(const unsigned long long&);
-    virtual void            setNumeric(const TNumeric&);
-    virtual void            setReal(const float&);
-    virtual void            setDouble(const double&);
-    virtual void            setDate(const TDate&);
-    virtual void            setTime(const TTime&);
-    virtual void            setTimestamp(const TTimestamp&);
-    //virtual void        asCustom(void) const = 0;
-    virtual void            setInterval(const TInterval&);
-    virtual void            setBlob(std::streambuf*);
-    virtual void            setMemo(std::wstreambuf*);
-
+    virtual void        setInt(const signed int&);
+    virtual void        setUInt(const unsigned int&);
+    virtual void        setChar(const signed char&);
+    virtual void        setUChar(const unsigned char&);
+    virtual void        setWideStr(const std::wstring &, std::locale loc = std::locale());
+    virtual void        setBool(const bool&);
+    virtual void        setSmallint(const signed short&);
+    virtual void        setUSmallint(const unsigned short&);
+    virtual void        setBigint(const signed long long&);
+    virtual void        setUBigint(const unsigned long long&);
+    virtual void        setNumeric(const TNumeric&);
+    virtual void        setReal(const float&);
+    virtual void        setDouble(const double&);
+    virtual void        setDate(const TDate&);
+    virtual void        setTime(const TTime&);
+    virtual void        setTimestamp(const TTimestamp&);
+    virtual void        setInterval(const TInterval&);
+    virtual void        setBlob(std::streambuf*);
+    virtual void        setMemo(std::wstreambuf*);
+    //virtual void       asCustom(void) const = 0;
 
 protected:
     IStoredVariant*       getStorageImpl(void);
@@ -944,7 +914,7 @@ protected:
     storage_type      m_storage;
     
     /// @brief Name of the variant
-    i18n::UString     m_name;
+    std::wstring     m_name;
 
     /// This type is only used if m_storage is not initialized.
     daltype_t         m_type;
@@ -1052,9 +1022,9 @@ class DBWTL_EXPORT ITableFilter : public IDALObject
 public:
     virtual ~ITableFilter(void) { }
 
-//     virtual i18n::UString simpleNameFilter(void) const = 0;
-//     virtual i18n::UString simpleCatalogFilter(void) const = 0;
-//     virtual i18n::UString simpleSchemaFilter(void) const = 0;
+//     virtual std::wstring simpleNameFilter(void) const = 0;
+//     virtual std::wstring simpleCatalogFilter(void) const = 0;
+//     virtual std::wstring simpleSchemaFilter(void) const = 0;
 };
 
 
@@ -1081,9 +1051,9 @@ class DBWTL_EXPORT IDatatypeFilter : public IDALObject
 public:
     virtual ~IDatatypeFilter(void) { }
 
-//     virtual i18n::UString simpleNameFilter(void) const = 0;
-//     virtual i18n::UString simpleCatalogFilter(void) const = 0;
-//     virtual i18n::UString simpleSchemaFilter(void) const = 0;
+//     virtual std::wstring simpleNameFilter(void) const = 0;
+//     virtual std::wstring simpleCatalogFilter(void) const = 0;
+//     virtual std::wstring simpleSchemaFilter(void) const = 0;
 };
 
 
@@ -1125,7 +1095,7 @@ class DBWTL_EXPORT IDbc : public IHandle
 {
 public:
     typedef std::auto_ptr<IDbc>                      ptr;
-    typedef std::map<i18n::UString, i18n::UString>   Options;
+    typedef std::map<std::wstring, std::wstring>   Options;
 
     /// @brief Connection transaction modes
     enum trx_mode
@@ -1154,9 +1124,9 @@ public:
     /// The value of database depends on the selected driver.
     /// Some drivers (filebased) requires a path to a directory or file
     /// and other drivers needs the name of the database.
-    virtual void     connect(i18n::UString database,
-                             i18n::UString user = i18n::UString(),
-                             i18n::UString password = i18n::UString()) = 0;
+    virtual void     connect(std::wstring database,
+                             std::wstring user = std::wstring(),
+                             std::wstring password = std::wstring()) = 0;
 
 
     ///
@@ -1165,18 +1135,18 @@ public:
 
 
     virtual bool           isConnected(void) const = 0;
-    virtual void     disconnect(void) = 0;
-    virtual i18n::UString  driverName(void) const = 0;
-    virtual i18n::UString  dbmsName(void) const = 0;
+    virtual void           disconnect(void) = 0;
+    virtual std::wstring   driverName(void) const = 0;
+    virtual std::wstring   dbmsName(void) const = 0;
     virtual IStmt*         newStatement(void) = 0;
     virtual IDALDriver*    getDriver(void) const = 0;
     virtual void           beginTrans(IDbc::trx_mode mode,
                                       IDbc::access_mode access = IDbc::trx_default,
-                                      i18n::UString name = i18n::UString()) { };
+                                      std::wstring name = std::wstring()) { };
     virtual void           commit(void) { };
-    virtual void           savepoint(i18n::UString name) { }
-    virtual void           rollback(i18n::UString name = i18n::UString()) { }
-    virtual void           directCmd(i18n::UString cmd) { }
+    virtual void           savepoint(std::wstring name) { }
+    virtual void           rollback(std::wstring name = std::wstring()) { }
+    virtual void           directCmd(std::wstring cmd) { }
     virtual std::string    getDbcEncoding(void) const = 0;
 
 
@@ -1236,21 +1206,21 @@ public:
     virtual rowcount_t       affectedRows(void) const = 0;
 
     virtual const value_type&      column(colnum_t num) = 0;
-    virtual const value_type&      column(i18n::UString name) = 0;
+    virtual const value_type&      column(std::wstring name) = 0;
     //virtual value_type&          field(colnum_t num) = 0;
-    //virtual variant_type&        field(i18n::UString name) = 0;
+    //virtual variant_type&        field(std::wstring name) = 0;
 
     // column methods
     virtual size_t           columnCount(void) const = 0;
-    virtual colnum_t         columnID(i18n::UString name) const = 0;
-    virtual i18n::UString    columnName(colnum_t num) const = 0;
+    virtual colnum_t         columnID(std::wstring name) const = 0;
+    virtual std::wstring     columnName(colnum_t num) const = 0;
     //virtual const ITypeInfo& datatype(colnum_t num) const = 0;
 
     /// @brief Returns the column descriptor for the given column number
     virtual const IColumnDesc& describeColumn(colnum_t num) const = 0;
 
     /// @brief Returns the column descriptor for the given column name
-    virtual const IColumnDesc& describeColumn(i18n::UString name) const = 0;
+    virtual const IColumnDesc& describeColumn(std::wstring name) const = 0;
 
 
     virtual IDALDriver* getDriver(void) const = 0;
@@ -1272,17 +1242,17 @@ public:
     virtual ~IStmt(void);
 
     virtual bool      isBad(void) const = 0;
-    virtual void      prepare(i18n::UString sql) = 0;
+    virtual void      prepare(std::wstring sql) = 0;
     virtual bool      isPrepared(void) const = 0;
     virtual void      execute(void) = 0;
-    virtual void      execDirect(i18n::UString sql) = 0;
+    virtual void      execDirect(std::wstring sql) = 0;
     /*
       virtual void      execBatch(std::istream src, const char *charset) = 0;
       virtual void      execBatch(std::wistream src) = 0;
     */
     virtual void      close(void) = 0;
 
-    virtual IResult&  resultset(void) = 0;
+    virtual IResult&        resultset(void) = 0;
     virtual const IResult&  resultset(void) const = 0;
 
     //virtual void      setResultsetMode(ResultsetMode mode) = 0;
@@ -1314,13 +1284,13 @@ public:
 class DBWTL_EXPORT Factory
 {
 public:
-    template<class T> DBWTL_EXPORT static typename T::ENV* create(i18n::UString driver)
+    template<class T> DBWTL_EXPORT static typename T::ENV* create(std::wstring driver)
     {
         typename T::ENV* env = T::createEnv(driver);
         return env;
     }
 
-    //static IEnv* createByName(i18n::UString name, i18n::UString driver); not needed
+    //static IEnv* createByName(std::wstring name, std::wstring driver); not needed
 };
 
 
@@ -1356,8 +1326,8 @@ class DBWTL_EXPORT TDate : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+
+    virtual std::wstring         asWideStr(std::locale loc = std::locale()) const;
 };
 
 
@@ -1365,8 +1335,9 @@ class DBWTL_EXPORT TTime : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+
+    virtual std::wstring         asWideStr(std::locale loc = std::locale()) const;
+
 };
 
 
@@ -1374,8 +1345,8 @@ class DBWTL_EXPORT TInterval : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring         asWideStr(std::locale loc = std::locale()) const;
+
 };
 
 
@@ -1383,8 +1354,8 @@ class DBWTL_EXPORT TNumeric : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring         asWideStr(std::locale loc = std::locale()) const;
+
 };
 
 
@@ -1392,8 +1363,8 @@ class DBWTL_EXPORT TTimestamp : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring         asWideStr(std::locale loc = std::locale()) const;
+
 };
 
 
@@ -1407,19 +1378,19 @@ class DBWTL_EXPORT TCidr : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring asWideStr(std::locale loc) const;
+    virtual std::wstring asWideStr() const; // using objects locale
 };
 class DBWTL_EXPORT TMacaddr : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring asWideStr(std::locale loc) const;
+    virtual std::wstring asWideStr() const; // using objects locale
 
 public:
     // converts XX:XX:XX:XX:XX:XX or raises an exception
-    static TMacaddr convert(i18n::UString value)
+    static TMacaddr convert(std::wstring value)
     {
         TMacaddr v;
         v.blocks[0] = 0xAA;
@@ -1438,16 +1409,16 @@ class DBWTL_EXPORT TInetaddr : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring asWideStr(std::locale loc) const;
+    virtual std::wstring asWideStr() const; // using objects locale
 };
 
 class DBWTL_EXPORT TUuid : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring asWideStr(std::locale loc) const;
+    virtual std::wstring asWideStr() const; // using objects locale
 };
 
 
@@ -1456,8 +1427,8 @@ class DBWTL_EXPORT TXml : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
-    virtual i18n::UString asStr(std::locale loc) const;
-    virtual i18n::UString asStr() const; // using objects locale
+    virtual std::wstring asWideStr(std::locale loc) const;
+    virtual std::wstring asWideStr() const; // using objects locale
 };
 */
 
@@ -1481,8 +1452,8 @@ public:
     DiagBase(dalstate_t state,
              const char *codepos,
              const char *func,
-             i18n::UString message,
-             i18n::UString description);
+             std::wstring message,
+             std::wstring description);
     
     DiagBase(const DiagBase& ref);
 
@@ -1538,9 +1509,9 @@ public:
 
     virtual void      close(void);
 
-    //virtual void      bind(i18n::UString name, IVariant* data);
-    //virtual void      bind(i18n::UString name, PodVariant data);
-    //virtual int       getParamNumberByName(i18n::UString name) const = 0;
+    //virtual void      bind(std::wstring name, IVariant* data);
+    //virtual void      bind(std::wstring name, PodVariant data);
+    //virtual int       getParamNumberByName(std::wstring name) const = 0;
 
 
     virtual void             setOption(std::string name, Variant data);

@@ -28,10 +28,10 @@ int test(void)
 
     int x = 5;
     env.setOption("env_library_path", x);
-    assert(env.getOption("env_library_path").asStr() == L"5");
+    assert(env.getOption("env_library_path").asWideStr() == L"5");
 
     env.setOption("env_library_path", std::wstring(L"/tmp"));
-    assert(env.getOption("env_library_path").asStr() == L"/tmp");
+    assert(env.getOption("env_library_path").asWideStr() == L"/tmp");
                   
     const DBMS::Variant& var = env.getOption("env_library_path");
 

@@ -116,7 +116,7 @@ SqliteData::~SqliteData(void)
 
 ///
 /// @todo implement other values, not only name
-SqliteTable::SqliteTable(i18n::UString dbname, SqliteResult& src)
+SqliteTable::SqliteTable(std::wstring dbname, SqliteResult& src)
     : m_name(DAL_TYPE_VARCHAR, L"SqliteTable::name"),
       m_catalog(DAL_TYPE_VARCHAR, L"SqliteTable::catalog"),
       m_schema(DAL_TYPE_VARCHAR, L"SqliteTable::schema"),
@@ -214,9 +214,9 @@ SqliteDbc::getTables(const ITableFilter&)
     
     for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
     {
-        i18n::UString dbname = dblist->resultset().column(L"name").asStr();
+        std::wstring dbname = dblist->resultset().column(L"name").asWideStr();
         
-        i18n::UString sql_column_query =
+        std::wstring sql_column_query =
             L" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys"
             L" FROM "+dbname+L".sqlite_master WHERE type = 'table'"
             L" UNION"
@@ -245,7 +245,7 @@ SqliteDbc::getTables(const ITableFilter&)
     }
 
     // load temp tables
-    i18n::UString sql_column_query =
+    std::wstring sql_column_query =
         L" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys"
         L" FROM sqlite_temp_master"
         L" WHERE type = 'table';";
@@ -273,31 +273,31 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
     SqliteDatatype *dt = 0;
     
     dt = new SqliteDatatype();
-    dt->m_name.setStr(L"BLOB");
+    dt->m_name.setWideStr(L"BLOB");
     dt->m_size.setInt(-1);
     dt->m_daltype = DAL_TYPE_BLOB;
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setStr(L"INTEGER");
+    dt->m_name.setWideStr(L"INTEGER");
     dt->m_size.setInt(-1);
     dt->m_daltype = DAL_TYPE_BIGINT;
     dt->m_is_unsigned.setBool(false);
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setStr(L"REAL");
+    dt->m_name.setWideStr(L"REAL");
     dt->m_size.setInt(sizeof(double));
     dt->m_daltype = DAL_TYPE_DOUBLE;
     dt->m_is_unsigned.setBool(false);
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setStr(L"TEXT");
+    dt->m_name.setWideStr(L"TEXT");
     dt->m_size.setInt(65000);
     dt->m_daltype = DAL_TYPE_VARCHAR;
-    dt->m_literal_prefix.setStr(L"'");
-    dt->m_literal_suffix.setStr(L"'");
+    dt->m_literal_prefix.setWideStr(L"'");
+    dt->m_literal_suffix.setWideStr(L"'");
     dtlist.push_back(dt);
     
    
@@ -310,7 +310,7 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
 void
 SqliteDbc::beginTrans(IDbc::trx_mode mode,
                       IDbc::access_mode access,
-                      i18n::UString name)
+                      std::wstring name)
 {
     std::string s_cmd("BEGIN TRANSACTION ");
     this->directCmd(i18n::conv_from(s_cmd, "UTF-8"));
@@ -329,9 +329,9 @@ SqliteDbc::commit(void)
 
 //
 void    
-SqliteDbc::savepoint(i18n::UString name)
+SqliteDbc::savepoint(std::wstring name)
 {
-    i18n::UString s(L"SAVEPOINT ");
+    std::wstring s(L"SAVEPOINT ");
     s.append(name);
     this->directCmd(s);
 }
@@ -340,9 +340,9 @@ SqliteDbc::savepoint(i18n::UString name)
 
 //
 void    
-SqliteDbc::rollback(i18n::UString name)
+SqliteDbc::rollback(std::wstring name)
 {
-    i18n::UString s(L"ROLLBACK");
+    std::wstring s(L"ROLLBACK");
     if(! name.empty())
     {
         s.append(L" TO SAVEPOINT ");
@@ -355,7 +355,7 @@ SqliteDbc::rollback(i18n::UString name)
 
 //
 void     
-SqliteDbc::directCmd(i18n::UString cmd)
+SqliteDbc::directCmd(std::wstring cmd)
 {
     SqliteStmt::ptr stmt(this->newStatement());
     stmt->execDirect(cmd);
@@ -417,9 +417,9 @@ void SqliteVariant::refresh(void)
 
 //
 sqlite::ENV*
-sqlite::createEnv(i18n::UString driver)
+sqlite::createEnv(std::wstring driver)
 {
-    i18n::UString drv;
+    std::wstring drv;
 
     drv = parse_driver(driver)["driver"];
     if(! drv.length())
@@ -474,13 +474,13 @@ sqlite::sqlstate2string(STATES::engine_states_t id)
 SqliteDiag::SqliteDiag(dalstate_t state,
                        const char *codepos,
                        const char *func,
-                       i18n::UString message,
-                       i18n::UString description)
+                       std::wstring message,
+                       std::wstring description)
     : DiagBase(state, codepos, func, message, description),
       m_sqlstate_id() // fix?
 {
     //m_sqlstate_id = sqlite3error_to_sqlstate(sqlite_code);
-    //m_sqlstate.setStr(sqlstate_to_name(m_sqlstate_id), "UTF-8");
+    //m_sqlstate.setWideStr(sqlstate_to_name(m_sqlstate_id), "UTF-8");
 }
 
 

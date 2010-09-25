@@ -56,7 +56,7 @@ DAL_NAMESPACE_BEGIN
 struct generic;
 
 /// parse a driver string
-std::map<std::string, i18n::UString> parse_driver(const i18n::UString &str);
+std::map<std::string, std::wstring> parse_driver(const std::wstring &str);
 
 
 
@@ -670,7 +670,7 @@ struct generic
     /// Current supported drivers are:
     ///  - libsqlite
     ///
-    DBWTL_EXPORT static ENV* createEnv(i18n::UString driver); 
+    DBWTL_EXPORT static ENV* createEnv(std::wstring driver); 
 };
 
 

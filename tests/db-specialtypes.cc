@@ -66,8 +66,8 @@ int test(void)
 		*/
 
 
-                std::cout << res.column(i).asNarrowStr("UTF-8") << " ";
-                //std::cout << res.field(i).asStr("ISO-8859-15") << " | ";
+                std::cout << res.column(i).asStr("UTF-8") << " ";
+                //std::cout << res.field(i).asWideStr("ISO-8859-15") << " | ";
             }
         }
         std::cout << std::endl;
@@ -100,7 +100,7 @@ SqliteDbc::ptr dbc(env->newConnection());
 dalstate_t state = dbc->connect(L"testdb2.db");
 if(state != DALSTATE_OK)
 {
-i18n::UString s = state.dump();
+std::wstring s = state.dump();
 //throw std::runtime_error(state.getMsgUTF8());
 throw std::runtime_error(i18n::conv_to(s, "UTF-8"));
 }

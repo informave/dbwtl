@@ -54,12 +54,12 @@ namespace informave
 
         ///
         ///
-        UString conv_from(const std::string& str, const char *encoding)
+        std::wstring conv_from(const std::string& str, const char *encoding)
         {
             if(str.size() == 0)
-                return UString();
+                return std::wstring();
 
-            typedef codecvt_charset_byname<UString::value_type>
+            typedef codecvt_charset_byname<std::wstring::value_type>
                 ConvT;
             std::wstring_convert<ConvT> conv(new ConvT(encoding));
             return conv.from_bytes(str);
@@ -68,12 +68,12 @@ namespace informave
 
         ///
         ///
-        UString conv_from(const char *str, const char *encoding)
+        std::wstring conv_from(const char *str, const char *encoding)
         {
             //assert(str);
             if(!str || str[0] == 0)
-                return UString();
-            typedef codecvt_charset_byname<UString::value_type>
+                return std::wstring();
+            typedef codecvt_charset_byname<std::wstring::value_type>
                 ConvT;
             std::wstring_convert<ConvT> conv(new ConvT(encoding));
             return conv.from_bytes(str);
@@ -82,11 +82,11 @@ namespace informave
 	
         ///
         ///
-        std::string conv_to(UString str, const char *encoding)
+        std::string conv_to(std::wstring str, const char *encoding)
         {
             if(str.size() == 0)
                 return std::string();
-            typedef codecvt_charset_byname<UString::value_type>
+            typedef codecvt_charset_byname<std::wstring::value_type>
                 ConvT;
             std::wstring_convert<ConvT> conv(new ConvT(encoding));
             return conv.to_bytes(str);

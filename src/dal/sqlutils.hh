@@ -68,9 +68,9 @@ public:
     virtual ~SqlTypeParser(void);
 
     
-    virtual void registerType(daltype_t type, i18n::UString pattern);
+    virtual void registerType(daltype_t type, std::wstring pattern);
 
-    virtual bool parse(const i18n::UString &str);
+    virtual bool parse(const std::wstring &str);
 
     virtual daltype_t getDaltype(void) const;
 
@@ -81,20 +81,20 @@ public:
 
 
 protected:
-    typedef std::pair<daltype_t, i18n::UString>   pattern_entry_type;
+    typedef std::pair<daltype_t, std::wstring>   pattern_entry_type;
     typedef std::vector<pattern_entry_type>       pattern_vector_type;
 
     virtual void reset(void);
 
-    virtual bool parseSpecial(i18n::UString::const_iterator &si,
-                              const i18n::UString &str,
-                              i18n::UString::const_iterator &pi,
-                              const i18n::UString &pattern);
+    virtual bool parseSpecial(std::wstring::const_iterator &si,
+                              const std::wstring &str,
+                              std::wstring::const_iterator &pi,
+                              const std::wstring &pattern);
 
 
     /// 1 - SIZE or SCALE
     /// 2 - PRECISION
-    std::map<int, i18n::UString>      m_values;
+    std::map<int, std::wstring>      m_values;
     pattern_vector_type               m_pattern;
     daltype_t                         m_daltype;
 };

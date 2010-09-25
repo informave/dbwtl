@@ -29,7 +29,7 @@ int test(void)
     //v_x.setNull();
     try
     {
-        v_x.asStr();
+        v_x.asWideStr();
         assert(!"variant is not null");
     }
     catch(ex::null_value&)

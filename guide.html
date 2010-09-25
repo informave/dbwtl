@@ -417,7 +417,7 @@ div#toc a:visited { color: blue; }
 </style>
 <script type="text/javascript">
 /*<![CDATA[*/
-window.onload = function(){asciidoc.footnotes(); asciidoc.toc(4);}
+window.onload = function(){asciidoc.footnotes(); asciidoc.toc(3);}
 var asciidoc = {  // Namespace.
 
 /////////////////////////////////////////////////////////////////////
@@ -688,7 +688,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="paragraph"><p>You can access the fields by name or by position (first field has position 1).
 To determine the number of available fields, use <em>columnCount()</em>.
 The <em>column()</em> method returns a <em>const DBMS::Value</em> reference which provides
-many getter methods like <em>asStr()</em>, <em>asInt()</em> or <em>asDate()</em> to get the value.
+many getter methods like <em>asWideStr()</em>, <em>asInt()</em> or <em>asDate()</em> to get the value.
 To check if a field is null, call isNull() on the value reference.</p></div>
 <div class="listingblock">
 <div class="title">Print all records and fields</div>
@@ -703,7 +703,7 @@ http://www.gnu.org/software/src-highlite -->
      <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">isNull</span></span><span style="color: #990000">())</span>
          std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"&lt;NULL&gt;"</span><span style="color: #990000">;</span>
      <span style="font-weight: bold"><span style="color: #0000FF">else</span></span>
-         std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">asNarrowStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"UTF-8"</span><span style="color: #990000">);</span>
+         std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">asStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"UTF-8"</span><span style="color: #990000">);</span>
  <span style="color: #FF0000">}</span>
  std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
 <span style="color: #FF0000">}</span></tt></pre></div></div>
@@ -855,7 +855,7 @@ asMemo
 <p>
 Returns a pointer to a std::wstreambuf and performs charset conversion (from
 connection encoding to UCS-2 or UCS-4 [depends on sizeof(wchar_t]).
-If the underlaying column type is of type BLOB (Variant::daltype() == DAL_TYPE_BLOB),
+If the underlaying column type is of type BLOB (Variant::daltype() == <em>DAL_TYPE_BLOB</em>),
 a convert_error exception is raised.
 All other types are converted into a std::wstreambuf.
 </p>
@@ -865,7 +865,189 @@ All other types are converted into a std::wstreambuf.
 is valid (for all rows) until you close the resultset or statement.
 Scrolling through the dataset (e.g. next()) only resets the buffer to the new
 row data. If the new field is NULL, the buffer is marked as bad (std::ios::bad).</p></div>
-<h3 id="_value">3.6. Value</h3><div style="clear:left"></div>
+<h3 id="_general_supported_types">3.6. General supported types</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The <em>Database&lt;&gt;</em> template provides for every selected engine a basic set
+of types conforming to the SQL standard. An engine can extend this set
+with system specific types supported by the database.</p></div>
+<div class="tableblock">
+<table rules="none"
+frame="hsides"
+cellspacing="0" cellpadding="4">
+<col width="308" />
+<col width="262" />
+<tbody valign="top">
+  <tr>
+    <td align="left">
+    <strong>SQL:2008 Type</strong>
+    </td>
+    <td align="left">
+    <strong>DBWTL Type Mapping</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    CHARACTER
+    </td>
+    <td align="left">
+    DBMS::Char
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    CHARACTER VARING
+    </td>
+    <td align="left">
+    DBMS::Char
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    CHARACTER LARGE OBJECT
+    </td>
+    <td align="left">
+    DBMS::Memo
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    BINARY
+    </td>
+    <td align="left">
+    DBMS::Blob
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    BINARY VARYING
+    </td>
+    <td align="left">
+    DBMS::Blob
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    BINARY LARGE OBJECT
+    </td>
+    <td align="left">
+    DBMS::Blob
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    NUMERIC
+    </td>
+    <td align="left">
+    DBMS::Numeric
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    DECIMAL
+    </td>
+    <td align="left">
+    DBMS::Numeric
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    SMALLINT
+    </td>
+    <td align="left">
+    DBMS::Smallint
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    INTEGER
+    </td>
+    <td align="left">
+    DBMS::Integer
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    BIGINT
+    </td>
+    <td align="left">
+    DBMS::Bigint
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    FLOAT
+    </td>
+    <td align="left">
+    DBMS::Float
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    REAL
+    </td>
+    <td align="left">
+    DBMS::Float
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    DOUBLE PRECISION
+    </td>
+    <td align="left">
+    DBMS::Double
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    BOOLEAN
+    </td>
+    <td align="left">
+    DBMS::Boolean
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    DATE
+    </td>
+    <td align="left">
+    DBMS::Date
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    TIME
+    </td>
+    <td align="left">
+    DBMS::Time
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    TIMESTAMP
+    </td>
+    <td align="left">
+    DBMS::Timestamp
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    INTERVAL
+    </td>
+    <td align="left">
+    unsupported
+    </td>
+  </tr>
+</tbody>
+</table>
+</div>
+<div class="paragraph"><p>Values from resultsets are automatically converted to the variable type.
+So the following statement ist valid:</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">const</span></span> DBMS<span style="color: #990000">::</span>Numeric val <span style="color: #990000">=</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">);</span> <span style="font-style: italic"><span style="color: #9A1900">// auto conversion</span></span></tt></pre></div></div>
+<h3 id="_value">3.7. Value</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The <em>Value</em> type is for column values returned from the engine. You can&#8217;t create
 new objects of type <em>Value</em>, you can only get (mostly const) references
 from a <em>Resultset</em> object.</p></div>
@@ -878,7 +1060,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="paragraph"><p>It is a requirement that the <em>Value</em> type implements the IVariant interface.
 This allows you to pass column values to all methods which  accepts IVariant references,
 for example Statement::bind()</p></div>
-<h3 id="_variant">3.7. Variant</h3><div style="clear:left"></div>
+<h3 id="_variant">3.8. Variant</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The <em>Variant</em> type can be used to create own variant objects.
 This type can store all the POD types and pointers to such types.</p></div>
 <div class="listingblock">
@@ -890,9 +1072,12 @@ http://www.gnu.org/software/src-highlite -->
 DBMS<span style="color: #990000">::</span>Variant <span style="font-weight: bold"><span style="color: #000000">var</span></span><span style="color: #990000">(&amp;</span>myint<span style="color: #990000">);</span>
 var<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">setInt</span></span><span style="color: #990000">(</span><span style="color: #993399">10</span><span style="color: #990000">);</span>
 <span style="font-weight: bold"><span style="color: #000000">assert</span></span><span style="color: #990000">(</span>myint <span style="color: #990000">==</span> <span style="color: #993399">10</span><span style="color: #990000">);</span> <span style="font-style: italic"><span style="color: #9A1900">// myint was changed through setInt()</span></span></tt></pre></div></div>
-<h3 id="_columndesc">3.8. ColumnDesc</h3><div style="clear:left"></div>
-<h3 id="_blob">3.9. Blob</h3><div style="clear:left"></div>
-<h3 id="_memo">3.10. Memo</h3><div style="clear:left"></div>
+<h3 id="_columndesc">3.9. ColumnDesc</h3><div style="clear:left"></div>
+<div class="paragraph"><p>TODO</p></div>
+<h3 id="_blob">3.10. Blob</h3><div style="clear:left"></div>
+<div class="paragraph"><p>TODO</p></div>
+<h3 id="_memo">3.11. Memo</h3><div style="clear:left"></div>
+<div class="paragraph"><p>TODO</p></div>
 </div>
 <h2 id="_diagnostic_and_error_handling">4. Diagnostic and error handling</h2>
 <div class="sectionbody">
@@ -1050,7 +1235,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>ex<span style="color: #990000">::</span>sqlstate_error <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
 <span style="color: #FF0000">{</span>
     <span style="font-style: italic"><span style="color: #9A1900">// catched engine specific SQLSTATE</span></span>
-        std<span style="color: #990000">::</span>string s <span style="color: #990000">=</span> state<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">diag</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">sqlstate</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">asNarrowStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"ASCII"</span><span style="color: #990000">);</span>
+        std<span style="color: #990000">::</span>string s <span style="color: #990000">=</span> state<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">diag</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">sqlstate</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">asStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"ASCII"</span><span style="color: #990000">);</span>
         <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>s<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">compare</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"XYZ01"</span><span style="color: #990000">)</span> <span style="color: #990000">==</span> <span style="color: #993399">0</span><span style="color: #990000">)</span>
         <span style="color: #FF0000">{</span>
                 <span style="font-style: italic"><span style="color: #9A1900">// handle XYZ001</span></span>
@@ -1067,9 +1252,96 @@ http://www.gnu.org/software/src-highlite -->
 <div class="paragraph"><p>This provides a powerful method if you want to use the generic layer, but also
 have to handle engine specific SQLSTATEs.</p></div>
 </div>
-<h2 id="_internals">5. Internals</h2>
+<h2 id="_api_reference">5. API Reference</h2>
 <div class="sectionbody">
-<h3 id="_dal_layer">5.1. DAL Layer</h3><div style="clear:left"></div>
+<div class="paragraph"><p>This chapter is a reference for the DBWTL classes, types and methods,
+including the syntax, method arguments and examples of use.</p></div>
+<h3 id="_dbms_environment">5.1. DBMS::Environment</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Handle for Statement.</p></div>
+<h3 id="_dbms_connection">5.2. DBMS::Connection</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Handle for Statement.</p></div>
+<h3 id="_dbms_statement">5.3. DBMS::Statement</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Handle for Statement.</p></div>
+<h4 id="_bind">5.3.1. bind()</h4>
+<div class="paragraph"><p>Binds a value or a pointer to a value to a parameter in a prepared
+SQL query.</p></div>
+<h5 id="_syntax">Syntax</h5>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span>size_t number<span style="color: #990000">,</span> DBMS<span style="color: #990000">::</span>Variant value<span style="color: #990000">);</span>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span>size_t number<span style="color: #990000">,</span> dal<span style="color: #990000">::</span>IVariant<span style="color: #990000">*</span> value<span style="color: #990000">);</span>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span>size_t number<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> dal<span style="color: #990000">::</span>IVariant<span style="color: #990000">*</span> value<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="tableblock">
+<table rules="all"
+width="100%"
+frame="hsides"
+cellspacing="0" cellpadding="4">
+<col width="22%" />
+<col width="22%" />
+<col width="55%" />
+<thead>
+<tr>
+<th align="left" valign="top">Parameter     </th>
+<th align="left" valign="top"> Type               </th>
+<th align="left" valign="top"> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left" valign="top"><p class="table"><em>number</em></p></td>
+<td align="left" valign="top"><p class="table">size_t</p></td>
+<td align="left" valign="top"><p class="table">Number of the parameter (starts at 1)</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table"><em>value</em></p></td>
+<td align="left" valign="top"><p class="table">dal::Variant</p></td>
+<td align="left" valign="top"><p class="table">Variant value</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="paragraph"><p>Output parameters</p></div>
+<h5 id="_description">Description</h5>
+<div class="paragraph"><p>bind() passes data to parameters in a SQL query.</p></div>
+<h5 id="_return_value">Return Value</h5>
+<div class="paragraph"><p>No return value.</p></div>
+<h5 id="_exceptions">Exceptions</h5>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+not_found
+</dt>
+<dd>
+<p>
+is thrown when the <em>number</em> argument is out of range.
+</p>
+</dd>
+</dl></div>
+<h5 id="_examples">Examples</h5>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 2.9
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>DBMS<span style="color: #990000">::</span>Stmt <span style="font-weight: bold"><span style="color: #000000">stmt</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">);</span>
+stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">prepare</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"SELECT * FROM x WHERE a = ? and b = ?;"</span><span style="color: #990000">);</span>
+<span style="color: #009900">int</span> valA <span style="color: #990000">=</span> <span style="color: #993399">4</span><span style="color: #990000">;</span>
+std<span style="color: #990000">::</span>wstring valB <span style="color: #990000">=</span> L<span style="color: #FF0000">"data"</span><span style="color: #990000">;</span>
+stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #993399">1</span><span style="color: #990000">,</span> valA<span style="color: #990000">);</span>
+stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #993399">2</span><span style="color: #990000">,</span> valB<span style="color: #990000">);</span>
+stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">execute</span></span><span style="color: #990000">();</span></tt></pre></div></div>
+<h5 id="_see_also">See Also</h5>
+<div class="paragraph"><p>prepare(), execute(), reset()</p></div>
+<h3 id="_dbms_resultset">5.4. DBMS::Resultset</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Handle for Statement.</p></div>
+<h3 id="_dbms_cachedresultset">5.5. DBMS::CachedResultset</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Handle for Statement.</p></div>
+<h3 id="_dbms_columndesc">5.6. DBMS::ColumnDesc</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Handle for Statement.</p></div>
+<h3 id="_dbms_diag">5.7. DBMS::Diag</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Handle for Statement.</p></div>
 </div>
 <h2 id="_supported_systems">6. Supported systems</h2>
 <div class="sectionbody">
@@ -1183,7 +1455,7 @@ granted under the terms of the BSD License.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2010-09-06 20:22:35 CEST
+Last updated 2010-09-25 23:52:14 CEST
 </div>
 </div>
 </body>

@@ -74,7 +74,7 @@ namespace informave
                     else if(this->m_encoding == "UTF-16")
                         return 2;
                     else if(this->m_encoding == "UTF-8")
-                        return 0; /// @bug needs fixes for different charsets
+                        return 0; /// bug needs fixes for different charsets
                     else
                         return 1;
                 }

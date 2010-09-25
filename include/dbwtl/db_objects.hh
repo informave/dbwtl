@@ -356,7 +356,7 @@ private:
     typedef typename db_traits<Engine, tag>::dal_variant_type dal_variant_type;
 
 public:
-    Environment(i18n::UString str)
+    Environment(std::wstring str)
         : EnvInterface(),
           m_env( dal::Factory::create<Engine>(str) )
     {}
@@ -414,9 +414,9 @@ public:
     {}
 
 
-    virtual void   connect(i18n::UString database,
-                           i18n::UString user = i18n::UString(),
-                           i18n::UString password = i18n::UString())
+    virtual void   connect(std::wstring database,
+                           std::wstring user = std::wstring(),
+                           std::wstring password = std::wstring())
     { this->m_dbc->connect(database, user, password); }
 
 
@@ -428,9 +428,9 @@ public:
 
     virtual void              disconnect(void)              { this->m_dbc->disconnect(); }
 
-    virtual i18n::UString     driverName(void) const        { return this->m_dbc->driverName(); }
+    virtual std::wstring     driverName(void) const        { return this->m_dbc->driverName(); }
 
-    virtual i18n::UString     dbmsName(void) const          { return this->m_dbc->dbmsName(); }
+    virtual std::wstring     dbmsName(void) const          { return this->m_dbc->dbmsName(); }
 
     virtual dal_stmt_type*    newStatement(void)            { return this->m_dbc->newStatement(); }
 
@@ -438,17 +438,17 @@ public:
 
     virtual void              commit(void)                  { this->m_dbc->commit(); }
 
-    virtual void              savepoint(i18n::UString name) { this->m_dbc->savepoint(name); }
+    virtual void              savepoint(std::wstring name) { this->m_dbc->savepoint(name); }
 
-    virtual void              directCmd(i18n::UString cmd)  { this->m_dbc->directCmd(cmd); }
+    virtual void              directCmd(std::wstring cmd)  { this->m_dbc->directCmd(cmd); }
 
     virtual std::string       getDbcEncoding(void) const    { return this->m_dbc->getDbcEncoding(); }
 
-    virtual void              rollback(i18n::UString name = i18n::UString()) { this->m_dbc->rollback(name); }
+    virtual void              rollback(std::wstring name = std::wstring()) { this->m_dbc->rollback(name); }
 
     virtual void              beginTrans(dal::IDbc::trx_mode mode,
                                          dal::IDbc::access_mode access = dal::IDbc::trx_default,
-                                         i18n::UString name = i18n::UString())
+                                         std::wstring name = std::wstring())
     { this->m_dbc->beginTrans(mode, access, name); }
 
 
@@ -526,13 +526,13 @@ public:
 
     virtual bool      isBad(void) const                         { return this->m_stmt->isBad(); }
 
-    virtual void      prepare(i18n::UString sql)                { return this->m_stmt->prepare(sql); }
+    virtual void      prepare(std::wstring sql)                { return this->m_stmt->prepare(sql); }
 
     virtual bool      isPrepared(void) const                    { return this->m_stmt->isPrepared(); }
 
     virtual void      execute(void)                             { this->m_stmt->execute(); }
 
-    virtual void      execDirect(i18n::UString sql)             { this->m_stmt->execDirect(sql); }
+    virtual void      execDirect(std::wstring sql)             { this->m_stmt->execDirect(sql); }
 
     virtual void      close(void)                               { this->m_stmt->close(); }
 
@@ -663,9 +663,9 @@ public:
 
     //virtual variant_type&      field(dal::colnum_t num)      { return this->m_result->field(num); }
 
-    virtual const value_type&      column(i18n::UString name)  { return this->m_result->column(name); }
+    virtual const value_type&      column(std::wstring name)  { return this->m_result->column(name); }
 
-    //virtual variant_type&      field(i18n::UString name)     { return this->m_result->field(name); }
+    //virtual variant_type&      field(std::wstring name)     { return this->m_result->field(name); }
 
 
     //virtual IBlob&           getBlob(colnum_t num) = 0;
@@ -673,14 +673,14 @@ public:
     // column methods
     virtual size_t                 columnCount(void) const             { return this->m_result->columnCount(); }
 
-    virtual dal::colnum_t          columnID(i18n::UString name) const  { return this->m_result->columnID(name); }
+    virtual dal::colnum_t          columnID(std::wstring name) const  { return this->m_result->columnID(name); }
 
-    virtual i18n::UString          columnName(dal::colnum_t num) const { return this->m_result->columnName(num); }
+    virtual std::wstring          columnName(dal::colnum_t num) const { return this->m_result->columnName(num); }
 
 
     virtual const dal_columndesc_type& describeColumn(dal::colnum_t num) const { return this->m_result->describeColumn(num); }
 
-    virtual const dal_columndesc_type& describeColumn(i18n::UString name) const { return this->m_result->describeColumn(name); }
+    virtual const dal_columndesc_type& describeColumn(std::wstring name) const { return this->m_result->describeColumn(name); }
 
 
     //virtual const dal::ITypeInfo&  datatype(dal::colnum_t num) const   { return this->m_result->datatype(num); }
@@ -869,7 +869,7 @@ private:
 //GEXAMPLE.001 You can access the fields by name or by position (first field has position 1).
 //GEXAMPLE.001 To determine the number of available fields, use 'columnCount()'.
 //GEXAMPLE.001 The 'column()' method returns a 'const DBMS::Value' reference which provides
-//GEXAMPLE.001 many getter methods like 'asStr()', 'asInt()' or 'asDate()' to get the value.
+//GEXAMPLE.001 many getter methods like 'asWideStr()', 'asInt()' or 'asDate()' to get the value.
 //GEXAMPLE.001 To check if a field is null, call isNull() on the value reference.
 
 //GEXAMPLE.001 
@@ -883,7 +883,7 @@ private:
 //GEXAMPLE.001      if(rs.column(i).isNull())
 //GEXAMPLE.001          std::cout << "<NULL>";
 //GEXAMPLE.001      else
-//GEXAMPLE.001          std::cout << rs.column(i).asNarrowStr("UTF-8");
+//GEXAMPLE.001          std::cout << rs.column(i).asStr("UTF-8");
 //GEXAMPLE.001  }
 //GEXAMPLE.001  std::cout << std::endl;
 //GEXAMPLE.001 }
@@ -1257,7 +1257,7 @@ private:
 //GCORE.001 catch(ex::sqlstate_error &state)
 //GCORE.001 {
 //GCORE.001     // catched engine specific SQLSTATE
-//GCORE.001 	std::string s = state.diag().sqlstate().asNarrowStr("ASCII");
+//GCORE.001 	std::string s = state.diag().sqlstate().asStr("ASCII");
 //GCORE.001 	if(s.compare("XYZ01") == 0)
 //GCORE.001 	{
 //GCORE.001 		// handle XYZ001
@@ -1287,7 +1287,7 @@ struct basic_datatypes
 {
 //     typedef signed char           Char; // these two types are covered by String!
 //     typedef unsigned char         UChar;
-    typedef i18n::UString         String;
+    typedef std::wstring         String;
 /*
     typedef std::wstreambuf*      Memo;
     typedef std::streambuf*       Blob; // better use dal::Blob with implicit ctor?

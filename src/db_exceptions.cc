@@ -62,7 +62,7 @@ namespace ex
     //
     //
     void
-    exception::setMessage(const i18n::UString &msg)
+    exception::setMessage(const std::wstring &msg)
     {
         this->m_msg = msg;
         this->m_msg_narrow = i18n::conv_to(msg, "UTF-8");
@@ -71,7 +71,7 @@ namespace ex
 
     //
     //
-    const i18n::UString&
+    const std::wstring&
     exception::getMessage(void) const
     {
         return this->m_msg;
@@ -84,11 +84,11 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    convert_error::convert_error(const i18n::UString &varname)
+    convert_error::convert_error(const std::wstring &varname)
         : exception(),
           m_varname(varname)
     {
-        i18n::UString msg;
+        std::wstring msg;
         msg = L"Conversion error: Can't convert the variant (identified by \"" +
             varname + 
             L"\") to the requested type.";
@@ -104,7 +104,7 @@ namespace ex
         : exception(),
           m_varname()
     {
-        i18n::UString msg;
+        std::wstring msg;
         msg = L"Conversion error: Can't convert the variant (identified by \"" +
             var.getName() + 
             L"\") to the requested type.";
@@ -116,11 +116,11 @@ namespace ex
 
     //
     //
-//     convert_error::convert_error(dal::dalstate_t state, const i18n::UString &varname)
+//     convert_error::convert_error(dal::dalstate_t state, const std::wstring &varname)
 //         : exception(),
 //           m_varname()
 //     {
-//         i18n::UString msg;
+//         std::wstring msg;
 //         msg = L"Conversion error: Can't convert the variant (identified by \"" +
 //             varname + 
 //             L"\") to the requested type.";
@@ -136,7 +136,7 @@ namespace ex
 //         : exception(),
 //           m_varname()
 //     {
-//         i18n::UString msg;
+//         std::wstring msg;
 //         msg = L"Conversion error: Can't convert the variant (identified by \"" +
 //             var.getName() + 
 //             L"\") to the requested type.";
@@ -149,7 +149,7 @@ namespace ex
         : exception(),
           m_varname()
     {
-    	i18n::UString msg;
+    	std::wstring msg;
 	msg = L"Conversion error: Can't convert type " + daltype2string(src) + L" to " + daltype2string(dest) + L".";
 	this->setMessage(msg);
     }
@@ -159,11 +159,11 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    null_value::null_value(const i18n::UString &varname)
+    null_value::null_value(const std::wstring &varname)
         : exception(),
           m_varname(varname)
     {
-        i18n::UString msg;
+        std::wstring msg;
         msg = L"NULL exception: The variant (identified by \"" +
             varname + 
             L"\") is null.";
@@ -179,7 +179,7 @@ namespace ex
         : exception(),
           m_varname()
     {
-        i18n::UString msg;
+        std::wstring msg;
         msg = L"NULL exception: The variant (identified by \"" +
             var.getName() + 
             L"\") is null.";
@@ -191,11 +191,11 @@ namespace ex
 
     //
     //
-//     null_value::null_value(dal::dalstate_t state, const i18n::UString &varname)
+//     null_value::null_value(dal::dalstate_t state, const std::wstring &varname)
 //         : exception(),
 //           m_varname()
 //     {
-//         i18n::UString msg;
+//         std::wstring msg;
 //         msg = L"NULL exception: The variant (identified by \"" +
 //             varname + 
 //             L"\") is null.";
@@ -219,7 +219,7 @@ namespace ex
 
     //
     //
-    engine_error::engine_error(const i18n::UString &what)
+    engine_error::engine_error(const std::wstring &what)
         : exception()
     {
     	this->setMessage(what);
@@ -242,7 +242,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    sql_error::sql_error(const i18n::UString &sql, const i18n::UString &what)
+    sql_error::sql_error(const std::wstring &sql, const std::wstring &what)
         : engine_error(),
           m_sql(sql),
           m_what(what)
@@ -254,7 +254,7 @@ namespace ex
 
     //
     //
-//     sql_error::sql_error(dal::dalstate_t state, const i18n::UString &sql, const i18n::UString &what)
+//     sql_error::sql_error(dal::dalstate_t state, const std::wstring &sql, const std::wstring &what)
 //         : engine_error(),
 //           m_sql(sql),
 //           m_what(what)
@@ -266,7 +266,7 @@ namespace ex
 
     //
     //
-    const i18n::UString&
+    const std::wstring&
     sql_error::getSQL(void) const
     {
         return this->m_sql;
@@ -276,7 +276,7 @@ namespace ex
 
     //
     //
-    const i18n::UString&
+    const std::wstring&
     sql_error::getError(void) const
     {
         return this->m_what;
@@ -289,7 +289,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-//     not_found::not_found(dal::dalstate_t state, const i18n::UString &what)
+//     not_found::not_found(dal::dalstate_t state, const std::wstring &what)
 //         : exception()
 //     {
 //         this->setMessage(what);
@@ -298,7 +298,7 @@ namespace ex
 
     //
     //
-    not_found::not_found(const i18n::UString &what)
+    not_found::not_found(const std::wstring &what)
     {
         this->setMessage(what);
     }
@@ -310,8 +310,8 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    charset_error::charset_error(std::string data, i18n::UString from_charset,
-                                 i18n::UString to_charset)
+    charset_error::charset_error(std::string data, std::wstring from_charset,
+                                 std::wstring to_charset)
         : exception()
     {
         this->setMessage(L"Conversion error from " + from_charset + L" to " + to_charset + L".");
@@ -321,8 +321,8 @@ namespace ex
 
     //
     //
-    charset_error::charset_error(i18n::UString data, i18n::UString from_charset,
-                                 i18n::UString to_charset)
+    charset_error::charset_error(std::wstring data, std::wstring from_charset,
+                                 std::wstring to_charset)
         : exception()
     {
         this->setMessage(L"Conversion error from " + from_charset + L" to " + to_charset + L".");
@@ -335,7 +335,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-//     read_only::read_only(dal::dalstate_t state, const i18n::UString &resource_name)
+//     read_only::read_only(dal::dalstate_t state, const std::wstring &resource_name)
 //         : exception()
 //     {
 //         this->setMessage(L"The resource \"" + resource_name + L"\" is read only.");
@@ -345,7 +345,7 @@ namespace ex
 
     //
     //
-    read_only::read_only(const i18n::UString &resource_name,
+    read_only::read_only(const std::wstring &resource_name,
                          const char *triggered_by)
         : exception()
     {
@@ -361,12 +361,12 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    missing_function::missing_function(const std::string &func_name, const i18n::UString &module_path)
+    missing_function::missing_function(const std::string &func_name, const std::wstring &module_path)
         : engine_error(),
           m_func_name(func_name),
           m_module_path(module_path)
     {
-        i18n::UString msg = 
+        std::wstring msg = 
             L"The function \"" + i18n::conv_from(func_name, "ASCII") + L"\" was not found "
             L"in the module \"" + module_path + L"\".";
 
@@ -380,7 +380,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    logic_error::logic_error(const i18n::UString &what)
+    logic_error::logic_error(const std::wstring &what)
     {
         this->setMessage(what);
     }
@@ -401,7 +401,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    busy_error::busy_error(const i18n::UString &what)
+    busy_error::busy_error(const std::wstring &what)
         : engine_error()
     {
         this->setMessage(what);
@@ -411,7 +411,7 @@ namespace ex
 
     //
     //
-//     busy_error::busy_error(dal::dalstate_t state, const i18n::UString &what)
+//     busy_error::busy_error(dal::dalstate_t state, const std::wstring &what)
 //     {
 //         this->setMessage(what);
 //     }

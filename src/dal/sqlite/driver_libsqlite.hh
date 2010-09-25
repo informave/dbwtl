@@ -424,7 +424,7 @@ protected:
 
 public:
 /*
-    void openLib(const i18n::UString &path = i18n::UString(DBWTL_SQLITE3_DEFAULT_LIB))
+    void openLib(const std::wstring &path = std::wstring(DBWTL_SQLITE3_DEFAULT_LIB))
     {
 
     }

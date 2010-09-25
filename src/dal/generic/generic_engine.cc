@@ -53,20 +53,20 @@
 DAL_NAMESPACE_BEGIN
 
 
-std::map<std::string, i18n::UString> parse_driver(const i18n::UString &str)
+std::map<std::string, std::wstring> parse_driver(const std::wstring &str)
 {
-    std::map<std::string, i18n::UString> data;
-    i18n::UString::size_type i = 0, j = 0;
+    std::map<std::string, std::wstring> data;
+    std::wstring::size_type i = 0, j = 0;
 
     j = str.find(L":", i);
-    if(j != i18n::UString::npos)
+    if(j != std::wstring::npos)
     {
         data["engine"] = str.substr(i, j++);
         i = j;
     }
 
     j = str.find(L":", i);
-    if(j != i18n::UString::npos)
+    if(j != std::wstring::npos)
     {
         data["driver"] = str.substr(i, j++ - i);
         i = j;
@@ -84,10 +84,10 @@ std::map<std::string, i18n::UString> parse_driver(const i18n::UString &str)
 
 
 generic::ENV*
-generic::createEnv(i18n::UString driver)
+generic::createEnv(std::wstring driver)
 {
 //    sqlite::STATE state; /// @bug wrong type, needs ne GenericState!!! trust me
-    i18n::UString engine = parse_driver(driver)["engine"];
+    std::wstring engine = parse_driver(driver)["engine"];
 
     if(! engine.length())
         goto err;

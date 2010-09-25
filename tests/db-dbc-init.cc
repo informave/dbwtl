@@ -44,10 +44,10 @@ int test(void)
         for(dal::TableList::iterator i = list.begin(); i != list.end(); ++i)
         {
             std::cout
-                << conv_to((*i)->getName().asStr(), "iso-8859-1") << "|"
-                << conv_to((*i)->getCatalog().asStr(), "iso-8859-1") << "|"
-                << conv_to((*i)->getSchema().asStr(), "iso-8859-1") << "|"
-                << conv_to((*i)->getDDL().asStr(), "iso-8859-1") << "|"
+                << conv_to((*i)->getName().asWideStr(), "iso-8859-1") << "|"
+                << conv_to((*i)->getCatalog().asWideStr(), "iso-8859-1") << "|"
+                << conv_to((*i)->getSchema().asWideStr(), "iso-8859-1") << "|"
+                << conv_to((*i)->getDDL().asWideStr(), "iso-8859-1") << "|"
                 << std::endl;
         }
     }
@@ -75,8 +75,8 @@ int test(void)
             {
                 //DBMS::Value x = res.column(i);
                 const DBMS::Value& v = res.column(i);
-                std::cout << res.column(i).asNarrowStr("UTF-8") << " ";
-                //std::cout << res.field(i).asStr("ISO-8859-15") << " | ";
+                std::cout << res.column(i).asStr("UTF-8") << " ";
+                //std::cout << res.field(i).asWideStr("ISO-8859-15") << " | ";
             }
         }
         std::cout << std::endl;
@@ -109,7 +109,7 @@ SqliteDbc::ptr dbc(env->newConnection());
 dalstate_t state = dbc->connect(L"testdb2.db");
 if(state != DALSTATE_OK)
 {
-i18n::UString s = state.dump();
+std::wstring s = state.dump();
 //throw std::runtime_error(state.getMsgUTF8());
 throw std::runtime_error(i18n::conv_to(s, "UTF-8"));
 }

@@ -55,7 +55,7 @@ No return value.
 Exceptions
 ++++++++++
 not_found::
-not_found is thrown when the 'number' argument is out of range.
+is thrown when the 'number' argument is out of range.
 
 Examples
 ++++++++

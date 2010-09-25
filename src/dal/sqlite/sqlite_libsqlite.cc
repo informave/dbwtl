@@ -208,7 +208,7 @@ SqliteData_libsqlite::getBlob(void) const
 
     // everything is up-to-date now...
     if(this->isnull())
-        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+        throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
     else
         return this->m_blobbuf.get();
 }
@@ -222,7 +222,7 @@ SqliteData_libsqlite::getDouble(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+        throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_double(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -236,7 +236,7 @@ SqliteData_libsqlite::getInt(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+        throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_int(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -250,7 +250,7 @@ SqliteData_libsqlite::getInt64(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+        throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_int64(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -265,13 +265,13 @@ SqliteData_libsqlite::getText(void) const
 
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+        throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
     else
     {
         const unsigned char *s = this->m_resultset.drv()->
             sqlite3_column_text(this->m_resultset.getHandle(), this->m_colnum - 1);
         if(!s)
-            throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+            throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
         return reinterpret_cast<const char*>(s);
     }
 }
@@ -286,13 +286,13 @@ SqliteData_libsqlite::getText16(void) const
 
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+        throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
     else
     {
         const void *s = this->m_resultset.drv()->
             sqlite3_column_text16(this->m_resultset.getHandle(), this->m_colnum - 1);
         if(!s)
-            throw ex::null_value(i18n::UString(L"null value in SqliteData_libsqlite"));
+            throw ex::null_value(i18n::UString(L"SqliteData_libsqlite result column"));
         return s;
     }
 }
@@ -575,7 +575,7 @@ SqliteResult_libsqlite::first(void)
 
     if(this->m_current_tuple != 1)
     {
-        throw std::runtime_error("can't scroll to first record");
+        throw ex::engine_error(L"can't scroll to first record");
     }
 }
 
@@ -823,7 +823,7 @@ SqliteResult_libsqlite::columnID(i18n::UString name) const
         if(name == this->columnName(i))
             return i;
     }
-    throw std::runtime_error("column not found");
+    throw ex::not_found(L"Column '" + name + L"' not found.");
 }
 
 
@@ -882,6 +882,7 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
 
         // set type
         const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
+
         SqlTypeParser pt;
         pt.registerType(DAL_TYPE_VARCHAR, L"TEXT*");
         pt.parse(i18n::conv_from(type, "UTF-8"));
@@ -909,7 +910,7 @@ SqliteResult_libsqlite::describeColumn(colnum_t num) const
         this->m_column_desc.find(num);
 
     if(i == this->m_column_desc.end())
-        throw ex::not_found(L"foo");
+        throw ex::not_found(L"foo"); /// @bug fixme
     else
         return i->second;
    

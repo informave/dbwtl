@@ -79,12 +79,6 @@ namespace ex
         virtual const char* what(void) const throw();
 
 
-        /// Returns the dalstate_t object
-        /// @todo needs implementation
-        //virtual const dal::dalstate_t& getState(void) const;
-
-
-
     protected:
         /// Protected constructor, the user has to construct a derived type
         exception(void) : std::exception(),

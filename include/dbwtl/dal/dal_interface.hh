@@ -64,11 +64,14 @@
 #include <list>
 #include <algorithm>
 #include <sstream>
-
+#ifdef DBWTL_HAVE_STDINT_H
+#include <stdint.h> // required until we get cstdint from c++0x
+#else
+typedef long long int64_t;
+#endif
 
 
 DAL_NAMESPACE_BEGIN
-
 
 
 ///
@@ -222,15 +225,16 @@ public:
 
     
     /// The reference keeps valid until no other method is called.
-    const T& fetchDiag(void)
-    {
-        if(this->m_cur != this->m_list.end())
-        {
-            return **this->m_cur++;
-        }
-        else
-            throw std::range_error("No diagnostic records available"); /// @todo replace with not_found?
-    }
+    const T& fetchDiag(void);
+//     {
+//         if(this->m_cur != this->m_list.end())
+//         {
+//             return **this->m_cur++;
+//         }
+//         else
+//             throw ex::not_found(L"foo");
+//             throw std::range_error("No diagnostic records available"); /// @todo replace with not_found?
+//     }
 
 protected:
     std::list<T*>                     m_list;
@@ -385,15 +389,6 @@ private:
 
 
 
-
-
-/// @todo just a workaround for now
-#if defined(DBWTL_ON_WIN32)
-typedef long long int64_t;
-#endif
-
-
-
 //--------------------------------------------------------------------------
 /// @brief DAL Interface for column descriptors
 class DBWTL_EXPORT IColumnDesc : public IDALObject
@@ -419,6 +414,7 @@ public:
     virtual const value_type& getScale(void) const = 0;
     virtual const value_type& getIsSearchable(void) const = 0;
 
+    /// @todo datatype() should return IDatatype, which is get from the DBC method
     virtual daltype_t getDatatype(void) const = 0;
 };
 
@@ -1742,6 +1738,21 @@ DAL_NAMESPACE_END
 
 // include variant accessor specializations
 #include "variant.inc"
+
+
+DAL_NAMESPACE_BEGIN
+
+template<class T> const T& DiagController<T>::fetchDiag(void)
+{
+    if(this->m_cur != this->m_list.end())
+    {
+        return **this->m_cur++;
+    }
+    else
+        throw ex::not_found(L"No diagnostic records available");
+}
+
+DAL_NAMESPACE_END
 
 
 #endif

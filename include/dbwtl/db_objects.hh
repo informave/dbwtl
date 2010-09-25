@@ -587,10 +587,15 @@ private:
 ///
 /// @brief Cached resultset
 ///
-/// @bug implement me 
+/// NOT IMPLEMENTED
 template<typename ResultInterface, typename ResultSource = ResultInterface>
 class CachedResult : public ResultInterface
 {
+    typedef int iterator;
+    typedef int const_iterator;
+
+    void begin();
+    void end();
 };
 
 
@@ -610,10 +615,6 @@ private:
     typedef typename db_traits<Engine, tag>::value_type          value_type;
 
 public:
-    typedef int iterator;
-    typedef int const_iterator;
-
-
 
     Result(void)
         : ResultInterface(),
@@ -690,11 +691,6 @@ public:
     virtual dal_resultset_type*    getImpl(void)   { return this->m_result; }
 
 
-
-    iterator begin(void) 
-    { 
-        throw std::runtime_error("not implemented"); /// @bug fixme
-    }
 
 protected:
     dal_resultset_type *m_result;
@@ -1130,13 +1126,21 @@ private:
 
 //GCORE.001 ColumnDesc
 //GCORE.001 ~~~~~~~~~~
+//GCORE.001 TODO
+//GCORE.001 
+
 
 //GCORE.001 
 //GCORE.001 Blob
 //GCORE.001 ~~~~
+//GCORE.001 TODO
+//GCORE.001 
+
 //GCORE.001 
 //GCORE.001 Memo
 //GCORE.001 ~~~~
+//GCORE.001 TODO
+//GCORE.001 
 //GCORE.001 
 
 //GCORE.001 

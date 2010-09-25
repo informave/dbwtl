@@ -356,7 +356,7 @@ i18n::UString daltype2string(daltype_t type)
     case DAL_TYPE_TIMESTAMP: return i18n::UString(L"DAL_TYPE_TIMESTAMP");
     case DAL_TYPE_INTERVAL: return i18n::UString(L"DAL_TYPE_INTERVAL");
     }
-    return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
+    throw ex::engine_error(L"Found BUG: daltype2string(): Given type is not handled");
 }
 
 
@@ -367,8 +367,8 @@ i18n::UString daltype2sqlname(daltype_t type)
 {
     switch(type)
     {
-    case DAL_TYPE_CUSTOM: return L"<CUSTOM_TYPE_ID>"; /// @todo throw exception
-    case DAL_TYPE_UNKNOWN: return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
+    case DAL_TYPE_CUSTOM: return i18n::UString(L"CUSTOM");
+    case DAL_TYPE_UNKNOWN: return i18n::UString(L"UNKNOWN");
     case DAL_TYPE_INT: return i18n::UString(L"INTEGER");
     case DAL_TYPE_UINT: return i18n::UString(L"INTEGER");
     case DAL_TYPE_CHAR: return i18n::UString(L"CHAR");
@@ -391,7 +391,7 @@ i18n::UString daltype2sqlname(daltype_t type)
     case DAL_TYPE_TIMESTAMP: return i18n::UString(L"TIMESTAMP");
     case DAL_TYPE_INTERVAL: return i18n::UString(L"INTERVAL");
     }
-    return L"<UNKNOWN_TYPE_ID>"; /// @todo throw exception
+    throw ex::engine_error(L"Found BUG: daltype2sqlname(): Given type is not handled");
 }
 
 
@@ -399,36 +399,44 @@ i18n::UString daltype2sqlname(daltype_t type)
 
 //--------------------------------------------------------------------------
 ///
-///
+/// This method assigns the value from one variant to another.
+/// If the source value is NULL, the destination value is just set to NULL.
 void
 IVariant::assign(const IVariant& var)
 {
-    switch(var.datatype())
+    if(var.isnull())
     {
-    case DAL_TYPE_CUSTOM:     this->setStr(var.asStr()); break;
-    case DAL_TYPE_UNKNOWN:    this->setStr(var.asStr()); break;
-
-    case DAL_TYPE_INT:        this->setInt(var.asInt()); break;
-    case DAL_TYPE_UINT:       this->setUInt(var.asUInt()); break;
-    case DAL_TYPE_CHAR:       this->setChar(var.asChar()); break;
-    case DAL_TYPE_UCHAR:      this->setUChar(var.asUChar()); break;
-    case DAL_TYPE_VARCHAR:    this->setStr(var.asStr()); break;
-    case DAL_TYPE_NVARCHAR:   this->setStr(var.asStr()); break;
-    case DAL_TYPE_NCHAR:      this->setStr(var.asStr()); break;
-    case DAL_TYPE_BOOL:       this->setBool(var.asBool()); break;
-    case DAL_TYPE_SMALLINT:   this->setSmallint(var.asSmallint()); break;
-    case DAL_TYPE_USMALLINT:  this->setUSmallint(var.asUSmallint()); break;
-    case DAL_TYPE_BIGINT:     this->setBigint(var.asBigint()); break;
-    case DAL_TYPE_UBIGINT:    this->setUBigint(var.asUBigint()); break;
-    case DAL_TYPE_BLOB:       this->setBlob(var.asBlob()); break;
-    case DAL_TYPE_MEMO:       this->setMemo(var.asMemo()); break; /// @bug setMemo should COPY the content to own stream
-    case DAL_TYPE_NUMERIC:    this->setNumeric(var.asNumeric()); break;
-    case DAL_TYPE_FLOAT:      this->setReal(var.asReal()); break;
-    case DAL_TYPE_DOUBLE:     this->setDouble(var.asDouble()); break;
-    case DAL_TYPE_DATE:       this->setDate(var.asDate()); break;
-    case DAL_TYPE_TIME:       this->setTime(var.asTime()); break;
-    case DAL_TYPE_TIMESTAMP:  this->setTimestamp(var.asTimestamp()); break;
-    case DAL_TYPE_INTERVAL:   this->setInterval(var.asInterval()); break;
+        this->setNull();
+    }
+    else
+    {
+        switch(var.datatype())
+        {
+        case DAL_TYPE_CUSTOM:     this->setStr(var.asStr()); break;
+        case DAL_TYPE_UNKNOWN:    this->setStr(var.asStr()); break;
+            
+        case DAL_TYPE_INT:        this->setInt(var.asInt()); break;
+        case DAL_TYPE_UINT:       this->setUInt(var.asUInt()); break;
+        case DAL_TYPE_CHAR:       this->setChar(var.asChar()); break;
+        case DAL_TYPE_UCHAR:      this->setUChar(var.asUChar()); break;
+        case DAL_TYPE_VARCHAR:    this->setStr(var.asStr()); break;
+        case DAL_TYPE_NVARCHAR:   this->setStr(var.asStr()); break;
+        case DAL_TYPE_NCHAR:      this->setStr(var.asStr()); break;
+        case DAL_TYPE_BOOL:       this->setBool(var.asBool()); break;
+        case DAL_TYPE_SMALLINT:   this->setSmallint(var.asSmallint()); break;
+        case DAL_TYPE_USMALLINT:  this->setUSmallint(var.asUSmallint()); break;
+        case DAL_TYPE_BIGINT:     this->setBigint(var.asBigint()); break;
+        case DAL_TYPE_UBIGINT:    this->setUBigint(var.asUBigint()); break;
+        case DAL_TYPE_BLOB:       this->setBlob(var.asBlob()); break;
+        case DAL_TYPE_MEMO:       this->setMemo(var.asMemo()); break; /// @bug setMemo should COPY the content to own stream
+        case DAL_TYPE_NUMERIC:    this->setNumeric(var.asNumeric()); break;
+        case DAL_TYPE_FLOAT:      this->setReal(var.asReal()); break;
+        case DAL_TYPE_DOUBLE:     this->setDouble(var.asDouble()); break;
+        case DAL_TYPE_DATE:       this->setDate(var.asDate()); break;
+        case DAL_TYPE_TIME:       this->setTime(var.asTime()); break;
+        case DAL_TYPE_TIMESTAMP:  this->setTimestamp(var.asTimestamp()); break;
+        case DAL_TYPE_INTERVAL:   this->setInterval(var.asInterval()); break;
+        }
     }
 }
 
@@ -467,81 +475,156 @@ Variant::getName(void) const
 
 ///
 signed int
-Variant::asInt(void) const {  return this->getStorageImpl()->asInt(); }
+Variant::asInt(void) const
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asInt(); 
+}
 
 ///
 unsigned int
-Variant::asUInt(void) const { return this->getStorageImpl()->asUInt(); }
+Variant::asUInt(void) const 
+{ 
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asUInt(); 
+}
 
 ///
 signed char
-Variant::asChar(void) const { return this->getStorageImpl()->asChar(); }
+Variant::asChar(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asChar(); 
+}
 
 ///
 unsigned char
-Variant::asUChar(void) const { return this->getStorageImpl()->asUChar(); }
+Variant::asUChar(void) const 
+{ 
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asUChar(); 
+}
 
 ///
 i18n::UString 
-Variant::asStr(void) const { return this->getStorageImpl()->asStr(); }
+Variant::asStr(void) const
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asStr(); 
+}
 
 ///
 i18n::UString
-Variant::asStr(std::locale loc) const { return this->getStorageImpl()->asStr(loc); }
+Variant::asStr(std::locale loc) const
+{ 
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asStr(loc); 
+}
 
 ///
 std::string
-Variant::asNarrowStr(const char *charset) const { return this->getStorageImpl()->asNarrowStr(charset); }
+Variant::asNarrowStr(const char *charset) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asNarrowStr(charset); 
+}
 
 ///
 std::string
 Variant::asNarrowStr(const char *charset, std::locale loc) const
-{ return this->getStorageImpl()->asNarrowStr(charset, loc); }
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asNarrowStr(charset, loc); 
+}
 
 ///
 bool
-Variant::asBool(void) const { return this->getStorageImpl()->asBool(); }
+Variant::asBool(void) const 
+{ 
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asBool(); 
+}
 
 ///
 signed short 
-Variant::asSmallint(void) const { return this->getStorageImpl()->asSmallint(); }
+Variant::asSmallint(void) const 
+{ 
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asSmallint(); 
+}
 
 ///
 unsigned short  
-Variant::asUSmallint(void) const { return this->getStorageImpl()->asUSmallint(); }
+Variant::asUSmallint(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asUSmallint(); 
+}
 
 ///
 signed long long  
-Variant::asBigint(void) const { return this->getStorageImpl()->asBigint(); }
+Variant::asBigint(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asBigint(); 
+}
 
 ///
 unsigned long long
-Variant::asUBigint(void) const { return this->getStorageImpl()->asUBigint(); }
+Variant::asUBigint(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asUBigint(); 
+}
 
 ///
 TNumeric  
-Variant::asNumeric(void) const { return this->getStorageImpl()->asNumeric(); }
+Variant::asNumeric(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asNumeric(); 
+}
 
 
 ///
 float         
-Variant::asReal(void) const { return this->getStorageImpl()->asReal(); }
+Variant::asReal(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asReal(); 
+}
 
 ///
 double        
-Variant::asDouble(void) const { return this->getStorageImpl()->asDouble(); }
+Variant::asDouble(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asDouble(); 
+}
 
 ///
 TDate        
-Variant::asDate(void) const { return this->getStorageImpl()->asDate(); }
+Variant::asDate(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asDate(); 
+}
 
 ///
 TTime          
-Variant::asTime(void) const { return this->getStorageImpl()->asTime(); }
+Variant::asTime(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asTime(); 
+}
 
 ///
 TTimestamp
-Variant::asTimestamp(void) const { return this->getStorageImpl()->asTimestamp(); }
+Variant::asTimestamp(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asTimestamp(); 
+}
 
 ///
 //virtual TCustom&        asCustom(void) const = 0;
@@ -549,15 +632,27 @@ Variant::asTimestamp(void) const { return this->getStorageImpl()->asTimestamp();
 
 ///
 TInterval    
-Variant::asInterval(void) const { return this->getStorageImpl()->asInterval(); }
+Variant::asInterval(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asInterval(); 
+}
 
 ///
 std::streambuf*
-Variant::asBlob(void) const { return this->getStorageImpl()->asBlob(); }
+Variant::asBlob(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asBlob(); 
+}
 
 ///
 std::wstreambuf*
-Variant::asMemo(void) const { return this->getStorageImpl()->asMemo(); }
+Variant::asMemo(void) const 
+{
+    if(this->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl()->asMemo(); 
+}
 
 
 ///
@@ -675,6 +770,9 @@ void
 Variant::setBlob(std::streambuf* value)         
 {
     /// @bug is init required?
+    ///
+    /// I think yes, because the Variant could be uninitialized.
+    /// But what type need to be constructed? dal::Blob? Requires new test case!
     //init_if_null<IBlob>(this->m_storage);
     this->m_storage->setBlob(value); 
 }

@@ -11,7 +11,7 @@
 
 int test(void)
 {
-    //using namespace informave;
+    using namespace informave::db;
     using namespace informave::db::dal;
     using namespace informave::i18n;
     //using namespace informave::db::DAL;
@@ -23,6 +23,21 @@ int test(void)
 
     Variant v_c;
     v_c = v_b;
+
+
+    Variant v_x(DAL_TYPE_VARCHAR, L"foobar");
+    //v_x.setNull();
+    try
+    {
+        v_x.asStr();
+        assert(!"variant is not null");
+    }
+    catch(ex::null_value&)
+    {}
+    catch(...)
+    {
+        assert(!"unknown exception");
+    }
 
 
     std::cout << v_c << std::endl;

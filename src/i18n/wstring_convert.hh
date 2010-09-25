@@ -85,7 +85,7 @@ namespace std
                 delete this->m_cvt;
             }
 
-        /// @bug needs implementation
+        /// bug needs implementation
         wide_string from_bytes(char byte)
             {
                 return "";
@@ -158,11 +158,11 @@ namespace std
             }
 
 
-        /// @bug needs implementation
+        /// bug needs implementation
         byte_string to_bytes(Elem wchar)
             { }
 
-        /// @bug needs implementation
+        /// bug needs implementation
         byte_string to_bytes(const Elem *wptr)
             { }
 
@@ -175,7 +175,7 @@ namespace std
                 char         *to_next   = 0;
                 const Elem   *from_next = 0;
                 std::size_t   enc_size  = 0;
-                /// @bug needs fixes for stateful encodings
+                /// bug needs fixes for stateful encodings
                 enc_size = this->m_cvt->encoding() > 0 ? this->m_cvt->encoding() : 4;
                 tmp.resize(from_len * enc_size);
 
@@ -195,17 +195,17 @@ namespace std
 
         byte_string to_bytes(const Elem *first, const Elem *last)
             { 
-                return ""; /// @bug fixme
+                return ""; /// bug fixme
             }
 
         size_t converted() const
             { 
-                return 0;  /// @bug fixme
+                return 0;  /// bug fixme
             }
 
         state_type state() const
             { 
-                return state_type();  /// @bug fixme
+                return state_type();  /// bug fixme
             }
 
 

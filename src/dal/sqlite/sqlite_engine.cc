@@ -124,13 +124,10 @@ SqliteTable::SqliteTable(i18n::UString dbname, SqliteResult& src)
       m_ddl(DAL_TYPE_VARCHAR, L"SqliteTable::ddl"),
       m_systemobject(DAL_TYPE_BOOL, L"SqliteTable::systemobject")
 {
-    this->m_name.assign(src.column(L"name")); /// @bug change to operator=
-    this->m_catalog.setStr(dbname);
-    this->m_schema.setStr(L"");
-    //this->m_schema.setNull();
-    this->m_comment.setStr(L"comment");
-    this->m_ddl.assign(src.column(L"sql"));
-    this->m_systemobject.setStr(L"sys");
+    this->m_name = src.column(L"name");
+    this->m_catalog = dbname;
+    this->m_ddl = src.column(L"sql");
+    this->m_systemobject.setBool(ifnull<bool>(src.column(L"sys"), false));
 }
 
 
@@ -220,8 +217,15 @@ SqliteDbc::getTables(const ITableFilter&)
         i18n::UString dbname = dblist->resultset().column(L"name").asStr();
         
         i18n::UString sql_column_query =
-            L" SELECT name, sql FROM " + dbname + L".sqlite_master"
-            L" WHERE type = 'table';";
+            L" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys"
+            L" FROM "+dbname+L".sqlite_master WHERE type = 'table'"
+            L" UNION"
+            L" SELECT 'sqlite_master', NULL, 1"
+            L" UNION"
+            L" SELECT 'sqlite_temp_master', NULL, 1";
+
+
+        //std::cout << i18n::conv_to(sql_column_query, "UTF-8") << std::endl;
 
         SqliteStmt::ptr tables(this->newStatement());
         try
@@ -229,7 +233,7 @@ SqliteDbc::getTables(const ITableFilter&)
             tables->prepare(sql_column_query);
             tables->execute();
         }
-        catch(ex::sql_error &)
+        catch(sqlite::STATES::SQLSTATE_42000 &)
         {
             continue;
         }
@@ -242,7 +246,8 @@ SqliteDbc::getTables(const ITableFilter&)
 
     // load temp tables
     i18n::UString sql_column_query =
-        L" SELECT name, sql FROM sqlite_temp_master"
+        L" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys"
+        L" FROM sqlite_temp_master"
         L" WHERE type = 'table';";
     
     SqliteStmt::ptr tables(this->newStatement());        

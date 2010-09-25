@@ -8,6 +8,8 @@
 
 #define dbwtl_VERSION_STRING dbwtl_PROJECT_NAME " " #dbwtl_MAJOR_VERSION "." #dbwtl_MINOR_VERSION "." #dbwtl_PATCH_LEVEL
 
+#cmakedefine DBWTL_HAVE_STDINT_H
+
 #cmakedefine DBWTL_WITH_SQLITE
 
 #cmakedefine DBWTL_WITH_POSTGRES

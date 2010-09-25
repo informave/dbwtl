@@ -172,6 +172,9 @@ endif()
 include(CheckIncludeFiles)
 
 
+check_include_files("stdint.h" DBWTL_HAVE_STDINT_H)
+
+
 if(DBWTL_WITH_SQLITE)
 	if(DBWTL_USE_LOCAL_HEADERS)
 		IF (EXISTS "${DBWTL_LOCAL_HEADERS_INCLUDE_DIR}/sqlite3.h")

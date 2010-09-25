@@ -362,7 +362,6 @@ public:
 
     typedef size_t                      bookmark_type;
     typedef SqliteVariant               value_type;
-    typedef std::vector<value_type*>    row_type; /// @todo required?
 
     SqliteResult(SqliteDiagController &dc) : ResultBase(),
         m_diag(dc)
@@ -524,6 +523,10 @@ public:
 
     virtual int asInt() const
     { return this->getValue()->getInt(); }
+
+
+    virtual bool asBool() const
+    { return this->getValue()->getInt() > 0; }
 
 
     virtual std::streambuf* asBlob(void) const

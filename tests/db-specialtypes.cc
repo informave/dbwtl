@@ -59,9 +59,11 @@ int test(void)
                 DBMS::Text  mfi = res.column(i).asText();
                 DBMS::Text ffa = res.column(i);
                 DBMS::Memo ffm(res.column(i));
+		/*
                 stmt.bind(1, myi);
                 stmt.bind(2, mfi);
                 stmt.bind(2, &mfi);
+		*/
 
 
                 std::cout << res.column(i).asNarrowStr("UTF-8") << " ";

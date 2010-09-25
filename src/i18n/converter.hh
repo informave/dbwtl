@@ -39,7 +39,7 @@
 /// @brief Charset converter
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
-/// @bug perform correct checks for sizeof(wchar_t)
+/// @todo perform correct checks for sizeof(wchar_t)
 
 #ifndef INFORMAVE_I18N_CONVERTER_HH
 #define INFORMAVE_I18N_CONVERTER_HH
@@ -131,7 +131,7 @@ namespace informave
                 
                 virtual std::string getError() const
                     {
-                        return "<convert error>"; /// @bug fixme
+                        return "<convert error>";
                     }
             };
 
@@ -216,7 +216,7 @@ namespace informave
                             default:
                                 std::cout << "ERR" << std::endl; 
                                 ret = std::codecvt_base::error;
-                                break; /// @bug fixme
+                                break; /// bug fixme
                             }
                         }
 
@@ -269,7 +269,7 @@ namespace informave
                             default:
                                 std::cout << "ERR" << std::endl; 
                                 ret = std::codecvt_base::error;
-                                break; /// @bug fixme
+                                break; /// bug fixme
                             }
                         }
 
@@ -360,7 +360,7 @@ namespace informave
                                 ret = std::codecvt_base::partial;
                                 break;
                             default:
-                                break; /// @bug fixme
+                                break; /// bug fixme
                             }
                         }
                         iconv_close(cd);
@@ -412,7 +412,7 @@ namespace informave
                                 ret = std::codecvt_base::partial;
                                 break;
                             default:
-                                break; /// @bug fixme
+                                break; /// bug fixme
                             }
                         }
                         iconv_close(cd);

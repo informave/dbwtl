@@ -992,65 +992,6 @@ IDbc::~IDbc(void)
 
 
 
-//--------------------------------------------------------------------------
-///
-///
-i18n::UString 
-EmptyTableFilter::simpleNameFilter(void) const
-{
-    DBWTL_NOTIMPL(); /// @bug implement me
-}
-
-
-///
-///
-i18n::UString
-EmptyTableFilter::simpleCatalogFilter(void) const
-{
-    DBWTL_NOTIMPL(); /// @bug implement me
-}
-
-
-///
-///
-i18n::UString 
-EmptyTableFilter::simpleSchemaFilter(void) const
-{
-    DBWTL_NOTIMPL(); /// @bug implement me
-}
-
-
-
-
-
-
-//--------------------------------------------------------------------------
-///
-///
-i18n::UString 
-EmptyDatatypeFilter::simpleNameFilter(void) const
-{
-    DBWTL_NOTIMPL(); /// @bug implement me
-}
-
-
-///
-///
-i18n::UString
-EmptyDatatypeFilter::simpleCatalogFilter(void) const
-{
-    DBWTL_NOTIMPL(); /// @bug implement me
-}
-
-
-///
-///
-i18n::UString 
-EmptyDatatypeFilter::simpleSchemaFilter(void) const
-{
-    DBWTL_NOTIMPL(); /// @bug implement me
-}
-
 
 
 //--------------------------------------------------------------------------

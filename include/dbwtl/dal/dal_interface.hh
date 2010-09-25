@@ -1052,9 +1052,9 @@ class DBWTL_EXPORT ITableFilter : public IDALObject
 public:
     virtual ~ITableFilter(void) { }
 
-    virtual i18n::UString simpleNameFilter(void) const = 0;
-    virtual i18n::UString simpleCatalogFilter(void) const = 0;
-    virtual i18n::UString simpleSchemaFilter(void) const = 0;
+//     virtual i18n::UString simpleNameFilter(void) const = 0;
+//     virtual i18n::UString simpleCatalogFilter(void) const = 0;
+//     virtual i18n::UString simpleSchemaFilter(void) const = 0;
 };
 
 
@@ -1068,10 +1068,6 @@ class DBWTL_EXPORT EmptyTableFilter : public ITableFilter
 {
 public:
     virtual ~EmptyTableFilter(void) { }
-
-    virtual i18n::UString simpleNameFilter(void) const;
-    virtual i18n::UString simpleCatalogFilter(void) const;
-    virtual i18n::UString simpleSchemaFilter(void) const;
 };
 
 
@@ -1085,9 +1081,9 @@ class DBWTL_EXPORT IDatatypeFilter : public IDALObject
 public:
     virtual ~IDatatypeFilter(void) { }
 
-    virtual i18n::UString simpleNameFilter(void) const = 0;
-    virtual i18n::UString simpleCatalogFilter(void) const = 0;
-    virtual i18n::UString simpleSchemaFilter(void) const = 0;
+//     virtual i18n::UString simpleNameFilter(void) const = 0;
+//     virtual i18n::UString simpleCatalogFilter(void) const = 0;
+//     virtual i18n::UString simpleSchemaFilter(void) const = 0;
 };
 
 
@@ -1099,10 +1095,6 @@ class DBWTL_EXPORT EmptyDatatypeFilter : public IDatatypeFilter
 {
 public:
     virtual ~EmptyDatatypeFilter(void) { }
-
-    virtual i18n::UString simpleNameFilter(void) const;
-    virtual i18n::UString simpleCatalogFilter(void) const;
-    virtual i18n::UString simpleSchemaFilter(void) const;
 };
 
 

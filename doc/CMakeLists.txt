@@ -6,3 +6,5 @@ ${DBWTL_MAIN_DOC_DIR})
 add_custom_target(guide ${DBWTL_MAIN_DOC_DIR}/guide/genguide.sh
 ${DBWTL_MAIN_DOC_DIR})
 
+add_custom_target(rfc ${DBWTL_MAIN_DOC_DIR}/rfc/genrfc.sh
+${DBWTL_MAIN_DOC_DIR})

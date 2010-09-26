@@ -1,0 +1,102 @@
+Variant Value API
+=================
+
+
+[frame="topbot",width="40%"]
+|===============================
+|*State*        | _DEV_  
+|*Date*         | _2010-07-27_
+|*Proposed by*  | cytrinox
+|===============================
+
+
+
+Description
+-----------
+TODO
+
+
+Constructors
+------------
+The default constructor creates an instance which is of type 'DAL_TYPE_UNKNOWN' and is set to 'NULL'.
+The internal storage is uninitialized.
+
+
+
+POD Datatypes
+~~~~~~~~~~~~~
+TODO
+
+
+Other Datatypes
+~~~~~~~~~~~~~~~
+
+
+Mapping of SQL datatypes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+[options="header",cols="<2,<2,<5",frame="topbot"]
+|===============================================================================
+|SQL Type       | Variant/DAL Type      | Notes
+|'CHAR'         | 'DAL_TYPE_STRING'     | CHAR covers NCHAR, too.
+|'VARCHAR'      | 'DAL_TYPE_STRING'     | VARCHAR covers NVARCHAR, too.
+|'CLOB'         | 'DAL_TYPE_MEMO'       | -
+|'BINARY'       | 'DAL_TYPE_BLOB'       | Covers BINARY, VARBINARY and BLOB
+|'NUMERIC'      | 'DAL_TYPE_NUMERIC'    | -
+|'DECIMAL'      | 'DAL_TYPE_NUMERIC'    | -
+|'SMALLINT'     | 'DAL_TYPE_SMALLINT'   | -
+|'INTEGER'      | 'DAL_TYPE_INTEGER'    | -
+|'BIGINT'       | 'DAL_TYPE_BIGINT'     | -
+|'FLOAT'        | 'DAL_TYPE_FLOAT'      | -
+|'REAL'         | 'DAL_TYPE_REAL'       | -
+|'DOUBLE'       | 'DAL_TYPE_DOUBLE'     | -
+|'BOOL'         | 'DAL_TYPE_BOOL'       | -
+|'DATE'         | 'DAL_TYPE_DATE'       | -
+|'TIME'         | 'DAL_TYPE_TIME'       | -
+|'TIMESTAMP'    | 'DAL_TYPE_TIMESTAMP'  | -
+|'INTERVAL'     | 'DAL_TYPE_INTERVAL'   | -
+|===============================================================================
+
+
+
+Casting Variant to other types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The Variant class has cast operators for all POD datatypes. Other types have to implement
+a constructor that takes a const IVariant reference.
+
+
+Internal Storage
+~~~~~~~~~~~~~~~~
+TODO
+
+
+Storage Accessors
+~~~~~~~~~~~~~~~~~
+A storage_accessor is responsible for converting data to the requested type.
+But if possible, the storage_accessor can pass this task to a second component.
+
+Take the following example: An user request a column of type MACADDR from a PostgreSQL resultset.
+The accessor may pass the convertion from string to TMacaddr to the PostgresData object, or
+to the TMacaddr constructor.
+
+The Variant class is resposible for checking the NULL state before calling methods like 'asStr()'
+on the internal storage. If you implement getter methods for a storage_accessor, it is safe to assume that
+the internal value is not null.
+
+
+
+Assignment of variant objects
+-----------------------------
+Assign values to a Variant object just change the NULL state and the value. The internal
+storage object is not replaced. For example: a Variant object which is of type 'DAL_TYPE_VARCHAR'
+is still of type 'DAL_TYPE_VARCHAR' after assign an integer or a Variant of type 'DAL_TYPE_NUMERIC'.
+
+The 'assign()' method should first check the source datatype and then
+using the getter method for this type. It is guaranteed that this method is implemented.
+
+
+
+Streams
+-------
+TODO
+

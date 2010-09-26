@@ -129,6 +129,7 @@ Memo::Memo(std::wstreambuf *buf) : std::wistream(0), m_buf(buf)
 ///
 Memo::Memo(const IVariant &variant) : std::wistream(0), m_buf(variant.asMemo())
 {
+    // m_buf may leaks memory
     this->rdbuf(m_buf);
 }
 

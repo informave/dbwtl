@@ -19,48 +19,61 @@ DAL_NAMESPACE_BEGIN
         {                                                   \
             return this->get().method();                    \
         }                                                   \
-    };
+    }
+
+
+DBWTL_VARIANT_DISPATCHER(asInt,        signed int);
+DBWTL_VARIANT_DISPATCHER(asUInt,       unsigned int);
+DBWTL_VARIANT_DISPATCHER(asChar,       signed char);
+DBWTL_VARIANT_DISPATCHER(asUChar,      unsigned char);
+DBWTL_VARIANT_DISPATCHER(asWideStr,    std::wstring);
+DBWTL_VARIANT_DISPATCHER(asStr,        std::string);
+DBWTL_VARIANT_DISPATCHER(asBool,       bool);
+DBWTL_VARIANT_DISPATCHER(asSmallint,   signed short);
+DBWTL_VARIANT_DISPATCHER(asUSmallint,  unsigned short);
+DBWTL_VARIANT_DISPATCHER(asBigint,     signed long long);
+DBWTL_VARIANT_DISPATCHER(asUBigint,    unsigned long long);
+DBWTL_VARIANT_DISPATCHER(asNumeric,    TNumeric);
+DBWTL_VARIANT_DISPATCHER(asReal,       float);
+DBWTL_VARIANT_DISPATCHER(asDouble,     double);
+DBWTL_VARIANT_DISPATCHER(asDate,       TDate);
+DBWTL_VARIANT_DISPATCHER(asTime,       TTime);
+DBWTL_VARIANT_DISPATCHER(asTimestamp,  TTimestamp);
 
 
 
 
 
-DBWTL_VARIANT_DISPATCHER(asInt, signed int)
-DBWTL_VARIANT_DISPATCHER(asUInt, unsigned int)
-DBWTL_VARIANT_DISPATCHER(asChar, signed char)
-DBWTL_VARIANT_DISPATCHER(asUChar, unsigned char)
-DBWTL_VARIANT_DISPATCHER(asWideStr, std::wstring)
-DBWTL_VARIANT_DISPATCHER(asStr, std::string)
-DBWTL_VARIANT_DISPATCHER(asBool, bool)
-DBWTL_VARIANT_DISPATCHER(asSmallint, signed short)
-DBWTL_VARIANT_DISPATCHER(asUSmallint, unsigned short)
-DBWTL_VARIANT_DISPATCHER(asBigint, signed long long)
-DBWTL_VARIANT_DISPATCHER(asUBigint, unsigned long long)
-DBWTL_VARIANT_DISPATCHER(asNumeric, TNumeric)
-DBWTL_VARIANT_DISPATCHER(asReal, float)
-DBWTL_VARIANT_DISPATCHER(asDouble, double)
-DBWTL_VARIANT_DISPATCHER(asDate, TDate)
-DBWTL_VARIANT_DISPATCHER(asTime, TTime)
-DBWTL_VARIANT_DISPATCHER(asTimestamp, TTimestamp)
-
-/*
-template<>                                              
-struct variant_dispatch_method<std::string>
-    : public variant_dispatch_storage
+template<typename T, typename U>
+bool inline convertValue(const T& src, U& dest)
 {
-    variant_dispatch_method(const dal::IVariant &var)   
-        : variant_dispatch_storage(var)                 
-    {}                                                  
-    
-    std::string operator()(void) const                         
-    {                                                   
-        return this->get().asStr();                    
-    }                                                   
-};
-*/
+    std::wstringstream ss;
+    ss << src;
+    return ! (!(ss >> dest));
+}
 
-//DBWTL_VARIANT_DISPATCHER(asUUID, TUuid)
-//DBWTL_VARIANT_DISPATCHER(asXML, TXml)
+template<typename T, typename U>
+void inline setValue(const T& src, U& dest)
+{
+    std::wstringstream ss;
+    ss << src;
+    dest = ss.str();
+}
+
+
+
+#define DAL_THROW_INVALID_CAST() throw std::runtime_error(__FUNCTION__)
+
+#define DAL_SET_STORAGE_TYPE(type)              \
+    virtual daltype_t datatype() const          \
+    {                                           \
+        return type;                            \
+    }
+
+#define DAL_VARIANT_DEFINE_ACCESSOR(type)       \
+    DAL_VARIANT_ACCESSOR;                       \
+    DAL_SET_STORAGE_TYPE(type)                  \
+    virtual ~storage_accessor(void) { }
 
 
 
@@ -1147,96 +1160,277 @@ virtual daltype_t datatype() const { return DAL_TYPE_XML; }
 
 
 
+
+
+
+
+
+
 //------------------------------------------------------------------------------
-///
+/// 
+/// @brief Storage accessor for std::wstring
 ///
 template<>
-class storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::wstring> >
+struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::wstring> >
+{
+    DAL_VARIANT_DEFINE_ACCESSOR(DAL_TYPE_VARCHAR)
+
+    ////// GETTER METHODS
+
+    virtual signed int asInt(void) const
+    {
+        signed int v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+    virtual unsigned int asUInt(void) const
+    {
+        unsigned int v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+//     virtual signed char asChar(void) const
+//     {
+//     }
+
+//     virtual unsigned char asUChar(void) const
+//     {
+//     }
+
+    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    {
+        return this->getValue();
+    }
+
+    virtual bool asBool(void) const
+    {
+        bool v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+    virtual signed short asSmallint(void) const
+    {
+        signed short v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+    virtual unsigned short asUSmallint(void) const
+    {
+        unsigned int v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+    virtual signed long long asBigint(void) const
+    {
+        signed long long v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+    virtual unsigned long long asUBigint(void) const
+    {
+        unsigned long long v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+//     virtual TNumeric asNumeric(void) const
+//     {
+//     }
+
+    virtual float asReal(void) const
+    {
+        float v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+    virtual double asDouble(void) const
+    {
+        double v;
+        if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+        else return v;
+    }
+
+//     virtual TDate asDate(void) const
+//     {
+//     }
+
+//     virtual TTime asTime(void) const
+//     {
+//     }
+
+//     virtual TTimestamp asTimestamp(void) const
+//     {
+//     }
+
+//     virtual TInterval asInterval(void) const
+//     {
+//     }
+
+//     virtual std::streambuf* asBlob(void) const
+//     {
+//     }
+
+    virtual std::wstreambuf* asMemo(void) const
+    {
+        std::wstringbuf *buf = new std::wstringbuf();
+        buf->str(this->getValue());
+        return buf;
+    }
+
+    ////// SETTER METHODS
+
+    virtual void setInt(const signed int &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setUInt(const unsigned int &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+//     virtual void setChar(const signed char &val)
+//     {
+//     }
+
+//     virtual void setUChar(const unsigned char &val)
+//     {
+//     }
+
+    virtual void setWideStr(const std::wstring  &val, std::locale loc = std::locale())
+    {
+        this->getValue() = val;
+        this->m_isnull = false;
+    }
+
+    virtual void setBool(const bool &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setSmallint(const signed short &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setUSmallint(const unsigned short &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setBigint(const signed long long &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setUBigint(const unsigned long long &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setNumeric(const TNumeric &val)
+    {
+        this->getValue() = val.asWideStr();
+        this->m_isnull = false;
+    }
+
+    virtual void setReal(const float &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setDouble(const double &val)
+    {
+        setValue(val, this->getValue());
+        this->m_isnull = false;
+    }
+
+    virtual void setDate(const TDate &val)
+    {
+        this->getValue() = val.asWideStr();
+        this->m_isnull = false;
+    }
+
+    virtual void setTime(const TTime &val)
+    {
+        this->getValue() = val.asWideStr();
+        this->m_isnull = false;
+    }
+
+    virtual void setTimestamp(const TTimestamp &val)
+    {
+        this->getValue() = val.asWideStr();
+        this->m_isnull = false;
+    }
+
+    virtual void setInterval(const TInterval &val)
+    {
+        this->getValue() = val.asWideStr();
+        this->m_isnull = false;
+    }
+
+//     virtual void setBlob(std::streambuf *val)
+//     {
+//     }
+
+    virtual void setMemo(std::wstreambuf *val)
+    {
+        Memo m(val);
+        this->getValue() = m.str();
+        this->m_isnull = false;
+    }
+};
+
+
+
+
+
+
+
+
+template<>
+class storage_accessor<std::wstring*> : public BaseVariantImplFor<sa_base<std::wstring*> >
 {
 public:
     DAL_VARIANT_ACCESSOR;
 
     virtual ~storage_accessor(void) { }
 
-
-
-    virtual void setInt(const signed int& value)
+    virtual daltype_t datatype() const
     {
-        std::wstringstream ss;
-        ss << value;
-        this->getValue() = ss.str();
-        this->m_isnull = false;
+        return DAL_TYPE_VARCHAR;
     }
 
-    virtual void setUInt(const unsigned int& value)
-    {
-        std::wstringstream ss;
-        ss << value;
-        this->getValue() = ss.str();
-        this->m_isnull = false;
-    }
+};
 
-    virtual void setChar(const signed char& value)
-    {
-        std::wstringstream ss;
-        ss << value;
-        this->getValue() = ss.str();
-        this->m_isnull = false;
-    }
+template<>
+class storage_accessor<const std::wstring*> : public BaseVariantImplFor<sa_base<const std::wstring*> >
+{
+public:
+    DAL_VARIANT_ACCESSOR;
 
-    virtual void setUChar(const unsigned char& value)
-    {
-        std::wstringstream ss;
-        ss << value;
-        this->getValue() = ss.str();           
-        this->m_isnull = false;
-    }
-
-
-
-    virtual void setWideStr(const std::wstring& value, std::locale loc = std::locale())
-    {
-        this->getValue() = value;
-        this->m_isnull = false;
-    }
-
-    virtual void setBool(const bool& value)
-    {
-        std::wstringstream ss;
-        ss << value;
-        this->getValue() = ss.str();            
-        this->m_isnull = false;
-    }
-
-    virtual void setSmallint(const signed short& value)
-    {
-        std::wstringstream ss;
-        ss << value;
-        this->getValue() = ss.str();
-        this->m_isnull = false;
-    }
-
-    virtual void setUSmallint(const unsigned short& value)
-    {
-        std::wstringstream ss;
-        ss << value;
-        this->getValue() = ss.str();
-        this->m_isnull = false;
-    }
-
-
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
-    {
-        return this->getValue(); // no conversion with loc = std::locale()ale needed
-    }
+    virtual ~storage_accessor(void) { }
 
     virtual daltype_t datatype() const
     {
         return DAL_TYPE_VARCHAR;
     }
 };
-
-
 
 
 
@@ -1293,7 +1487,6 @@ public:
 };
 
 
- 
 
 
 
@@ -1533,6 +1726,174 @@ void            BaseVariantImplFor<Base>::setMemo(std::wstreambuf*)
 DAL_NAMESPACE_END
 
 /// @endcond
+
+
+
+
+
+// template<>
+// struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::wstring> >
+// {
+//     DAL_VARIANT_DEFINE_ACCESSOR(<your-type>)
+
+//     ////// GETTER METHODS
+
+//     virtual signed int asInt(void) const
+//     {
+//     }
+
+//     virtual unsigned int asUInt(void) const
+//     {
+//     }
+
+//     virtual signed char asChar(void) const
+//     {
+//     }
+
+//     virtual unsigned char asUChar(void) const
+//     {
+//     }
+
+//     virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+//     {
+//     }
+
+//     virtual bool asBool(void) const
+//     {
+//     }
+
+//     virtual signed short asSmallint(void) const
+//     {
+//     }
+
+//     virtual unsigned short asUSmallint(void) const
+//     {
+//     }
+
+//     virtual signed long long asBigint(void) const
+//     {
+//     }
+
+//     virtual unsigned long long asUBigint(void) const
+//     {
+//     }
+
+//     virtual TNumeric asNumeric(void) const
+//     {
+//     }
+
+//     virtual float asReal(void) const
+//     {
+//     }
+
+//     virtual double asDouble(void) const
+//     {
+//     }
+
+//     virtual TDate asDate(void) const
+//     {
+//     }
+
+//     virtual TTime asTime(void) const
+//     {
+//     }
+
+//     virtual TTimestamp asTimestamp(void) const
+//     {
+//     }
+
+//     virtual TInterval asInterval(void) const
+//     {
+//     }
+
+//     virtual std::streambuf* asBlob(void) const
+//     {
+//     }
+
+//     virtual std::wstreambuf* asMemo(void) const
+//     {
+//     }
+
+//     ////// SETTER METHODS
+
+//     virtual void setInt(const signed int &val)
+//     {
+//     }
+
+//     virtual void setUInt(const unsigned int &val)
+//     {
+//     }
+
+//     virtual void setChar(const signed char &val)
+//     {
+//     }
+
+//     virtual void setUChar(const unsigned char &val)
+//     {
+//     }
+
+//     virtual void setWideStr(const std::wstring  &val, std::locale loc = std::locale())
+//     {
+//     }
+
+//     virtual void setBool(const bool &val)
+//     {
+//     }
+
+//     virtual void setSmallint(const signed short &val)
+//     {
+//     }
+
+//     virtual void setUSmallint(const unsigned short &val)
+//     {
+//     }
+
+//     virtual void setBigint(const signed long long &val)
+//     {
+//     }
+
+//     virtual void setUBigint(const unsigned long long &val)
+//     {
+//     }
+
+//     virtual void setNumeric(const TNumeric &val)
+//     {
+//     }
+
+//     virtual void setReal(const float &val)
+//     {
+//     }
+
+//     virtual void setDouble(const double &val)
+//     {
+//     }
+
+//     virtual void setDate(const TDate &val)
+//     {
+//     }
+
+//     virtual void setTime(const TTime &val)
+//     {
+//     }
+
+//     virtual void setTimestamp(const TTimestamp &val)
+//     {
+//     }
+
+//     virtual void setInterval(const TInterval &val)
+//     {
+//     }
+
+//     virtual void setBlob(std::streambuf *val)
+//     {
+//     }
+
+//     virtual void setMemo(std::wstreambuf *val)
+//     {
+//     }
+// }
+
+
 
 
 

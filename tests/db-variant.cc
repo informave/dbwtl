@@ -9,12 +9,58 @@
 #include <memory>
 #include <cstdlib>
 
+#define PRINT(x) std::cout << x << std::endl;
+
 int test(void)
 {
     using namespace informave::db;
     using namespace informave::db::dal;
     using namespace informave::i18n;
     //using namespace informave::db::DAL;
+
+
+    {
+        Variant v(DAL_TYPE_VARCHAR, L"varchar");
+        v.setWideStr(L"1");        
+        assert(v.asBool() == true);
+    }
+
+    {
+        Variant v(DAL_TYPE_VARCHAR, L"varchar");
+        std::wstringstream ss(L"foobar");
+        v.setMemo(ss.rdbuf());
+        assert(v.asWideStr() == L"foobar");
+    }
+
+
+    {
+        Variant v(DAL_TYPE_VARCHAR, L"varchar");
+        v.setWideStr(L"123");
+        assert(v.asInt() == 123);
+        assert(v.asUInt() == 123);
+//         assert(v.asBool() == true);
+        assert(v.asSmallint() == 123);
+        assert(v.asUSmallint() == 123);
+        assert(v.asBigint() == 123);
+        assert(v.asUBigint() == 123);
+//         assert(v.asNumeric() == 123);
+        assert(v.asReal() == 123);
+        assert(v.asDouble() == 123);
+//         assert(v.asDate() == 123);
+//         assert(v.asTime() == 123);
+//         assert(v.asTimestamp() == 123);
+//         assert(v.asInternval() == 123);
+//         assert(v.asBlob() == 123);
+//         assert(v.asMemo() == 123);
+        v.setWideStr(L"123.456");
+        assert(v.asInt() == 123);
+        v.setWideStr(L"-123.456");
+        assert(v.asInt() == -123);
+
+    }
+
+
+
 
     signed int a = 5;
     Variant v_a(a);
@@ -23,6 +69,9 @@ int test(void)
 
     Variant v_c;
     v_c = v_b;
+
+
+    // add assign and type check
 
 
     Variant v_x(DAL_TYPE_VARCHAR, L"foobar");

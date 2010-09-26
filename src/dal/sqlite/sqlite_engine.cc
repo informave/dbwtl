@@ -117,11 +117,11 @@ SqliteData::~SqliteData(void)
 ///
 /// @todo implement other values, not only name
 SqliteTable::SqliteTable(std::wstring dbname, SqliteResult& src)
-    : m_name(DAL_TYPE_VARCHAR, L"SqliteTable::name"),
-      m_catalog(DAL_TYPE_VARCHAR, L"SqliteTable::catalog"),
-      m_schema(DAL_TYPE_VARCHAR, L"SqliteTable::schema"),
-      m_comment(DAL_TYPE_VARCHAR, L"SqliteTable::comment"),
-      m_ddl(DAL_TYPE_VARCHAR, L"SqliteTable::ddl"),
+    : m_name(DAL_TYPE_STRING, L"SqliteTable::name"),
+      m_catalog(DAL_TYPE_STRING, L"SqliteTable::catalog"),
+      m_schema(DAL_TYPE_STRING, L"SqliteTable::schema"),
+      m_comment(DAL_TYPE_STRING, L"SqliteTable::comment"),
+      m_ddl(DAL_TYPE_STRING, L"SqliteTable::ddl"),
       m_systemobject(DAL_TYPE_BOOL, L"SqliteTable::systemobject")
 {
     this->m_name = src.column(L"name");
@@ -295,7 +295,7 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
     dt = new SqliteDatatype();
     dt->m_name.setWideStr(L"TEXT");
     dt->m_size.setInt(65000);
-    dt->m_daltype = DAL_TYPE_VARCHAR;
+    dt->m_daltype = DAL_TYPE_STRING;
     dt->m_literal_prefix.setWideStr(L"'");
     dt->m_literal_suffix.setWideStr(L"'");
     dtlist.push_back(dt);

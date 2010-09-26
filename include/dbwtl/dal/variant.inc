@@ -1173,7 +1173,7 @@ virtual daltype_t datatype() const { return DAL_TYPE_XML; }
 template<>
 struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::wstring> >
 {
-    DAL_VARIANT_DEFINE_ACCESSOR(DAL_TYPE_VARCHAR)
+    DAL_VARIANT_DEFINE_ACCESSOR(DAL_TYPE_STRING)
 
     ////// GETTER METHODS
 
@@ -1413,7 +1413,7 @@ public:
 
     virtual daltype_t datatype() const
     {
-        return DAL_TYPE_VARCHAR;
+        return DAL_TYPE_STRING;
     }
 
 };
@@ -1428,7 +1428,7 @@ public:
 
     virtual daltype_t datatype() const
     {
-        return DAL_TYPE_VARCHAR;
+        return DAL_TYPE_STRING;
     }
 };
 
@@ -1532,7 +1532,7 @@ unsigned char   BaseVariantImplFor<Base>::asUChar(void) const
 
 template<class Base>
 std::wstring   BaseVariantImplFor<Base>::asWideStr(std::locale loc) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_VARCHAR); }
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_STRING); }
 
 
 template<class Base>

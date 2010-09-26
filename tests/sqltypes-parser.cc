@@ -43,12 +43,12 @@ int test(void)
 
 
     p.parse(L"VARCHAR");
-    if(p.getDaltype() != DAL_TYPE_VARCHAR)
+    if(p.getDaltype() != DAL_TYPE_STRING)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
     p.parse(L"VARCHAR(50)");
-    if(p.getDaltype() != DAL_TYPE_VARCHAR)
+    if(p.getDaltype() != DAL_TYPE_STRING)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 

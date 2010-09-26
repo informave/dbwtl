@@ -884,7 +884,7 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
         const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
 
         SqlTypeParser pt;
-        pt.registerType(DAL_TYPE_VARCHAR, L"TEXT*");
+        pt.registerType(DAL_TYPE_STRING, L"TEXT*");
         pt.parse(i18n::conv_from(type, "UTF-8"));
         this->m_type_name.setWideStr(daltype2sqlname(pt.getDaltype()));
         this->m_daltype = pt.getDaltype();
@@ -969,7 +969,7 @@ SqliteResult_libsqlite::refreshMetadata(void)
         {
             std::string s(type);
             if(s == "INTEGER") daltype = DAL_TYPE_INT;
-            else if(s == "VARCHAR") daltype = DAL_TYPE_VARCHAR;
+            else if(s == "VARCHAR") daltype = DAL_TYPE_STRING;
             else if(s == "BLOB") daltype = DAL_TYPE_BLOB;
             else daltype = DAL_TYPE_CUSTOM;
         }        
@@ -1151,8 +1151,8 @@ SqliteDiag_libsqlite::SqliteDiag_libsqlite(dalstate_t state,
                                            int sqlite_code,
                                            int sqlite_excode)
     : SqliteDiag(state, codepos, func, message, description),
-      m_sqlite_code(DAL_TYPE_VARCHAR, L"SqliteDiag::sqlite_code"),
-      m_sqlite_excode(DAL_TYPE_VARCHAR, L"SqliteDiag::sqlite_excode")
+      m_sqlite_code(DAL_TYPE_STRING, L"SqliteDiag::sqlite_code"),
+      m_sqlite_excode(DAL_TYPE_STRING, L"SqliteDiag::sqlite_excode")
 {
     m_sqlite_code = sqlite_code;
     m_sqlite_excode = sqlite_excode;

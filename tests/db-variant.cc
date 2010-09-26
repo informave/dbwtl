@@ -20,13 +20,13 @@ int test(void)
 
 
     {
-        Variant v(DAL_TYPE_VARCHAR, L"varchar");
+        Variant v(DAL_TYPE_STRING, L"varchar");
         v.setWideStr(L"1");        
         assert(v.asBool() == true);
     }
 
     {
-        Variant v(DAL_TYPE_VARCHAR, L"varchar");
+        Variant v(DAL_TYPE_STRING, L"varchar");
         std::wstringstream ss(L"foobar");
         v.setMemo(ss.rdbuf());
         assert(v.asWideStr() == L"foobar");
@@ -34,7 +34,7 @@ int test(void)
 
 
     {
-        Variant v(DAL_TYPE_VARCHAR, L"varchar");
+        Variant v(DAL_TYPE_STRING, L"varchar");
         v.setWideStr(L"123");
         assert(v.asInt() == 123);
         assert(v.asUInt() == 123);
@@ -74,7 +74,7 @@ int test(void)
     // add assign and type check
 
 
-    Variant v_x(DAL_TYPE_VARCHAR, L"foobar");
+    Variant v_x(DAL_TYPE_STRING, L"foobar");
     //v_x.setNull();
     try
     {

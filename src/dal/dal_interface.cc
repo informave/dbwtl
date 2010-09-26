@@ -212,9 +212,9 @@ IStoredVariant* new_default_storage(daltype_t type)
     case DAL_TYPE_UINT: return new var_storage<unsigned int>();
     case DAL_TYPE_CHAR: return new var_storage<signed char>();
     case DAL_TYPE_UCHAR: return new var_storage<unsigned char>();
-    case DAL_TYPE_VARCHAR: return new var_storage<std::wstring>();
-    case DAL_TYPE_NVARCHAR: return new var_storage<std::wstring>();
-    case DAL_TYPE_NCHAR: return new var_storage<std::wstring>();
+    case DAL_TYPE_STRING: return new var_storage<std::wstring>();
+        //case DAL_TYPE_NVARCHAR: return new var_storage<std::wstring>();
+        //case DAL_TYPE_NCHAR: return new var_storage<std::wstring>();
     case DAL_TYPE_BOOL: return new var_storage<bool>();
     case DAL_TYPE_SMALLINT: return new var_storage<signed short int>();
     case DAL_TYPE_USMALLINT: return new var_storage<unsigned short int>();
@@ -240,10 +240,10 @@ IStoredVariant* new_default_storage(daltype_t type)
 //
 DatatypeBase::DatatypeBase(void)
     : IDatatype(),
-      m_name(DAL_TYPE_VARCHAR, L"DatatypeBase::name"),
+      m_name(DAL_TYPE_STRING, L"DatatypeBase::name"),
       m_size(DAL_TYPE_INT, L"DatatypeBase::size"),
-      m_literal_prefix(DAL_TYPE_VARCHAR, L"DatatypeBase::literal_prefix"),
-      m_literal_suffix(DAL_TYPE_VARCHAR, L"DatatypeBase::literal_suffix"),
+      m_literal_prefix(DAL_TYPE_STRING, L"DatatypeBase::literal_prefix"),
+      m_literal_suffix(DAL_TYPE_STRING, L"DatatypeBase::literal_suffix"),
       m_is_unsigned(DAL_TYPE_BOOL, L"DatatypeBase::is_unsigned"),
       m_daltype(DAL_TYPE_UNKNOWN)
 {}
@@ -274,14 +274,14 @@ daltype_t DatatypeBase::daltype(void) const                               { retu
 //
 ColumnDescBase::ColumnDescBase(void)
     : IColumnDesc(),
-      m_name(DAL_TYPE_VARCHAR, L"ColumnDesc::name"),
-      m_catalog_name(DAL_TYPE_VARCHAR, L"ColumnDesc::catalog_name"),
-      m_schema_name(DAL_TYPE_VARCHAR, L"ColumnDesc::schema_name"),
-      m_base_column_name(DAL_TYPE_VARCHAR, L"ColumnDesc::base_column_name"),
-      m_type_name(DAL_TYPE_VARCHAR, L"ColumnDesc::type_name"),
-      m_base_table_name(DAL_TYPE_VARCHAR, L"ColumnDesc::base_table_name"),
+      m_name(DAL_TYPE_STRING, L"ColumnDesc::name"),
+      m_catalog_name(DAL_TYPE_STRING, L"ColumnDesc::catalog_name"),
+      m_schema_name(DAL_TYPE_STRING, L"ColumnDesc::schema_name"),
+      m_base_column_name(DAL_TYPE_STRING, L"ColumnDesc::base_column_name"),
+      m_type_name(DAL_TYPE_STRING, L"ColumnDesc::type_name"),
+      m_base_table_name(DAL_TYPE_STRING, L"ColumnDesc::base_table_name"),
       m_size(DAL_TYPE_INT, L"ColumnDesc::size"),
-      m_comment(DAL_TYPE_VARCHAR, L"ColumnDesc::comment"),
+      m_comment(DAL_TYPE_STRING, L"ColumnDesc::comment"),
       m_is_nullable(DAL_TYPE_BOOL, L"ColumnDesc::is_nullable"),
       m_precision(DAL_TYPE_USMALLINT, L"ColumnDesc::precision"),
       m_scale(DAL_TYPE_USMALLINT, L"ColumnDesc::scale"),
@@ -353,9 +353,9 @@ std::wstring daltype2string(daltype_t type)
     case DAL_TYPE_UINT: return std::wstring(L"DAL_TYPE_UINT");
     case DAL_TYPE_CHAR: return std::wstring(L"DAL_TYPE_CHAR");
     case DAL_TYPE_UCHAR: return std::wstring(L"DAL_TYPE_UCHAR");
-    case DAL_TYPE_VARCHAR: return std::wstring(L"DAL_TYPE_VARCHAR");
-    case DAL_TYPE_NVARCHAR: return std::wstring(L"DAL_TYPE_NVARCHAR");
-    case DAL_TYPE_NCHAR: return std::wstring(L"DAL_TYPE_NCHAR");
+    case DAL_TYPE_STRING: return std::wstring(L"DAL_TYPE_STRING");
+        //case DAL_TYPE_NVARCHAR: return std::wstring(L"DAL_TYPE_NVARCHAR");
+        //case DAL_TYPE_NCHAR: return std::wstring(L"DAL_TYPE_NCHAR");
     case DAL_TYPE_BOOL: return std::wstring(L"DAL_TYPE_BOOL");
     case DAL_TYPE_SMALLINT: return std::wstring(L"DAL_TYPE_SMALLINT");
     case DAL_TYPE_USMALLINT: return std::wstring(L"DAL_TYPE_USMALLINT");
@@ -388,9 +388,9 @@ std::wstring daltype2sqlname(daltype_t type)
     case DAL_TYPE_UINT: return std::wstring(L"INTEGER");
     case DAL_TYPE_CHAR: return std::wstring(L"CHAR");
     case DAL_TYPE_UCHAR: return std::wstring(L"CHAR");
-    case DAL_TYPE_VARCHAR: return std::wstring(L"VARCHAR");
-    case DAL_TYPE_NVARCHAR: return std::wstring(L"NVARCHAR");
-    case DAL_TYPE_NCHAR: return std::wstring(L"NCHAR");
+    case DAL_TYPE_STRING: return std::wstring(L"VARCHAR");
+        //case DAL_TYPE_NVARCHAR: return std::wstring(L"NVARCHAR");
+        //case DAL_TYPE_NCHAR: return std::wstring(L"NCHAR");
     case DAL_TYPE_BOOL: return std::wstring(L"BOOL");
     case DAL_TYPE_SMALLINT: return std::wstring(L"SMALLINT");
     case DAL_TYPE_USMALLINT: return std::wstring(L"SMALLINT");
@@ -434,9 +434,9 @@ IVariant::assign(const IVariant& var)
         case DAL_TYPE_UINT:       this->setUInt(var.asUInt()); break;
         case DAL_TYPE_CHAR:       this->setChar(var.asChar()); break;
         case DAL_TYPE_UCHAR:      this->setUChar(var.asUChar()); break;
-        case DAL_TYPE_VARCHAR:    this->setWideStr(var.asWideStr()); break;
-        case DAL_TYPE_NVARCHAR:   this->setWideStr(var.asWideStr()); break;
-        case DAL_TYPE_NCHAR:      this->setWideStr(var.asWideStr()); break;
+        case DAL_TYPE_STRING:    this->setWideStr(var.asWideStr()); break;
+            //case DAL_TYPE_NVARCHAR:   this->setWideStr(var.asWideStr()); break;
+            //case DAL_TYPE_NCHAR:      this->setWideStr(var.asWideStr()); break;
         case DAL_TYPE_BOOL:       this->setBool(var.asBool()); break;
         case DAL_TYPE_SMALLINT:   this->setSmallint(var.asSmallint()); break;
         case DAL_TYPE_USMALLINT:  this->setUSmallint(var.asUSmallint()); break;
@@ -950,11 +950,11 @@ DiagBase::DiagBase(dalstate_t state,
                    std::wstring description)
     : IDiagnostic(),
       m_state(state),
-      m_sqlstate(DAL_TYPE_VARCHAR, L"SqliteDiag::sqlstate"),
-      m_codepos(DAL_TYPE_VARCHAR, L"SqliteDiag::codepos"),
-      m_func(DAL_TYPE_VARCHAR, L"SqliteDiag::func"),
-      m_message(DAL_TYPE_VARCHAR, L"SqliteDiag::message"),
-      m_description(DAL_TYPE_VARCHAR, L"SqliteDiag::description")
+      m_sqlstate(DAL_TYPE_STRING, L"SqliteDiag::sqlstate"),
+      m_codepos(DAL_TYPE_STRING, L"SqliteDiag::codepos"),
+      m_func(DAL_TYPE_STRING, L"SqliteDiag::func"),
+      m_message(DAL_TYPE_STRING, L"SqliteDiag::message"),
+      m_description(DAL_TYPE_STRING, L"SqliteDiag::description")
       //m_sqlstate_id() // fix?
 {
     m_codepos.setStr(codepos, "UTF-8");
@@ -1053,7 +1053,7 @@ EnvBase::EnvBase(void)
   : IEnv(),
     m_options()
 { 
-    DAL_ADD_OPTION("env_library_path", DAL_TYPE_VARCHAR);
+    DAL_ADD_OPTION("env_library_path", DAL_TYPE_STRING);
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
     
     this->m_options["env_diag_maxsize"].setUInt(50);

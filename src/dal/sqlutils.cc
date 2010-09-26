@@ -56,9 +56,9 @@ SqlTypeParser::SqlTypeParser(void)
     this->registerType(DAL_TYPE_INT, L"INTEGER");
     //this->registerType(DAL_TYPE_INT, L"INTEGER*");
     this->registerType(DAL_TYPE_CHAR, L"CHAR");
-    this->registerType(DAL_TYPE_VARCHAR, L"VARCHAR");
-    this->registerType(DAL_TYPE_VARCHAR, L"VARCHAR(*");
-    //this->registerType(DAL_TYPE_VARCHAR, L"VARCHAR($1)");
+    this->registerType(DAL_TYPE_STRING, L"VARCHAR");
+    this->registerType(DAL_TYPE_STRING, L"VARCHAR(*");
+    //this->registerType(DAL_TYPE_STRING, L"VARCHAR($1)");
     this->registerType(DAL_TYPE_BOOL, L"BOOL");
     this->registerType(DAL_TYPE_SMALLINT, L"SHORTINT");
     this->registerType(DAL_TYPE_BIGINT, L"BIGINT");

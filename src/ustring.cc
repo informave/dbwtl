@@ -46,9 +46,67 @@
 
 #include "dbwtl/ustring.hh"
 
+#ifdef DBWTL_USE_ICONV
+#include <iconv.h>
+#endif
+
+#ifdef DBWTL_USE_ICU
+#include <unicode/ucnv.h>
+#include <unicode/ucnv_err.h>
+#include <unicode/uenum.h>
+#include <unicode/localpointer.h>
+#endif
+
+#include <iostream>
 
 namespace informave
 {
+
+namespace db
+{
+	ssize_t ustring_base::convert(const char *src, ssize_t srclen, const char *from, char *dest, ssize_t len, const char *to)
+	{
+
+
+//	std::cout << "output" << from << to << src << std::endl;
+
+                        UErrorCode errcode = U_ZERO_ERROR;
+                        int32_t c = ::ucnv_convert(to,
+                                                   from,
+                                                   dest,
+						   len,
+						src,
+						srclen,
+						&errcode);
+
+	//std::wcout << (wchar_t*)dest << std::endl;
+
+                        if(! U_SUCCESS(errcode))
+                        {
+                            switch(errcode)
+                            {
+                            case U_BUFFER_OVERFLOW_ERROR:
+                                std::cout << "BIG" << std::endl;
+                                break;
+                            case U_TRUNCATED_CHAR_FOUND:
+                                std::cout << "SEQ" << std::endl;
+                                break;
+
+                            case U_ILLEGAL_CHAR_FOUND:
+                            case U_INVALID_CHAR_FOUND:
+                                std::cout << "INVALID" << std::endl;
+                                break;
+                            default:
+                                std::cout << "ERR" << std::endl;
+                                break; /// bug fixme
+                            }
+                        }
+
+		return c;
+	}
+
+}
+
     namespace i18n
     {
 

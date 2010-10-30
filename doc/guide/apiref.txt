@@ -30,6 +30,21 @@ Syntax
 void Stmt::bind(size_t number, DBMS::Variant value);
 void Stmt::bind(size_t number, dal::IVariant* value);
 void Stmt::bind(size_t number, const dal::IVariant* value);
+
+template<class A, class B, class C>
+void Stmt::bind(int num, const std::basic_string<A, B, C>& data);
+
+template<class A, class B, class C>
+void Stmt::bind(int num, std::basic_string<A, B, C>* data);
+
+template<class A, class B, class C>
+void Stmt::bind(int num, const std::basic_string<A, B, C>* data);
+
+template<class A, class B>
+void Stmt::bind(int num, std::basic_streambuf<A, B>* data);
+
+template<class A, class B>
+void Stmt::bind(int num, const std::basic_streambuf<A, B>* data);
 -------------------------------------------------------------------------------
 
 

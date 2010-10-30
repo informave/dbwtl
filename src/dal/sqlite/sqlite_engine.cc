@@ -44,6 +44,7 @@
 #include "dbwtl/dal/engines/sqlite_engine.hh"
 #include "sqlite_libsqlite.hh"
 #include "../dal_debug.hh"
+#include "../../utils.hh"
 
 #include <sstream>
 #include <string>
@@ -116,18 +117,18 @@ SqliteData::~SqliteData(void)
 
 ///
 /// @todo implement other values, not only name
-SqliteTable::SqliteTable(std::wstring dbname, SqliteResult& src)
-    : m_name(DAL_TYPE_STRING, L"SqliteTable::name"),
-      m_catalog(DAL_TYPE_STRING, L"SqliteTable::catalog"),
-      m_schema(DAL_TYPE_STRING, L"SqliteTable::schema"),
-      m_comment(DAL_TYPE_STRING, L"SqliteTable::comment"),
-      m_ddl(DAL_TYPE_STRING, L"SqliteTable::ddl"),
-      m_systemobject(DAL_TYPE_BOOL, L"SqliteTable::systemobject")
+SqliteTable::SqliteTable(String dbname, SqliteResult& src)
+    : m_name(DAL_TYPE_STRING, "SqliteTable::name"),
+      m_catalog(DAL_TYPE_STRING, "SqliteTable::catalog"),
+      m_schema(DAL_TYPE_STRING, "SqliteTable::schema"),
+      m_comment(DAL_TYPE_STRING, "SqliteTable::comment"),
+      m_ddl(DAL_TYPE_STRING, "SqliteTable::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "SqliteTable::systemobject")
 {
-    this->m_name = src.column(L"name");
+    this->m_name = src.column("name");
     this->m_catalog = dbname;
-    this->m_ddl = src.column(L"sql");
-    this->m_systemobject.setBool(ifnull<bool>(src.column(L"sys"), false));
+    this->m_ddl = src.column("sql");
+    this->m_systemobject.setBool(ifnull<bool>(src.column("sys"), false));
 }
 
 
@@ -209,20 +210,20 @@ SqliteDbc::getTables(const ITableFilter&)
 {
     TableList list;
     SqliteStmt::ptr dblist(this->newStatement());
-    dblist->prepare(L"PRAGMA database_list");
+    dblist->prepare("PRAGMA database_list");
     dblist->execute();
     
     for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
     {
-        std::wstring dbname = dblist->resultset().column(L"name").asWideStr();
+        String::Internal dbname = dblist->resultset().column("name").asStr();
         
-        std::wstring sql_column_query =
-            L" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys"
-            L" FROM "+dbname+L".sqlite_master WHERE type = 'table'"
-            L" UNION"
-            L" SELECT 'sqlite_master', NULL, 1"
-            L" UNION"
-            L" SELECT 'sqlite_temp_master', NULL, 1";
+        String::Internal sql_column_query =
+            US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+            US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'table'")
+            US(" UNION")
+            US(" SELECT 'sqlite_master', NULL, 1")
+            US(" UNION")
+            US(" SELECT 'sqlite_temp_master', NULL, 1");
 
 
         //std::cout << i18n::conv_to(sql_column_query, "UTF-8") << std::endl;
@@ -245,10 +246,10 @@ SqliteDbc::getTables(const ITableFilter&)
     }
 
     // load temp tables
-    std::wstring sql_column_query =
-        L" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys"
-        L" FROM sqlite_temp_master"
-        L" WHERE type = 'table';";
+    String::Internal sql_column_query =
+        US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+        US(" FROM sqlite_temp_master")
+        US(" WHERE type = 'table';");
     
     SqliteStmt::ptr tables(this->newStatement());        
     tables->prepare(sql_column_query);
@@ -256,7 +257,7 @@ SqliteDbc::getTables(const ITableFilter&)
     
     for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
     {
-        list.push_back(new SqliteTable(L"temp", tables->resultset()));
+        list.push_back(new SqliteTable("temp", tables->resultset()));
     }
     
     return list;
@@ -273,31 +274,31 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
     SqliteDatatype *dt = 0;
     
     dt = new SqliteDatatype();
-    dt->m_name.setWideStr(L"BLOB");
+    dt->m_name.setStr("BLOB");
     dt->m_size.setInt(-1);
     dt->m_daltype = DAL_TYPE_BLOB;
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setWideStr(L"INTEGER");
+    dt->m_name.setStr("INTEGER");
     dt->m_size.setInt(-1);
     dt->m_daltype = DAL_TYPE_BIGINT;
     dt->m_is_unsigned.setBool(false);
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setWideStr(L"REAL");
+    dt->m_name.setStr("REAL");
     dt->m_size.setInt(sizeof(double));
     dt->m_daltype = DAL_TYPE_DOUBLE;
     dt->m_is_unsigned.setBool(false);
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setWideStr(L"TEXT");
+    dt->m_name.setStr("TEXT");
     dt->m_size.setInt(65000);
     dt->m_daltype = DAL_TYPE_STRING;
-    dt->m_literal_prefix.setWideStr(L"'");
-    dt->m_literal_suffix.setWideStr(L"'");
+    dt->m_literal_prefix.setStr("'");
+    dt->m_literal_suffix.setStr("'");
     dtlist.push_back(dt);
     
    
@@ -310,10 +311,10 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
 void
 SqliteDbc::beginTrans(IDbc::trx_mode mode,
                       IDbc::access_mode access,
-                      std::wstring name)
+                      String name)
 {
     std::string s_cmd("BEGIN TRANSACTION ");
-    this->directCmd(i18n::conv_from(s_cmd, "UTF-8"));
+    this->directCmd(s_cmd);
 }
 
 
@@ -322,16 +323,16 @@ SqliteDbc::beginTrans(IDbc::trx_mode mode,
 void      
 SqliteDbc::commit(void)
 {
-    this->directCmd(L"COMMIT");
+    this->directCmd("COMMIT");
 }
 
 
 
 //
 void    
-SqliteDbc::savepoint(std::wstring name)
+SqliteDbc::savepoint(String name)
 {
-    std::wstring s(L"SAVEPOINT ");
+    String s("SAVEPOINT ");
     s.append(name);
     this->directCmd(s);
 }
@@ -340,12 +341,12 @@ SqliteDbc::savepoint(std::wstring name)
 
 //
 void    
-SqliteDbc::rollback(std::wstring name)
+SqliteDbc::rollback(String name)
 {
-    std::wstring s(L"ROLLBACK");
+    String s("ROLLBACK");
     if(! name.empty())
     {
-        s.append(L" TO SAVEPOINT ");
+        s.append(" TO SAVEPOINT ");
         s.append(name);
     }
     this->directCmd(s);
@@ -355,7 +356,7 @@ SqliteDbc::rollback(std::wstring name)
 
 //
 void     
-SqliteDbc::directCmd(std::wstring cmd)
+SqliteDbc::directCmd(String cmd)
 {
     SqliteStmt::ptr stmt(this->newStatement());
     stmt->execDirect(cmd);
@@ -369,7 +370,8 @@ SqliteDbc::directCmd(std::wstring cmd)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //
-SqliteEnv::SqliteEnv(void) : EnvBase()
+SqliteEnv::SqliteEnv(void) : EnvBase(),
+                             m_diag()
 { }
 
 
@@ -417,25 +419,25 @@ void SqliteVariant::refresh(void)
 
 //
 sqlite::ENV*
-sqlite::createEnv(std::wstring driver)
+sqlite::createEnv(String driver)
 {
-    std::wstring drv;
+    String::Internal drv;
 
     drv = parse_driver(driver)["driver"];
     if(! drv.length())
         goto err;
 
-    else if(drv.compare(L"libsqlite") == 0)
+    else if(drv.compare(String("libsqlite")) == 0)
         return new SqliteEnv_libsqlite(parse_driver(driver)["lib"]);
 
 /*
-  else if(drv.compare(L"odbc") == 0)
+  else if(drv.compare("odbc") == 0)
   return new SqliteEnv_odbc(parse_driver(driver)["lib"]);
 */
 
     // nothing found..
 err:
-    throw ex::engine_error(L"Driver \"" + drv + L"\" is not a valid driver name.");
+    throw ex::engine_error(US("Driver '") + drv + US("' is not a valid driver name."));
 }
 
 
@@ -460,7 +462,7 @@ sqlite::sqlstate2string(STATES::engine_states_t id)
 
         //DAL_NAMEOF_STATE(XY000);
     }
-    throw ex::engine_error(L"Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
 }
 #undef DAL_NAMEOF_STATE
 
@@ -474,8 +476,8 @@ sqlite::sqlstate2string(STATES::engine_states_t id)
 SqliteDiag::SqliteDiag(dalstate_t state,
                        const char *codepos,
                        const char *func,
-                       std::wstring message,
-                       std::wstring description)
+                       String message,
+                       String description)
     : DiagBase(state, codepos, func, message, description),
       m_sqlstate_id() // fix?
 {
@@ -517,7 +519,7 @@ SqliteDiag::raiseException(void) const
 
         //DAL_THROW_STATE(XY000);
     }
-    throw ex::engine_error(L"Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
 }
 
 #undef DAL_THROW_STATE

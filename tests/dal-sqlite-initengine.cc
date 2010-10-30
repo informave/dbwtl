@@ -28,8 +28,8 @@ int test(void)
     // print current state
     //std::cout << Sqlite::engine_state(state);
     
-    std::cout << "Driver name: " << i18n::conv_to(dbc->driverName(), "ISO-8859-1") << std::endl;
-    std::cout << "DBMS name: " << i18n::conv_to(dbc->dbmsName(), "ISO-8859-1") << std::endl;
+    std::cout << "Driver name: " << dbc->driverName().to("ISO-8859-1") << std::endl;
+    std::cout << "DBMS name: " << dbc->dbmsName().to("ISO-8859-1") << std::endl;
 
 
     
@@ -89,8 +89,8 @@ int test(void)
     // print header
     for(size_t i = 1; i <= res.columnCount(); ++i)
     {
-        std::cout << i18n::conv_to(res.columnName(i), "UTF-8") << " (" 
-                  << res.describeColumn(i).getName().asStr("UTF-8") << ") ";
+        std::cout << res.columnName(i).to("UTF-8") << " (" 
+                  << res.describeColumn(i).getName().asStr().to("UTF-8") << ") ";
     }
 
 
@@ -108,7 +108,7 @@ int test(void)
                 std::cout << "<NULL>" << " | ";
             else
             {
-                std::cout << res.column(i).asStr("UTF-8") << " = ";
+                std::cout << res.column(i).asStr().to("UTF-8") << " = ";
                 //std::cout << res.field(i).asWideStr("ISO-8859-15") << " | ";
                 if(res.describeColumn(i).getDatatype() == DAL_TYPE_BLOB)
                 {

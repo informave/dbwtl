@@ -8,3 +8,7 @@ ${DBWTL_MAIN_DOC_DIR})
 
 add_custom_target(rfc ${DBWTL_MAIN_DOC_DIR}/rfc/genrfc.sh
 ${DBWTL_MAIN_DOC_DIR})
+
+add_custom_target(sdiref ${DBWTL_MAIN_DOC_DIR}/sdiref/gensdiref.sh
+${DBWTL_MAIN_DOC_DIR})
+

@@ -164,8 +164,8 @@ protected:
     SqliteDiag(dalstate_t state,
                const char *codepos,
                const char *func,
-               std::wstring message,
-               std::wstring description);
+               String message,
+               String description);
     
     SqliteDiag(const SqliteDiag& ref);
 
@@ -212,7 +212,7 @@ public:
  
     virtual rowid_t getCurrentRowID(void) const = 0;
 
-    virtual std::wstring getString(void) const = 0;
+    virtual String getString(void) const = 0;
 
     virtual bool isnull(void) const = 0;
 
@@ -233,8 +233,8 @@ public:
 
 
     virtual daltype_t  datatype(void) const { return DAL_TYPE_CUSTOM; }
-    virtual std::wstring asWideStr(std::locale loc) const { return L"foo"; }
-    virtual std::wstring asWideStr() const { return L"foo"; }
+    virtual String asStr(std::locale loc) const { return L"foo"; }
+    //virtual std::wstring asWideStr() const { return L"foo"; }
 };
 
 }
@@ -281,7 +281,7 @@ public:
         util::RefCounted,
         util::AllowConversion> ptr;
     
-    SqliteTable(std::wstring dbname, SqliteResult& src);
+    SqliteTable(String dbname, SqliteResult& src);
     
     virtual ~SqliteTable(void);
 
@@ -369,13 +369,13 @@ public:
 
     virtual const value_type&     column(colnum_t num) = 0;
     //virtual SqliteVariant&     field(colnum_t num) = 0;
-    virtual const value_type&     column(std::wstring name) = 0;
+    virtual const value_type&     column(String name) = 0;
     //virtual SqliteVariant&     field(std::wstring name) = 0;
 
 
     virtual const SqliteColumnDesc& describeColumn(colnum_t num) const = 0;
 
-    virtual const SqliteColumnDesc& describeColumn(std::wstring name) const = 0;
+    virtual const SqliteColumnDesc& describeColumn(String name) const = 0;
   
 protected:
     SqliteDiagController &m_diag;
@@ -393,7 +393,9 @@ class DBWTL_EXPORT SqliteStmt : public StmtBase
 public:
     typedef std::auto_ptr<SqliteStmt> ptr;
 
-    SqliteStmt(void) : StmtBase()
+    SqliteStmt(void)
+        : StmtBase(),
+        m_diag()
     {}
 
     virtual SqliteResult&        resultset(void) = 0;
@@ -418,6 +420,11 @@ class DBWTL_EXPORT SqliteDbc : public DbcBase
 public:
     typedef std::auto_ptr<SqliteDbc> ptr;
 
+    SqliteDbc(void)
+        : DbcBase(),
+        m_diag()
+        {}
+
     virtual SqliteStmt*    newStatement(void) = 0;
 
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter());
@@ -426,15 +433,15 @@ public:
 
     virtual void           beginTrans(IDbc::trx_mode mode,
                                       IDbc::access_mode access,
-                                      std::wstring name = std::wstring());
+                                      String name = String());
 
     virtual void           commit(void);
  
-    virtual void           savepoint(std::wstring name);
+    virtual void           savepoint(String name);
 
-    virtual void           rollback(std::wstring name = std::wstring());
+    virtual void           rollback(String name = String());
 
-    virtual void           directCmd(std::wstring cmd);
+    virtual void           directCmd(String cmd);
 
 
     virtual bool                diagAvail(void) const;
@@ -503,7 +510,7 @@ struct sqlite
     /// Current supported drivers are:
     ///  - libsqlite
     ///
-    DBWTL_EXPORT static ENV* createEnv(std::wstring driver);
+    DBWTL_EXPORT static ENV* createEnv(String driver);
 };
 
 
@@ -535,7 +542,7 @@ public:
     }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         return this->getValue()->getString();
     }
@@ -615,6 +622,10 @@ DB_NAMESPACE_BEGIN
 
 struct sqlite_datatypes : public basic_datatypes
 {
+/*
+    virtual ~sqlite_datatypes(void)
+    {}
+*/
 	typedef dal::sqlite_ext::Text Text;
 };
 
@@ -624,11 +635,7 @@ class SqliteEnvironment : public Environment<dal::sqlite, tag>
 {
 public:
 
-    SqliteEnvironment(std::wstring str)
-        : Environment<dal::sqlite, tag>(str)
-    {}
-
-    SqliteEnvironment(std::string str)
+    SqliteEnvironment(String str)
         : Environment<dal::sqlite, tag>(str)
     {}
 

@@ -14,7 +14,7 @@ int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
-    using namespace informave::i18n;
+//    using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
     
@@ -29,7 +29,7 @@ int test(void)
     DBMS::Connection dbc(env);
     dbc.connect(L"sampledb.sqlitedb");
 
-    std::cout << conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
+    std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 
 
 
@@ -49,31 +49,31 @@ int test(void)
     {
     	const DBMS::ColumnDesc &desc = res.describeColumn(i);
         std::cout << "name:      " << (desc.getName().isnull() ? "<null>" :
-                                       desc.getName().asStr("UTF-8")) << std::endl;
+                                       desc.getName().asStr().to("UTF-8")) << std::endl;
         std::cout << "catalog:   " << (desc.getCatalogName().isnull() ? "<null>" :
-                                       desc.getCatalogName().asStr("UTF-8")) << std::endl;
+                                       desc.getCatalogName().asStr().to("UTF-8")) << std::endl;
         std::cout << "schema:    " << (desc.getSchemaName().isnull() ? "<null>" :
-                                       desc.getSchemaName().asStr("UTF-8")) << std::endl;
+                                       desc.getSchemaName().asStr().to("UTF-8")) << std::endl;
         std::cout << "base name  " << (desc.getBaseColumnName().isnull() ? "<null>" :
-                                       desc.getBaseColumnName().asStr("UTF-8")) << std::endl;
+                                       desc.getBaseColumnName().asStr().to("UTF-8")) << std::endl;
         std::cout << "typename:  " << (desc.getTypeName().isnull() ? "<null>" :
-                                       desc.getTypeName().asStr("UTF-8")) << std::endl;
+                                       desc.getTypeName().asStr().to("UTF-8")) << std::endl;
         std::cout << "table:     " << (desc.getBaseTableName().isnull() ? "<null>" :
-                                       desc.getBaseTableName().asStr("UTF-8")) << std::endl;
+                                       desc.getBaseTableName().asStr().to("UTF-8")) << std::endl;
         std::cout << "size:      " << (desc.getSize().isnull() ? "<null>" :
-                                       desc.getSize().asStr("UTF-8")) << std::endl;
+                                       desc.getSize().asStr().to("UTF-8")) << std::endl;
         std::cout << "comment    " << (desc.getComment().isnull() ? "<null>" :
-                                       desc.getComment().asStr("UTF-8")) << std::endl; 
+                                       desc.getComment().asStr().to("UTF-8")) << std::endl; 
         std::cout << "nullable:  " << (desc.getIsNullable().isnull() ? "<null>" :
-                                       desc.getIsNullable().asStr("UTF-8")) << std::endl;
+                                       desc.getIsNullable().asStr().to("UTF-8")) << std::endl;
         std::cout << "precision  " << (desc.getPrecision().isnull() ? "<null>" :
-                                       desc.getPrecision().asStr("UTF-8")) << std::endl;
+                                       desc.getPrecision().asStr().to("UTF-8")) << std::endl;
         std::cout << "scale:     " << (desc.getScale().isnull() ? "<null>" :
-                                       desc.getScale().asStr("UTF-8")) << std::endl;
+                                       desc.getScale().asStr().to("UTF-8")) << std::endl;
         std::cout << "searchable " << (desc.getIsSearchable().isnull() ? "<null>" :
-                                       desc.getIsSearchable().asStr("UTF-8")) << std::endl;
+                                       desc.getIsSearchable().asStr().to("UTF-8")) << std::endl;
 
-        std::cout << "type:      " << conv_to(daltype2string(desc.getDatatype()), "UTF-8") << std::endl;
+        std::cout << "type:      " << daltype2string(desc.getDatatype()).to("UTF-8") << std::endl;
         std::cout << std::endl;
 
 

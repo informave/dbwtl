@@ -14,7 +14,7 @@ int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
-    using namespace informave::i18n;
+    //using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
     
@@ -29,7 +29,7 @@ int test(void)
     DBMS::Connection dbc(env);
     dbc.connect(L"sampledb.sqlitedb");
 
-    std::cout << conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
+    std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 
 
 
@@ -37,8 +37,9 @@ int test(void)
                   L"name VARCHAR(50), bday DATE, married BOOL);");
 
 
-    
+
     dal::TableList list = dbc.getTables();
+    
     for(dal::TableList::const_iterator i = list.begin();
         i != list.end();
         ++i)
@@ -47,8 +48,8 @@ int test(void)
         std::cout << "DB  : " << (*i)->getCatalog() << std::endl;
         std::cout << "NAME: " << (*i)->getName() << std::endl;
         std::cout << "SYS : " << (*i)->isSystemObject().asBool() << std::endl;
-        std::cout << "DLL : " << ifnull<std::string>((*i)->getDDL(),
-                                                     std::string("NULL"))
+        std::cout << "DLL : " << ifnull<String>((*i)->getDDL(),
+                                                     String("NULL"))
                   << std::endl;
 
         

@@ -73,15 +73,15 @@ public:
 //                         const char *sqlstate,
                          const char *codepos,
                          const char *func,
-                         std::wstring message,
-                         std::wstring description,
+                         String message,
+                         String description,
                          int sqlite_code,
                          int sqlite_excode);
 
     SqliteDiag_libsqlite(const SqliteDiag_libsqlite& ref);
     virtual ~SqliteDiag_libsqlite(void);
     
-    virtual std::wstring str(void) const;
+    virtual String str(void) const;
     virtual SqliteDiag_libsqlite* clone(void) const;    
 
 protected:
@@ -148,7 +148,7 @@ public:
     virtual bool         isnull(void) const;
     virtual rowid_t      getCurrentRowID(void) const;
 
-    virtual std::wstring getString(void) const;
+    virtual String getString(void) const;
 
     virtual daltype_t daltype(void) const;
 
@@ -202,15 +202,15 @@ public:
 
     virtual const SqliteVariant&     column(colnum_t num);
     //virtual SqliteVariant&     field(colnum_t num);
-    virtual const SqliteVariant&     column(std::wstring name);
+    virtual const SqliteVariant&     column(String name);
     //virtual SqliteVariant&     field(std::wstring name);
 
     //virtual IBlob&           getBlob(colnum_t num) = 0;
 
     // column methods
     virtual size_t             columnCount(void) const;
-    virtual colnum_t           columnID(std::wstring name) const;
-    virtual std::wstring      columnName(colnum_t num) const;
+    virtual colnum_t           columnID(String name) const;
+    virtual String      columnName(colnum_t num) const;
 
     virtual rowid_t            getCurrentRowID(void) const;
 
@@ -221,7 +221,7 @@ public:
 
     virtual const SqliteColumnDesc& describeColumn(colnum_t num) const;
 
-    virtual const SqliteColumnDesc& describeColumn(std::wstring name) const;
+    virtual const SqliteColumnDesc& describeColumn(String name) const;
 
 
     virtual SqliteDbc_libsqlite& getDbc(void) const;
@@ -232,7 +232,7 @@ public:
         }
 
     // sqlite specific
-    virtual void   prepare(std::wstring sql);
+    virtual void   prepare(String sql);
     virtual void   execute(StmtBase::ParamMap& params);
 
 
@@ -322,10 +322,10 @@ public:
     virtual SqliteResult&        resultset(void);
     virtual const SqliteResult&  resultset(void) const;
 
-    virtual void      prepare(std::wstring sql);
+    virtual void      prepare(String sql);
     virtual bool      isPrepared(void) const;
     virtual void      execute(void);
-    virtual void      execDirect(std::wstring sql);
+    virtual void      execDirect(String sql);
     //virtual void      execDirect(std::istream src) = 0;
     virtual void      close(void);
 
@@ -380,14 +380,14 @@ public:
 
     virtual SqliteStmt_libsqlite*    newStatement(void);
 
-    virtual void     connect(std::wstring database,
-                             std::wstring user = std::wstring(),
-                             std::wstring password = std::wstring());
+    virtual void     connect(String database,
+                             String user = String(),
+                             String password = String());
     virtual void     connect(IDbc::Options& options);
     virtual void     disconnect(void);
 
-    virtual std::wstring  driverName(void) const;
-    virtual std::wstring  dbmsName(void) const;
+    virtual String  driverName(void) const;
+    virtual String  dbmsName(void) const;
 
     virtual SQLite3Drv*    getDriver(void) const;
 
@@ -436,7 +436,7 @@ private:
 class SqliteEnv_libsqlite : public SqliteEnv
 {
 public:
-    SqliteEnv_libsqlite(std::wstring lib = std::wstring());
+    SqliteEnv_libsqlite(String lib = String());
     virtual ~SqliteEnv_libsqlite(void);
 
     virtual SqliteDbc_libsqlite* newConnection(void);

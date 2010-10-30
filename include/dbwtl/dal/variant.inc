@@ -15,6 +15,8 @@ DAL_NAMESPACE_BEGIN
             : variant_dispatch_storage(var)                 \
         {}                                                  \
                                                             \
+        virtual ~variant_dispatch_method(void) {}           \
+                                                            \
         type operator()(void) const                         \
         {                                                   \
             return this->get().method();                    \
@@ -26,8 +28,8 @@ DBWTL_VARIANT_DISPATCHER(asInt,        signed int);
 DBWTL_VARIANT_DISPATCHER(asUInt,       unsigned int);
 DBWTL_VARIANT_DISPATCHER(asChar,       signed char);
 DBWTL_VARIANT_DISPATCHER(asUChar,      unsigned char);
-DBWTL_VARIANT_DISPATCHER(asWideStr,    std::wstring);
-DBWTL_VARIANT_DISPATCHER(asStr,        std::string);
+DBWTL_VARIANT_DISPATCHER(asStr,    String);
+//DBWTL_VARIANT_DISPATCHER(asStr,        std::string);
 DBWTL_VARIANT_DISPATCHER(asBool,       bool);
 DBWTL_VARIANT_DISPATCHER(asSmallint,   signed short);
 DBWTL_VARIANT_DISPATCHER(asUSmallint,  unsigned short);
@@ -40,6 +42,21 @@ DBWTL_VARIANT_DISPATCHER(asDate,       TDate);
 DBWTL_VARIANT_DISPATCHER(asTime,       TTime);
 DBWTL_VARIANT_DISPATCHER(asTimestamp,  TTimestamp);
 
+/*
+    template<>                                              
+    struct variant_dispatch_method<String>                    
+        : public variant_dispatch_storage                   
+    {                                                       
+        variant_dispatch_method(const dal::IVariant &var)   
+            : variant_dispatch_storage(var)                 
+        {}                                                  
+        
+        String operator()(void) const                         
+        {                                                   
+            return this->get().asStr();                    
+        }                                                   
+    }
+*/
 
 
 
@@ -168,7 +185,7 @@ public:
     }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -199,7 +216,7 @@ public:
     }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -223,7 +240,7 @@ public:
     { return *this->getValue(); }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -389,7 +406,7 @@ public:
     }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -421,7 +438,7 @@ public:
     }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -441,7 +458,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_BOOL; }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -475,7 +492,7 @@ public:
     }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -501,7 +518,7 @@ public:
     }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String aStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -520,7 +537,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_SMALLINT; }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -552,7 +569,7 @@ public:
         this->m_isnull = false;
     }
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -576,7 +593,7 @@ public:
         this->m_isnull = false;
     }
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -595,7 +612,7 @@ public:
     virtual daltype_t datatype() const { return DAL_TYPE_USMALLINT; }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         std::wstringstream ss;
         ss.imbue(loc);
@@ -1171,7 +1188,7 @@ virtual daltype_t datatype() const { return DAL_TYPE_XML; }
 /// @brief Storage accessor for std::wstring
 ///
 template<>
-struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::wstring> >
+struct storage_accessor<String> : public BaseVariantImplFor<sa_base<String> >
 {
     DAL_VARIANT_DEFINE_ACCESSOR(DAL_TYPE_STRING)
 
@@ -1199,7 +1216,7 @@ struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::w
 //     {
 //     }
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         return this->getValue();
     }
@@ -1306,7 +1323,7 @@ struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::w
 //     {
 //     }
 
-    virtual void setWideStr(const std::wstring  &val, std::locale loc = std::locale())
+    virtual void setStr(const String  &val, std::locale loc = std::locale())
     {
         this->getValue() = val;
         this->m_isnull = false;
@@ -1344,7 +1361,7 @@ struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::w
 
     virtual void setNumeric(const TNumeric &val)
     {
-        this->getValue() = val.asWideStr();
+        this->getValue() = val.asStr();
         this->m_isnull = false;
     }
 
@@ -1362,25 +1379,25 @@ struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::w
 
     virtual void setDate(const TDate &val)
     {
-        this->getValue() = val.asWideStr();
+        this->getValue() = val.asStr();
         this->m_isnull = false;
     }
 
     virtual void setTime(const TTime &val)
     {
-        this->getValue() = val.asWideStr();
+        this->getValue() = val.asStr();
         this->m_isnull = false;
     }
 
     virtual void setTimestamp(const TTimestamp &val)
     {
-        this->getValue() = val.asWideStr();
+        this->getValue() = val.asStr();
         this->m_isnull = false;
     }
 
     virtual void setInterval(const TInterval &val)
     {
-        this->getValue() = val.asWideStr();
+        this->getValue() = val.asStr();
         this->m_isnull = false;
     }
 
@@ -1404,7 +1421,7 @@ struct storage_accessor<std::wstring> : public BaseVariantImplFor<sa_base<std::w
 
 
 template<>
-class storage_accessor<std::wstring*> : public BaseVariantImplFor<sa_base<std::wstring*> >
+class storage_accessor<String*> : public BaseVariantImplFor<sa_base<String*> >
 {
 public:
     DAL_VARIANT_ACCESSOR;
@@ -1416,10 +1433,16 @@ public:
         return DAL_TYPE_STRING;
     }
 
+    virtual String asStr(std::locale loc = std::locale()) const
+    {
+        //std::cout << "Reading: " << *this->getValue() << std::endl;
+        return String(*this->getValue());
+    }
+
 };
 
 template<>
-class storage_accessor<const std::wstring*> : public BaseVariantImplFor<sa_base<const std::wstring*> >
+class storage_accessor<const String*> : public BaseVariantImplFor<sa_base<const String*> >
 {
 public:
     DAL_VARIANT_ACCESSOR;
@@ -1429,6 +1452,11 @@ public:
     virtual daltype_t datatype() const
     {
         return DAL_TYPE_STRING;
+    }
+
+    virtual String asStr(std::locale loc = std::locale()) const
+    {
+        return *this->getValue();
     }
 };
 
@@ -1449,7 +1477,7 @@ public:
     { return this->getValue()->asInt(); }
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         return L"Implement me";
     }
@@ -1474,7 +1502,7 @@ public:
 
 
 
-    virtual std::wstring asWideStr(std::locale loc = std::locale()) const
+    virtual String asStr(std::locale loc = std::locale()) const
     {
         return L"Implement me";
     }
@@ -1531,7 +1559,7 @@ unsigned char   BaseVariantImplFor<Base>::asUChar(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_UCHAR); }
 
 template<class Base>
-std::wstring   BaseVariantImplFor<Base>::asWideStr(std::locale loc) const 
+String   BaseVariantImplFor<Base>::asStr(std::locale loc) const 
 { throw ex::convert_error(this->datatype(), DAL_TYPE_STRING); }
 
 
@@ -1637,7 +1665,7 @@ void            BaseVariantImplFor<Base>::setUChar(const unsigned char&)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setWideStr(const std::wstring&, std::locale loc) 
+void            BaseVariantImplFor<Base>::setStr(const String&, std::locale loc) 
 { throw ex::read_only(); }
 
 template<class Base>

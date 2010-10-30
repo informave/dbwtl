@@ -71,9 +71,9 @@ namespace ex
         virtual ~exception(void) throw()
         {}
         
-        virtual void setMessage(const std::wstring &msg);
+        virtual void setMessage(const String &msg);
 
-        virtual const std::wstring& getMessage() const;
+        virtual const String& getMessage() const;
 
         /// Reimplement to provide our own message
         virtual const char* what(void) const throw();
@@ -88,7 +88,7 @@ namespace ex
             {}
 
 
-        std::wstring        m_msg;
+        String        m_msg;
         std::string          m_msg_narrow;
         //dal::dalstate_t      m_state;
     };
@@ -104,7 +104,7 @@ namespace ex
     class DBWTL_EXPORT convert_error : public exception
     {
     public:
-        convert_error(const std::wstring &varname = std::wstring());
+        convert_error(const String &varname = String());
 
         /// @note The name of the variant is extracted from the argument
         convert_error(const dal::Variant &var);
@@ -121,7 +121,7 @@ namespace ex
         {}
 
     protected:
-        std::wstring m_varname;
+        String m_varname;
     };
 
 
@@ -134,7 +134,7 @@ namespace ex
     class DBWTL_EXPORT null_value : public exception
     {
     public:
-        null_value(const std::wstring &varname = std::wstring());
+        null_value(const String &varname = String());
 
         null_value(const dal::Variant &var);
 
@@ -144,7 +144,7 @@ namespace ex
         {}
 
     protected:
-        std::wstring m_varname;
+        String m_varname;
     };
 
 
@@ -158,7 +158,7 @@ namespace ex
     public:
         //engine_error(dal::dalstate_t state);
 
-        engine_error(const std::wstring &what);
+        engine_error(const String &what);
 
         virtual ~engine_error(void) throw()
         {}
@@ -175,7 +175,7 @@ namespace ex
     class DBWTL_EXPORT sql_error : public engine_error
     {
     public:
-        sql_error(const std::wstring &sql, const std::wstring &what);
+        sql_error(const String &sql, const String &what);
 
         //sql_error(dal::dalstate_t state, const std::wstring &sql, const std::wstring &what);
 
@@ -183,14 +183,14 @@ namespace ex
         {}
 
         /// @brief Returns the SQL that caused the error
-        virtual const std::wstring& getSQL(void) const;
+        virtual const String& getSQL(void) const;
         
         /// @brief Returns the error message reported by the backend engine
-        virtual const std::wstring& getError(void) const;
+        virtual const String& getError(void) const;
         
     protected:
-        std::wstring m_sql;
-        std::wstring m_what;
+        String m_sql;
+        String m_what;
     };
 
 
@@ -203,14 +203,17 @@ namespace ex
     {
     public:
     	sqlstate_exception(const dal::IDiagnostic& diag_to_clone)
-            : engine_error(diag_to_clone.str())
+            : engine_error(diag_to_clone.str()),
+            m_diag()
+        
         { 
             this->m_diag.reset(diag_to_clone.clone());
         }
 
 
         sqlstate_exception(const sqlstate_exception& orig)
-            : engine_error(orig)
+            : engine_error(orig),
+            m_diag()
         {
             this->m_diag.reset(orig.m_diag->clone());
         }
@@ -245,7 +248,7 @@ namespace ex
     public:
         //not_found(dal::dalstate_t state, const std::wstring &what = std::wstring());
 
-        not_found(const std::wstring &what);
+        not_found(const String &what);
 
         virtual ~not_found(void) throw()
         {}
@@ -262,11 +265,11 @@ namespace ex
     class DBWTL_EXPORT charset_error : public exception
     {
     public:
-        charset_error(std::string data, std::wstring from_charset,
-                      std::wstring to_charset);
+        charset_error(std::string data, String from_charset,
+                      String to_charset);
 
-        charset_error(std::wstring data, std::wstring from_charset,
-                      std::wstring to_charset);
+        charset_error(String data, String from_charset,
+                      String to_charset);
 
         virtual ~charset_error(void) throw()
         {}
@@ -284,7 +287,7 @@ namespace ex
     public:
         //read_only(dal::dalstate_t state, const std::wstring &resource_name);
 
-        read_only(const std::wstring &resource_name = std::wstring(L"<unnamed>"),
+        read_only(const String &resource_name = String(L"<unnamed>"),
                   const char *triggered_by = "<unknown>");
 
         virtual ~read_only(void) throw()
@@ -302,14 +305,14 @@ namespace ex
     class DBWTL_EXPORT missing_function : public engine_error
     {
     public:
-        missing_function(const std::string &func_name, const std::wstring &module_path = L"<unknown module>");
+        missing_function(const std::string &func_name, const String &module_path = L"<unknown module>");
 
         virtual ~missing_function(void) throw()
         {}
 
     protected:
         std::string m_func_name;
-        std::wstring m_module_path;
+        String m_module_path;
     };
 
 
@@ -322,7 +325,7 @@ namespace ex
     class DBWTL_EXPORT logic_error : public exception
     {
     public:
-        logic_error(const std::wstring &what);
+        logic_error(const String &what);
 
         //logic_error(dal::dalstate_t state);
 
@@ -340,7 +343,7 @@ namespace ex
     class DBWTL_EXPORT busy_error : public engine_error
     {
     public:
-        busy_error(const std::wstring &what);
+        busy_error(const String &what);
 
         //busy_error(dal::dalstate_t state, const std::wstring &what);
 

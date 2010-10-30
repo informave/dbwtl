@@ -56,7 +56,7 @@ DAL_NAMESPACE_BEGIN
 struct generic;
 
 /// parse a driver string
-std::map<std::string, std::wstring> parse_driver(const std::wstring &str);
+std::map<std::string, String::Internal> parse_driver(const String::Internal &str);
 
 
 
@@ -65,7 +65,10 @@ std::map<std::string, std::wstring> parse_driver(const std::wstring &str);
 
 struct generic_sqlstates : public basic_states
 {
-    
+    virtual ~generic_sqlstates(void)
+    {}
+
+
     // dynamic SQL error
     typedef sqlstate<DAL_SQLSTATE_07000>                         SQLSTATE_07000;
     typedef sqlstate<DAL_SQLSTATE_07000>                         SQLSTATE_dynamic_sql_error;
@@ -670,7 +673,7 @@ struct generic
     /// Current supported drivers are:
     ///  - libsqlite
     ///
-    DBWTL_EXPORT static ENV* createEnv(std::wstring driver); 
+    DBWTL_EXPORT static ENV* createEnv(String driver); 
 };
 
 

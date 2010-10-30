@@ -33,8 +33,8 @@ int test(void)
     //std::cout << Sqlite::engine_state(state);
 
 
-    std::cout << "Driver name: " << i18n::conv_to(dbc->driverName(), "ISO-8859-1") << std::endl;
-    std::cout << "DBMS name: " << i18n::conv_to(dbc->dbmsName(), "ISO-8859-1") << std::endl;
+    std::cout << "Driver name: " << dbc->driverName().to("ISO-8859-1") << std::endl;
+    std::cout << "DBMS name: " << dbc->dbmsName().to("ISO-8859-1") << std::endl;
 
 
     

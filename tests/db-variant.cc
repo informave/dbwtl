@@ -15,13 +15,13 @@ int test(void)
 {
     using namespace informave::db;
     using namespace informave::db::dal;
-    using namespace informave::i18n;
+//    using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
 
     {
         Variant v(DAL_TYPE_STRING, L"varchar");
-        v.setWideStr(L"1");        
+        v.setStr(L"1");        
         assert(v.asBool() == true);
     }
 
@@ -29,13 +29,13 @@ int test(void)
         Variant v(DAL_TYPE_STRING, L"varchar");
         std::wstringstream ss(L"foobar");
         v.setMemo(ss.rdbuf());
-        assert(v.asWideStr() == L"foobar");
+        assert(v.asStr() == L"foobar");
     }
 
 
     {
         Variant v(DAL_TYPE_STRING, L"varchar");
-        v.setWideStr(L"123");
+        v.setStr(L"123");
         assert(v.asInt() == 123);
         assert(v.asUInt() == 123);
 //         assert(v.asBool() == true);
@@ -52,9 +52,9 @@ int test(void)
 //         assert(v.asInternval() == 123);
 //         assert(v.asBlob() == 123);
 //         assert(v.asMemo() == 123);
-        v.setWideStr(L"123.456");
+        v.setStr(L"123.456");
         assert(v.asInt() == 123);
-        v.setWideStr(L"-123.456");
+        v.setStr(L"-123.456");
         assert(v.asInt() == -123);
 
     }
@@ -78,7 +78,7 @@ int test(void)
     //v_x.setNull();
     try
     {
-        v_x.asWideStr();
+        v_x.asStr();
         assert(!"variant is not null");
     }
     catch(ex::null_value&)

@@ -43,6 +43,7 @@
 
 //#include "db_exceptions.hh"
 #include "dbwtl/dal/dal_interface.hh"
+#include "utils.hh"
 
 DB_NAMESPACE_BEGIN
 
@@ -62,16 +63,16 @@ namespace ex
     //
     //
     void
-    exception::setMessage(const std::wstring &msg)
+    exception::setMessage(const String &msg)
     {
         this->m_msg = msg;
-        this->m_msg_narrow = i18n::conv_to(msg, "UTF-8");
+        this->m_msg_narrow = msg.to("UTF-8");
     }
 
 
     //
     //
-    const std::wstring&
+    const String&
     exception::getMessage(void) const
     {
         return this->m_msg;
@@ -84,14 +85,14 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    convert_error::convert_error(const std::wstring &varname)
+    convert_error::convert_error(const String &varname)
         : exception(),
           m_varname(varname)
     {
-        std::wstring msg;
-        msg = L"Conversion error: Can't convert the variant (identified by \"" +
-            varname + 
-            L"\") to the requested type.";
+        String msg;
+        msg = US("Conversion error: Can't convert the variant (identified by '") +
+            String::Internal(varname) + 
+            US("') to the requested type.");
 
         this->setMessage(msg);
     }
@@ -104,10 +105,10 @@ namespace ex
         : exception(),
           m_varname()
     {
-        std::wstring msg;
-        msg = L"Conversion error: Can't convert the variant (identified by \"" +
-            var.getName() + 
-            L"\") to the requested type.";
+        String msg;
+        msg = US("Conversion error: Can't convert the variant (identified by '") +
+            String::Internal(var.getName()) + 
+            US("') to the requested type.");
 
         this->setMessage(msg);
     }
@@ -149,8 +150,9 @@ namespace ex
         : exception(),
           m_varname()
     {
-    	std::wstring msg;
-	msg = L"Conversion error: Can't convert type " + daltype2string(src) + L" to " + daltype2string(dest) + L".";
+    	String msg;
+        msg = US("Conversion error: Can't convert type ") + String::Internal(daltype2string(src)) + US(" to ")
+            + String::Internal(daltype2string(dest)) + US(".");
 	this->setMessage(msg);
     }
 
@@ -159,14 +161,14 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    null_value::null_value(const std::wstring &varname)
+    null_value::null_value(const String &varname)
         : exception(),
           m_varname(varname)
     {
-        std::wstring msg;
-        msg = L"NULL exception: The variant (identified by \"" +
-            varname + 
-            L"\") is null.";
+        String msg;
+        msg = US("NULL exception: The variant (identified by '") +
+            String::Internal(varname) + 
+            US("') is null.");
 
         this->setMessage(msg);
     }
@@ -179,10 +181,10 @@ namespace ex
         : exception(),
           m_varname()
     {
-        std::wstring msg;
-        msg = L"NULL exception: The variant (identified by \"" +
-            var.getName() + 
-            L"\") is null.";
+        String msg;
+        msg = US("NULL exception: The variant (identified by '") +
+            String::Internal(var.getName()) + 
+            US("') is null.");
 
         this->setMessage(msg);
     }
@@ -219,7 +221,7 @@ namespace ex
 
     //
     //
-    engine_error::engine_error(const std::wstring &what)
+    engine_error::engine_error(const String &what)
         : exception()
     {
     	this->setMessage(what);
@@ -232,7 +234,7 @@ namespace ex
     engine_error::engine_error(void)
         : exception()
     {
-    	this->setMessage(L"No engine error description was given.");
+    	this->setMessage("No engine error description was given.");
     }
 
 
@@ -242,7 +244,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    sql_error::sql_error(const std::wstring &sql, const std::wstring &what)
+    sql_error::sql_error(const String &sql, const String &what)
         : engine_error(),
           m_sql(sql),
           m_what(what)
@@ -266,7 +268,7 @@ namespace ex
 
     //
     //
-    const std::wstring&
+    const String&
     sql_error::getSQL(void) const
     {
         return this->m_sql;
@@ -276,7 +278,7 @@ namespace ex
 
     //
     //
-    const std::wstring&
+    const String&
     sql_error::getError(void) const
     {
         return this->m_what;
@@ -298,7 +300,7 @@ namespace ex
 
     //
     //
-    not_found::not_found(const std::wstring &what)
+    not_found::not_found(const String &what)
     {
         this->setMessage(what);
     }
@@ -310,22 +312,24 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    charset_error::charset_error(std::string data, std::wstring from_charset,
-                                 std::wstring to_charset)
+    charset_error::charset_error(std::string data, String from_charset,
+                                 String to_charset)
         : exception()
     {
-        this->setMessage(L"Conversion error from " + from_charset + L" to " + to_charset + L".");
+        this->setMessage(US("Conversion error from ") + String::Internal(from_charset) + US(" to ")
+                         + String::Internal(to_charset) + US("."));
     }
 
 
 
     //
     //
-    charset_error::charset_error(std::wstring data, std::wstring from_charset,
-                                 std::wstring to_charset)
+    charset_error::charset_error(String data, String from_charset,
+                                 String to_charset)
         : exception()
     {
-        this->setMessage(L"Conversion error from " + from_charset + L" to " + to_charset + L".");
+        this->setMessage(US("Conversion error from ") + String::Internal(from_charset) + US(" to ")
+                         + String::Internal(to_charset) + US("."));
     }
 
 
@@ -345,13 +349,15 @@ namespace ex
 
     //
     //
-    read_only::read_only(const std::wstring &resource_name,
+    read_only::read_only(const String &resource_name,
                          const char *triggered_by)
         : exception()
     {
-        this->setMessage(L"The resource \"" + resource_name + L"\" is read only or a variant storage setter " +
-                         L"for the given type is not implemented." +
-                         L" (triggered by: " + i18n::conv_from(triggered_by, "UTF-8") + L").");
+
+        this->setMessage(US("The resource '") + String::Internal(resource_name) +
+                         US("' is read only or a variant storage setter ") +
+                         US("for the given type is not implemented.") +
+                         US(" (triggered by: ") + String::Internal(String(triggered_by, "UTF-8")) + US(")."));
     }
 
 
@@ -361,14 +367,14 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    missing_function::missing_function(const std::string &func_name, const std::wstring &module_path)
+    missing_function::missing_function(const std::string &func_name, const String &module_path)
         : engine_error(),
           m_func_name(func_name),
           m_module_path(module_path)
     {
-        std::wstring msg = 
-            L"The function \"" + i18n::conv_from(func_name, "ASCII") + L"\" was not found "
-            L"in the module \"" + module_path + L"\".";
+        String msg = 
+            US("The function '") + String::Internal(String(func_name, "ASCII")) + US("' was not found ")
+            US("in the module '") + String::Internal(module_path) + US("'.");
 
         this->setMessage(msg);
     }
@@ -380,7 +386,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    logic_error::logic_error(const std::wstring &what)
+    logic_error::logic_error(const String &what)
     {
         this->setMessage(what);
     }
@@ -401,7 +407,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    busy_error::busy_error(const std::wstring &what)
+    busy_error::busy_error(const String &what)
         : engine_error()
     {
         this->setMessage(what);

@@ -22,6 +22,11 @@
 
 #cmakedefine DBWTL_USE_ICU
 
+#cmakedefine DBWTL_CXX98_COMPATIBILITY
+
+#cmakedefine DBWTL_DEFAULT_CHARSET "@DBWTL_DEFAULT_CHARSET@"
+
+#cmakedefine DBWTL_INTERNAL_CHARTYPE @DBWTL_INTERNAL_CHARTYPE@
 
 #if defined (DBWTL_ON_WIN32) 
   #if defined(dbwtl_EXPORTS)

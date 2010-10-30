@@ -42,6 +42,7 @@
 
 
 #include "sqlutils.hh"
+#include "../utils.hh"
 
 DAL_NAMESPACE_BEGIN
 
@@ -52,28 +53,28 @@ SqlTypeParser::SqlTypeParser(void)
       m_pattern(),
       m_daltype(DAL_TYPE_UNKNOWN)
 {
-    this->registerType(DAL_TYPE_INT, L"INT");
-    this->registerType(DAL_TYPE_INT, L"INTEGER");
-    //this->registerType(DAL_TYPE_INT, L"INTEGER*");
-    this->registerType(DAL_TYPE_CHAR, L"CHAR");
-    this->registerType(DAL_TYPE_STRING, L"VARCHAR");
-    this->registerType(DAL_TYPE_STRING, L"VARCHAR(*");
-    //this->registerType(DAL_TYPE_STRING, L"VARCHAR($1)");
-    this->registerType(DAL_TYPE_BOOL, L"BOOL");
-    this->registerType(DAL_TYPE_SMALLINT, L"SHORTINT");
-    this->registerType(DAL_TYPE_BIGINT, L"BIGINT");
-    this->registerType(DAL_TYPE_BLOB, L"BLOB");
-    this->registerType(DAL_TYPE_NUMERIC, L"NUMERIC");
-    this->registerType(DAL_TYPE_NUMERIC, L"NUMERIC(*");
-    this->registerType(DAL_TYPE_NUMERIC, L"DECIMAL");
-    this->registerType(DAL_TYPE_NUMERIC, L"DECIMAL(*");
-    this->registerType(DAL_TYPE_NUMERIC, L"MONEY");
-    this->registerType(DAL_TYPE_FLOAT, L"FLOAT");
-    this->registerType(DAL_TYPE_FLOAT, L"REAL");
-    this->registerType(DAL_TYPE_DOUBLE, L"DOUBLE");
-    this->registerType(DAL_TYPE_DATE, L"DATE");
-    this->registerType(DAL_TYPE_TIME, L"TIME");  
-    this->registerType(DAL_TYPE_TIMESTAMP, L"TIMESTAMP");
+    this->registerType(DAL_TYPE_INT, US("INT"));
+    this->registerType(DAL_TYPE_INT, US("INTEGER"));
+    //this->registerType(DAL_TYPE_INT, US(L"INTEGER*"));
+    this->registerType(DAL_TYPE_CHAR, US("CHAR"));
+    this->registerType(DAL_TYPE_STRING, US("VARCHAR"));
+    this->registerType(DAL_TYPE_STRING, US("VARCHAR(*"));
+    //this->registerType(DAL_TYPE_STRING, US("VARCHAR($1)"));
+    this->registerType(DAL_TYPE_BOOL, US("BOOL"));
+    this->registerType(DAL_TYPE_SMALLINT, US("SHORTINT"));
+    this->registerType(DAL_TYPE_BIGINT, US("BIGINT"));
+    this->registerType(DAL_TYPE_BLOB, US("BLOB"));
+    this->registerType(DAL_TYPE_NUMERIC, US("NUMERIC"));
+    this->registerType(DAL_TYPE_NUMERIC, US("NUMERIC(*"));
+    this->registerType(DAL_TYPE_NUMERIC, US("DECIMAL"));
+    this->registerType(DAL_TYPE_NUMERIC, US("DECIMAL(*"));
+    this->registerType(DAL_TYPE_NUMERIC, US("MONEY"));
+    this->registerType(DAL_TYPE_FLOAT, US("FLOAT"));
+    this->registerType(DAL_TYPE_FLOAT, US("REAL"));
+    this->registerType(DAL_TYPE_DOUBLE, US("DOUBLE"));
+    this->registerType(DAL_TYPE_DATE, US("DATE"));
+    this->registerType(DAL_TYPE_TIME, US("TIME"));  
+    this->registerType(DAL_TYPE_TIMESTAMP, US("TIMESTAMP"));
 
     // reset state
     this->reset();
@@ -104,7 +105,7 @@ SqlTypeParser::reset(void)
 //
 //
 void
-SqlTypeParser::registerType(daltype_t type, std::wstring pattern)
+SqlTypeParser::registerType(daltype_t type, String::Internal pattern)
 {
     this->m_pattern.push_back(pattern_entry_type(type, pattern));
 }
@@ -114,10 +115,10 @@ SqlTypeParser::registerType(daltype_t type, std::wstring pattern)
 //
 //
 bool
-SqlTypeParser::parseSpecial(std::wstring::const_iterator &si,
-                            const std::wstring &str,
-                            std::wstring::const_iterator &pi,
-                            const std::wstring &pattern)
+SqlTypeParser::parseSpecial(String::Internal::const_iterator &si,
+                            const String::Internal &str,
+                            String::Internal::const_iterator &pi,
+                            const String::Internal &pattern)
 {
     switch(*pi)
     {
@@ -137,7 +138,7 @@ SqlTypeParser::parseSpecial(std::wstring::const_iterator &si,
 //
 //
 bool
-SqlTypeParser::parse(const std::wstring &str)
+SqlTypeParser::parse(const String::Internal &str)
 {
     pattern_vector_type::iterator i;
 
@@ -145,8 +146,8 @@ SqlTypeParser::parse(const std::wstring &str)
     for(i = this->m_pattern.begin(); i != this->m_pattern.end(); ++i)
     {
         //std::wcout << "Testing: " << i->second << " against " << str << std::endl;
-        std::wstring::const_iterator si, pi;
-        std::wstring value;
+        String::Internal::const_iterator si, pi;
+        String::Internal value;
 
         si = str.begin();
         pi = i->second.begin();
@@ -190,11 +191,11 @@ SqlTypeParser::getDaltype(void) const
 signed int
 SqlTypeParser::getSize(void) const
 {
-    std::map<int, std::wstring>::const_iterator i = this->m_values.find(2);
+    std::map<int, String::Internal>::const_iterator i = this->m_values.find(2);
 
     if(i != this->m_values.end())
     {
-        std::wstring size = i->second;
+        String::Internal size = i->second;
         if(size.empty())
             return 0;
         return 50; /// @todo fixme

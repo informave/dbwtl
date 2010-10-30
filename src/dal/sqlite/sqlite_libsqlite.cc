@@ -46,6 +46,7 @@
 #include "dbwtl/stdext/functional"
 #include "../dal_debug.hh"
 #include "../sqlutils.hh"
+#include "../../utils.hh"
 
 #include <cassert>
 #include <cstring>
@@ -59,7 +60,7 @@
     {                                                           \
         stateobj.setDALCode(dalstate);                          \
         stateobj.setMsg(msg);                                   \
-        stateobj.setDrvCode(drvcode, L"SQLITE_XYZ");            \
+        stateobj.setDrvCode(drvcode, "SQLITE_XYZ");            \
         stateobj.setSource(__FILE__, __FUNCTION__);             \
         stateobj.setSQLState(sqlstate);                         \
     }
@@ -208,7 +209,7 @@ SqliteData_libsqlite::getBlob(void) const
 
     // everything is up-to-date now...
     if(this->isnull())
-        throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+        throw ex::null_value(String("SqliteData_libsqlite result column"));
     else
         return this->m_blobbuf.get();
 }
@@ -222,7 +223,7 @@ SqliteData_libsqlite::getDouble(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+        throw ex::null_value(String("SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_double(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -236,7 +237,7 @@ SqliteData_libsqlite::getInt(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+        throw ex::null_value(String("SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_int(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -250,7 +251,7 @@ SqliteData_libsqlite::getInt64(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+        throw ex::null_value(String("SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_int64(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -265,13 +266,13 @@ SqliteData_libsqlite::getText(void) const
 
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+        throw ex::null_value(String("SqliteData_libsqlite result column"));
     else
     {
         const unsigned char *s = this->m_resultset.drv()->
             sqlite3_column_text(this->m_resultset.getHandle(), this->m_colnum - 1);
         if(!s)
-            throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+            throw ex::null_value(String("SqliteData_libsqlite result column"));
         return reinterpret_cast<const char*>(s);
     }
 }
@@ -286,13 +287,13 @@ SqliteData_libsqlite::getText16(void) const
 
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+        throw ex::null_value(String("SqliteData_libsqlite result column"));
     else
     {
         const void *s = this->m_resultset.drv()->
             sqlite3_column_text16(this->m_resultset.getHandle(), this->m_colnum - 1);
         if(!s)
-            throw ex::null_value(std::wstring(L"SqliteData_libsqlite result column"));
+            throw ex::null_value(String("SqliteData_libsqlite result column"));
         return s;
     }
 }
@@ -324,12 +325,12 @@ SqliteData_libsqlite::getCurrentRowID(void) const
 
 
 //
-std::wstring
+String
 SqliteData_libsqlite::getString(void) const
 {
     const char* s = this->getText();
 
-    return i18n::conv_from(s, "UTF-8");
+    return String(s, "UTF-8");
 }
 
 
@@ -375,22 +376,22 @@ SqliteResult_libsqlite::~SqliteResult_libsqlite(void)
 
 //
 void
-SqliteResult_libsqlite::prepare(std::wstring sql)
+SqliteResult_libsqlite::prepare(String sql)
 {
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
-        throw ex::engine_error(L"not connected");
+        throw ex::engine_error("not connected");
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
     if(this->isPrepared())
         this->close();
 
-    std::string sql_e = i18n::conv_to(sql, "UTF-8");
+    std::string sql_e = sql.to("UTF-8");
 
     int err = this->drv()->sqlite3_prepare_v2(this->m_stmt.getDbc().getHandle(),
                                               sql_e.c_str(), sql_e.size(), &this->m_handle,  NULL);
@@ -401,9 +402,9 @@ SqliteResult_libsqlite::prepare(std::wstring sql)
         break;
     default:
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
-        std::wstring u_msg = i18n::conv_from(msg, "UTF-8");
+        String u_msg(msg, "UTF-8");
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                        L"Can not prepare query",
+                                        "Can not prepare query",
                                         u_msg,
                                         this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                         this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
@@ -423,10 +424,10 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error(L"Resultset is not prepared.");
+        throw ex::engine_error("Resultset is not prepared.");
 
     /// @bug fix this, required for bind() exec(), exec(), ... 
     /// the state muss be resetted
@@ -474,7 +475,8 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             break;
         default:
             err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,
-                                                 var->asStr("UTF-8").c_str(), -1, SQLITE_TRANSIENT);
+                                                 var->asStr().to("UTF-8"), -1, SQLITE_TRANSIENT);
+            //std::cout << "Binding now: " << var->asStr().to("UTF-8") << std::endl;
         }
         switch(err)
         {
@@ -483,14 +485,14 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         case SQLITE_NOMEM:
             throw std::bad_alloc();
         case SQLITE_RANGE:
-            throw ex::not_found(L"param not found");
+            throw ex::not_found("param not found");
             //break; // throw exception::RangeError;
         default:
 
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
-            std::wstring u_msg = i18n::conv_from(msg, "UTF-8");
+            String u_msg(msg, "UTF-8");
             DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                            L"Can not prepare query",
+                                            "Can not prepare query",
                                             u_msg,
                                             this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                             this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
@@ -534,9 +536,9 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         
     default:
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
-        std::wstring u_msg = i18n::conv_from(msg, "UTF-8");
+        String u_msg(msg, "UTF-8");
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                        L"Can not prepare query",
+                                        "Can not prepare query",
                                         u_msg,
                                         this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                         this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
@@ -552,10 +554,10 @@ size_t
 SqliteResult_libsqlite::paramCount(void) const
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error(L"Resultset is not prepared.");
+        throw ex::engine_error("Resultset is not prepared.");
 
     int count = this->drv()->sqlite3_bind_parameter_count(this->getHandle());
     return count;
@@ -568,14 +570,14 @@ void
 SqliteResult_libsqlite::first(void)
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
     if(this->m_current_tuple != 1)
     {
-        throw ex::engine_error(L"can't scroll to first record");
+        throw ex::engine_error("can't scroll to first record");
     }
 }
 
@@ -586,10 +588,10 @@ void
 SqliteResult_libsqlite::next(void)
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
     this->m_last_row_status = this->drv()->sqlite3_step(this->getHandle());
 
@@ -608,9 +610,9 @@ SqliteResult_libsqlite::next(void)
         //break;
     default:
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
-        std::wstring u_msg = i18n::conv_from(msg, "UTF-8");
+        String u_msg(msg, "UTF_8");
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                        L"Can not prepare query",
+                                        "Can not prepare query",
                                         u_msg,
                                         this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                         this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
@@ -625,10 +627,10 @@ bool
 SqliteResult_libsqlite::eof(void) const
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
     return this->m_last_row_status != SQLITE_ROW;
 }
@@ -640,7 +642,7 @@ void
 SqliteResult_libsqlite::close(void)
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(this->m_handle)
     {
@@ -653,9 +655,9 @@ SqliteResult_libsqlite::close(void)
         default:
 
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
-            std::wstring u_msg = i18n::conv_from(msg, "UTF-8");
+            String u_msg(msg, "UTF-8");
             DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                            L"Can not prepare query",
+                                            "Can not prepare query",
                                             u_msg,
                                             this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                             this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
@@ -680,10 +682,10 @@ rowcount_t
 SqliteResult_libsqlite::affectedRows(void) const
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error(L"Resultset is not prepared.");
+        throw ex::engine_error("Resultset is not prepared.");
 
     int count = this->drv()->sqlite3_changes(this->m_stmt.getDbc().getHandle());
     return count;
@@ -693,7 +695,7 @@ SqliteResult_libsqlite::affectedRows(void) const
 
 //
 const SqliteVariant&
-SqliteResult_libsqlite::column(std::wstring name)
+SqliteResult_libsqlite::column(String name)
 {
     colnum_t num = this->columnID(name);
     return this->column(num);
@@ -704,7 +706,7 @@ SqliteResult_libsqlite::column(std::wstring name)
 //
 /*
   const SqliteVariant&
-  SqliteResult_libsqlite::field(std::wstring name)
+  SqliteResult_libsqlite::field(String name)
   {
   colnum_t num = this->columnID(name);
   return this->field(num);
@@ -719,13 +721,13 @@ SqliteResult_libsqlite::column(colnum_t num)
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
     if(num > this->columnCount())
-        throw ex::not_found(L"column number out of range");
+        throw ex::not_found("column number out of range");
 
 
     VariantListT::iterator p = this->m_column_accessors.find(num);
@@ -751,10 +753,10 @@ SqliteResult_libsqlite::column(colnum_t num)
   DALTRACE_ENTER;
 
   if(this->isBad())
-  throw ex::engine_error(L"Resultset is in bad state.");
+  throw ex::engine_error("Resultset is in bad state.");
 
   if(! this->isOpen())
-  throw ex::engine_error(L"Resultset is not open.");
+  throw ex::engine_error("Resultset is not open.");
 
   VariantListT::iterator p = this->m_field_accessors.find(num);
   if(this->m_field_accessors.end() == p)
@@ -778,10 +780,10 @@ rowid_t
 SqliteResult_libsqlite::getCurrentRowID(void) const
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
     return this->m_current_tuple;
 }
@@ -795,10 +797,10 @@ SqliteResult_libsqlite::columnCount(void) const
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
     int c = this->drv()->sqlite3_column_count(this->getHandle());
     DAL_DEBUG("Query column count: " << c);
@@ -810,37 +812,37 @@ SqliteResult_libsqlite::columnCount(void) const
 
 //
 colnum_t
-SqliteResult_libsqlite::columnID(std::wstring name) const
+SqliteResult_libsqlite::columnID(String name) const
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
     for(colnum_t i = 1; i <= this->columnCount(); ++i)
     {
         if(name == this->columnName(i))
             return i;
     }
-    throw ex::not_found(L"Column '" + name + L"' not found.");
+    throw ex::not_found(US("Column '") + String::Internal(name) + US("' not found."));
 }
 
 
 
 //
-std::wstring
+String
 SqliteResult_libsqlite::columnName(colnum_t num) const
 {
     DALTRACE("VISIT");
 
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
-    return this->describeColumn(num).getName().asWideStr(); /// @todo return empty string if null
+    return this->describeColumn(num).getName().asStr(); /// @todo return empty string if null
 }
 
 
@@ -872,21 +874,21 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
     if(i == 0)
     {
         //this->m_daltype = DAL_TYPE_BOOKMARK;
-        this->m_name.setWideStr(L"__DBWTL_BOOKMARK__");
+        this->m_name.setStr("__DBWTL_BOOKMARK__");
     }
     else
     {
         // set name
         const char *s = result.drv()->sqlite3_column_name(result.getHandle(), i-1);
-        this->m_name.setStr(s ? s : "", "UTF-8");
+        this->m_name.setStr(String(s ? s : "", "UTF-8"));
 
         // set type
         const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
 
         SqlTypeParser pt;
-        pt.registerType(DAL_TYPE_STRING, L"TEXT*");
-        pt.parse(i18n::conv_from(type, "UTF-8"));
-        this->m_type_name.setWideStr(daltype2sqlname(pt.getDaltype()));
+        pt.registerType(DAL_TYPE_STRING, US("TEXT*"));
+        pt.parse(String(type, "UTF-8"));
+        this->m_type_name.setStr(daltype2sqlname(pt.getDaltype()));
         this->m_daltype = pt.getDaltype();
         this->m_size.setInt(pt.getSize());
         this->m_precision.setUSmallint(pt.getPrecision());
@@ -900,17 +902,17 @@ const SqliteColumnDesc&
 SqliteResult_libsqlite::describeColumn(colnum_t num) const
 {
     if(this->isBad())
-        throw ex::engine_error(L"Resultset is in bad state.");
+        throw ex::engine_error("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error(L"Resultset is not open.");
+        throw ex::engine_error("Resultset is not open.");
 
 
     std::map<colnum_t, SqliteColumnDesc_libsqlite>::const_iterator i =
         this->m_column_desc.find(num);
 
     if(i == this->m_column_desc.end())
-        throw ex::not_found(L"foo"); /// @bug fixme
+        throw ex::not_found("foo"); /// @bug fixme
     else
         return i->second;
    
@@ -920,7 +922,7 @@ SqliteResult_libsqlite::describeColumn(colnum_t num) const
 
 //
 const SqliteColumnDesc&
-SqliteResult_libsqlite::describeColumn(std::wstring name) const
+SqliteResult_libsqlite::describeColumn(String name) const
 {
     DBWTL_NOTIMPL();
 }
@@ -936,7 +938,7 @@ SqliteResult_libsqlite::refreshMetadata(void)
     
     size_t colcount = this->columnCount();
     SqliteColumnDesc desc;
-    //desc.m_name.setWideStr(L"foo");
+    //desc.m_name.setWideStr("foo");
     //for(size_t i = 0; i < colCount; ++i)
     //
     
@@ -998,7 +1000,7 @@ SqliteResult_libsqlite::getDriver(void) const
 
 
 //
-SqliteEnv_libsqlite::SqliteEnv_libsqlite(std::wstring lib)
+SqliteEnv_libsqlite::SqliteEnv_libsqlite(String lib)
     : SqliteEnv(),
       m_lib()
 {
@@ -1066,13 +1068,13 @@ SqliteDbc_libsqlite::newStatement(void)
 
 //
 void
-SqliteDbc_libsqlite::connect(std::wstring database,
-                             std::wstring user,
-                             std::wstring password)
+SqliteDbc_libsqlite::connect(String database,
+                             String user,
+                             String password)
 {
     IDbc::Options options;
     
-    options[ L"database" ] = database;
+    options[ "database" ] = database;
     return this->connect(options);
 }
 
@@ -1146,19 +1148,19 @@ static sqlite_sqlstates::engine_states_t sqlite3error_to_sqlstate(int code)
 SqliteDiag_libsqlite::SqliteDiag_libsqlite(dalstate_t state,
                                            const char *codepos,
                                            const char *func,
-                                           std::wstring message,
-                                           std::wstring description,
+                                           String message,
+                                           String description,
                                            int sqlite_code,
                                            int sqlite_excode)
     : SqliteDiag(state, codepos, func, message, description),
-      m_sqlite_code(DAL_TYPE_STRING, L"SqliteDiag::sqlite_code"),
-      m_sqlite_excode(DAL_TYPE_STRING, L"SqliteDiag::sqlite_excode")
+      m_sqlite_code(DAL_TYPE_STRING, "SqliteDiag::sqlite_code"),
+      m_sqlite_excode(DAL_TYPE_STRING, "SqliteDiag::sqlite_excode")
 {
     m_sqlite_code = sqlite_code;
     m_sqlite_excode = sqlite_excode;
 
     m_sqlstate_id = sqlite3error_to_sqlstate(sqlite_code);
-    m_sqlstate.setStr(sqlite::sqlstate2string(m_sqlstate_id), "UTF-8");
+    m_sqlstate.setStr(String(sqlite::sqlstate2string(m_sqlstate_id), "UTF-8"));
 }
 
 
@@ -1187,18 +1189,18 @@ SqliteDiag_libsqlite::~SqliteDiag_libsqlite(void)
 
 
 //
-std::wstring
+String
 SqliteDiag_libsqlite::str(void) const
 {
     std::wstringstream ss;
 
-    ss << L"[SQLSTATE:" << ifnull<std::wstring>(this->m_sqlstate, L"fooo") << L"] "
-       << ifnull<std::wstring>(this->m_message, L"No message") << std::endl
-       << ifnull<std::wstring>(this->m_description, L"No description") << std::endl
-       << L"SQLite errcode: " << ifnull<std::wstring>(this->m_sqlite_code, L"NULL")
-       << L" (" << ifnull<std::wstring>(this->m_sqlite_excode, L"NULL") << L")" << std::endl
-       << L"Raised at: " << ifnull<std::wstring>(this->m_func, L"unknown") << L"()"
-       << L" [" << ifnull<std::wstring>(this->m_codepos, L"unknown") << "]";
+    ss << L"[SQLSTATE:" << ifnull<String>(this->m_sqlstate, L"fooo") << L"] "
+       << ifnull<String>(this->m_message, L"No message") << std::endl
+       << ifnull<String>(this->m_description, L"No description") << std::endl
+       << L"SQLite errcode: " << ifnull<String>(this->m_sqlite_code, L"NULL")
+       << L" (" << ifnull<String>(this->m_sqlite_excode, L"NULL") << L")" << std::endl
+       << L"Raised at: " << ifnull<String>(this->m_func, L"unknown") << L"()"
+       << L" [" << ifnull<String>(this->m_codepos, L"unknown") << "]";
 
     return ss.str();
 }
@@ -1212,7 +1214,7 @@ SqliteDbc_libsqlite::connect(IDbc::Options& options)
     DALTRACE_ENTER;
 
 
-    std::string dbc_db = i18n::conv_to(options[ L"database" ], "UTF-8");
+    std::string dbc_db(options[ "database" ].to("UTF-8"));
 
     int err = this->drv()->sqlite3_open_v2(dbc_db.c_str(), &this->m_dbh,
                                            SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -1227,11 +1229,11 @@ SqliteDbc_libsqlite::connect(IDbc::Options& options)
         break;
     default:
         const char *msg = this->drv()->sqlite3_errmsg(this->m_dbh);
-        std::wstring u_msg = L"Database: " + options[ L"database" ] + L"\r\n" + i18n::conv_from(msg, "UTF-8");
+        String::Internal u_msg = US("Database: ") + String::Internal(options[ "database" ]) + US("\r\n") + String::Internal(String(msg, "UTF-8"));
         //DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
 
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                        L"connection failure",
+                                        "connection failure",
                                         u_msg,
                                         this->drv()->sqlite3_errcode(this->m_dbh),
                                         this->drv()->sqlite3_extended_errcode(this->m_dbh));
@@ -1269,11 +1271,11 @@ SqliteDbc_libsqlite::disconnect(void)
         default:
 
             const char *msg = this->drv()->sqlite3_errmsg(this->m_dbh);
-            std::wstring u_msg = i18n::conv_from(msg, "UTF-8");
+            String u_msg(msg, "UTF-8");
             //DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
 
             DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                            L"connection failure",
+                                            "connection failure",
                                             u_msg,
                                             this->drv()->sqlite3_errcode(this->m_dbh),
                                             this->drv()->sqlite3_extended_errcode(this->m_dbh));
@@ -1304,20 +1306,20 @@ SqliteDbc_libsqlite::getHandle(void) const
 
 
 //
-std::wstring 
+String 
 SqliteDbc_libsqlite::driverName(void) const
 {
-    return L"SQLite (libsqlite)";
+    return "SQLite (libsqlite)";
 }
 
 
 
 //
-std::wstring 
+String 
 SqliteDbc_libsqlite::dbmsName(void) const
 {
     const char *s = this->drv()->sqlite3_libversion();
-    return L"SQLite " + i18n::conv_from(s, "UTF-8");
+    return US("SQLite ") + String::Internal(String(s, "UTF-8"));
 }
 
 
@@ -1383,7 +1385,7 @@ SqliteStmt_libsqlite::resultset(void) const
 //
 /// @todo split sql
 void  
-SqliteStmt_libsqlite::prepare(std::wstring sql)
+SqliteStmt_libsqlite::prepare(String sql)
 {
     SqliteResult_libsqlite* rs = this->newResultset();
     rs->prepare(sql);
@@ -1420,7 +1422,7 @@ SqliteStmt_libsqlite::execute(void)
 
 //
 void  
-SqliteStmt_libsqlite::execDirect(std::wstring sql)
+SqliteStmt_libsqlite::execDirect(String sql)
 { 
     this->prepare(sql);
     this->execute();

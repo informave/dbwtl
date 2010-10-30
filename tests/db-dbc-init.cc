@@ -14,7 +14,7 @@ int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
-    using namespace informave::i18n;
+//    using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
     
@@ -31,7 +31,7 @@ int test(void)
     dbc.connect(L"sampledb.sqlitedb");
 
 
-    std::cout << conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
+    std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 
 
 
@@ -44,10 +44,10 @@ int test(void)
         for(dal::TableList::iterator i = list.begin(); i != list.end(); ++i)
         {
             std::cout
-                << conv_to((*i)->getName().asWideStr(), "iso-8859-1") << "|"
-                << conv_to((*i)->getCatalog().asWideStr(), "iso-8859-1") << "|"
-                << conv_to((*i)->getSchema().asWideStr(), "iso-8859-1") << "|"
-                << conv_to((*i)->getDDL().asWideStr(), "iso-8859-1") << "|"
+                << (*i)->getName().asStr().to("iso-8859-1") << "|"
+                << (*i)->getCatalog().asStr().to("iso-8859-1") << "|"
+                << (*i)->getSchema().asStr().to("iso-8859-1") << "|"
+                << (*i)->getDDL().asStr().to("iso-8859-1") << "|"
                 << std::endl;
         }
     }
@@ -75,7 +75,7 @@ int test(void)
             {
                 //DBMS::Value x = res.column(i);
                 const DBMS::Value& v = res.column(i);
-                std::cout << res.column(i).asStr("UTF-8") << " ";
+                std::cout << res.column(i).asStr().to("UTF-8") << " ";
                 //std::cout << res.field(i).asWideStr("ISO-8859-15") << " | ";
             }
         }

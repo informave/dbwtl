@@ -14,7 +14,7 @@ int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
-    using namespace informave::i18n;
+//    using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
     
@@ -30,7 +30,7 @@ int test(void)
     dbc.connect(L"sampledb.sqlitedb");
 
 
-    std::cout << conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
+    std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 
 
     dal::DatatypeList dtlist = dbc.getDatatypes();

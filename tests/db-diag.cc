@@ -14,7 +14,7 @@ int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
-    using namespace informave::i18n;
+//    using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
 
@@ -34,7 +34,7 @@ int test(void)
     catch(DBMS::SQLSTATE_08000 state) // ups, no reference?
     {
     	//std::cout << conv_to(dbc.fetchDiag().str(), "UTF-8") << std::endl;
-        std::cout << conv_to(state.diag().str(), "UTF-8") << std::endl;
+        std::cout << state.diag().str().to("UTF-8") << std::endl;
         return 0;
     }
 /*

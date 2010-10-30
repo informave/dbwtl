@@ -78,11 +78,11 @@
 //MANPAGE.010 
 //MANPAGE.010 DBMS::Connection dbc(env);
 //MANPAGE.010 
-//MANPAGE.010 dbc.connect(L"dummy.db");
+//MANPAGE.010 dbc.connect("dummy.db");
 //MANPAGE.010 
 //MANPAGE.010 DBMS::Statement stmt(dbc);
 //MANPAGE.010 
-//MANPAGE.010 stmt.execDirect(L"SELECT * from test");
+//MANPAGE.010 stmt.execDirect("SELECT * from test");
 //MANPAGE.010 
 //MANPAGE.010 DBMS::Resultset res(stmt);
 //MANPAGE.010 
@@ -91,7 +91,7 @@
 //MANPAGE.010 res.eof();      // check for end-of-resultset
 //MANPAGE.010 
 //MANPAGE.010 // get a column value
-//MANPAGE.010 res.column(L"mycolumn");
+//MANPAGE.010 res.column("mycolumn");
 //MANPAGE.010
 //MANPAGE.010 -------------------------------------------------
 //MANPAGE.010
@@ -132,6 +132,9 @@ struct sqlstate : public U
 /// @brief Basic SQLSTATE's (SQL:2008)
 struct basic_states
 {
+    virtual ~basic_states(void)
+    {}
+
     typedef enum
     {
         DAL_SQLSTATE_07000, // dynamic SQL error
@@ -356,15 +359,16 @@ private:
     typedef typename db_traits<Engine, tag>::dal_variant_type dal_variant_type;
 
 public:
-    Environment(std::wstring str)
+    Environment(String str)
         : EnvInterface(),
           m_env( dal::Factory::create<Engine>(str) )
     {}
-
+/*
     Environment(std::string str) 
         : EnvInterface(),
           m_env( dal::Factory::create<Engine>(i18n::conv_from(str, "UTF-8") ) )
     {}
+   */
 
     virtual ~Environment(void)
     {}
@@ -372,8 +376,12 @@ public:
 
     virtual dal_dbc_type* newConnection(void) { return this->m_env->newConnection(); }
 
-    virtual void                    setOption(std::string name, dal_variant_type data) { this->m_env->setOption(name, data); }
-    virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_env->getOption(name); }
+    /// @todo should data be const?
+    virtual void setOption(std::string name, dal_variant_type data)
+    { this->m_env->setOption(name, data); }
+
+    virtual const dal_variant_type& getOption(std::string name) const
+    { return this->m_env->getOption(name); }
 
     virtual bool                    diagAvail(void) const   { return this->m_env->diagAvail(); }
     virtual const dal_diag_type&    fetchDiag(void)         { return this->m_env->fetchDiag(); }
@@ -404,6 +412,7 @@ private:
     typedef typename db_traits<Engine, tag>::dal_diag_type     dal_diag_type;
     typedef typename db_traits<Engine, tag>::dal_variant_type  dal_variant_type;
 
+
 public:
     Connection( typename db_traits<Engine, tag>::environment_type &env )
         : ConnectionInterface(),
@@ -414,9 +423,9 @@ public:
     {}
 
 
-    virtual void   connect(std::wstring database,
-                           std::wstring user = std::wstring(),
-                           std::wstring password = std::wstring())
+    virtual void   connect(String database,
+                           String user = String(),
+                           String password = String())
     { this->m_dbc->connect(database, user, password); }
 
 
@@ -428,9 +437,9 @@ public:
 
     virtual void              disconnect(void)              { this->m_dbc->disconnect(); }
 
-    virtual std::wstring     driverName(void) const        { return this->m_dbc->driverName(); }
+    virtual String            driverName(void) const        { return this->m_dbc->driverName(); }
 
-    virtual std::wstring     dbmsName(void) const          { return this->m_dbc->dbmsName(); }
+    virtual String            dbmsName(void) const          { return this->m_dbc->dbmsName(); }
 
     virtual dal_stmt_type*    newStatement(void)            { return this->m_dbc->newStatement(); }
 
@@ -438,17 +447,17 @@ public:
 
     virtual void              commit(void)                  { this->m_dbc->commit(); }
 
-    virtual void              savepoint(std::wstring name) { this->m_dbc->savepoint(name); }
+    virtual void              savepoint(String name)        { this->m_dbc->savepoint(name); }
 
-    virtual void              directCmd(std::wstring cmd)  { this->m_dbc->directCmd(cmd); }
+    virtual void              directCmd(String cmd)         { this->m_dbc->directCmd(cmd); }
 
     virtual std::string       getDbcEncoding(void) const    { return this->m_dbc->getDbcEncoding(); }
 
-    virtual void              rollback(std::wstring name = std::wstring()) { this->m_dbc->rollback(name); }
+    virtual void              rollback(String name = String()) { this->m_dbc->rollback(name); }
 
     virtual void              beginTrans(dal::IDbc::trx_mode mode,
                                          dal::IDbc::access_mode access = dal::IDbc::trx_default,
-                                         std::wstring name = std::wstring())
+                                         String name = String())
     { this->m_dbc->beginTrans(mode, access, name); }
 
 
@@ -472,8 +481,11 @@ public:
     virtual const dal_diag_type&   fetchDiag(void)          { return this->m_dbc->fetchDiag(); }
 
 
-    virtual void                    setOption(std::string name, dal_variant_type data) { this->m_dbc->setOption(name, data); }
-    virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_dbc->getOption(name); }
+    virtual void                    setOption(std::string name, dal_variant_type data)
+    { this->m_dbc->setOption(name, data); }
+
+    virtual const dal_variant_type& getOption(std::string name) const
+    { return this->m_dbc->getOption(name); }
 
 
     virtual dal_dbc_type*           getImpl(void)   { return this->m_dbc.get(); }
@@ -517,24 +529,38 @@ private:
 public:
     Statement( typename db_traits<Engine, tag>::connection_type &dbc )
         : StmtInterface(),
-          m_stmt( dbc.newStatement() )
+          m_stmt( dbc.newStatement() ),
+          m_bind_strings()
     {}
 
     virtual ~Statement(void)
-    {}
+    {
+    	this->close();
+    }
 
 
-    virtual bool      isBad(void) const                         { return this->m_stmt->isBad(); }
+    virtual bool      isBad(void) const                   { return this->m_stmt->isBad(); }
 
-    virtual void      prepare(std::wstring sql)                { return this->m_stmt->prepare(sql); }
+    virtual void      prepare(String sql)                 { return this->m_stmt->prepare(sql); }
 
-    virtual bool      isPrepared(void) const                    { return this->m_stmt->isPrepared(); }
+    virtual bool      isPrepared(void) const              { return this->m_stmt->isPrepared(); }
 
-    virtual void      execute(void)                             { this->m_stmt->execute(); }
+    virtual void      execute(void)                       { this->m_stmt->execute(); }
 
-    virtual void      execDirect(std::wstring sql)             { this->m_stmt->execDirect(sql); }
+    virtual void      execDirect(String sql)              { this->m_stmt->execDirect(sql); }
 
-    virtual void      close(void)                               { this->m_stmt->close(); }
+    virtual void      close(void)                              
+    { 
+    	this->m_stmt->close(); 
+        for(std::vector<String*>::iterator i(this->m_bind_strings.begin());
+            i != this->m_bind_strings.end();
+            ++i)
+		{
+			delete *i;
+			*i = 0;
+		}
+		this->m_bind_strings.clear();
+    }
 
     virtual dal_resultset_type&        resultset(void)          { return this->m_stmt->resultset(); }
 
@@ -545,6 +571,42 @@ public:
     virtual bool      moreResultsets(void) const                { return this->m_stmt->moreResultsets();}
 
     virtual size_t    paramCount(void) const                    { return this->m_stmt->paramCount(); }
+
+    
+    template<class A, class B, class C> void bind(int num, const std::basic_string<A, B, C>& data)
+    {
+        this->bind(num, dal::Variant(String(data)));
+    }
+
+    template<class A, class B, class C> void bind(int num, std::basic_string<A, B, C>* data)
+    {
+        std::cout << "binding non-const" << std::endl;
+        String *s = new String();
+        this->m_bind_strings.push_back(s);
+        s->sync_with(data);
+        this->bind(num, dal::Variant(s));
+    }
+    
+    template<class A, class B, class C> void bind(int num, const std::basic_string<A, B, C>* data)
+    {
+        std::cout << "binding const" << std::endl;
+        String *s = new String();
+        this->m_bind_strings.push_back(s);
+        s->sync_with(data);
+        this->bind(num, dal::Variant(static_cast<const String*>(s)));
+    }
+    
+    
+    template<class A, class B> void bind(int num, std::basic_streambuf<A, B>* data)
+    {
+    	throw std::runtime_error("bind not supp");
+    }
+
+    
+    template<class A, class B> void bind(int num, const std::basic_streambuf<A, B>* data)
+    {
+    	throw std::runtime_error("bind not supp");
+    }
 
     virtual void      bind(int num, dal::IVariant* data)        { this->m_stmt->bind(num, data); }
 
@@ -565,14 +627,20 @@ public:
     virtual const dal_diag_type&   fetchDiag(void)              { return this->m_stmt->fetchDiag(); }
 
     // Options
-    virtual void                    setOption(std::string name, dal_variant_type data) { this->m_stmt->setOption(name, data); }
-    virtual const dal_variant_type& getOption(std::string name) const                  { return this->m_stmt->getOption(name); }
+    virtual void                    setOption(std::string name, dal_variant_type data)
+    { this->m_stmt->setOption(name, data); }
+
+    virtual const dal_variant_type& getOption(std::string name) const
+    { return this->m_stmt->getOption(name); }
 
 
     virtual dal_stmt_type*          getImpl(void)               { return this->m_stmt.get(); }
 
 protected:
     typename dal_stmt_type::ptr m_stmt;
+	
+	std::vector<String*> m_bind_strings;
+//	std::vector<streambuf>
 
 private:
     Statement(const Statement&);
@@ -653,19 +721,19 @@ public:
 
 
     // row methods
-    virtual dal::rowcount_t    rowCount(void) const            { return this->m_result->rowCount(); }
+    virtual dal::rowcount_t     rowCount(void) const            { return this->m_result->rowCount(); }
 
-    virtual size_t             paramCount(void) const          { return this->m_result->paramCount(); }
+    virtual size_t              paramCount(void) const          { return this->m_result->paramCount(); }
 
-    virtual dal::rowcount_t    affectedRows(void) const        { return this->m_result->affectedRows(); }
+    virtual dal::rowcount_t     affectedRows(void) const        { return this->m_result->affectedRows(); }
 
-    virtual const value_type&      column(dal::colnum_t num)   { return this->m_result->column(num); }
+    virtual const value_type&   column(dal::colnum_t num)       { return this->m_result->column(num); }
 
     //virtual variant_type&      field(dal::colnum_t num)      { return this->m_result->field(num); }
 
-    virtual const value_type&      column(std::wstring name)  { return this->m_result->column(name); }
+    virtual const value_type&   column(String name)             { return this->m_result->column(name); }
 
-    //virtual variant_type&      field(std::wstring name)     { return this->m_result->field(name); }
+    //virtual variant_type&      field(String name)     { return this->m_result->field(name); }
 
 
     //virtual IBlob&           getBlob(colnum_t num) = 0;
@@ -673,14 +741,16 @@ public:
     // column methods
     virtual size_t                 columnCount(void) const             { return this->m_result->columnCount(); }
 
-    virtual dal::colnum_t          columnID(std::wstring name) const  { return this->m_result->columnID(name); }
+    virtual dal::colnum_t          columnID(String name) const         { return this->m_result->columnID(name); }
 
-    virtual std::wstring          columnName(dal::colnum_t num) const { return this->m_result->columnName(num); }
+    virtual String                 columnName(dal::colnum_t num) const { return this->m_result->columnName(num); }
 
 
-    virtual const dal_columndesc_type& describeColumn(dal::colnum_t num) const { return this->m_result->describeColumn(num); }
+    virtual const dal_columndesc_type& describeColumn(dal::colnum_t num) const
+    { return this->m_result->describeColumn(num); }
 
-    virtual const dal_columndesc_type& describeColumn(std::wstring name) const { return this->m_result->describeColumn(name); }
+    virtual const dal_columndesc_type& describeColumn(String name) const
+    { return this->m_result->describeColumn(name); }
 
 
     //virtual const dal::ITypeInfo&  datatype(dal::colnum_t num) const   { return this->m_result->datatype(num); }
@@ -825,8 +895,9 @@ private:
 //GEXAMPLE.001 Now we can open the database:
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 dbc.connect(L"sampledb.sqlitedb");
-//GEXAMPLE.001 std::cout << i18n::conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
+//GEXAMPLE.001 dbc.connect("sampledb.sqlitedb");
+//GEXAMPLE.001 std::cout << dbc.dbmsName() << std::endl; // using default (UTF-8)
+//GEXAMPLE.001 std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 
 //GEXAMPLE.001 Run a SQL query
@@ -841,7 +912,7 @@ private:
 //GEXAMPLE.001 The direct execution of a SQL statement is possible via 'execDirect()':
 //GEXAMPLE.001 [source,cpp]
 //GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 stmt.execDirect(L"SELECT * from customers");
+//GEXAMPLE.001 stmt.execDirect("SELECT * from customers");
 //GEXAMPLE.001 ------------------------------------------------------------------------------
 //GEXAMPLE.001 Iterate over the resultset
 //GEXAMPLE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -869,7 +940,7 @@ private:
 //GEXAMPLE.001 You can access the fields by name or by position (first field has position 1).
 //GEXAMPLE.001 To determine the number of available fields, use 'columnCount()'.
 //GEXAMPLE.001 The 'column()' method returns a 'const DBMS::Value' reference which provides
-//GEXAMPLE.001 many getter methods like 'asWideStr()', 'asInt()' or 'asDate()' to get the value.
+//GEXAMPLE.001 many getter methods like 'asStr()', 'asInt()' or 'asDate()' to get the value.
 //GEXAMPLE.001 To check if a field is null, call isNull() on the value reference.
 
 //GEXAMPLE.001 
@@ -883,7 +954,7 @@ private:
 //GEXAMPLE.001      if(rs.column(i).isNull())
 //GEXAMPLE.001          std::cout << "<NULL>";
 //GEXAMPLE.001      else
-//GEXAMPLE.001          std::cout << rs.column(i).asStr("UTF-8");
+//GEXAMPLE.001          std::cout << rs.column(i).asStr();
 //GEXAMPLE.001  }
 //GEXAMPLE.001  std::cout << std::endl;
 //GEXAMPLE.001 }
@@ -945,7 +1016,7 @@ private:
 //GCORE.001 ------------------------------------------------------------------------------
 //GCORE.001 DBMS::Environment env("sqlite:libsqlite");
 //GCORE.001 
-//GCORE.001 env.setOption("env_library_path", std::wstring(L"/path/to/libs"));
+//GCORE.001 env.setOption("env_library_path", std::wstring("/path/to/libs"));
 //GCORE.001 
 //GCORE.001 std::string path = ifnull<std::string>(env.getOption("env_library_path"), ".");
 //GCORE.001 ------------------------------------------------------------------------------
@@ -1062,8 +1133,8 @@ private:
 //GCORE.001 
 //GCORE.001 `--------------------------`----------------------
 //GCORE.001 *SQL:2008 Type*             *DBWTL Type Mapping*
-//GCORE.001 CHARACTER                   DBMS::Char
-//GCORE.001 CHARACTER VARING            DBMS::Char
+//GCORE.001 CHARACTER                   DBMS::String
+//GCORE.001 CHARACTER VARING            DBMS::String
 //GCORE.001 CHARACTER LARGE OBJECT      DBMS::Memo
 //GCORE.001 BINARY                      DBMS::Blob
 //GCORE.001 BINARY VARYING              DBMS::Blob
@@ -1080,7 +1151,7 @@ private:
 //GCORE.001 DATE                        DBMS::Date
 //GCORE.001 TIME                        DBMS::Time
 //GCORE.001 TIMESTAMP                   DBMS::Timestamp
-//GCORE.001 INTERVAL                    unsupported
+//GCORE.001 INTERVAL                    - (requires implementation)
 //GCORE.001 --------------------------------------------------
 //GCORE.001 
 //GCORE.001 
@@ -1207,7 +1278,7 @@ private:
 //GCORE.001 DBMS::Statement stmt(dbc);
 //GCORE.001 try
 //GCORE.001 {
-//GCORE.001 	stmt.prepare(L"INSERT INTO customers VALUES(1, 'Dave Miller');");
+//GCORE.001 	stmt.prepare("INSERT INTO customers VALUES(1, 'Dave Miller');");
 //GCORE.001 	stmt.execute();
 //GCORE.001 }
 //GCORE.001 catch(DBMS::SQLSTATE_23000 &state)
@@ -1247,7 +1318,7 @@ private:
 //GCORE.001 DBMS::Statement stmt(dbc);
 //GCORE.001 try
 //GCORE.001 {
-//GCORE.001 	stmt.prepare(L"INSERT INTO customers VALUES(1, 'Dave Miller');");
+//GCORE.001 	stmt.prepare("INSERT INTO customers VALUES(1, 'Dave Miller');");
 //GCORE.001 	stmt.execute();
 //GCORE.001 }
 //GCORE.001 catch(DBMS::SQLSTATE_42000 &state)
@@ -1257,7 +1328,7 @@ private:
 //GCORE.001 catch(ex::sqlstate_error &state)
 //GCORE.001 {
 //GCORE.001     // catched engine specific SQLSTATE
-//GCORE.001 	std::string s = state.diag().sqlstate().asStr("ASCII");
+//GCORE.001 	std::string s = state.diag().sqlstate().asStr().to("ASCII");
 //GCORE.001 	if(s.compare("XYZ01") == 0)
 //GCORE.001 	{
 //GCORE.001 		// handle XYZ001
@@ -1285,13 +1356,17 @@ private:
 
 struct basic_datatypes
 {
+    virtual ~basic_datatypes(void)
+    {}
+
 //     typedef signed char           Char; // these two types are covered by String!
 //     typedef unsigned char         UChar;
-    typedef std::wstring         String;
+
 /*
     typedef std::wstreambuf*      Memo;
     typedef std::streambuf*       Blob; // better use dal::Blob with implicit ctor?
 */
+    typedef db::String            String;
     typedef dal::Blob             Blob;
     typedef dal::Memo             Memo;
     typedef dal::TNumeric         Numeric;

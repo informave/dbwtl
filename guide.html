@@ -641,8 +641,9 @@ http://www.gnu.org/software/src-highlite -->
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">connect</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"sampledb.sqlitedb"</span><span style="color: #990000">);</span>
-std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> i18n<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">conv_to</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">dbmsName</span></span><span style="color: #990000">(),</span> <span style="color: #FF0000">"ISO-8859-1"</span><span style="color: #990000">)</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span></tt></pre></div></div>
+<pre><tt>dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">connect</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"sampledb.sqlitedb"</span><span style="color: #990000">);</span>
+std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">dbmsName</span></span><span style="color: #990000">()</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span> <span style="font-style: italic"><span style="color: #9A1900">// using default (UTF-8)</span></span>
+std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> dbc<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">dbmsName</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">to</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"ISO-8859-1"</span><span style="color: #990000">)</span> <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span></tt></pre></div></div>
 <h3 id="_run_a_sql_query">1.2. Run a SQL query</h3><div style="clear:left"></div>
 <div class="paragraph"><p>To run a query, we need to create a Statement object.
 The constructor takes the connection object as a reference.</p></div>
@@ -658,7 +659,7 @@ http://www.gnu.org/software/src-highlite -->
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">execDirect</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"SELECT * from customers"</span><span style="color: #990000">);</span></tt></pre></div></div>
+<pre><tt>stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">execDirect</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"SELECT * from customers"</span><span style="color: #990000">);</span></tt></pre></div></div>
 <h4 id="_iterate_over_the_resultset">1.2.1. Iterate over the resultset</h4>
 <div class="paragraph"><p>After execution of the statement, you can create a new DBMS::Resultset object
 and attach it to the internal statement resultset:</p></div>
@@ -688,7 +689,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="paragraph"><p>You can access the fields by name or by position (first field has position 1).
 To determine the number of available fields, use <em>columnCount()</em>.
 The <em>column()</em> method returns a <em>const DBMS::Value</em> reference which provides
-many getter methods like <em>asWideStr()</em>, <em>asInt()</em> or <em>asDate()</em> to get the value.
+many getter methods like <em>asStr()</em>, <em>asInt()</em> or <em>asDate()</em> to get the value.
 To check if a field is null, call isNull() on the value reference.</p></div>
 <div class="listingblock">
 <div class="title">Print all records and fields</div>
@@ -703,7 +704,7 @@ http://www.gnu.org/software/src-highlite -->
      <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">isNull</span></span><span style="color: #990000">())</span>
          std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> <span style="color: #FF0000">"&lt;NULL&gt;"</span><span style="color: #990000">;</span>
      <span style="font-weight: bold"><span style="color: #0000FF">else</span></span>
-         std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">asStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"UTF-8"</span><span style="color: #990000">);</span>
+         std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> rs<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">column</span></span><span style="color: #990000">(</span>i<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">asStr</span></span><span style="color: #990000">();</span>
  <span style="color: #FF0000">}</span>
  std<span style="color: #990000">::</span>cout <span style="color: #990000">&lt;&lt;</span> std<span style="color: #990000">::</span>endl<span style="color: #990000">;</span>
 <span style="color: #FF0000">}</span></tt></pre></div></div>
@@ -765,7 +766,7 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>DBMS<span style="color: #990000">::</span>Environment <span style="font-weight: bold"><span style="color: #000000">env</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"sqlite:libsqlite"</span><span style="color: #990000">);</span>
 
-env<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">setOption</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"env_library_path"</span><span style="color: #990000">,</span> std<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">wstring</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"/path/to/libs"</span><span style="color: #990000">));</span>
+env<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">setOption</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"env_library_path"</span><span style="color: #990000">,</span> std<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">wstring</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"/path/to/libs"</span><span style="color: #990000">));</span>
 
 std<span style="color: #990000">::</span>string path <span style="color: #990000">=</span> ifnull<span style="color: #990000">&lt;</span>std<span style="color: #990000">::</span>string<span style="color: #990000">&gt;(</span>env<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">getOption</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"env_library_path"</span><span style="color: #990000">),</span> <span style="color: #FF0000">"."</span><span style="color: #990000">);</span></tt></pre></div></div>
 <h3 id="_environment">3.2. Environment</h3><div style="clear:left"></div>
@@ -889,7 +890,7 @@ cellspacing="0" cellpadding="4">
     CHARACTER
     </td>
     <td align="left">
-    DBMS::Char
+    DBMS::String
     </td>
   </tr>
   <tr>
@@ -897,7 +898,7 @@ cellspacing="0" cellpadding="4">
     CHARACTER VARING
     </td>
     <td align="left">
-    DBMS::Char
+    DBMS::String
     </td>
   </tr>
   <tr>
@@ -1033,7 +1034,7 @@ cellspacing="0" cellpadding="4">
     INTERVAL
     </td>
     <td align="left">
-    unsupported
+    - (requires implementation)
     </td>
   </tr>
 </tbody>
@@ -1188,7 +1189,7 @@ http://www.gnu.org/software/src-highlite -->
 <pre><tt>DBMS<span style="color: #990000">::</span>Statement <span style="font-weight: bold"><span style="color: #000000">stmt</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">);</span>
 <span style="font-weight: bold"><span style="color: #0000FF">try</span></span>
 <span style="color: #FF0000">{</span>
-        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">prepare</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"INSERT INTO customers VALUES(1, 'Dave Miller');"</span><span style="color: #990000">);</span>
+        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">prepare</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"INSERT INTO customers VALUES(1, 'Dave Miller');"</span><span style="color: #990000">);</span>
         stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">execute</span></span><span style="color: #990000">();</span>
 <span style="color: #FF0000">}</span>
 <span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>DBMS<span style="color: #990000">::</span>SQLSTATE_23000 <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
@@ -1225,7 +1226,7 @@ http://www.gnu.org/software/src-highlite -->
 <pre><tt>DBMS<span style="color: #990000">::</span>Statement <span style="font-weight: bold"><span style="color: #000000">stmt</span></span><span style="color: #990000">(</span>dbc<span style="color: #990000">);</span>
 <span style="font-weight: bold"><span style="color: #0000FF">try</span></span>
 <span style="color: #FF0000">{</span>
-        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">prepare</span></span><span style="color: #990000">(</span>L<span style="color: #FF0000">"INSERT INTO customers VALUES(1, 'Dave Miller');"</span><span style="color: #990000">);</span>
+        stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">prepare</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"INSERT INTO customers VALUES(1, 'Dave Miller');"</span><span style="color: #990000">);</span>
         stmt<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">execute</span></span><span style="color: #990000">();</span>
 <span style="color: #FF0000">}</span>
 <span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>DBMS<span style="color: #990000">::</span>SQLSTATE_42000 <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
@@ -1235,7 +1236,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="font-weight: bold"><span style="color: #0000FF">catch</span></span><span style="color: #990000">(</span>ex<span style="color: #990000">::</span>sqlstate_error <span style="color: #990000">&amp;</span>state<span style="color: #990000">)</span>
 <span style="color: #FF0000">{</span>
     <span style="font-style: italic"><span style="color: #9A1900">// catched engine specific SQLSTATE</span></span>
-        std<span style="color: #990000">::</span>string s <span style="color: #990000">=</span> state<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">diag</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">sqlstate</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">asStr</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"ASCII"</span><span style="color: #990000">);</span>
+        std<span style="color: #990000">::</span>string s <span style="color: #990000">=</span> state<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">diag</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">sqlstate</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">asStr</span></span><span style="color: #990000">().</span><span style="font-weight: bold"><span style="color: #000000">to</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"ASCII"</span><span style="color: #990000">);</span>
         <span style="font-weight: bold"><span style="color: #0000FF">if</span></span><span style="color: #990000">(</span>s<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">compare</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"XYZ01"</span><span style="color: #990000">)</span> <span style="color: #990000">==</span> <span style="color: #993399">0</span><span style="color: #990000">)</span>
         <span style="color: #FF0000">{</span>
                 <span style="font-style: italic"><span style="color: #9A1900">// handle XYZ001</span></span>
@@ -1273,7 +1274,22 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span>size_t number<span style="color: #990000">,</span> DBMS<span style="color: #990000">::</span>Variant value<span style="color: #990000">);</span>
 <span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span>size_t number<span style="color: #990000">,</span> dal<span style="color: #990000">::</span>IVariant<span style="color: #990000">*</span> value<span style="color: #990000">);</span>
-<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span>size_t number<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> dal<span style="color: #990000">::</span>IVariant<span style="color: #990000">*</span> value<span style="color: #990000">);</span></tt></pre></div></div>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span>size_t number<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> dal<span style="color: #990000">::</span>IVariant<span style="color: #990000">*</span> value<span style="color: #990000">);</span>
+
+<span style="font-weight: bold"><span style="color: #0000FF">template</span></span><span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">A</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">B</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">C</span><span style="color: #990000">&gt;</span>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> num<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> std<span style="color: #990000">::</span>basic_string<span style="color: #990000">&lt;</span>A<span style="color: #990000">,</span> B<span style="color: #990000">,</span> C<span style="color: #990000">&gt;&amp;</span> data<span style="color: #990000">);</span>
+
+<span style="font-weight: bold"><span style="color: #0000FF">template</span></span><span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">A</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">B</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">C</span><span style="color: #990000">&gt;</span>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> num<span style="color: #990000">,</span> std<span style="color: #990000">::</span>basic_string<span style="color: #990000">&lt;</span>A<span style="color: #990000">,</span> B<span style="color: #990000">,</span> C<span style="color: #990000">&gt;*</span> data<span style="color: #990000">);</span>
+
+<span style="font-weight: bold"><span style="color: #0000FF">template</span></span><span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">A</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">B</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">C</span><span style="color: #990000">&gt;</span>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> num<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> std<span style="color: #990000">::</span>basic_string<span style="color: #990000">&lt;</span>A<span style="color: #990000">,</span> B<span style="color: #990000">,</span> C<span style="color: #990000">&gt;*</span> data<span style="color: #990000">);</span>
+
+<span style="font-weight: bold"><span style="color: #0000FF">template</span></span><span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">A</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">B</span><span style="color: #990000">&gt;</span>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> num<span style="color: #990000">,</span> std<span style="color: #990000">::</span>basic_streambuf<span style="color: #990000">&lt;</span>A<span style="color: #990000">,</span> B<span style="color: #990000">&gt;*</span> data<span style="color: #990000">);</span>
+
+<span style="font-weight: bold"><span style="color: #0000FF">template</span></span><span style="color: #990000">&lt;</span><span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">A</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="color: #009900">B</span><span style="color: #990000">&gt;</span>
+<span style="color: #009900">void</span> Stmt<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">bind</span></span><span style="color: #990000">(</span><span style="color: #009900">int</span> num<span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">const</span></span> std<span style="color: #990000">::</span>basic_streambuf<span style="color: #990000">&lt;</span>A<span style="color: #990000">,</span> B<span style="color: #990000">&gt;*</span> data<span style="color: #990000">);</span></tt></pre></div></div>
 <div class="tableblock">
 <table rules="all"
 width="100%"
@@ -1455,7 +1471,7 @@ granted under the terms of the BSD License.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2010-09-25 23:52:14 CEST
+Last updated 2010-10-30 18:41:30 CEST
 </div>
 </div>
 </body>

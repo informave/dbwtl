@@ -1,5 +1,5 @@
 //
-// generic_engine.cc - Generic Engine (definition)
+// utils.hh - Internal utils, DO NOT INCLUDE THIS FILE IN NON-DBWTL CODE
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,79 +36,36 @@
 //
 
 /// @file
-/// @brief Generic Engine (definition)
+/// @brief Internal utils
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
+#ifndef INFORMAVE_DB_UTILS_HH
+#define INFORMAVE_DB_UTILS_HH
 
-#include "dbwtl/dal/dal_fwd.hh"
-#include "dbwtl/dal/engines/generic_engine.hh"
-#include "dbwtl/dal/active_engines.hh"
-#include "../dal_debug.hh"
-#include "../../utils.hh"
 
-#include <sstream>
+#include "dbwtl/db_fwd.hh"
 
 
 
-DAL_NAMESPACE_BEGIN
-
-
-std::map<std::string, String::Internal> parse_driver(const String::Internal &str)
-{
-    std::map<std::string, String::Internal> data;
-    std::wstring::size_type i = 0, j = 0;
-
-    j = str.find(US(":"), i);
-    if(j != String::Internal::npos)
-    {
-        data["engine"] = str.substr(i, j++);
-        i = j;
-    }
-
-    j = str.find(US(":"), i);
-    if(j != String::Internal::npos)
-    {
-        data["driver"] = str.substr(i, j++ - i);
-        i = j;
-        data["lib"] = str.substr(i);
-    }
-    else
-    {
-        data["driver"] = str.substr(i);
-    }
-
-    return data;
-}
-
-
-
-
-generic::ENV*
-generic::createEnv(String driver)
-{
-//    sqlite::STATE state; /// @bug wrong type, needs ne GenericState!!! trust me
-    String engine = parse_driver(driver)["engine"];
-
-    if(! engine.length())
-        goto err;
-
-#if defined(DBWTL_WITH_SQLITE)
-    else if(engine.compare(String("sqlite")) == 0)
-        return sqlite::createEnv(driver);
+#if DBWTL_INTERNAL_CHARTYPE == 1
+#define US(str) str
+#elif DBWTL_INTERNAL_CHARTYPE == 2
+#define US(str) L##str
+#elif DBWTL_INTERNAL_CHARTYPE == 3
+#define US(str) u##str
+#elif DBWTL_INTERNAL_CHARTYPE == 4
+#define US(str) U##str
 #endif
-/*
-    else if(engine.compare(L"postgres") == 0)
-        return Postgres::createEnv(driver);
-*/
-    // nothing found..
-err:
-//    state.setDALCode(DALSTATE_LIB_ERROR);
-//    state.setMsg(L"Engine \"" + engine + L"\" is not a valid identifier.");
-//    state.setSource(__FILE__, __FUNCTION__);
-//    throw ex::engine_error(state);
-      throw ex::engine_error("unknow driver");
-}
 
 
-DAL_NAMESPACE_END
+#endif
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

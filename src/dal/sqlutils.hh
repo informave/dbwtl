@@ -49,6 +49,7 @@
 #include "dbwtl/dal/dal_interface.hh"
 //#include "dbwtl/db_objects.hh"
 #include "dbwtl/util/smartptr.hh"
+#include "dbwtl/ustring"
 
 
 
@@ -68,9 +69,9 @@ public:
     virtual ~SqlTypeParser(void);
 
     
-    virtual void registerType(daltype_t type, std::wstring pattern);
+    virtual void registerType(daltype_t type, String::Internal pattern);
 
-    virtual bool parse(const std::wstring &str);
+    virtual bool parse(const String::Internal &str);
 
     virtual daltype_t getDaltype(void) const;
 
@@ -81,20 +82,20 @@ public:
 
 
 protected:
-    typedef std::pair<daltype_t, std::wstring>   pattern_entry_type;
+    typedef std::pair<daltype_t, String::Internal>   pattern_entry_type;
     typedef std::vector<pattern_entry_type>       pattern_vector_type;
 
     virtual void reset(void);
 
-    virtual bool parseSpecial(std::wstring::const_iterator &si,
-                              const std::wstring &str,
-                              std::wstring::const_iterator &pi,
-                              const std::wstring &pattern);
+    virtual bool parseSpecial(String::Internal::const_iterator &si,
+                              const String::Internal &str,
+                              String::Internal::const_iterator &pi,
+                              const String::Internal &pattern);
 
 
     /// 1 - SIZE or SCALE
     /// 2 - PRECISION
-    std::map<int, std::wstring>      m_values;
+    std::map<int, String::Internal>      m_values;
     pattern_vector_type               m_pattern;
     daltype_t                         m_daltype;
 };

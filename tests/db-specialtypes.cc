@@ -14,7 +14,7 @@ int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
-    using namespace informave::i18n;
+//    using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
     
@@ -30,7 +30,7 @@ int test(void)
     dbc.connect(L"sampledb.sqlitedb");
 
 
-    std::cout << conv_to(dbc.dbmsName(), "ISO-8859-1") << std::endl;
+    std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 
 
 
@@ -58,7 +58,7 @@ int test(void)
                 DBMS::Integer myi(res.column(i));
                 DBMS::Text  mfi = res.column(i).asText();
                 DBMS::Text ffa = res.column(i);
-                DBMS::Memo ffm(res.column(i));
+                //DBMS::Memo ffm(res.column(i));
 		/*
                 stmt.bind(1, myi);
                 stmt.bind(2, mfi);
@@ -66,7 +66,7 @@ int test(void)
 		*/
 
 
-                std::cout << res.column(i).asStr("UTF-8") << " ";
+                std::cout << res.column(i).asStr().to("UTF-8") << " ";
                 //std::cout << res.field(i).asWideStr("ISO-8859-15") << " | ";
             }
         }

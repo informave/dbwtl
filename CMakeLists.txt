@@ -47,6 +47,18 @@ else(MSVC)
 endif()
 
 
+
+option(DBWTL_CXX98_COMPATIBILITY
+	"Use C++98 header and features instead of the current standard
+	version" ON)
+
+
+
+set(DBWTL_DEFAULT_CHARSET "UTF-8" CACHE STRING "This charset is used for input 1-byte chars when converting to the internal wide charset")
+
+set(DBWTL_INTERNAL_CHARTYPE "2" CACHE STRING "This char type is
+internally used (only change if you really know what you are doing)")
+
 option(DBWTL_USE_LOCAL_HEADERS
         "Use local installed header files instead of the files packed with
         dbwtl" OFF)
@@ -127,7 +139,7 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions("-Wall -W -Wextra -Wno-unused-parameter
     -Wwrite-strings  -Wno-unused -Wno-switch-enum")
     if(DBWTL_ENABLE_PEDANTIC)
-      add_definitions("-pedantic -Wno-long-long")
+      add_definitions("-pedantic -Wno-long-long -Weffc++ -Wno-non-virtual-dtor")
     endif(DBWTL_ENABLE_PEDANTIC)
   endif(DBWTL_ENABLE_WARNINGS)
   if(DBWTL_ENABLE_WERROR)
@@ -187,6 +199,9 @@ if(DBWTL_WITH_SQLITE)
 		message(FATAL_ERROR "Required header sqlite3.h not found.")
   	endif()
 endif()
+
+
+
 
 
 configure_file(

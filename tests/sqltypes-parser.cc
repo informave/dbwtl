@@ -12,7 +12,8 @@ int test(void)
 {
     //using namespace informave;
     //using namespace informave::db::sqlutils;
-    using namespace informave::i18n;
+//    using namespace informave::i18n;
+    using namespace informave::db;
     using namespace informave::db::dal;
     //using namespace informave::db::DAL;
 
@@ -21,100 +22,100 @@ int test(void)
 
     //p.parse(L"VARCHAR(50)");
 
-    p.parse(L"INT");
+    p.parse(String("INT"));
     if(p.getDaltype() != DAL_TYPE_INT)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"INTEGER");
+    p.parse(String("INTEGER"));
     if(p.getDaltype() != DAL_TYPE_INT)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"int");
+    p.parse(String("int"));
     if(p.getDaltype() != DAL_TYPE_INT)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"CHAR");
+    p.parse(String("CHAR"));
     if(p.getDaltype() != DAL_TYPE_CHAR)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
 
-    p.parse(L"VARCHAR");
+    p.parse(String("VARCHAR"));
     if(p.getDaltype() != DAL_TYPE_STRING)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"VARCHAR(50)");
+    p.parse(String("VARCHAR(50)"));
     if(p.getDaltype() != DAL_TYPE_STRING)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
 
-    p.parse(L"BOOL");
+    p.parse(String("BOOL"));
     if(p.getDaltype() != DAL_TYPE_BOOL)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"SHORTINT");
+    p.parse(String("SHORTINT"));
     if(p.getDaltype() != DAL_TYPE_SMALLINT)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"BIGINT");
+    p.parse(String("BIGINT"));
     if(p.getDaltype() != DAL_TYPE_BIGINT)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"BLOB");
+    p.parse(String("BLOB"));
     if(p.getDaltype() != DAL_TYPE_BLOB)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"NUMERIC(4,2)");
+    p.parse(String("NUMERIC(4,2)"));
     if(p.getDaltype() != DAL_TYPE_NUMERIC)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"DECIMAL");
+    p.parse(String("DECIMAL"));
     if(p.getDaltype() != DAL_TYPE_NUMERIC)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"MONEY");
+    p.parse(String("MONEY"));
     if(p.getDaltype() != DAL_TYPE_NUMERIC)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"FLOAT");
+    p.parse(String("FLOAT"));
     if(p.getDaltype() != DAL_TYPE_FLOAT)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"REAL");
+    p.parse(String("REAL"));
     if(p.getDaltype() != DAL_TYPE_FLOAT)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"DOUBLE");
+    p.parse(String("DOUBLE"));
     if(p.getDaltype() != DAL_TYPE_DOUBLE)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"DATE");
+    p.parse(String("DATE"));
     if(p.getDaltype() != DAL_TYPE_DATE)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(L"TIME");
+    p.parse(String("TIME"));
     if(p.getDaltype() != DAL_TYPE_TIME)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
 
-    p.parse(L"TIMESTAMP");
+    p.parse(String("TIMESTAMP"));
     if(p.getDaltype() != DAL_TYPE_TIMESTAMP)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;

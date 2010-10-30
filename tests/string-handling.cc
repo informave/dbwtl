@@ -9,19 +9,26 @@
 #include <fstream>
 #include <memory>
 #include <cstdlib>
+#include <cassert>
 
 
 int test(void)
 {
     //using namespace informave;
     using namespace informave::db;
- //   using namespace informave::i18n;
+//    using namespace informave::i18n;
     //using namespace informave::db::DAL;
 
 
     typedef Database<dal::sqlite> DBMS;
 
-    
+
+
+    String q1("hallo welt");
+    std::cout << std::string(q1) << std::endl;
+    std::cout << "end " << std::endl;
+
+
     DBMS::Environment env("sqlite:libsqlite");
 
     DBMS::Connection dbc(env);
@@ -35,6 +42,23 @@ int test(void)
 
     DBMS::Statement stmt(dbc);
     stmt.prepare(L"INSERT INTO foo VALUES(?, ?, ?);");
+
+   
+    std::string s1("foo");
+    const std::wstring s2(L"foo");
+
+    const String s3("foo");
+
+    stmt.bind(1, s3);
+    stmt.bind(1, &s3);
+
+    stmt.bind(1, s1);
+    stmt.bind(1, s2);
+
+    stmt.bind(1, &s1);
+    stmt.bind(1, &s2);
+
+    return 0;
 
     std::ifstream ss("/home/cytrinox/informave/dbwtl/build/testimg.jpg", std::ios::binary);
     std::ifstream ss2("/home/cytrinox/informave/dbwtl/build/test2.jpg", std::ios::binary);

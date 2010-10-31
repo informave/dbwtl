@@ -124,6 +124,8 @@ template<typename DestT, typename SrcT>
 inline std::vector<DestT> conv_string(const SrcT *str, size_t n, std::string srccs, std::string charset)
 {
     std::vector<DestT> dest;
+    if(!n)
+        return dest;
     dest.resize(n * 4);
     size_t c = ustring_base::convert(reinterpret_cast<const char*>(str),
                                       n * sizeof(SrcT),

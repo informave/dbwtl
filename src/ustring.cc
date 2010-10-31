@@ -41,8 +41,8 @@
 /// @since 0.0.1
 
 #include <cassert>
-#include "i18n/wstring_convert.hh"
-#include "i18n/codecvt_byname.hh"
+//#include "i18n/wstring_convert.hh"
+//#include "i18n/codecvt_byname.hh"
 
 #include "dbwtl/ustring.hh"
 
@@ -64,7 +64,7 @@ namespace informave
 
 namespace db
 {
-	ssize_t ustring_base::convert(const char *src, ssize_t srclen, const char *from, char *dest, ssize_t len, const char *to)
+	size_t ustring_base::convert(const char *src, size_t srclen, const char *from, char *dest, size_t len, const char *to)
 	{
 
 
@@ -107,6 +107,7 @@ namespace db
 
 }
 
+/*
     namespace i18n
     {
 
@@ -151,4 +152,5 @@ namespace db
         }
 
     }
+*/
 }

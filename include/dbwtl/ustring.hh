@@ -82,16 +82,16 @@ class string_ptr;
 ///
 /// @since 0.0.1
 /// @brief Base class for ustring
-class ustring_base
+class DBWTL_EXPORT ustring_base
 {
 public:
     /// Convert from one charset to another charset
-    static ssize_t convert(const char    *src,
-                           ssize_t        srclen,
-                           const char    *from,
-                           char          *dest,
-                           ssize_t        len,
-                           const char    *to);
+    static size_t convert(const char    *src,
+                          size_t         srclen,
+                          const char    *from,
+                          char          *dest,
+                          size_t         len,
+                          const char    *to);
 
 
     /// Returns the right enconding for the given size
@@ -121,11 +121,11 @@ public:
 /// @since 0.0.1
 /// @brief convert a string to another string
 template<typename DestT, typename SrcT>
-inline std::vector<DestT> conv_string(const SrcT *str, ssize_t n, std::string srccs, std::string charset)
+inline std::vector<DestT> conv_string(const SrcT *str, size_t n, std::string srccs, std::string charset)
 {
     std::vector<DestT> dest;
     dest.resize(n * 4);
-    ssize_t c = ustring_base::convert(reinterpret_cast<const char*>(str),
+    size_t c = ustring_base::convert(reinterpret_cast<const char*>(str),
                                       n * sizeof(SrcT),
                                       srccs.c_str(),
                                       reinterpret_cast<char*>(&dest[0]),
@@ -137,7 +137,7 @@ inline std::vector<DestT> conv_string(const SrcT *str, ssize_t n, std::string sr
 
 /// Specialization for wchar_t, requires no conversion
 template<>
-inline std::vector<wchar_t> conv_string(const wchar_t *str, ssize_t n, std::string srccs, std::string charset)
+inline std::vector<wchar_t> conv_string(const wchar_t *str, size_t n, std::string srccs, std::string charset)
 {
     std::vector<wchar_t> tmp(str, str+n);
     return tmp;
@@ -152,7 +152,7 @@ inline std::vector<wchar_t> conv_string(const wchar_t *str, ssize_t n, std::stri
 /// @since 0.0.1
 /// @brief String class
 template<class CharT, class TraitsT = std::char_traits<CharT>, class AllocatorT = std::allocator<CharT> >
-class ustring : public ustring_base
+class DBWTL_EXPORT ustring : public ustring_base
 {
 public:
     typedef std::basic_string<CharT, TraitsT, AllocatorT>   Internal;

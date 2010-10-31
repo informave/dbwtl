@@ -602,11 +602,10 @@ public:
     	throw std::runtime_error("bind not supp");
     }
 
-    
-    template<class A, class B> void bind(int num, const std::basic_streambuf<A, B>* data)
-    {
-    	throw std::runtime_error("bind not supp");
-    }
+
+    template<class B> void bind(int num, std::basic_streambuf<char, B>* data)
+    { this->m_stmt->bind(num, data); }
+
 
     virtual void      bind(int num, dal::IVariant* data)        { this->m_stmt->bind(num, data); }
 

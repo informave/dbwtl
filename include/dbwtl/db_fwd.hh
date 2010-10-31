@@ -43,7 +43,7 @@
 #ifndef INFORMAVE_DB_DBFWD_HH
 #define INFORMAVE_DB_DBFWD_HH
 
-
+#include "dbwtl/dbwtl_config.hh"
 
 #define DB_NAMESPACE_BEGIN namespace informave { namespace db {
 #define DB_NAMESPACE_END }}

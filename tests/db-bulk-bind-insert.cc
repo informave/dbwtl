@@ -2,6 +2,7 @@
 #include <dbwtl/dal/engines/sqlite>
 
 #include <iostream>
+#include <locale>
 #include <cassert>
 
 const char* names[] =
@@ -73,6 +74,9 @@ int test(void)
 
 int main(void)
 {
+    std::locale::global(std::locale(""));
+    std::cout.imbue(std::locale());
+
     try
     {
         return test();

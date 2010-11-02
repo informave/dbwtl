@@ -97,7 +97,7 @@ void inline setValue(const T& src, U& dest)
 
 
 template<>
-class storage_accessor<std::streambuf*> : public BaseVariantImplFor<sa_base<std::streambuf*> >
+class storage_accessor<ByteStreamBuf*> : public BaseVariantImplFor<sa_base<ByteStreamBuf*> >
 {
 public:
     DAL_VARIANT_ACCESSOR;
@@ -122,14 +122,14 @@ public:
   return i18n::conv_from(ss.str(), "UTF-8");
   }
 */
-    virtual std::streambuf* asBlob(void) const
+    virtual ByteStreamBuf* asBlob(void) const
     {
         return this->getValue();
     }
 };
 
 template<>
-class storage_accessor<std::wstreambuf*> : public BaseVariantImplFor<sa_base<std::wstreambuf*> >
+class storage_accessor<UnicodeStreamBuf*> : public BaseVariantImplFor<sa_base<UnicodeStreamBuf*> >
 {
 public:
     DAL_VARIANT_ACCESSOR;
@@ -154,7 +154,7 @@ public:
   return i18n::conv_from(ss.str(), "UTF-8");
   }
 */
-    virtual std::wstreambuf* asMemo(void) const
+    virtual UnicodeStreamBuf* asMemo(void) const
     {
         return this->getValue();
     }
@@ -1290,11 +1290,11 @@ struct storage_accessor<String> : public BaseVariantImplFor<sa_base<String> >
 //     {
 //     }
 
-//     virtual std::streambuf* asBlob(void) const
+//     virtual ByteStreamBuf* asBlob(void) const
 //     {
 //     }
 
-    virtual std::wstreambuf* asMemo(void) const
+    virtual UnicodeStreamBuf* asMemo(void) const
     {
         std::wstringbuf *buf = new std::wstringbuf();
         buf->str(this->getValue());
@@ -1401,11 +1401,11 @@ struct storage_accessor<String> : public BaseVariantImplFor<sa_base<String> >
         this->m_isnull = false;
     }
 
-//     virtual void setBlob(std::streambuf *val)
+//     virtual void setBlob(ByteStreamBuf *val)
 //     {
 //     }
 
-    virtual void setMemo(std::wstreambuf *val)
+    virtual void setMemo(UnicodeStreamBuf *val)
     {
         Memo m(val);
         this->getValue() = m.str();
@@ -1640,11 +1640,11 @@ TInterval       BaseVariantImplFor<Base>::asInterval(void) const
 */
 
 template<class Base>
-std::streambuf*         BaseVariantImplFor<Base>::asBlob(void) const
+ByteStreamBuf*         BaseVariantImplFor<Base>::asBlob(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_BLOB); }
 
 template<class Base>
-std::wstreambuf*         BaseVariantImplFor<Base>::asMemo(void) const
+UnicodeStreamBuf*         BaseVariantImplFor<Base>::asMemo(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_MEMO); }
 
 
@@ -1742,11 +1742,11 @@ void            BaseVariantImplFor<Base>::setInterval(const TInterval&)
 */
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setBlob(std::streambuf*)
+void            BaseVariantImplFor<Base>::setBlob(ByteStreamBuf*)
 { throw ex::read_only(); }
 
 template<class Base>
-void            BaseVariantImplFor<Base>::setMemo(std::wstreambuf*)
+void            BaseVariantImplFor<Base>::setMemo(UnicodeStreamBuf*)
 { throw ex::read_only(); }
 
 
@@ -1834,11 +1834,11 @@ DAL_NAMESPACE_END
 //     {
 //     }
 
-//     virtual std::streambuf* asBlob(void) const
+//     virtual ByteStreamBuf* asBlob(void) const
 //     {
 //     }
 
-//     virtual std::wstreambuf* asMemo(void) const
+//     virtual UnicodeStreamBuf* asMemo(void) const
 //     {
 //     }
 
@@ -1912,11 +1912,11 @@ DAL_NAMESPACE_END
 //     {
 //     }
 
-//     virtual void setBlob(std::streambuf *val)
+//     virtual void setBlob(ByteStreamBuf *val)
 //     {
 //     }
 
-//     virtual void setMemo(std::wstreambuf *val)
+//     virtual void setMemo(UnicodeStreamBuf *val)
 //     {
 //     }
 // }

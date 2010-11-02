@@ -45,12 +45,13 @@
 #define INFORMAVE_DB_DBOBJECTS_HH
 
 
-#include "dbwtl/dbwtl_config.hh"
 #include "db_fwd.hh"
+#include "ustring.hh"
+#include "ustreambuf.hh"
 //#include "db_exceptions.hh"
 #include "dal/dal_interface.hh"
 
-#include <iostream>
+#include <iosfwd>
 
 //MANPAGE.001 Informave DBWTL(3)
 //MANPAGE.001 ==================
@@ -376,8 +377,7 @@ public:
 
     virtual dal_dbc_type* newConnection(void) { return this->m_env->newConnection(); }
 
-    /// @todo should data be const?
-    virtual void setOption(std::string name, dal_variant_type data)
+    virtual void setOption(std::string name, const dal_variant_type &data)
     { this->m_env->setOption(name, data); }
 
     virtual const dal_variant_type& getOption(std::string name) const
@@ -481,7 +481,7 @@ public:
     virtual const dal_diag_type&   fetchDiag(void)          { return this->m_dbc->fetchDiag(); }
 
 
-    virtual void                    setOption(std::string name, dal_variant_type data)
+    virtual void                    setOption(std::string name, const dal_variant_type &data)
     { this->m_dbc->setOption(name, data); }
 
     virtual const dal_variant_type& getOption(std::string name) const
@@ -580,7 +580,7 @@ public:
 
     template<class A, class B, class C> void bind(int num, std::basic_string<A, B, C>* data)
     {
-        std::cout << "binding non-const" << std::endl;
+        //std::cout << "binding non-const" << std::endl;
         String *s = new String();
         this->m_bind_strings.push_back(s);
         s->sync_with(data);
@@ -589,22 +589,31 @@ public:
     
     template<class A, class B, class C> void bind(int num, const std::basic_string<A, B, C>* data)
     {
-        std::cout << "binding const" << std::endl;
+        //std::cout << "binding const" << std::endl;
         String *s = new String();
         this->m_bind_strings.push_back(s);
         s->sync_with(data);
         this->bind(num, dal::Variant(static_cast<const String*>(s)));
     }
-    
-    
-    template<class A, class B> void bind(int num, std::basic_streambuf<A, B>* data)
-    {
-    	throw std::runtime_error("bind not supp");
-    }
 
 
-    template<class B> void bind(int num, std::basic_streambuf<char, B>* data)
-    { this->m_stmt->bind(num, data); }
+
+    virtual void      bind(int num, ByteStreamBuf *data)       { this->m_stmt->bind(num, data); }
+
+    virtual void      bind(int num, UnicodeStreamBuf *data)    { this->m_stmt->bind(num, data); }
+    
+    
+    // template<class A, class B> void bind(int num, std::basic_streambuf<A, B>* data)
+    // {
+    //     streambuf_convert<char> *cvtbuf = new streambuf_convert<char>(data);
+    //     std::wstreambuf *wsb = cvtbuf;
+    //     this->m_stmt->bind(num, data); 
+    // 	throw std::runtime_error("bind not supp");
+    // }
+
+
+    // template<class B> void bind(int num, std::basic_streambuf<char, B>* data)
+    // { throw std::runtime_error("bind not supp"); }
 
 
     virtual void      bind(int num, dal::IVariant* data)        { this->m_stmt->bind(num, data); }
@@ -613,9 +622,7 @@ public:
 
     virtual void      bind(int num, dal::Variant data)          { this->m_stmt->bind(num, data); }
 
-    virtual void      bind(int num, std::streambuf *data)       { this->m_stmt->bind(num, data); }
 
-    virtual void      bind(int num, std::wstreambuf *data)      { this->m_stmt->bind(num, data); }
 
     virtual dal::rowcount_t  affectedRows(void) const           { return this->m_stmt->affectedRows(); }
 
@@ -626,7 +633,7 @@ public:
     virtual const dal_diag_type&   fetchDiag(void)              { return this->m_stmt->fetchDiag(); }
 
     // Options
-    virtual void                    setOption(std::string name, dal_variant_type data)
+    virtual void                    setOption(std::string name, const dal_variant_type &data)
     { this->m_stmt->setOption(name, data); }
 
     virtual const dal_variant_type& getOption(std::string name) const
@@ -639,7 +646,7 @@ protected:
     typename dal_stmt_type::ptr m_stmt;
 	
 	std::vector<String*> m_bind_strings;
-//	std::vector<streambuf>
+//	std::vector<UnicodeStreamBuf>
 
 private:
     Statement(const Statement&);
@@ -1015,7 +1022,7 @@ private:
 //GCORE.001 ------------------------------------------------------------------------------
 //GCORE.001 DBMS::Environment env("sqlite:libsqlite");
 //GCORE.001 
-//GCORE.001 env.setOption("env_library_path", std::wstring("/path/to/libs"));
+//GCORE.001 env.setOption("env_library_path", std::string("/path/to/libs"));
 //GCORE.001 
 //GCORE.001 std::string path = ifnull<std::string>(env.getOption("env_library_path"), ".");
 //GCORE.001 ------------------------------------------------------------------------------

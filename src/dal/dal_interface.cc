@@ -101,7 +101,7 @@ IVariant::setStr(String str, std::locale loc)
 
 //--------------------------------------------------------------------------
 //
-Blob::Blob(std::streambuf *buf) : std::istream(0), m_buf(buf)
+Blob::Blob(ByteStreamBuf *buf) : std::istream(0), m_buf(buf)
 {
     this->rdbuf(buf);
 }
@@ -123,7 +123,7 @@ Blob::~Blob(void)
 
 //--------------------------------------------------------------------------
 //
-Memo::Memo(std::wstreambuf *buf) : std::wistream(0), m_buf(buf)
+Memo::Memo(UnicodeStreamBuf *buf) : std::wistream(0), m_buf(buf)
 {
     this->rdbuf(m_buf);
 }
@@ -223,8 +223,8 @@ IStoredVariant* new_default_storage(daltype_t type)
     case DAL_TYPE_USMALLINT: return new var_storage<unsigned short int>();
     case DAL_TYPE_BIGINT: return new var_storage<signed long long>();
     case DAL_TYPE_UBIGINT: return new var_storage<unsigned long long>();
-    case DAL_TYPE_BLOB: return new var_storage<std::streambuf*>();
-    case DAL_TYPE_MEMO: return new var_storage<std::wstreambuf*>();
+    case DAL_TYPE_BLOB: return new var_storage<ByteStreamBuf*>();
+    case DAL_TYPE_MEMO: return new var_storage<UnicodeStreamBuf*>();
     case DAL_TYPE_NUMERIC: return new var_storage<TNumeric>();
     case DAL_TYPE_FLOAT: return new var_storage<float>();
     case DAL_TYPE_DOUBLE: return new var_storage<double>();
@@ -636,7 +636,7 @@ Variant::asInterval(void) const
 }
 
 ///
-std::streambuf*
+ByteStreamBuf*
 Variant::asBlob(void) const 
 {
     if(this->isnull()) throw db::ex::null_value(*this);
@@ -644,7 +644,7 @@ Variant::asBlob(void) const
 }
 
 ///
-std::wstreambuf*
+UnicodeStreamBuf*
 Variant::asMemo(void) const 
 {
     if(this->isnull()) throw db::ex::null_value(*this);
@@ -749,7 +749,7 @@ IVariant::operator std::streambuf*      (void) const { return this->asBlob(); }
 
 ///
 void      
-Variant::setBlob(std::streambuf* value)         
+Variant::setBlob(ByteStreamBuf* value)         
 {
     /// @bug is init required?
     ///
@@ -762,7 +762,7 @@ Variant::setBlob(std::streambuf* value)
 
 ///
 void
-Variant::setMemo(std::wstreambuf* value)
+Variant::setMemo(UnicodeStreamBuf* value)
 {
     //init_if_null<IBlob>(this->m_storage);
     this->m_storage->setMemo(value);
@@ -1068,7 +1068,7 @@ EnvBase::EnvBase(void)
 ///
 ///
 void
-EnvBase::setOption(std::string name, Variant data)
+EnvBase::setOption(std::string name, const Variant &data)
 {
     options_type::iterator i = this->m_options.find(name);
     if(i != this->m_options.end())
@@ -1123,7 +1123,7 @@ StmtBase::StmtBase(void)
 ///
 ///
 void
-StmtBase::setOption(std::string name, Variant data)
+StmtBase::setOption(std::string name, const Variant &data)
 {
     options_type::iterator i = this->m_options.find(name);
     if(i != this->m_options.end())
@@ -1196,7 +1196,7 @@ StmtBase::bind(int num, const IVariant* data)
 ///
 ///
 void
-StmtBase::bind(int num, std::streambuf *data)
+StmtBase::bind(int num, ByteStreamBuf *data)
 {
     DALTRACE_VISIT;
     Variant* tmp = new Variant(data);
@@ -1205,7 +1205,7 @@ StmtBase::bind(int num, std::streambuf *data)
 }
 
 void
-StmtBase::bind(int num, std::wstreambuf *data)
+StmtBase::bind(int num, UnicodeStreamBuf *data)
 {
     DALTRACE_VISIT;
     Variant* tmp = new Variant(data);
@@ -1296,7 +1296,7 @@ DbcBase::DbcBase(void)
 ///
 ///
 void
-DbcBase::setOption(std::string name, Variant data)
+DbcBase::setOption(std::string name, const Variant &data)
 {
     options_type::iterator i = this->m_options.find(name);
     if(i != this->m_options.end())

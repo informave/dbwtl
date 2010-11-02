@@ -48,7 +48,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 #include <cstring>
 
 #ifdef DBWTL_CXX98_COMPATIBILITY
@@ -294,6 +294,12 @@ public:
     }
 
 
+    const char* utf8(void) const
+    {
+        return this->to("UTF-8");
+    }
+
+
     /// Compare operator for ustring
     bool operator<(const string_type& s) const
     {
@@ -364,7 +370,6 @@ public:
     {
     	delete m_strptr;
         m_strptr = new string_ptr<string_type, std::basic_string<A, B, C> >(str);
-        std::cout << "Sync with: " << string_type(m_strptr->get()) << std::endl;
     }
 
     template<class A, class B, class C>

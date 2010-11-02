@@ -49,7 +49,8 @@
 
 #include "dbwtl/dal/dal_fwd.hh"
 //#include "db_exceptions.hh"
-//#include "dbwtl/i18n/ustring.hh"
+#include "dbwtl/ustring.hh"
+#include "dbwtl/ustreambuf.hh"
 #include "dbwtl/util/smartptr.hh"
 
 #ifdef DAL_DEV_INCLUDE_DEVUTILS
@@ -310,7 +311,7 @@ public:
     virtual const IDiagnostic&   fetchDiag(void) = 0;
 
 
-    virtual void             setOption(std::string name, Variant data) = 0;
+    virtual void             setOption(std::string name, const Variant &data) = 0;
     virtual const Variant&   getOption(std::string name) const = 0;
 
 
@@ -331,7 +332,7 @@ public:
 
 //--------------------------------------------------------------------------
 /// @brief DAL Interface for BLOB buffers
-class DBWTL_EXPORT IBlobBuffer : public std::streambuf
+class DBWTL_EXPORT IBlobBuffer : public ByteStreamBuf
 {
 public:
 protected:
@@ -341,7 +342,7 @@ protected:
 
 //--------------------------------------------------------------------------
 /// @brief DAL Interface for MEMO buffers
-class DBWTL_EXPORT IMemoBuffer : public std::wstringbuf
+class DBWTL_EXPORT IMemoBuffer : public UnicodeStreamBuf
 {
 public:
 protected:
@@ -354,12 +355,12 @@ protected:
 class DBWTL_EXPORT Blob : public std::istream
 {
 public:
-    Blob(std::streambuf *buf);
+    Blob(ByteStreamBuf *buf);
     Blob(const IVariant &variant);
     virtual ~Blob();
 
 protected:
-    std::streambuf *m_buf;
+    ByteStreamBuf *m_buf;
 private:
     Blob(const Blob&);
     Blob& operator=(const Blob&);
@@ -372,7 +373,7 @@ private:
 class DBWTL_EXPORT Memo : public std::wistream
 {
 public:
-    Memo(std::wstreambuf *buf);
+    Memo(UnicodeStreamBuf *buf);
     Memo(const IVariant &variant);
     virtual ~Memo(void);
 
@@ -380,7 +381,7 @@ public:
     std::wstring  str() const;
 
 protected:
-    std::wstreambuf *m_buf;
+    UnicodeStreamBuf *m_buf;
 private:
     Memo(const Memo&);
     Memo& operator=(const Memo&);
@@ -470,8 +471,8 @@ public:
     virtual TTime                asTime(void) const = 0;
     virtual TTimestamp           asTimestamp(void) const = 0;
     virtual TInterval            asInterval(void) const = 0;
-    virtual std::streambuf*      asBlob(void) const = 0;
-    virtual std::wstreambuf*     asMemo(void) const = 0;
+    virtual ByteStreamBuf*       asBlob(void) const = 0;
+    virtual UnicodeStreamBuf*    asMemo(void) const = 0;
 //     virtual const TCustomType&   asCustom(void) const = 0;
 
 
@@ -493,8 +494,8 @@ public:
     virtual void                 setTime(const TTime&) = 0;
     virtual void                 setTimestamp(const TTimestamp&) = 0;
     virtual void                 setInterval(const TInterval&) = 0;
-    virtual void                 setBlob(std::streambuf*) = 0;
-    virtual void                 setMemo(std::wstreambuf*) = 0;
+    virtual void                 setBlob(ByteStreamBuf*) = 0;
+    virtual void                 setMemo(UnicodeStreamBuf*) = 0;
 //     virtual void                 setCustom(const TCustomType&) const = 0;
   
 private:
@@ -541,8 +542,8 @@ public:
     virtual TTime                 asTime(void) const;
     virtual TTimestamp            asTimestamp(void) const;
     virtual TInterval             asInterval(void) const;
-    virtual std::streambuf*       asBlob(void) const;
-    virtual std::wstreambuf*      asMemo(void) const;
+    virtual ByteStreamBuf*        asBlob(void) const;
+    virtual UnicodeStreamBuf*     asMemo(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
 
 
@@ -563,8 +564,8 @@ public:
     virtual void            setTime(const TTime&);
     virtual void            setTimestamp(const TTimestamp&);
     virtual void            setInterval(const TInterval&);
-    virtual void            setBlob(std::streambuf*);
-    virtual void            setMemo(std::wstreambuf*);
+    virtual void            setBlob(ByteStreamBuf*);
+    virtual void            setMemo(UnicodeStreamBuf*);
     //virtual void        asCustom(void) const = 0;
 
 protected:
@@ -883,8 +884,8 @@ public:
     virtual TTime               asTime(void) const;
     virtual TTimestamp          asTimestamp(void) const;
     virtual TInterval           asInterval(void) const;
-    virtual std::streambuf*     asBlob(void) const;
-    virtual std::wstreambuf*    asMemo(void) const;
+    virtual ByteStreamBuf*      asBlob(void) const;
+    virtual UnicodeStreamBuf*   asMemo(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
 
     virtual void        setInt(const signed int&);
@@ -904,8 +905,8 @@ public:
     virtual void        setTime(const TTime&);
     virtual void        setTimestamp(const TTimestamp&);
     virtual void        setInterval(const TInterval&);
-    virtual void        setBlob(std::streambuf*);
-    virtual void        setMemo(std::wstreambuf*);
+    virtual void        setBlob(ByteStreamBuf*);
+    virtual void        setMemo(UnicodeStreamBuf*);
     //virtual void       asCustom(void) const = 0;
 
 protected:
@@ -1152,14 +1153,11 @@ public:
     virtual std::string    getDbcEncoding(void) const = 0;
 
 
-    /// @bug can these be const methods?
+
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter()) = 0;
-    virtual DatatypeList   getDatatypes(const IDatatypeFilter& = EmptyDatatypeFilter())
-    { 
-        throw std::runtime_error("not impl");
-    }
+    virtual DatatypeList   getDatatypes(const IDatatypeFilter& = EmptyDatatypeFilter()) = 0;
 
-
+    /// @bug implement get(objects) methods
     /*
       virtual ColumnList     getTables(const IColumnFilter& = EmptyColumnFilter()) = 0;
       virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
@@ -1266,8 +1264,8 @@ public:
     virtual void      bind(int num, IVariant* data) = 0;
     virtual void      bind(int num, const IVariant* data) = 0;
     virtual void      bind(int num, Variant data) = 0; /// @bug are we using clone() here? is this ok?
-    virtual void      bind(int num, std::streambuf *data) = 0;
-    virtual void      bind(int num, std::wstreambuf *data) = 0;
+    virtual void      bind(int num, ByteStreamBuf *data) = 0;
+    virtual void      bind(int num, UnicodeStreamBuf *data) = 0;
 
     virtual rowcount_t  affectedRows(void) const = 0;
 
@@ -1500,8 +1498,8 @@ public:
     virtual void      bind(int num, IVariant* data);
     virtual void      bind(int num, const IVariant* data);
     virtual void      bind(int num, Variant data);
-    virtual void      bind(int num, std::streambuf *data);
-    virtual void      bind(int num, std::wstreambuf *data);
+    virtual void      bind(int num, ByteStreamBuf *data);
+    virtual void      bind(int num, UnicodeStreamBuf *data);
 
     virtual bool      isPrepared(void) const;
 
@@ -1516,7 +1514,7 @@ public:
     //virtual int       getParamNumberByName(std::wstring name) const = 0;
 
 
-    virtual void             setOption(std::string name, Variant data);
+    virtual void             setOption(std::string name, const Variant &data);
     virtual const Variant&   getOption(std::string name) const;
 
     virtual ~StmtBase(void)
@@ -1575,7 +1573,7 @@ protected:
 class DBWTL_EXPORT EnvBase : public IEnv
 {
 public:
-    virtual void             setOption(std::string name, Variant data);
+    virtual void             setOption(std::string name, const Variant &data);
     virtual const Variant&   getOption(std::string name) const;
 
 protected:
@@ -1599,7 +1597,7 @@ public:
     virtual bool      isConnected(void) const;
     virtual bool      isBad(void) const;
 
-    virtual void             setOption(std::string name, Variant data);
+    virtual void             setOption(std::string name, const Variant &data);
     virtual const Variant&   getOption(std::string name) const;
 
     virtual ~DbcBase(void)

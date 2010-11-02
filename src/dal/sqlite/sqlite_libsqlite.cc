@@ -598,6 +598,7 @@ SqliteResult_libsqlite::next(void)
     switch(this->m_last_row_status)
     {   
     case SQLITE_ROW:
+        // refresh all column accessors
         std::for_each(this->m_column_accessors.begin(),
                       this->m_column_accessors.end(),
                       informave::stdext::compose1(std::mem_fun(&SqliteVariant::refresh),

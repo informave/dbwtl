@@ -116,7 +116,7 @@ SqliteData::~SqliteData(void)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ///
-/// @todo implement other values, not only name
+///
 SqliteTable::SqliteTable(String dbname, SqliteResult& src)
     : m_name(DAL_TYPE_STRING, "SqliteTable::name"),
       m_catalog(DAL_TYPE_STRING, "SqliteTable::catalog"),

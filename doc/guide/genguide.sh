@@ -9,5 +9,5 @@ COM='//' ../../pipadoc  `find ../../ -type f -regex ".*\(hh\|cc\)"` ${GUIDEDIR}/
 #a2x -v -f xhtml guide.txt
 asciidoc -v --doctype book -b xhtml11 -a toc -a toclevels=3 -a numbered guide.txt;
 dos2unix guide.html;
-#asciidoc -v --doctype book -b docbook -a toc -a toclevels=3 -a numbered guide.txt;
+asciidoc -v --doctype book -b docbook -a toc -a toclevels=3 -a numbered guide.txt;
 

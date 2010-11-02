@@ -439,9 +439,8 @@ public:
     operator unsigned int          (void) const;
     operator signed char           (void) const;
     operator unsigned char         (void) const;
-
-    operator String (void) const;
-
+    operator String                (void) const;
+    operator std::string           (void) const;
     operator bool                  (void) const;
     operator signed short          (void) const;
     operator unsigned short        (void) const;
@@ -450,6 +449,13 @@ public:
     operator TNumeric              (void) const;
     operator float                 (void) const;
     operator double                (void) const;
+    operator TDate                 (void) const;
+    operator TTime                 (void) const;
+    operator TTimestamp            (void) const;
+    operator ByteStreamBuf*        (void) const;
+    operator UnicodeStreamBuf*     (void) const;
+    operator TInterval             (void) const;
+
 
     // getter methods
     virtual signed int           asInt(void) const = 0;
@@ -771,7 +777,7 @@ public:
     /// The optional name can be used to identify the value (e.g. exeptions).
     /// @brief Creates a Variant object from the given value/type
     template<class T>
-        Variant(T value, const String &name = String(L"<unnamed>"))
+        Variant(const T& value, const String &name = String("<unnamed>"))
         : IVariant(),
         m_storage(new var_storage<T>(value)),
         m_name(name),
@@ -782,7 +788,9 @@ public:
     /// This constructor creates a Variant object from another Variant
     /// object.
     /// @brief Copy constructor for Variant objects
-    /// @bug should we really use clone()?
+    /// @note
+    /// This clones the internal storage, which means that pointers
+    /// just get copied, but no content is transferred.
     Variant(const Variant& v)
         : IVariant(),
         m_storage(),
@@ -1263,7 +1271,7 @@ public:
     virtual size_t    paramCount(void) const = 0;
     virtual void      bind(int num, IVariant* data) = 0;
     virtual void      bind(int num, const IVariant* data) = 0;
-    virtual void      bind(int num, Variant data) = 0; /// @bug are we using clone() here? is this ok?
+    virtual void      bind(int num, Variant data) = 0;
     virtual void      bind(int num, ByteStreamBuf *data) = 0;
     virtual void      bind(int num, UnicodeStreamBuf *data) = 0;
 

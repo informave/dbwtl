@@ -48,10 +48,12 @@ int test(void)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
 
-    p.parse(String("VARCHAR(50)"));
+    p.parse(String("VARCHAR(10)"));
     if(p.getDaltype() != DAL_TYPE_STRING)
         return -1;
     std::wcout << L"Parsed Type: " << daltype2string(p.getDaltype()) << std::endl;
+    //assert(p.getSize() == 10);
+    std::wcout << L"Parsed Size: " << p.getSize() << std::endl;
 
 
     p.parse(String("BOOL"));

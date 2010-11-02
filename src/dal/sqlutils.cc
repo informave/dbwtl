@@ -37,12 +37,17 @@
 
 /// @file
 /// @brief SQL Utils (definition)
+///
+/// @todo Parser is incomplete, needs rewrite and support for length, precision, charset etc.
+///
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
 
+#include "dbwtl/dal/dal_interface.hh"
 #include "sqlutils.hh"
 #include "../utils.hh"
+
 
 DAL_NAMESPACE_BEGIN
 
@@ -198,7 +203,12 @@ SqlTypeParser::getSize(void) const
         String::Internal size = i->second;
         if(size.empty())
             return 0;
-        return 50; /// @todo fixme
+        else
+        {
+            String x(size);
+            Variant var(x);
+            return var.asInt();
+        }
     }
     return 0;
 }

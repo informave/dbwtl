@@ -731,26 +731,27 @@ Variant::setMemo(UnicodeStreamBuf* value)
 
 
 // OPERATORS
+IVariant::operator bool                  (void) const { return this->asBool(); }
 IVariant::operator signed int            (void) const { return this->asInt(); }
 IVariant::operator unsigned int          (void) const { return this->asUInt(); }
 IVariant::operator signed char           (void) const { return this->asChar(); }
 IVariant::operator unsigned char         (void) const { return this->asUChar(); }
-IVariant::operator String                (void) const { return this->asStr(); }
-IVariant::operator std::string           (void) const { return std::string(this->asStr().to("UTF-8")); }
-IVariant::operator bool                  (void) const { return this->asBool(); }
 IVariant::operator signed short          (void) const { return this->asSmallint(); }
 IVariant::operator unsigned short        (void) const { return this->asUSmallint(); }
 IVariant::operator signed long long      (void) const { return this->asBigint(); }
 IVariant::operator unsigned long long    (void) const { return this->asUBigint(); }
 IVariant::operator float                 (void) const { return this->asReal(); }
 IVariant::operator double                (void) const { return this->asDouble(); }
-IVariant::operator TNumeric              (void) const { return this->asNumeric(); }
-IVariant::operator TDate                 (void) const { return this->asDate(); }
-IVariant::operator TTime                 (void) const { return this->asTime(); }
-IVariant::operator TTimestamp            (void) const { return this->asTimestamp(); }
+IVariant::operator String                (void) const { return this->asStr(); }
+IVariant::operator std::string           (void) const { return std::string(this->asStr().to("UTF-8")); }
 IVariant::operator ByteStreamBuf*        (void) const { return this->asBlob(); }
 IVariant::operator UnicodeStreamBuf*     (void) const { return this->asMemo(); }
-IVariant::operator TInterval             (void) const { return this->asInterval(); }
+
+// IVariant::operator TNumeric              (void) const { return this->asNumeric(); }
+// IVariant::operator TDate                 (void) const { return this->asDate(); }
+// IVariant::operator TTime                 (void) const { return this->asTime(); }
+// IVariant::operator TTimestamp            (void) const { return this->asTimestamp(); }
+// IVariant::operator TInterval             (void) const { return this->asInterval(); }
 
 
 ///

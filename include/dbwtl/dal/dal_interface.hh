@@ -439,26 +439,28 @@ public:
     /// variant or other resources.
     virtual Variant     value(void) const;
 
+    operator bool                  (void) const;
     operator signed int            (void) const;
     operator unsigned int          (void) const;
     operator signed char           (void) const;
     operator unsigned char         (void) const;
-    operator String                (void) const;
-    operator std::string           (void) const;
-    operator bool                  (void) const;
     operator signed short          (void) const;
     operator unsigned short        (void) const;
     operator signed long long      (void) const;
     operator unsigned long long    (void) const;
-    operator TNumeric              (void) const;
     operator float                 (void) const;
     operator double                (void) const;
-    operator TDate                 (void) const;
-    operator TTime                 (void) const;
-    operator TTimestamp            (void) const;
+    operator String                (void) const;
+    operator std::string           (void) const;
     operator ByteStreamBuf*        (void) const;
     operator UnicodeStreamBuf*     (void) const;
-    operator TInterval             (void) const;
+
+    // This classes should provide a constructor for IVariant&
+    // operator TNumeric              (void) const;
+    // operator TDate                 (void) const;
+    // operator TTime                 (void) const;
+    // operator TTimestamp            (void) const;
+    // operator TInterval             (void) const;
 
 
     // getter methods

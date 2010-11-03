@@ -109,48 +109,140 @@ static void delete_resultset(SqliteResult_libsqlite* rs)
 
 //
 //
-SqliteBlob_libsqlite::SqliteBlob_libsqlite(const SqliteData_libsqlite& data,
-                                           const void *buf, size_t size)
+SqliteBlob_libsqlite::SqliteBlob_libsqlite(const SqliteData_libsqlite& data)
     : SqliteBlob(),
       m_data(data),
-      m_buf(static_cast<const unsigned char*>(buf)),
-      m_size(size)
-{
-    char* ptr = const_cast<char*>(static_cast<const char*>(buf));/// @bug test workaround, remove me!
-    this->setg(ptr, ptr, ptr+size);
-}
+      m_buf(0),
+      m_buf_end(0),
+      m_cur(0)
+{}
 
 
 //
 //
 SqliteBlob_libsqlite::~SqliteBlob_libsqlite(void)
-{
-}
+{}
 
-///
-/// @todo move to base class
+
+//
+//
 SqliteBlob_libsqlite::int_type
 SqliteBlob_libsqlite::underflow()
 {
-    if (gptr() < egptr())
-        return *gptr();
-    else
+    if(this->m_cur == this->m_buf_end)
         return traits_type::eof();
+    else
+        return *this->m_cur;
+}
+
+
+//
+//
+SqliteBlob_libsqlite::pos_type
+SqliteBlob_libsqlite::seekpos(SqliteBlob_libsqlite::pos_type p, std::ios_base::openmode m)
+{
+    std::cout << "seek" << std::endl;
+    if(m & std::ios_base::in)
+    {
+        this->m_cur = this->m_buf + p > this->m_buf_end ? this->m_buf_end : this->m_buf + p;
+        return this->m_cur - this->m_buf;
+    }
+    return traits_type::eof();
+}
+
+
+//
+//
+SqliteBlob_libsqlite::pos_type
+SqliteBlob_libsqlite::seekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode m)
+{
+    if(m & std::ios_base::in)
+    {
+        switch(way)
+        {
+        case std::ios_base::beg:
+            this->m_cur = this->m_buf + off > this->m_buf_end ? this->m_buf_end : this->m_buf + off;
+            return this->m_cur - this->m_buf;
+
+        case std::ios_base::cur:
+            this->m_cur = this->m_cur + off > this->m_buf_end ? this->m_buf_end : this->m_cur + off;
+            return this->m_cur - this->m_buf;
+
+        case std::ios_base::end:
+            this->m_cur = this->m_buf_end + off > this->m_buf_end ? this->m_buf_end : this->m_buf_end + off;
+            return this->m_cur - this->m_buf;
+        default:
+            break;
+            // catchall for GCC warnings (gcc defines more than the dree ways)
+        }
+    }
+    return traits_type::eof();    
+}
+
+
+//
+//
+SqliteBlob_libsqlite::int_type
+SqliteBlob_libsqlite::uflow()
+{
+    if(this->m_cur == this->m_buf_end)
+        return traits_type::eof();
+    else
+        return *this->m_cur++;
+}
+
+
+//
+//
+SqliteBlob_libsqlite::int_type
+SqliteBlob_libsqlite::pbackfail(int_type ch)
+{
+    if(this->m_cur == this->m_buf || (ch != traits_type::eof() && ch != this->m_cur[-1]))
+        return traits_type::eof();
+    else
+        return *--this->m_cur;
+}
+
+
+//
+//
+std::streamsize
+SqliteBlob_libsqlite::showmanyc(void)
+{
+    return this->m_buf_end - this->m_cur;
+}
+
+
+//
+//
+std::streamsize
+SqliteBlob_libsqlite::xsgetn(char_type *ch, std::streamsize n)
+{
+    std::streamsize cp = n > showmanyc() ? showmanyc() : n;
+    std::memcpy(ch, this->m_cur, cp * sizeof(traits_type::char_type));
+    this->m_cur += cp;
+    return cp;
 }
 
 
 ///
 ///
 void
-SqliteBlob_libsqlite::reset_ptr(const void *buf, size_t size)
+SqliteBlob_libsqlite::setBufPtr(const unsigned char *buf, size_t size)
 {
-    this->m_buf = static_cast<const unsigned char*>(buf);
-    this->m_size = size;
-    char* ptr = const_cast<char*>(static_cast<const char*>(buf));/// @bug test workaround, remove me!
-    this->setg(ptr, ptr, ptr+size);
+    this->m_buf = buf;
+    this->m_buf_end = buf + size;
+    this->m_cur = buf;
 }
 
 
+//
+//
+bool
+SqliteBlob_libsqlite::isNull(void) const
+{
+    return (this->m_buf == this->m_buf_end);
+}
 
 
 
@@ -184,6 +276,30 @@ SqliteData_libsqlite::getBlob(void) const
     size_t size = 0;
     const void *buf = NULL;
 
+    if(this->isnull())
+        throw ex::null_value(String("SqliteData_libsqlite result column"));
+
+
+    if(! this->m_blobbuf.get())
+    {
+        this->m_blobbuf.reset(new SqliteBlob_libsqlite(*this));
+    }
+
+
+    // the streambuffer is set to null on each fetch() (through refresh())
+    if(this->m_blobbuf->isNull())
+    {
+        // get ptr if column is not null
+        size = this->m_resultset.drv()->sqlite3_column_bytes(this->m_resultset.getHandle(),
+                                                             this->m_colnum - 1);
+        buf = this->m_resultset.drv()->sqlite3_column_blob(this->m_resultset.getHandle(),
+                                                           this->m_colnum - 1);
+        this->m_blobbuf->setBufPtr(static_cast<const unsigned char*>(buf), size);
+    }
+    return this->m_blobbuf.get();
+
+
+/*
     // get ptr if column is not null
     if(! this->isnull())
     {
@@ -196,11 +312,11 @@ SqliteData_libsqlite::getBlob(void) const
     // prepare or reset stream buffer
     if(this->m_blobbuf.get())
     {
-        this->m_blobbuf->reset_ptr(buf, size);
+        this->m_blobbuf->reset_ptr(static_cast<const unsigned char*>(buf), size);
     }
     else
     {
-        this->m_blobbuf.reset(new SqliteBlob_libsqlite(*this, buf, size));
+        this->m_blobbuf.reset(new SqliteBlob_libsqlite(*this, static_cast<const unsigned char*>(buf), size));
     }
 
     // everything is up-to-date now...
@@ -208,6 +324,7 @@ SqliteData_libsqlite::getBlob(void) const
         throw ex::null_value(String("SqliteData_libsqlite result column"));
     else
         return this->m_blobbuf.get();
+*/
 }
 
 
@@ -325,7 +442,7 @@ SqliteData_libsqlite::refresh(void)
 {
     if(this->m_blobbuf.get())
     {
-        this->m_blobbuf->reset_ptr(0, 0); // reset the buffer
+        this->m_blobbuf->setBufPtr(0, 0); // reset the buffer
     }
 }
 

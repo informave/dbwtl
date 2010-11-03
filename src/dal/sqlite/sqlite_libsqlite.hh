@@ -100,22 +100,34 @@ protected:
 class SqliteBlob_libsqlite : public SqliteBlob
 {
 public:
-    SqliteBlob_libsqlite(const SqliteData_libsqlite& data, const void *buf, size_t size);
+    SqliteBlob_libsqlite(const SqliteData_libsqlite& data);
 
     virtual ~SqliteBlob_libsqlite(void);
 
-    virtual void reset_ptr(const void *buf, size_t size);
+    virtual void setBufPtr(const unsigned char *buf, size_t size);
 
-    //virtual bool isNull(void) const; /// @bug implement me
-
+    virtual bool isNull(void) const;
 
 protected:
-	virtual int_type underflow(void);
+    virtual int_type underflow();
+    virtual int_type uflow();
+    virtual int_type pbackfail(int_type ch);
+
+    virtual std::streamsize showmanyc();
+
+    virtual std::streamsize xsgetn(char_type *ch, std::streamsize n);
+
+    virtual pos_type seekpos(pos_type p,
+                             std::ios_base::openmode m = std::ios_base::in | std::ios_base::out);
+
+    virtual pos_type seekoff(off_type off, std::ios_base::seekdir way,
+                             std::ios_base::openmode m = std::ios_base::in | std::ios_base::out);
 
     const SqliteData_libsqlite& m_data;
+    
     const unsigned char *m_buf;
-    size_t m_size;
-    //size_t m_pos;
+    const unsigned char *m_buf_end;
+    const unsigned char *m_cur;
 
 private:
     SqliteBlob_libsqlite(const SqliteBlob_libsqlite&);

@@ -1010,6 +1010,46 @@ public:
 
 
 
+//------------------------------------------------------------------------------
+/// The IIndex interface represents a single index.
+/// All values returned a variant types because some of them may be null.
+///
+/// @since 0.0.1
+/// @brief DAL Interface for a single index
+class DBWTL_EXPORT IIndex : IDALObject
+{
+public:
+    typedef IVariant value_type;
+    typedef util::SmartPtr<IIndex, util::RefCounted, util::AllowConversion> ptr;
+    
+    /// Empty virtual destructor
+    virtual ~IIndex(void) { }
+    
+    /// @brief Returns the name of the index
+    virtual const value_type& getName(void) const = 0;
+
+    /// @brief Returns the name of the base table
+    virtual const value_type& getTable(void) const = 0;
+
+    /// @brief Returns the name of the catalog
+    virtual const value_type& getCatalog(void) const = 0;
+
+    /// @brief Returns the name of the schema
+    virtual const value_type& getSchema(void) const = 0;
+
+    /// @brief Returns the comment for the index
+    virtual const value_type& getComment(void) const = 0;
+
+    /// @brief Returns the DDL statement for the index
+    virtual const value_type& getDDL(void) const = 0;
+
+    /// @brief Returns true/false if the index is a system object
+    /// @return a null value if is not determinable
+    virtual const value_type& isSystemObject(void) const = 0;
+};
+
+
+
 
 
 //------------------------------------------------------------------------------
@@ -1176,6 +1216,7 @@ typedef std::vector<IView::ptr>       ViewList;
 typedef std::vector<ISchema::ptr>     SchemaList;
 typedef std::vector<ICatalog::ptr>    CatalogList;
 typedef std::vector<IProcedure::ptr>  ProcedureList;
+typedef std::vector<IIndex::ptr>      IndexList;
 
 
 
@@ -1286,6 +1327,27 @@ class DBWTL_EXPORT EmptyProcedureFilter : public IProcedureFilter
 {
 public:
     virtual ~EmptyProcedureFilter(void) { }
+};
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Interface for Index Filters
+class DBWTL_EXPORT IIndexFilter : public IDALObject
+{
+public:
+    virtual ~IIndexFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Empty Index Filter implementation
+class DBWTL_EXPORT EmptyIndexFilter : public IIndexFilter
+{
+public:
+    virtual ~EmptyIndexFilter(void) { }
 };
 
 
@@ -1405,6 +1467,7 @@ public:
     virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
     virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter()) = 0;
     virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter()) = 0;
+    virtual IndexList      getIndices(const IIndexFilter& = EmptyIndexFilter()) = 0;
     //virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
 
 

@@ -188,6 +188,86 @@ const ITable::value_type& SqliteTable::isSystemObject(void) const
 
 ///
 ///
+SqliteIndex::SqliteIndex(String dbname, SqliteResult& src)
+    : m_name(DAL_TYPE_STRING, "SqliteIndex::name"),
+      m_table(DAL_TYPE_STRING, "SqliteIndex::table"),
+      m_catalog(DAL_TYPE_STRING, "SqliteIndex::catalog"),
+      m_schema(DAL_TYPE_STRING, "SqliteIndex::schema"),
+      m_comment(DAL_TYPE_STRING, "SqliteIndex::comment"),
+      m_ddl(DAL_TYPE_STRING, "SqliteIndex::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "SqliteIndex::systemobject")
+{
+    this->m_name = src.column("name");
+    this->m_catalog = dbname;
+    this->m_table = src.column("tbl_name");
+    this->m_ddl = src.column("sql");
+    this->m_systemobject.setBool(ifnull<bool>(src.column("sys"), false));
+}
+
+
+ 
+///
+///
+SqliteIndex::~SqliteIndex(void)
+{}
+
+
+///
+///
+const IIndex::value_type& SqliteIndex::getName(void) const
+{
+    return this->m_name;
+}
+
+///
+///
+const IIndex::value_type& SqliteIndex::getTable(void) const
+{
+    return this->m_table;
+}
+
+///
+///
+const IIndex::value_type& SqliteIndex::getCatalog(void) const
+{
+    return this->m_catalog;
+}
+
+///
+///
+const IIndex::value_type& SqliteIndex::getSchema(void) const
+{
+    return this->m_schema;
+}
+
+///
+///
+const IIndex::value_type& SqliteIndex::getComment(void) const
+{
+    return this->m_comment;
+}
+
+///
+///
+const IIndex::value_type& SqliteIndex::getDDL(void) const
+{
+    return this->m_ddl;
+}
+
+///
+///
+const IIndex::value_type& SqliteIndex::isSystemObject(void) const
+{
+    return this->m_systemobject;
+}
+
+
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+///
+///
 SqliteView::SqliteView(String dbname, SqliteResult& src)
     : m_name(DAL_TYPE_STRING, "SqliteView::name"),
       m_catalog(DAL_TYPE_STRING, "SqliteView::catalog"),
@@ -260,10 +340,10 @@ const IView::value_type& SqliteView::isSystemObject(void) const
 ///
 ///
 SqliteCatalog::SqliteCatalog(String dbname)
-    : m_name(DAL_TYPE_STRING, "SqliteView::name"),
-      m_comment(DAL_TYPE_STRING, "SqliteView::comment"),
-      m_ddl(DAL_TYPE_STRING, "SqliteView::ddl"),
-      m_systemobject(DAL_TYPE_BOOL, "SqliteView::systemobject")
+    : m_name(DAL_TYPE_STRING, "SqliteCatalg::name"),
+      m_comment(DAL_TYPE_STRING, "SqliteCatalog::comment"),
+      m_ddl(DAL_TYPE_STRING, "SqliteCatalog::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "SqliteCatalog::systemobject")
 {
     this->m_name = dbname;
     this->m_systemobject.setBool(false);
@@ -387,6 +467,60 @@ SqliteDbc::getTables(const ITableFilter&)
     return list;
 }
 
+
+
+//
+IndexList
+SqliteDbc::getIndices(const IIndexFilter&)
+{
+    IndexList list;
+    SqliteStmt::ptr dblist(this->newStatement());
+    dblist->prepare("PRAGMA database_list");
+    dblist->execute();
+    
+    for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
+    {
+        String::Internal dbname = dblist->resultset().column("name").asStr();
+        
+        String::Internal sql_column_query =
+            US(" SELECT name, tbl_name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+            US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'index'");
+
+
+        SqliteStmt::ptr indices(this->newStatement());
+        try
+        {
+            indices->prepare(sql_column_query);
+            indices->execute();
+        }
+        catch(sqlite::STATES::SQLSTATE_42000 &)
+        {
+            continue;
+        }
+        
+        for(indices->resultset().first(); ! indices->resultset().eof(); indices->resultset().next())
+        {
+            list.push_back(new SqliteIndex(dbname, indices->resultset()));
+        }
+    }
+
+    // load temp tables
+    String::Internal sql_column_query =
+        US(" SELECT name, tbl_name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+        US(" FROM sqlite_temp_master")
+        US(" WHERE type = 'index';");
+    
+    SqliteStmt::ptr indices(this->newStatement());        
+    indices->prepare(sql_column_query);
+    indices->execute();
+    
+    for(indices->resultset().first(); ! indices->resultset().eof(); indices->resultset().next())
+    {
+        list.push_back(new SqliteIndex("temp", indices->resultset()));
+    }
+    
+    return list;
+}
 
 
 //

@@ -307,6 +307,42 @@ protected:
 
 //------------------------------------------------------------------------------
 ///
+/// @brief SQLite Index object
+class DBWTL_EXPORT SqliteIndex : public IIndex
+{
+public:
+    typedef util::SmartPtr<SqliteIndex,
+        util::RefCounted,
+        util::AllowConversion> ptr;
+    
+    SqliteIndex(String dbname, SqliteResult& src);
+    
+    virtual ~SqliteIndex(void);
+
+
+    virtual const ITable::value_type& getName(void) const;
+    virtual const ITable::value_type& getTable(void) const;
+    virtual const ITable::value_type& getCatalog(void) const;
+    virtual const ITable::value_type& getSchema(void) const;
+    virtual const ITable::value_type& getComment(void) const;
+    virtual const ITable::value_type& getDDL(void) const;
+    virtual const ITable::value_type& isSystemObject(void) const;
+
+
+protected:
+    Variant  m_name;
+    Variant  m_table;
+    Variant  m_catalog;
+    Variant  m_schema;
+    Variant  m_comment;
+    Variant  m_ddl;
+    Variant  m_systemobject;
+};
+
+
+
+//------------------------------------------------------------------------------
+///
 /// @brief SQLite View object
 class DBWTL_EXPORT SqliteView : public IView
 {
@@ -491,6 +527,7 @@ public:
     virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter());
     virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter());
     virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter());
+    virtual IndexList      getIndices(const IIndexFilter& = EmptyIndexFilter());
 
     virtual void           beginTrans(IDbc::trx_mode mode,
                                       IDbc::access_mode access,

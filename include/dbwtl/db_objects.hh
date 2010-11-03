@@ -479,6 +479,9 @@ public:
     virtual dal::ProcedureList getProcedures(const dal::IProcedureFilter& filter = dal::EmptyProcedureFilter())
     { return this->m_dbc->getProcedures(filter); }
 
+    virtual dal::IndexList    getIndices(const dal::IIndexFilter& filter = dal::EmptyIndexFilter())
+    { return this->m_dbc->getIndices(filter); }
+
 
     virtual bool                   diagAvail(void) const    { return this->m_dbc->diagAvail(); }
     virtual const dal_diag_type&   fetchDiag(void)          { return this->m_dbc->fetchDiag(); }

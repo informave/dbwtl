@@ -132,7 +132,6 @@ SqliteBlob_libsqlite::~SqliteBlob_libsqlite(void)
 SqliteBlob_libsqlite::int_type
 SqliteBlob_libsqlite::underflow()
 {
-    
     if (gptr() < egptr())
         return *gptr();
     else
@@ -188,10 +187,10 @@ SqliteData_libsqlite::getBlob(void) const
     // get ptr if column is not null
     if(! this->isnull())
     {
-        size_t size = this->m_resultset.drv()->sqlite3_column_bytes(this->m_resultset.getHandle(),
-                                                                    this->m_colnum - 1);
-        const void* buf = this->m_resultset.drv()->sqlite3_column_blob(this->m_resultset.getHandle(),
-                                                                       this->m_colnum - 1);
+        size = this->m_resultset.drv()->sqlite3_column_bytes(this->m_resultset.getHandle(),
+                                                             this->m_colnum - 1);
+        buf = this->m_resultset.drv()->sqlite3_column_blob(this->m_resultset.getHandle(),
+                                                           this->m_colnum - 1);
     }
 
     // prepare or reset stream buffer
@@ -450,40 +449,44 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         int err = SQLITE_OK;
 
         if(var->isnull())
-            continue;
-
-        switch(var->datatype())
         {
-        case DAL_TYPE_SMALLINT:
-        case DAL_TYPE_INT:
-        case DAL_TYPE_BOOL:
-            err = this->drv()->sqlite3_bind_int(this->getHandle(), param->first, var->asInt());
-            break;
-            
-            /*
-              case DAL_TYPE_BITINT:
-              err = this->drv()->sqlite3_bind_int64(this->m_stmt.getHandle(), pcount, var->asBigint());
-              break;            
-              case DAL_TYPE_FLOAT:
-              case DAL_TYPE_DOUBLE:
-              err = this->drv()->sqlite3_bind_double(this->m_stmt.getHandle(), pcount, var->asDouble());
-              break;
-            */
-        case DAL_TYPE_BLOB:
-            if(var->asBlob())
+            err = this->drv()->sqlite3_bind_null(this->getHandle(), param->first);
+        }
+        else
+        {
+            switch(var->datatype())
             {
-                tmp_stream << var->asBlob();
+            case DAL_TYPE_SMALLINT:
+            case DAL_TYPE_INT:
+            case DAL_TYPE_BOOL:
+                err = this->drv()->sqlite3_bind_int(this->getHandle(), param->first, var->asInt());
+                break;
+            
+                /*
+                  case DAL_TYPE_BITINT:
+                  err = this->drv()->sqlite3_bind_int64(this->m_stmt.getHandle(), pcount, var->asBigint());
+                  break;            
+                  case DAL_TYPE_FLOAT:
+                  case DAL_TYPE_DOUBLE:
+                  err = this->drv()->sqlite3_bind_double(this->m_stmt.getHandle(), pcount, var->asDouble());
+                  break;
+                */
+            case DAL_TYPE_BLOB:
+                if(var->asBlob())
+                {
+                    tmp_stream << var->asBlob();
                 
-                std::string& tmp_string = tmp_strings[param->first];
-                tmp_string = tmp_stream.str();
-                err = this->drv()->sqlite3_bind_blob(this->getHandle(), param->first, tmp_string.c_str(),
-                                                     tmp_string.size(), NULL);
+                    std::string& tmp_string = tmp_strings[param->first];
+                    tmp_string = tmp_stream.str();
+                    err = this->drv()->sqlite3_bind_blob(this->getHandle(), param->first, tmp_string.c_str(),
+                                                         tmp_string.size(), NULL);
+                }
+                break;
+            default:
+                err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,
+                                                     var->asStr().to("UTF-8"), -1, SQLITE_TRANSIENT);
+                //std::cout << "Binding now: " << var->asStr().to("UTF-8") << std::endl;
             }
-            break;
-        default:
-            err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,
-                                                 var->asStr().to("UTF-8"), -1, SQLITE_TRANSIENT);
-            //std::cout << "Binding now: " << var->asStr().to("UTF-8") << std::endl;
         }
         switch(err)
         {

@@ -531,8 +531,12 @@ class DBWTL_EXPORT BaseVariantImplFor : public Base
 {
 public:
     BaseVariantImplFor(void) : m_isnull(true)
-    {
-    }
+    {}
+
+    virtual ~BaseVariantImplFor(void)
+    {}
+
+
 
     virtual bool            isnull(void) const;
     virtual void            setNull(void);
@@ -790,6 +794,9 @@ public:
         m_type(DAL_TYPE_UNKNOWN)
         {}
     
+
+    virtual ~Variant(void)
+    {}
 
     /// This constructor creates a Variant object from another Variant
     /// object.

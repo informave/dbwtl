@@ -697,7 +697,7 @@ public:
 
     Result(statement_type &stmt)
         : ResultInterface(),
-          m_result(*stmt.resultset())
+          m_result(&stmt.resultset())
     {}
 
     Result(dal_resultset_type *result)

@@ -434,6 +434,10 @@ public:
     virtual void        setNull(void) = 0;
     virtual void        assign(const IVariant& var);
 
+    /// Creates a deep copy of the variant.
+    /// The returned variant is completly independent from the source
+    /// variant or other resources.
+    virtual Variant     value(void) const;
 
     operator signed int            (void) const;
     operator unsigned int          (void) const;

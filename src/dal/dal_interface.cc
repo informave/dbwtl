@@ -412,6 +412,16 @@ IVariant::assign(const IVariant& var)
 }
 
 
+///
+///
+Variant
+IVariant::value(void) const
+{
+    Variant tmp(this->datatype(), "created by deepcopy");
+    tmp = *this; // assign value
+    return tmp;
+}
+
 
 //--------------------------------------------------------------------------
 ///

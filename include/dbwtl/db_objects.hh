@@ -1185,7 +1185,11 @@ private:
 //GCORE.001 
 //GCORE.001 It is a requirement that the 'Value' type implements the IVariant interface.
 //GCORE.001 This allows you to pass column values to all methods which  accepts IVariant references,
-//GCORE.001 for example Statement::bind()
+//GCORE.001 for example Statement::bind(). For more information about the IVariant/Variant
+//GCORE.001 type, refer to the Variant section.
+//GCORE.001 
+
+
 //GCORE.001 
 //GCORE.001 Variant
 //GCORE.001 ~~~~~~~
@@ -1199,6 +1203,21 @@ private:
 //GCORE.001 var.setInt(10);
 //GCORE.001 assert(myint == 10); // myint was changed through setInt()
 //GCORE.001 ------------------------------------------------------
+//GCORE.001 
+//GCORE.001 
+//GCORE.001 Deep Copy
+//GCORE.001 ^^^^^^^^^
+//GCORE.001 The copy constructor of Variant creates a new Variant with the same
+//GCORE.001 internal storage as the source object. If the origin storage holds a
+//GCORE.001 pointer (e.g. to an Integer), the new Variant points to this Integer, too.
+//GCORE.001 
+//GCORE.001 If you want a independent Variant, you can use the 'value()' method to get
+//GCORE.001 a Variant object which is created by a deep-copy.
+//GCORE.001 
+//GCORE.001 [CAUTION]
+//GCORE.001 If the source Variant contains a streambuf pointer, a new storage
+//GCORE.001 for a NULL streambuf pointer is created. The data of the stream is not copied
+//GCORE.001 and no now streambuf object will be created.
 //GCORE.001 
 
 //GCORE.001 ColumnDesc

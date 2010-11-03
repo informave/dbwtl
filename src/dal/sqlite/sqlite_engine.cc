@@ -403,7 +403,8 @@ SqliteVariant::~SqliteVariant(void)
 //
 void SqliteVariant::refresh(void)
 {
-	/// @bug implement refresh()
+    SqliteData *data = dynamic_cast<sa_base<SqliteData*>&>(*this->getStorageImpl()).getValue();
+    data->refresh();
 }
 
 

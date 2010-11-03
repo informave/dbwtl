@@ -159,14 +159,11 @@ SqliteBlob_libsqlite::reset_ptr(const void *buf, size_t size)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-//
-/// @bug locked is not used, remove it
+///
 SqliteData_libsqlite::SqliteData_libsqlite(SqliteResult_libsqlite& result, colnum_t colnum, bool locked)
     : SqliteData(),
       m_resultset(result),
       m_colnum(colnum),
-      m_locked(locked), /// @todo is not longer required
-      m_rowid(DAL_TYPE_ROWID_NPOS), /// @todo is not longer required
       m_blobbuf()
 { }
 
@@ -322,6 +319,16 @@ SqliteData_libsqlite::getCurrentRowID(void) const
     return this->m_resultset.getCurrentRowID();
 }
 
+
+//
+void
+SqliteData_libsqlite::refresh(void)
+{
+    if(this->m_blobbuf.get())
+    {
+        this->m_blobbuf->reset_ptr(0, 0); // reset the buffer
+    }
+}
 
 
 //

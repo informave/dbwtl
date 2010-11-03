@@ -216,6 +216,8 @@ public:
 
     virtual bool isnull(void) const = 0;
 
+    virtual void refresh(void) = 0;
+
     virtual daltype_t daltype(void) const = 0;
 };
 

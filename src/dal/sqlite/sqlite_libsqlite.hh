@@ -148,6 +148,8 @@ public:
     virtual bool         isnull(void) const;
     virtual rowid_t      getCurrentRowID(void) const;
 
+    virtual void refresh(void);
+
     virtual String getString(void) const;
 
     virtual daltype_t daltype(void) const;
@@ -156,8 +158,6 @@ protected:
     mutable SqliteResult_libsqlite& m_resultset;
 
     colnum_t   m_colnum;
-    bool       m_locked;
-    rowid_t    m_rowid;
     mutable std::auto_ptr<SqliteBlob_libsqlite> m_blobbuf;
 
 };

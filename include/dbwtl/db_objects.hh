@@ -464,17 +464,20 @@ public:
     virtual dal::TableList    getTables(const dal::ITableFilter& filter = dal::EmptyTableFilter())
     { return this->m_dbc->getTables(filter); }
 
+    virtual dal::ViewList     getViews(const dal::IViewFilter& filter = dal::EmptyViewFilter())
+    { return this->m_dbc->getViews(filter); }
+
     virtual dal::DatatypeList getDatatypes(const dal::IDatatypeFilter& filter = dal::EmptyDatatypeFilter())
     { return this->m_dbc->getDatatypes(filter); }
 
-    /*
-      virtual ColumnList     getTables(const IColumnFilter& = EmptyColumnFilter()) = 0;
-      virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
-      virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter()) = 0;
-      virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter()) = 0;
-      virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter()) = 0;
-      virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
-    */
+    virtual dal::SchemaList   getSchemas(const dal::ISchemaFilter& filter = dal::EmptySchemaFilter())
+    { return this->m_dbc->getSchemas(filter); }
+
+    virtual dal::CatalogList  getCatalogs(const dal::ICatalogFilter& filter = dal::EmptyCatalogFilter())
+    { return this->m_dbc->getCatalogs(filter); }
+
+    virtual dal::ProcedureList getProcedures(const dal::IProcedureFilter& filter = dal::EmptyProcedureFilter())
+    { return this->m_dbc->getProcedures(filter); }
 
 
     virtual bool                   diagAvail(void) const    { return this->m_dbc->diagAvail(); }

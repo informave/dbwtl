@@ -1048,17 +1048,134 @@ public:
 class DBWTL_EXPORT IView : IDALObject
 {
 public:
-    typedef util::SmartPtr<IView,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef IVariant value_type;
+    typedef util::SmartPtr<IView, util::RefCounted, util::AllowConversion> ptr;
     
+    /// Empty virtual destructor
     virtual ~IView(void) { }
+    
+    /// @brief Returns the name of the view
+    virtual const value_type& getName(void) const = 0;
+
+    /// @brief Returns the name of the catalog
+    virtual const value_type& getCatalog(void) const = 0;
+
+    /// @brief Returns the name of the schema
+    virtual const value_type& getSchema(void) const = 0;
+
+    /// @brief Returns the comment for the view
+    virtual const value_type& getComment(void) const = 0;
+
+    /// @brief Returns the DDL statement for the view
+    virtual const value_type& getDDL(void) const = 0;
+
+    /// @brief Returns true/false if the view is a system object
+    /// @return a null value if is not determinable
+    virtual const value_type& isSystemObject(void) const = 0;
 };
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief DAL Interface for schemas
+class DBWTL_EXPORT ISchema : IDALObject
+{
+public:
+    typedef IVariant value_type;
+    typedef util::SmartPtr<ISchema, util::RefCounted, util::AllowConversion> ptr;
+    
+    /// Empty virtual destructor
+    virtual ~ISchema(void) { }
+    
+    /// @brief Returns the name of the schema
+    virtual const value_type& getName(void) const = 0;
+
+    /// @brief Returns the name of the catalog
+    virtual const value_type& getCatalog(void) const = 0;
+
+    /// @brief Returns the comment for the schema
+    virtual const value_type& getComment(void) const = 0;
+
+    /// @brief Returns the DDL statement for the schema
+    virtual const value_type& getDDL(void) const = 0;
+
+    /// @brief Returns true/false if the schema is a system object
+    /// @return a null value if is not determinable
+    virtual const value_type& isSystemObject(void) const = 0;
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief DAL Interface for catalogs
+class DBWTL_EXPORT ICatalog : IDALObject
+{
+public:
+    typedef IVariant value_type;
+    typedef util::SmartPtr<ICatalog, util::RefCounted, util::AllowConversion> ptr;
+    
+    /// Empty virtual destructor
+    virtual ~ICatalog(void) { }
+    
+    /// @brief Returns the name of the catalog
+    virtual const value_type& getName(void) const = 0;
+
+    /// @brief Returns the comment for the catalog
+    virtual const value_type& getComment(void) const = 0;
+
+    /// @brief Returns the DDL statement for the catalog
+    virtual const value_type& getDDL(void) const = 0;
+
+    /// @brief Returns true/false if the catalog is a system object
+    /// @return a null value if is not determinable
+    virtual const value_type& isSystemObject(void) const = 0;
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief DAL Interface for procedures
+class DBWTL_EXPORT IProcedure : IDALObject
+{
+public:
+    typedef IVariant value_type;
+    typedef util::SmartPtr<IProcedure, util::RefCounted, util::AllowConversion> ptr;
+    
+    /// Empty virtual destructor
+    virtual ~IProcedure(void) { }
+    
+    /// @brief Returns the name of the procedure
+    virtual const value_type& getName(void) const = 0;
+
+    /// @brief Returns the name of the catalog
+    virtual const value_type& getCatalog(void) const = 0;
+
+    /// @brief Returns the name of the schema
+    virtual const value_type& getSchema(void) const = 0;
+
+    /// @brief Returns the comment for the procedure
+    virtual const value_type& getComment(void) const = 0;
+
+    /// @brief Returns the DDL statement for the procedure
+    virtual const value_type& getDDL(void) const = 0;
+
+    /// @brief Returns true/false if the procedure is a system object
+    /// @return a null value if is not determinable
+    virtual const value_type& isSystemObject(void) const = 0;
+};
+
+
 
 
 typedef std::vector<ITable::ptr>      TableList;
 typedef std::vector<IDatatype::ptr>   DatatypeList;
 typedef std::vector<IView::ptr>       ViewList;
+typedef std::vector<ISchema::ptr>     SchemaList;
+typedef std::vector<ICatalog::ptr>    CatalogList;
+typedef std::vector<IProcedure::ptr>  ProcedureList;
 
 
 
@@ -1088,6 +1205,87 @@ class DBWTL_EXPORT EmptyTableFilter : public ITableFilter
 {
 public:
     virtual ~EmptyTableFilter(void) { }
+};
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Interface for View Filters
+class DBWTL_EXPORT IViewFilter : public IDALObject
+{
+public:
+    virtual ~IViewFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Empty View Filter implementation
+class DBWTL_EXPORT EmptyViewFilter : public IViewFilter
+{
+public:
+    virtual ~EmptyViewFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Interface for Schema Filters
+class DBWTL_EXPORT ISchemaFilter : public IDALObject
+{
+public:
+    virtual ~ISchemaFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Empty Schema Filter implementation
+class DBWTL_EXPORT EmptySchemaFilter : public ISchemaFilter
+{
+public:
+    virtual ~EmptySchemaFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Interface for Catalog Filters
+class DBWTL_EXPORT ICatalogFilter : public IDALObject
+{
+public:
+    virtual ~ICatalogFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Empty Catalog Filter implementation
+class DBWTL_EXPORT EmptyCatalogFilter : public ICatalogFilter
+{
+public:
+    virtual ~EmptyCatalogFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Interface for Procedure Filters
+class DBWTL_EXPORT IProcedureFilter : public IDALObject
+{
+public:
+    virtual ~IProcedureFilter(void) { }
+};
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief Empty Procedure Filter implementation
+class DBWTL_EXPORT EmptyProcedureFilter : public IProcedureFilter
+{
+public:
+    virtual ~EmptyProcedureFilter(void) { }
 };
 
 
@@ -1203,16 +1401,11 @@ public:
 
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter()) = 0;
     virtual DatatypeList   getDatatypes(const IDatatypeFilter& = EmptyDatatypeFilter()) = 0;
-
-    /// @bug implement get(objects) methods
-    /*
-      virtual ColumnList     getTables(const IColumnFilter& = EmptyColumnFilter()) = 0;
-      virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
-      virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter()) = 0;
-      virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter()) = 0;
-      virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter()) = 0;
-      virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
-    */
+    virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter()) = 0;
+    virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter()) = 0;
+    virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter()) = 0;
+    virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter()) = 0;
+    //virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
 
 
 protected:
@@ -1232,7 +1425,8 @@ public:
     typedef std::auto_ptr<IResult> ptr;
     typedef size_t                      bookmark_type;
     typedef IVariant                    value_type;
-    typedef std::vector<value_type*>    row_type; // NOT NEEDED ???????????????????????????????????????
+    /// @todo check if row_type is required
+    typedef std::vector<value_type*>    row_type;
 
 
     virtual ~IResult(void);

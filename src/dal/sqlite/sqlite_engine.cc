@@ -183,6 +183,130 @@ const ITable::value_type& SqliteTable::isSystemObject(void) const
 
 
 
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+///
+///
+SqliteView::SqliteView(String dbname, SqliteResult& src)
+    : m_name(DAL_TYPE_STRING, "SqliteView::name"),
+      m_catalog(DAL_TYPE_STRING, "SqliteView::catalog"),
+      m_schema(DAL_TYPE_STRING, "SqliteView::schema"),
+      m_comment(DAL_TYPE_STRING, "SqliteView::comment"),
+      m_ddl(DAL_TYPE_STRING, "SqliteView::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "SqliteView::systemobject")
+{
+    this->m_name = src.column("name");
+    this->m_catalog = dbname;
+    this->m_ddl = src.column("sql");
+    this->m_systemobject.setBool(ifnull<bool>(src.column("sys"), false));
+}
+
+
+ 
+///
+///
+SqliteView::~SqliteView(void)
+{}
+
+
+///
+///
+const IView::value_type& SqliteView::getName(void) const
+{
+    return this->m_name;
+}
+
+///
+///
+const IView::value_type& SqliteView::getCatalog(void) const
+{
+    return this->m_catalog;
+}
+
+///
+///
+const IView::value_type& SqliteView::getSchema(void) const
+{
+    return this->m_schema;
+}
+
+///
+///
+const IView::value_type& SqliteView::getComment(void) const
+{
+    return this->m_comment;
+}
+
+///
+///
+const IView::value_type& SqliteView::getDDL(void) const
+{
+    return this->m_ddl;
+}
+
+///
+///
+const IView::value_type& SqliteView::isSystemObject(void) const
+{
+    return this->m_systemobject;
+}
+
+
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+///
+///
+SqliteCatalog::SqliteCatalog(String dbname)
+    : m_name(DAL_TYPE_STRING, "SqliteView::name"),
+      m_comment(DAL_TYPE_STRING, "SqliteView::comment"),
+      m_ddl(DAL_TYPE_STRING, "SqliteView::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "SqliteView::systemobject")
+{
+    this->m_name = dbname;
+    this->m_systemobject.setBool(false);
+}
+
+
+ 
+///
+///
+SqliteCatalog::~SqliteCatalog(void)
+{}
+
+
+///
+///
+const ICatalog::value_type& SqliteCatalog::getName(void) const
+{
+    return this->m_name;
+}
+
+///
+///
+const ICatalog::value_type& SqliteCatalog::getComment(void) const
+{
+    return this->m_comment;
+}
+
+///
+///
+const ICatalog::value_type& SqliteCatalog::getDDL(void) const
+{
+    return this->m_ddl;
+}
+
+///
+///
+const ICatalog::value_type& SqliteCatalog::isSystemObject(void) const
+{
+    return this->m_systemobject;
+}
+
+
+
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -260,6 +384,116 @@ SqliteDbc::getTables(const ITableFilter&)
         list.push_back(new SqliteTable("temp", tables->resultset()));
     }
     
+    return list;
+}
+
+
+
+//
+ProcedureList
+SqliteDbc::getProcedures(const IProcedureFilter&)
+{
+    ProcedureList list;
+    return list;
+}
+
+
+//
+SchemaList
+SqliteDbc::getSchemas(const ISchemaFilter&)
+{
+    SchemaList list;
+    return list;
+}
+
+
+
+//
+ViewList
+SqliteDbc::getViews(const IViewFilter&)
+{
+    ViewList list;
+    SqliteStmt::ptr dblist(this->newStatement());
+    dblist->prepare("PRAGMA database_list");
+    dblist->execute();
+    
+    for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
+    {
+        String::Internal dbname = dblist->resultset().column("name").asStr();
+        
+        String::Internal sql_column_query =
+            US(" SELECT name, sql, 0 AS sys")
+            US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'view'");
+
+        SqliteStmt::ptr views(this->newStatement());
+        try
+        {
+            views->prepare(sql_column_query);
+            views->execute();
+        }
+        catch(sqlite::STATES::SQLSTATE_42000 &)
+        {
+            continue;
+        }
+        
+        for(views->resultset().first(); ! views->resultset().eof(); views->resultset().next())
+        {
+            list.push_back(new SqliteView(dbname, views->resultset()));
+        }
+    }
+
+    // load temp views
+/*
+    String::Internal sql_column_query =
+        US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+        US(" FROM sqlite_temp_master")
+        US(" WHERE type = 'view';");
+    
+    SqliteStmt::ptr tables(this->newStatement());        
+    tables->prepare(sql_column_query);
+    tables->execute();
+    
+    for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
+    {
+        list.push_back(new SqliteTable("temp", tables->resultset()));
+    }
+*/  
+    return list;
+}
+
+
+//
+CatalogList
+SqliteDbc::getCatalogs(const ICatalogFilter&)
+{
+    CatalogList list;
+    SqliteStmt::ptr dblist(this->newStatement());
+    dblist->prepare("PRAGMA database_list");
+    dblist->execute();
+    
+    for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
+    {
+        String::Internal dbname = dblist->resultset().column("name").asStr();
+
+        list.push_back(new SqliteCatalog(dbname));
+    }
+
+    // load temp views
+/*
+    String::Internal sql_column_query =
+        US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+        US(" FROM sqlite_temp_master")
+        US(" WHERE type = 'view';");
+    
+    SqliteStmt::ptr tables(this->newStatement());        
+    tables->prepare(sql_column_query);
+    tables->execute();
+    
+    for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
+    {
+        list.push_back(new SqliteTable("temp", tables->resultset()));
+    }
+*/  
     return list;
 }
 

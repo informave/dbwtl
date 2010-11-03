@@ -302,20 +302,77 @@ protected:
     Variant  m_comment;
     Variant  m_ddl;
     Variant  m_systemobject;
+};
 
-/*
-  std::wstring   m_tablename;
-  std::wstring   m_schemaname;
-  std::wstring   m_catalogname;
-  std::wstring   m_typename;
-  bool            m_notnull;
-  bool            m_systemflag;
-  int             m_typelen;
-*/
+
+//------------------------------------------------------------------------------
+///
+/// @brief SQLite View object
+class DBWTL_EXPORT SqliteView : public IView
+{
+public:
+    typedef util::SmartPtr<SqliteView,
+        util::RefCounted,
+        util::AllowConversion> ptr;
+    
+    SqliteView(String dbname, SqliteResult& src);
+    
+    virtual ~SqliteView(void);
+
+
+    virtual const IView::value_type& getName(void) const;
+    virtual const IView::value_type& getCatalog(void) const;
+    virtual const IView::value_type& getSchema(void) const;
+    virtual const IView::value_type& getComment(void) const;
+    virtual const IView::value_type& getDDL(void) const;
+    virtual const IView::value_type& isSystemObject(void) const;
+
+
+protected:
+    Variant  m_name;
+    Variant  m_catalog;
+    Variant  m_schema;
+    Variant  m_comment;
+    Variant  m_ddl;
+    Variant  m_systemobject;
 };
 
 
 
+//------------------------------------------------------------------------------
+///
+/// @brief SQLite Catalog object
+class DBWTL_EXPORT SqliteCatalog : public ICatalog
+{
+public:
+    typedef util::SmartPtr<SqliteCatalog,
+                           util::RefCounted,
+                           util::AllowConversion> ptr;
+    
+    SqliteCatalog(String dbname);
+    
+    virtual ~SqliteCatalog(void);
+
+
+    virtual const ICatalog::value_type& getName(void) const;
+    virtual const ICatalog::value_type& getComment(void) const;
+    virtual const ICatalog::value_type& getDDL(void) const;
+    virtual const ICatalog::value_type& isSystemObject(void) const;
+
+
+protected:
+    Variant  m_name;
+    Variant  m_comment;
+    Variant  m_ddl;
+    Variant  m_systemobject;
+};
+
+
+
+
+//------------------------------------------------------------------------------
+///
+/// @brief SQLite Column Descriptor
 class DBWTL_EXPORT SqliteColumnDesc : public ColumnDescBase
 {
 public:
@@ -429,8 +486,11 @@ public:
     virtual SqliteStmt*    newStatement(void) = 0;
 
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter());
-
+    virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter());
     virtual DatatypeList   getDatatypes(const IDatatypeFilter& = EmptyDatatypeFilter());
+    virtual SchemaList     getSchemas(const ISchemaFilter& = EmptySchemaFilter());
+    virtual CatalogList    getCatalogs(const ICatalogFilter& = EmptyCatalogFilter());
+    virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter());
 
     virtual void           beginTrans(IDbc::trx_mode mode,
                                       IDbc::access_mode access,

@@ -621,10 +621,11 @@ Variant::asMemo(void) const
 template<class T>
 inline void init_if_null(typename Variant::storage_type &storage, daltype_t type)
 {
-    IStoredVariant *sv = new_default_storage(type);
-   
     if(storage.get() == 0)
+    {
+        IStoredVariant *sv = new_default_storage(type);
         storage.reset(sv ? sv : new var_storage<T>());
+    }
 }
 
 

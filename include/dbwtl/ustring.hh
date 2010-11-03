@@ -50,6 +50,7 @@
 #include <vector>
 #include <iosfwd>
 #include <cstring>
+#include <locale>
 
 #ifdef DBWTL_CXX98_COMPATIBILITY
 #include <tr1/type_traits>
@@ -292,6 +293,46 @@ public:
         this->m_narrow = std::string(str.data(), str.size());
         return this->m_narrow.c_str();
     }
+
+    
+    /// Conversion to system encoding
+    const char* toSystemEncoding(void) const
+    {
+        typedef std::codecvt<typename std::wstring::value_type, char, std::mbstate_t> facet;
+
+        if(this->empty())
+            return "";
+
+        std::wstring tmp(*this);
+        std::string out;
+        std::locale loc;
+
+        const facet &cv = std::use_facet< facet >(loc);
+        std::mbstate_t state = std::mbstate_t();
+
+        typename std::wstring::value_type *next;
+        out.resize((tmp.size()+1) * cv.max_length());
+
+        const typename std::wstring::value_type *in_next;
+        char *out_next;
+
+        typename facet::result res = cv.out(state,
+                                            tmp.c_str(), tmp.c_str() + tmp.length()+1, in_next,
+                                            &out[0], &out[out.length()-1], out_next);
+        switch(res)
+        {
+        case facet::error:
+            throw std::runtime_error("invalid conversion");
+        case facet::partial:
+            throw std::runtime_error("Partial conversion");
+        default:
+            break;
+        }
+
+        this->m_narrow = out;
+        return this->m_narrow.c_str();
+    }
+    
 
 
     const char* utf8(void) const

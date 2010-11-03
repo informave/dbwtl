@@ -1100,7 +1100,7 @@ SqliteEnv_libsqlite::SqliteEnv_libsqlite(String lib)
     : SqliteEnv(),
       m_lib()
 {
-    this->m_lib.reset(new SQLite3Drv()); /// @todo pass lib path
+    this->m_lib.reset(new SQLite3Drv(lib));
 }
 
 

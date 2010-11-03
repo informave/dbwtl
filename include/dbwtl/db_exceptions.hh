@@ -265,9 +265,6 @@ namespace ex
     class DBWTL_EXPORT charset_error : public exception
     {
     public:
-        charset_error(std::string data, String from_charset,
-                      String to_charset);
-
         charset_error(String data, String from_charset,
                       String to_charset);
 

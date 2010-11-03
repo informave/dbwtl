@@ -312,24 +312,12 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-    charset_error::charset_error(std::string data, String from_charset,
-                                 String to_charset)
-        : exception()
-    {
-        this->setMessage(US("Conversion error from ") + String::Internal(from_charset) + US(" to ")
-                         + String::Internal(to_charset) + US("."));
-    }
-
-
-
-    //
-    //
     charset_error::charset_error(String data, String from_charset,
                                  String to_charset)
         : exception()
     {
         this->setMessage(US("Conversion error from ") + String::Internal(from_charset) + US(" to ")
-                         + String::Internal(to_charset) + US("."));
+                         + String::Internal(to_charset) + US(".") + US(" Data: ") + String::Internal(data));
     }
 
 

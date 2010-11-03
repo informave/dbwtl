@@ -247,14 +247,13 @@ public:
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLite Variant
-class DBWTL_EXPORT SqliteVariant : public Variant
+class DBWTL_EXPORT SqliteVariant : public EngineVariant
 {
 public:
     SqliteVariant(SqliteData* data);
 
     virtual ~SqliteVariant(void);
 
-    /// @bug add documentation!
     virtual void refresh(void);
 
     virtual sqlite_ext::Text asText(void) const

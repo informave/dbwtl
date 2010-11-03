@@ -939,6 +939,36 @@ protected:
 
 
 //------------------------------------------------------------------------------
+/// Base class for all engine specific implementations of the Variant class.
+///
+/// @since 0.0.1
+/// @brief Base class for engine specific variants
+class DBWTL_EXPORT  EngineVariant : public Variant
+{
+public:
+    template<class T>
+        EngineVariant(const T& value, const String &name = String("<engine-variant>"))
+        : Variant(value, name)
+        {}
+
+
+    virtual ~EngineVariant(void)
+    {}
+
+
+    /// This method refreshes internal states or resources
+    /// which must be syncronised with the current row cursor position.
+    /// If the cursor moves, data must be reloaded from the internal
+    /// resultset handle or resources like streambuf objects (for BLOBs)
+    /// must be invalidated.
+    virtual void refresh(void) = 0;
+
+};
+
+
+
+
+//------------------------------------------------------------------------------
 /// The ITable interface represents a single table.
 /// All values returned a variant types because some of them may be null.
 ///

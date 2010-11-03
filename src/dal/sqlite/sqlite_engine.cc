@@ -387,8 +387,7 @@ SqliteEnv::~SqliteEnv(void)
 
 //
 SqliteVariant::SqliteVariant(SqliteData* data)
-    : Variant(data)
-
+    : EngineVariant(data)
 { }
 
 

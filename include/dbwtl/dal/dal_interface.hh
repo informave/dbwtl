@@ -466,10 +466,8 @@ public:
     // getter methods
     virtual signed int           asInt(void) const = 0;
     virtual unsigned int         asUInt(void) const = 0;
-    /// @bug char means char string in ISO SQL, we should remove this types
     virtual signed char          asChar(void) const = 0;
     virtual unsigned char        asUChar(void) const = 0;
-    
     virtual String               asStr(std::locale loc = std::locale()) const = 0;
     virtual bool                 asBool(void) const = 0;
     virtual signed short         asSmallint(void) const = 0;

@@ -280,21 +280,6 @@ protected:
     /// done by m_allocated_accessors's  destructor.
     VariantListT           m_column_accessors;
 
-    ///
-    /// @brief Stores all field accessors (IVariants) requested by an user for
-    /// the current resultset.
-    ///
-    /// @detail The field accessors are created when an user requested one
-    /// an only get destroyed when the resultset becomes invalid (closed, destroyed..)
-    /// We use this container only for lookups if a reqeusted accessor is already allocated.
-    /// The accessors are stored in m_allocted_accessors, too - which cleanup
-    /// the accessors if thy are not needed anymore.
-    ///
-    /// @notice Do not delete (free) any of the elements, this task is
-    /// done by m_allocated_accessors's  destructor.
-    /// 
-    /// @bug delete me
-    VariantListT           m_field_accessors;
     
     ///
     /// @brief Stores all allocated accessors (IVariants) requested by an user for

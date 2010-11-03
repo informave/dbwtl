@@ -480,7 +480,6 @@ SqliteResult_libsqlite::SqliteResult_libsqlite(SqliteStmt_libsqlite& stmt)
       m_isopen(false),
       m_column_desc(),
       m_column_accessors(),
-      m_field_accessors(),
       m_allocated_accessors()
 { }
 
@@ -490,7 +489,6 @@ SqliteResult_libsqlite::SqliteResult_libsqlite(SqliteStmt_libsqlite& stmt)
 SqliteResult_libsqlite::~SqliteResult_libsqlite(void)
 {
     this->m_column_accessors.clear();
-    this->m_field_accessors.clear();
     this->m_allocated_accessors.clear();
     this->close();
 }
@@ -551,10 +549,12 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
 
     if(! this->isPrepared())
         throw ex::engine_error("Resultset is not prepared.");
-
-    /// @bug fix this, required for bind() exec(), exec(), ... 
-    /// the state muss be resetted
-    this->drv()->sqlite3_reset(this->getHandle());
+    
+    /// If the resultset is already open, we cleanup all bindings
+    /// because the current bindings are maintained by this class instead
+    /// of SQLite.
+    if(this->m_isOpen)
+        this->drv()->sqlite3_reset(this->getHandle());
 
     StmtBase::ParamMapIterator param;
     for(param = params.begin(); param != params.end(); ++param)
@@ -613,7 +613,6 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             throw std::bad_alloc();
         case SQLITE_RANGE:
             throw ex::not_found("param not found");
-            //break; // throw exception::RangeError;
         default:
 
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
@@ -662,6 +661,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     case SQLITE_RANGE:
         
     default:
+        this->m_isOpen = false;
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
         String u_msg(msg, "UTF-8");
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
@@ -970,7 +970,7 @@ SqliteResult_libsqlite::columnName(colnum_t num) const
     if(! this->isOpen())
         throw ex::engine_error("Resultset is not open.");
 
-    return this->describeColumn(num).getName().asStr(); /// @todo return empty string if null
+    return this->describeColumn(num).getName().asStr();
 }
 
 
@@ -1040,11 +1040,11 @@ SqliteResult_libsqlite::describeColumn(colnum_t num) const
         this->m_column_desc.find(num);
 
     if(i == this->m_column_desc.end())
-        throw ex::not_found("foo"); /// @bug fixme
+    {
+        throw ex::not_found(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+    }
     else
         return i->second;
-   
-   
 }
 
 
@@ -1052,7 +1052,8 @@ SqliteResult_libsqlite::describeColumn(colnum_t num) const
 const SqliteColumnDesc&
 SqliteResult_libsqlite::describeColumn(String name) const
 {
-    DBWTL_NOTIMPL();
+    colnum_t num = this->columnID(name);
+    return this->describeColumn(num);
 }
 
 
@@ -1078,45 +1079,12 @@ SqliteResult_libsqlite::refreshMetadata(void)
     }
 }
 
-//
-#if 0
-void      
-SqliteResult_libsqlite::refreshMetadata(void)
-{
-    DALTRACE_ENTER;
-    this->m_column_meta.clear();
-    if( ! this->getHandle())
-        return;
-
-    size_t colCount = this->columnCount();
-    // add bookmark column
-    this->m_column_meta.push_back(SqliteTypeInfo(DAL_TYPE_CHAR)); // change to TYPE_BOOKMARK
-    for(size_t i = 0; i < colCount; ++i)
-    {
-        daltype_t daltype = DAL_TYPE_CUSTOM;
-        const char *type = this->drv()->sqlite3_column_decltype(this->getHandle(), i);
-        if(type)
-        {
-            std::string s(type);
-            if(s == "INTEGER") daltype = DAL_TYPE_INT;
-            else if(s == "VARCHAR") daltype = DAL_TYPE_STRING;
-            else if(s == "BLOB") daltype = DAL_TYPE_BLOB;
-            else daltype = DAL_TYPE_CUSTOM;
-        }        
-        SqliteTypeInfo info(daltype);
-
-        this->m_column_meta.push_back(info);
-    }
-    DALTRACE_LEAVE;
-}
-#endif
 
 
-// delete me
 SQLite3Drv* 
 SqliteResult_libsqlite::getDriver(void) const
 {
-    DBWTL_NOTIMPL();
+    return this->m_stmt.getDriver();
 }
 
 
@@ -1510,11 +1478,14 @@ SqliteStmt_libsqlite::resultset(void) const
 
 
 
-//
-/// @todo split sql
+/// @todo For now, prepare() only supports a single statement.
+/// It is planned to support multiple statements.
 void  
 SqliteStmt_libsqlite::prepare(String sql)
 {
+    /// For SQLite, it is save to create a new resultset
+    /// and execute the query inside of the resultset, because
+    /// a query can never return more then one resultset.
     SqliteResult_libsqlite* rs = this->newResultset();
     rs->prepare(sql);
     this->m_isPrepared = true;
@@ -1573,28 +1544,8 @@ SqliteStmt_libsqlite::close(void)
 
     this->m_resultsets.clear();
 
-
-    
-
-    // clear params from prepared statements
-    // clean only PodVariant types with special delete flag?!
-    /*
-      for_each(this->m_paramlist.begin(),
-      this->m_paramlist.end(),
-      delete_object());
-    */
-
-
+    /// Params and accessors are cleaned up by the base class.
     SqliteStmt::close();
-
-    /* now done in StmtBase?
-       this->m_paramlist.clear(); // better use smartobjects?
-       for_each(this->m_paramlistPod.begin(),
-       this->m_paramlistPod.end(),
-       delete_object());
-
-       this->m_paramlistPod.clear();
-    */
 
     DALTRACE_LEAVE;
 }

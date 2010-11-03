@@ -443,7 +443,7 @@ public:
 
     virtual dal_stmt_type*    newStatement(void)            { return this->m_dbc->newStatement(); }
 
-    virtual dal::IDALDriver*  getDriver(void) const         { return this->m_dbc->getDriver(); }
+    virtual dal::IDALDriver*  drv(void) const               { return this->m_dbc->drv(); }
 
     virtual void              commit(void)                  { this->m_dbc->commit(); }
 
@@ -626,7 +626,7 @@ public:
 
     virtual dal::rowcount_t  affectedRows(void) const           { return this->m_stmt->affectedRows(); }
 
-    virtual dal::IDALDriver* getDriver(void) const              { return this->m_stmt->getDriver(); }
+    virtual dal::IDALDriver* drv(void) const                    { return this->m_stmt->drv(); }
 
     // Diagnostic
     virtual bool                   diagAvail(void) const        { return this->m_stmt->diagAvail(); }
@@ -761,7 +761,7 @@ public:
 
     //virtual const dal::ITypeInfo&  datatype(dal::colnum_t num) const   { return this->m_result->datatype(num); }
 
-    virtual dal::IDALDriver*       getDriver(void) const               { return this->m_result->getDriver(); }
+    virtual dal::IDALDriver*       drv(void) const               { return this->m_result->drv(); }
 
 
     virtual dal_resultset_type*    getImpl(void)   { return this->m_result; }

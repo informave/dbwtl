@@ -68,9 +68,7 @@ class SqliteDiag_libsqlite;
 class SqliteDiag_libsqlite : public SqliteDiag
 {
 public:
-
     SqliteDiag_libsqlite(dalstate_t state,
-//                         const char *sqlstate,
                          const char *codepos,
                          const char *func,
                          String message,
@@ -85,10 +83,8 @@ public:
     virtual SqliteDiag_libsqlite* clone(void) const;    
 
 protected:
-
     Variant m_sqlite_code;
     Variant m_sqlite_excode;
-
 };
 
 
@@ -155,7 +151,7 @@ public:
     virtual int          getInt(void) const;
     virtual int64_t      getInt64(void) const;
     virtual const char*  getText(void) const;
-    virtual const void*  getText16(void) const; // removeme
+    virtual const void*  getText16(void) const;
 
     virtual bool         isnull(void) const;
     virtual rowid_t      getCurrentRowID(void) const;
@@ -183,10 +179,10 @@ protected:
 class SqliteColumnDesc_libsqlite : public SqliteColumnDesc
 {
 public:
-	SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_libsqlite &result);
+    SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_libsqlite &result);
 
-	virtual ~SqliteColumnDesc_libsqlite(void)
-        {}
+    virtual ~SqliteColumnDesc_libsqlite(void)
+    {}
 };
 
 
@@ -208,25 +204,19 @@ public:
     virtual bool   eof(void) const;
     virtual void   close(void);
 
+    virtual const SqliteVariant&     column(colnum_t num);
+    virtual const SqliteVariant&     column(String name);
+
     // row methods
     virtual rowcount_t         rowCount(void) const;
     virtual rowcount_t         affectedRows(void) const;
 
-    virtual const SqliteVariant&     column(colnum_t num);
-    //virtual SqliteVariant&     field(colnum_t num);
-    virtual const SqliteVariant&     column(String name);
-    //virtual SqliteVariant&     field(std::wstring name);
-
-    //virtual IBlob&           getBlob(colnum_t num) = 0;
-
     // column methods
     virtual size_t             columnCount(void) const;
     virtual colnum_t           columnID(String name) const;
-    virtual String      columnName(colnum_t num) const;
+    virtual String             columnName(colnum_t num) const;
 
     virtual rowid_t            getCurrentRowID(void) const;
-
-    virtual SQLite3Drv*        getDriver(void) const;
 
     virtual SQLite3Drv*        drv(void) const;
 
@@ -238,10 +228,7 @@ public:
 
     virtual SqliteDbc_libsqlite& getDbc(void) const;
 
-    inline ::sqlite3_stmt* getHandle(void) const
-        {
-            return this->m_handle;
-        }
+    inline ::sqlite3_stmt* getHandle(void) const { return this->m_handle; }
 
     // sqlite specific
     virtual void   prepare(String sql);
@@ -335,14 +322,7 @@ public:
 
     virtual SQLite3Drv* drv(void) const;
 
-    virtual SQLite3Drv* getDriver(void) const
-        { return this->drv(); }
-
-
     virtual SqliteDbc_libsqlite& getDbc(void) const; // interface
-
-    //virtual IStmt::ParamMapT& getParamList();
-
 
 protected:
     SqliteResult_libsqlite* newResultset(void);
@@ -350,8 +330,6 @@ protected:
     SqliteDbc_libsqlite      &m_conn;
     ResultsetVectorT          m_resultsets;
     int                       m_currentResultset;
-    //IStmt::ParamMapT          m_paramlist;
-    //std::vector<PodVariant*>  m_paramlistPod;
     bool                      m_isPrepared;
 
 
@@ -377,36 +355,19 @@ public:
 
     virtual SqliteStmt_libsqlite*    newStatement(void);
 
-    virtual void     connect(String database,
-                             String user = String(),
-                             String password = String());
-    virtual void     connect(IDbc::Options& options);
-    virtual void     disconnect(void);
-
-    virtual String  driverName(void) const;
-    virtual String  dbmsName(void) const;
-
-    virtual SQLite3Drv*    getDriver(void) const;
-
-/*
-  virtual void           beginTrans(IDbc::trx_mode mode,
-  IDbc::access_mode access = IDbc::trx_default,
-  std::string name = std::string());
-
-  virtual void           commit(void);
-
-  virtual void           savepoint(std::string name);
-  virtual void           rollback(std::string name = std::string());
-
-  virtual void           directCmd(std::wstring cmd);
-*/
+    virtual void           connect(String database,
+                                   String user = String(),
+                                   String password = String());
+    virtual void           connect(IDbc::Options& options);
+    virtual void           disconnect(void);
+    virtual String         driverName(void) const;
+    virtual String         dbmsName(void) const;
 
     virtual std::string    getDbcEncoding(void) const;
 
     virtual ::sqlite3*     getHandle(void) const;
 
-    inline SQLite3Drv*     drv(void) const { return this->getDriver(); }
-
+    virtual SQLite3Drv*    drv(void) const;
 
 
 protected:
@@ -437,7 +398,7 @@ public:
     virtual ~SqliteEnv_libsqlite(void);
 
     virtual SqliteDbc_libsqlite* newConnection(void);
-    virtual SQLite3Drv* drv() const;
+    virtual SQLite3Drv* drv(void) const;
 
 
 protected:

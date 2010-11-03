@@ -141,8 +141,6 @@ enum DatatypeEnumeration
     DAL_TYPE_CHAR,
     DAL_TYPE_UCHAR,
     DAL_TYPE_STRING,
-    //DAL_TYPE_NVARCHAR,
-    //DAL_TYPE_NCHAR,
     DAL_TYPE_BOOL,
     DAL_TYPE_SMALLINT,
     DAL_TYPE_USMALLINT,
@@ -1191,7 +1189,7 @@ public:
     virtual String         driverName(void) const = 0;
     virtual String         dbmsName(void) const = 0;
     virtual IStmt*         newStatement(void) = 0;
-    virtual IDALDriver*    getDriver(void) const = 0;
+    virtual IDALDriver*    drv(void) const = 0;
     virtual void           beginTrans(IDbc::trx_mode mode,
                                       IDbc::access_mode access = IDbc::trx_default,
                                       String name = String()) { };
@@ -1272,7 +1270,7 @@ public:
     virtual const IColumnDesc& describeColumn(String name) const = 0;
 
 
-    virtual IDALDriver* getDriver(void) const = 0;
+    virtual IDALDriver* drv(void) const = 0;
 };
 
 
@@ -1319,7 +1317,7 @@ public:
     virtual rowcount_t  affectedRows(void) const = 0;
 
 
-    virtual IDALDriver* getDriver(void) const = 0;
+    virtual IDALDriver* drv(void) const = 0;
     //virtual IDbc& getConnection(void) const = 0;
 };
 

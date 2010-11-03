@@ -297,34 +297,6 @@ SqliteData_libsqlite::getBlob(void) const
         this->m_blobbuf->setBufPtr(static_cast<const unsigned char*>(buf), size);
     }
     return this->m_blobbuf.get();
-
-
-/*
-    // get ptr if column is not null
-    if(! this->isnull())
-    {
-        size = this->m_resultset.drv()->sqlite3_column_bytes(this->m_resultset.getHandle(),
-                                                             this->m_colnum - 1);
-        buf = this->m_resultset.drv()->sqlite3_column_blob(this->m_resultset.getHandle(),
-                                                           this->m_colnum - 1);
-    }
-
-    // prepare or reset stream buffer
-    if(this->m_blobbuf.get())
-    {
-        this->m_blobbuf->reset_ptr(static_cast<const unsigned char*>(buf), size);
-    }
-    else
-    {
-        this->m_blobbuf.reset(new SqliteBlob_libsqlite(*this, static_cast<const unsigned char*>(buf), size));
-    }
-
-    // everything is up-to-date now...
-    if(this->isnull())
-        throw ex::null_value(String("SqliteData_libsqlite result column"));
-    else
-        return this->m_blobbuf.get();
-*/
 }
 
 
@@ -573,21 +545,26 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         {
             switch(var->datatype())
             {
-            case DAL_TYPE_SMALLINT:
             case DAL_TYPE_INT:
+            case DAL_TYPE_UINT:
+            case DAL_TYPE_CHAR:
+            case DAL_TYPE_UCHAR:
             case DAL_TYPE_BOOL:
+            case DAL_TYPE_SMALLINT:
+            case DAL_TYPE_USMALLINT:
                 err = this->drv()->sqlite3_bind_int(this->getHandle(), param->first, var->asInt());
                 break;
+
+            case DAL_TYPE_BIGINT:
+            case DAL_TYPE_UBIGINT:
+                err = this->drv()->sqlite3_bind_int64(this->getHandle(), param->first, var->asBigint());
+                break;
             
-                /*
-                  case DAL_TYPE_BITINT:
-                  err = this->drv()->sqlite3_bind_int64(this->m_stmt.getHandle(), pcount, var->asBigint());
-                  break;            
-                  case DAL_TYPE_FLOAT:
-                  case DAL_TYPE_DOUBLE:
-                  err = this->drv()->sqlite3_bind_double(this->m_stmt.getHandle(), pcount, var->asDouble());
-                  break;
-                */
+            case DAL_TYPE_FLOAT:
+            case DAL_TYPE_DOUBLE:
+                err = this->drv()->sqlite3_bind_double(this->getHandle(), param->first, var->asDouble());
+                break;
+
             case DAL_TYPE_BLOB:
                 if(var->asBlob())
                 {
@@ -599,22 +576,26 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
                                                          tmp_string.size(), NULL);
                 }
                 break;
+                
             default:
+                // all other types are passed as string
                 err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,
                                                      var->asStr().to("UTF-8"), -1, SQLITE_TRANSIENT);
-                //std::cout << "Binding now: " << var->asStr().to("UTF-8") << std::endl;
+                break;
             }
         }
         switch(err)
         {
         case SQLITE_OK:
             break;
+
         case SQLITE_NOMEM:
             throw std::bad_alloc();
-        case SQLITE_RANGE:
-            throw ex::not_found("param not found");
-        default:
 
+        case SQLITE_RANGE:
+            throw ex::not_found("Parameter number out of range");
+
+        default:
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
             String u_msg(msg, "UTF-8");
             DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
@@ -636,30 +617,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
         this->m_isOpen = true;
         this->refreshMetadata();
         break;
-    case SQLITE_ERROR:
-    case SQLITE_INTERNAL:
-    case SQLITE_PERM:
-    case SQLITE_ABORT:
-    case SQLITE_BUSY:
-    case SQLITE_LOCKED:
-    case SQLITE_NOMEM:
-    case SQLITE_READONLY:
-    case SQLITE_INTERRUPT:
-    case SQLITE_IOERR:
-    case SQLITE_CORRUPT:
-    case SQLITE_NOTFOUND:
-    case SQLITE_FULL:
-    case SQLITE_EMPTY:
-    case SQLITE_SCHEMA:
-    case SQLITE_TOOBIG:
-    case SQLITE_CONSTRAINT:
-    case SQLITE_MISMATCH:
-    case SQLITE_MISUSE:
-    case SQLITE_NOLFS:
-    case SQLITE_AUTH:
-    case SQLITE_FORMAT:
-    case SQLITE_RANGE:
-        
+
     default:
         this->m_isOpen = false;
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
@@ -832,17 +790,6 @@ SqliteResult_libsqlite::column(String name)
 
 
 //
-/*
-  const SqliteVariant&
-  SqliteResult_libsqlite::field(String name)
-  {
-  colnum_t num = this->columnID(name);
-  return this->field(num);
-  }
-*/
-
-
-//
 const SqliteVariant&
 SqliteResult_libsqlite::column(colnum_t num)
 {
@@ -870,36 +817,6 @@ SqliteResult_libsqlite::column(colnum_t num)
     DALTRACE_LEAVE;
     return *(p->second);
 }
-
-
-
-//
-/*
-  SqliteVariant&
-  SqliteResult_libsqlite::field(colnum_t num)
-  {
-  DALTRACE_ENTER;
-
-  if(this->isBad())
-  throw ex::engine_error("Resultset is in bad state.");
-
-  if(! this->isOpen())
-  throw ex::engine_error("Resultset is not open.");
-
-  VariantListT::iterator p = this->m_field_accessors.find(num);
-  if(this->m_field_accessors.end() == p)
-  {
-  std::pair<VariantListT::iterator,bool> r;
-  SqliteVariant* v = new SqliteVariant(new SqliteData_libsqlite(*this, num, true));
-  this->m_allocated_accessors.push_back(v);
-  r = this->m_field_accessors.insert(VariantListT::value_type(num, v));
-  p = r.first;
-  }
-  DALTRACE_LEAVE;
-  return *(p->second);
-  }
-*/
-
 
 
 
@@ -1001,7 +918,7 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
 {
     if(i == 0)
     {
-        //this->m_daltype = DAL_TYPE_BOOKMARK;
+        this->m_daltype = DAL_TYPE_UNKNOWN;
         this->m_name.setStr("__DBWTL_BOOKMARK__");
     }
     else
@@ -1067,24 +984,12 @@ SqliteResult_libsqlite::refreshMetadata(void)
     
     size_t colcount = this->columnCount();
     SqliteColumnDesc desc;
-    //desc.m_name.setWideStr("foo");
-    //for(size_t i = 0; i < colCount; ++i)
-    //
     
     for(size_t i = 0; i <= colcount; ++i)
     {
         SqliteColumnDesc_libsqlite x(i, *this);
-        //x = y;
         this->m_column_desc.insert(std::pair<colnum_t, SqliteColumnDesc_libsqlite>(i, x));
     }
-}
-
-
-
-SQLite3Drv* 
-SqliteResult_libsqlite::getDriver(void) const
-{
-    return this->m_stmt.getDriver();
 }
 
 
@@ -1325,8 +1230,8 @@ SqliteDbc_libsqlite::connect(IDbc::Options& options)
         break;
     default:
         const char *msg = this->drv()->sqlite3_errmsg(this->m_dbh);
-        String::Internal u_msg = US("Database: ") + String::Internal(options[ "database" ]) + US("\r\n") + String::Internal(String(msg, "UTF-8"));
-        //DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
+        String::Internal u_msg = US("Database: ") + String::Internal(options[ "database" ])
+            + US("\r\n") + String::Internal(String(msg, "UTF-8"));
 
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
                                         "connection failure",
@@ -1362,14 +1267,11 @@ SqliteDbc_libsqlite::disconnect(void)
             this->m_dbh = 0;
             this->m_isConnected = false;
             break;
-        case SQLITE_BUSY:
-            
-        default:
 
+        case SQLITE_BUSY:            
+        default:
             const char *msg = this->drv()->sqlite3_errmsg(this->m_dbh);
             String u_msg(msg, "UTF-8");
-            //DRV_STATE(state, DALSTATE_BAD_CONNECTION, u_msg, err, "HY000");
-
             DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
                                             "connection failure",
                                             u_msg,
@@ -1422,7 +1324,7 @@ SqliteDbc_libsqlite::dbmsName(void) const
 
 //
 SQLite3Drv*
-SqliteDbc_libsqlite::getDriver(void) const
+SqliteDbc_libsqlite::drv(void) const
 {
     assert(this->m_lib);
     return this->m_lib;

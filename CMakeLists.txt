@@ -302,6 +302,7 @@ install(DIRECTORY ${DBWTL_MAIN_INCLUDE_DIR}/dbwtl
   DESTINATION include
   FILES_MATCHING
   PATTERN "*.hh"
+  PATTERN "*.inc"
   REGEX "^[^\\.]*$"
   PATTERN ".git*" EXCLUDE
 )

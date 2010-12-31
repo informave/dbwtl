@@ -733,6 +733,9 @@ SqliteResult_libsqlite::close(void)
     if(this->m_handle)
     {
         int err = this->drv()->sqlite3_finalize(this->m_handle);
+        /*
+        Do not check error code, because it returns the last error of step().
+
         switch(err)
         {
         case SQLITE_OK:
@@ -749,6 +752,7 @@ SqliteResult_libsqlite::close(void)
                                             this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
             break;
         };
+        */
     }
 }
 
@@ -1257,7 +1261,7 @@ SqliteDbc_libsqlite::disconnect(void)
 {
     DALTRACE_ENTER;
     
-    if(this->isConnected())
+    if(this->m_dbh)
     {
         DALTRACE("is connected, disconnecting...");
         int err = this->drv()->sqlite3_close(this->m_dbh);
@@ -1281,12 +1285,6 @@ SqliteDbc_libsqlite::disconnect(void)
             break;
         }
     }
-    else
-    {
-        this->drv()->sqlite3_close(this->m_dbh);
-        this->m_dbh = 0;
-    }
-
 
     DALTRACE_LEAVE;
 }
@@ -1351,13 +1349,7 @@ SqliteStmt_libsqlite::SqliteStmt_libsqlite(SqliteDbc_libsqlite& conn)
 //
 SqliteStmt_libsqlite::~SqliteStmt_libsqlite(void)
 {
-    using std::for_each;
-    using std::mem_fun;
-
-    for_each(this->m_resultsets.begin(),
-             this->m_resultsets.end(),
-             delete_resultset);
-    this->m_resultsets.clear();
+    this->close();
 }
 
 

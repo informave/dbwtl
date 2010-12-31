@@ -11,13 +11,13 @@ typedef Database<dal::sqlite> DBMS;
 
 int test(void)
 {
-    DBMS::Environment env("sqlite:libsqlite");
+    DBMS::Environment env(L"sqlite:libsqlite");
     DBMS::Connection dbc(env);
     dbc.connect("sampledb.sqlitedb");
 
     try
     {
-        dbc.directCmd("DROP TABLE streambuf_checks");
+        dbc.directCmd(L"DROP TABLE streambuf_checks");
     }
     catch(...)
     {}

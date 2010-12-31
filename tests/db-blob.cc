@@ -31,7 +31,7 @@ int test(void)
     std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 
 
-    //dbc.directCmd(L"create table foo(id int, data BLOB);");
+    dbc.directCmd(L"DELETE FROM foo");
 
     DBMS::Statement stmt(dbc);
     stmt.prepare(L"INSERT INTO foo VALUES(?, ?, ?);");
@@ -44,7 +44,7 @@ int test(void)
     stmt.bind(2, ss.rdbuf());
     stmt.bind(3, ss2.rdbuf());
 
-    for(int cc = c; c <= cc+10; ++c)
+    for(int cc = c; c <= cc+2; ++c)
     {
         ss.seekg(0, std::ios::beg);
         ss2.seekg(0, std::ios::beg);

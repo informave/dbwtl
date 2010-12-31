@@ -483,7 +483,7 @@ SqliteDbc::getIndices(const IIndexFilter&)
         String::Internal dbname = dblist->resultset().column("name").asStr();
         
         String::Internal sql_column_query =
-            US(" SELECT name, tbl_name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+            US(" SELECT name, tbl_name, sql, 0 AS sys")
             US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'index'");
 
 

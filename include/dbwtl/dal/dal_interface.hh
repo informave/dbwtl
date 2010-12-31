@@ -1387,7 +1387,8 @@ public:
 class DBWTL_EXPORT IEnv : public IHandle
 {
 public:
-    typedef std::auto_ptr<IEnv> ptr;
+    //typedef std::auto_ptr<IEnv> ptr;
+    typedef util::SmartPtr<IEnv, util::RefCounted, util::AllowConversion> ptr;
 
     virtual ~IEnv(void) { }
 
@@ -1404,7 +1405,8 @@ public:
 class DBWTL_EXPORT IDbc : public IHandle
 {
 public:
-    typedef std::auto_ptr<IDbc>                      ptr;
+    //typedef std::auto_ptr<IDbc>                      ptr;
+    typedef util::SmartPtr<IDbc, util::RefCounted, util::AllowConversion> ptr;
     typedef std::map<String, String>   Options;
 
     /// @brief Connection transaction modes
@@ -1485,7 +1487,8 @@ protected:
 class DBWTL_EXPORT IResult : public IDALObject
 {
 public:
-    typedef std::auto_ptr<IResult> ptr;
+    //typedef std::auto_ptr<IResult> ptr;
+    typedef util::SmartPtr<IResult, util::RefCounted, util::AllowConversion> ptr;
     typedef size_t                      bookmark_type;
     typedef IVariant                    value_type;
     /// @todo check if row_type is required
@@ -1541,7 +1544,8 @@ class DBWTL_EXPORT IStmt : public IHandle
 {
 public:
     typedef std::map<int, IVariant*> ParamMapT;
-    typedef std::auto_ptr<IStmt> ptr;
+    //typedef std::auto_ptr<IStmt> ptr;
+    typedef util::SmartPtr<IStmt, util::RefCounted, util::AllowConversion> ptr;
 
     virtual ~IStmt(void);
 

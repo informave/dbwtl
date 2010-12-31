@@ -63,6 +63,9 @@ public:
 
 	void reset(StoredType& value)
 	{
+
+        this->destroy();
+        //delete this->m_pointee;
 		this->m_pointee = value;
 	}
 

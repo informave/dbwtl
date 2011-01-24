@@ -211,6 +211,8 @@ public:
     virtual rowcount_t         rowCount(void) const;
     virtual rowcount_t         affectedRows(void) const;
 
+    virtual Variant            lastInsertRowId(void);
+
     // column methods
     virtual size_t             columnCount(void) const;
     virtual colnum_t           columnID(String name) const;
@@ -319,6 +321,8 @@ public:
     virtual size_t    paramCount(void) const;
 
     virtual rowid_t   affectedRows(void) const;
+
+    virtual Variant   lastInsertRowId(void);
 
     virtual SQLite3Drv* drv(void) const;
 

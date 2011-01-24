@@ -1512,6 +1512,8 @@ public:
     virtual size_t           paramCount(void) const = 0;
     virtual rowcount_t       affectedRows(void) const = 0;
 
+    virtual Variant          lastInsertRowId(void) = 0;
+
     virtual const value_type&      column(colnum_t num) = 0;
     virtual const value_type&      column(String name) = 0;
     //virtual value_type&          field(colnum_t num) = 0;
@@ -1576,6 +1578,8 @@ public:
     virtual void      bind(int num, UnicodeStreamBuf *data) = 0;
 
     virtual rowcount_t  affectedRows(void) const = 0;
+
+    virtual Variant   lastInsertRowId(void) = 0;
 
 
     virtual IDALDriver* drv(void) const = 0;

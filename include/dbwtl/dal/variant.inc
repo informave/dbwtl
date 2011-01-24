@@ -635,6 +635,35 @@ public:
     DAL_VARIANT_ACCESSOR;
     virtual ~storage_accessor(void) { }
     virtual daltype_t datatype() const { return DAL_TYPE_BIGINT; }
+
+
+    virtual int asInt() const
+    { return this->getValue(); }
+
+
+    virtual void setInt(const signed int &value)
+    {
+        this->getValue() = value;
+        this->m_isnull = false;
+    }
+
+    virtual long long asBigint() const
+    { return this->getValue(); }
+
+
+    virtual void setBigint(const signed long long &value)
+    {
+        this->getValue() = value;
+        this->m_isnull = false;
+    }
+
+    virtual String asStr(std::locale loc = std::locale()) const
+    {
+        std::wstringstream ss;
+        ss.imbue(loc);
+        ss << this->getValue();
+        return ss.str();
+    }
 };
 
 
@@ -645,6 +674,34 @@ public:
     DAL_VARIANT_ACCESSOR;
     virtual ~storage_accessor(void) { }
     virtual daltype_t datatype() const { return DAL_TYPE_BIGINT; }
+
+    virtual int asInt() const
+    { return *this->getValue(); }
+
+
+    virtual void setInt(const signed int &value)
+    {
+        *this->getValue() = value;
+        this->m_isnull = false;
+    }
+
+    virtual long long asBigint() const
+    { return *this->getValue(); }
+
+
+    virtual void setBigint(const signed long long &value)
+    {
+        *this->getValue() = value;
+        this->m_isnull = false;
+    }
+
+    virtual String asStr(std::locale loc = std::locale()) const
+    {
+        std::wstringstream ss;
+        ss.imbue(loc);
+        ss << this->getValue();
+        return ss.str();
+    }
 };
 
 
@@ -655,6 +712,22 @@ public:
     DAL_VARIANT_ACCESSOR;
     virtual ~storage_accessor(void) { }
     virtual daltype_t datatype() const { return DAL_TYPE_BIGINT; }
+
+    virtual int asInt() const
+    { return *this->getValue(); }
+
+
+    virtual long long asBigint() const
+    { return *this->getValue(); }
+
+
+    virtual String asStr(std::locale loc = std::locale()) const
+    {
+        std::wstringstream ss;
+        ss.imbue(loc);
+        ss << this->getValue();
+        return ss.str();
+    }
 };
 
 

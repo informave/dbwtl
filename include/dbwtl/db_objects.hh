@@ -632,6 +632,8 @@ public:
 
     virtual dal::rowcount_t  affectedRows(void) const           { return this->m_stmt->affectedRows(); }
 
+    virtual dal_variant_type lastInsertRowId(void)              { return this->m_stmt->lastInsertRowId(); }
+
     virtual dal::IDALDriver* drv(void) const                    { return this->m_stmt->drv(); }
 
     // Diagnostic
@@ -693,6 +695,7 @@ private:
     typedef typename db_traits<Engine, tag>::dal_resultset_type  dal_resultset_type;
     typedef typename db_traits<Engine, tag>::dal_columndesc_type dal_columndesc_type;
     typedef typename db_traits<Engine, tag>::value_type          value_type;
+    typedef typename db_traits<Engine, tag>::dal_variant_type    dal_variant_type;
 
 public:
 
@@ -738,6 +741,8 @@ public:
     virtual size_t              paramCount(void) const          { return this->m_result->paramCount(); }
 
     virtual dal::rowcount_t     affectedRows(void) const        { return this->m_result->affectedRows(); }
+
+    virtual dal_variant_type lastInsertRowId(void)              { return this->m_result->lastInsertRowId(); }
 
     virtual const value_type&   column(dal::colnum_t num)       { return this->m_result->column(num); }
 

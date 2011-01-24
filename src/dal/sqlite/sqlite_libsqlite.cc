@@ -782,6 +782,23 @@ SqliteResult_libsqlite::affectedRows(void) const
 }
 
 
+//
+Variant
+SqliteResult_libsqlite::lastInsertRowId(void)
+{
+    if(this->isBad())
+        throw ex::engine_error("Resultset is in bad state.");
+
+    if(! this->isPrepared())
+        throw ex::engine_error("Resultset is not prepared.");
+
+    long long id = this->drv()->sqlite3_last_insert_rowid(this->m_stmt.getDbc().getHandle());
+    
+    return Variant(id);
+}
+
+
+
 
 //
 const SqliteVariant&
@@ -1478,6 +1495,14 @@ rowid_t
 SqliteStmt_libsqlite::affectedRows(void) const
 {
     return this->resultset().affectedRows();
+}
+
+
+//
+Variant
+SqliteStmt_libsqlite::lastInsertRowId(void)
+{
+    return this->resultset().lastInsertRowId();
 }
 
 

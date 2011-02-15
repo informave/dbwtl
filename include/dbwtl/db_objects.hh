@@ -388,6 +388,8 @@ public:
 
     virtual dal_env_type*           getImpl(void)           { return this->m_env.get(); }
 
+    virtual dal::dal_engine getEngineType(void) const       { return this->m_env->getEngineType(); }
+
 protected:
     typename dal_env_type::ptr m_env;
 

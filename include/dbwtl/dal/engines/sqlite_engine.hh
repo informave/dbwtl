@@ -570,6 +570,9 @@ public:
     virtual bool                 diagAvail(void) const;
     virtual const SqliteDiag&    fetchDiag(void);
 
+    virtual dal_engine getEngineType(void) const { return DAL_ENGINE_SQLITE; }
+        
+
 protected:
     SqliteDiagController m_diag;
 };
@@ -775,7 +778,7 @@ struct db_traits<dal::sqlite, tag>
 
     typedef dal::Variant                       dal_variant_type;
 
-    enum { DB_SYSTEM_ID = 1 };
+    enum { DB_SYSTEM_ID = dal::DAL_ENGINE_SQLITE };
 };
 
 struct sqlite_v4 { };

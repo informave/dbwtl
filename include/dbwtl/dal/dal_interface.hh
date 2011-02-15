@@ -75,6 +75,12 @@ typedef long long int64_t;
 DAL_NAMESPACE_BEGIN
 
 
+typedef enum dal_engines_enum
+{
+    DAL_ENGINE_GENERIC=0,
+    DAL_ENGINE_SQLITE=50
+} dal_engine;
+
 ///
 /// @brief Type for row IDs
 typedef signed long        rowid_t;
@@ -1393,6 +1399,8 @@ public:
     virtual ~IEnv(void) { }
 
     virtual IDbc* newConnection(void) = 0;
+
+    virtual dal_engine getEngineType(void) const = 0;
 };
 
 

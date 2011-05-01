@@ -1,7 +1,6 @@
-#include <dbwtl/dal/dalinterface>
+#include <dbwtl/dbobjects>
 #include <dbwtl/dal/engines/sqlite>
 #include <dbwtl/dal/engines/generic>
-#include <dbwtl/dbobjects>
 #include <dbwtl/ustring>
 
 

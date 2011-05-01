@@ -100,3 +100,37 @@ Streams
 -------
 TODO
 
+
+Conversion Rules
+----------------
+
+Numeric values
+~~~~~~~~~~~~~~
+When converting a numeric text string to a numeric value (float, int, numeric,
+...) the convertion depends on the used formatting (en_US: "1,234.56", de_DE:
+"1.234,56", C: "1234.56", ...). 
+
+Such text strings can be returned by a database driver or read from user
+input. For the first case, the conversion is handled by the drivers variant
+implementation. For example: when reading a variant value from Postgres, the
+internal stored variant is of type PostgresVariant which contains the logic to
+convert all Postgres values to other types. PostgreSQL always return values as
+text using the C locale formatting rules, so PostgresVariant can simply
+convert any numeric text value to a numeric value using std::locale("C")
+
+User input is always assumed as a formatted string according to the system
+locale settings. For example: on a system with en_US locale, user input for
+numeric values has to be in format "1,234.56".
+The asString() method on variants always returns a string using the program
+locale for formatting.
+
+This is an example output:
+
+[example C++ file to test several locales]
+
+
+
+
+
+
+

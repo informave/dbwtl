@@ -659,7 +659,7 @@ struct generic
     typedef IResult             RESULT;
     typedef IStmt               STMT;
     typedef IEnv                ENV;
-    typedef IVariant            VALUE;
+    typedef Variant             VALUE;
     typedef generic_sqlstates   STATES;
     typedef IDiagnostic         DIAG;
     typedef ITable              TABLE;

@@ -1,5 +1,5 @@
 //
-// ustreambuf.hh - Unicode buffer and conversion functions
+// type_smallint.cc - Type: SMALLINT (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,89 +36,46 @@
 //
 
 /// @file
-/// @brief Unicode buffer and conversion functions
+/// @brief Type: SMALLINT (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#ifndef INFORMAVE_I18N_USTREAMBUF_HH
-#define INFORMAVE_I18N_USTREAMBUF_HH
+#include "dbwtl/dal/dal_interface.hh"
+#include "dbwtl/db_exceptions.hh"
+#include "../dal_debug.hh"
 
-#include "db_fwd.hh"
+#include <ctime>
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <typeinfo>
 
-
-#include <stdexcept>
-#include <locale>
-#include <iosfwd>
-
-#ifdef DBWTL_CXX98_COMPATIBILITY
-#include <tr1/type_traits>
-#else
-#include <type_traits>
-#endif
+DAL_NAMESPACE_BEGIN
 
 
-DB_NAMESPACE_BEGIN
 
 
-typedef std::wstreambuf        UnicodeStreamBuf;
-typedef std::streambuf         ByteStreamBuf;
-
-
-template<class Elem,
-         class Tr = std::char_traits<Elem> >
-class streambuf_convert : public std::basic_streambuf<wchar_t>
+String
+read_accessor<signed short>::asStr(std::locale loc) const
 {
-public:
-    typedef std::basic_streambuf<Elem, Tr> stream_type;
-
-    typedef typename Tr::state_type state_type;
-
-    streambuf_convert(stream_type *buf = 0,
-                      state_type state = state_type())
-        : m_bufptr(buf),
-          m_state(state)
-    {}
-
-    stream_type* rdbuf() const
-    {
-        return this->m_bufptr;
-    }
-
-    stream_type* rdbuf(stream_type *buf)
-    {
-        stream_type *tmp = this->m_bufptr;
-        this->m_bufptr = buf;
-        return tmp;
-    }
-
-
-    state_type state() const
-    {
-        return this->m_state;
-    }
-
-private:
-    stream_type *m_bufptr;
-    //Codecvt *cvtptr;
-    state_type m_state;
-
-    streambuf_convert(const streambuf_convert&);
-    streambuf_convert& operator=(const streambuf_convert&);
-};
+    std::wstringstream ss;
+    ss.imbue(loc);
+    ss << this->getValue();
+    return ss.str();
+}
 
 
 
-DB_NAMESPACE_END
+String
+read_accessor<unsigned short>::asStr(std::locale loc) const
+{
+    std::wstringstream ss;
+    ss.imbue(loc);
+    ss << this->getValue();
+    return ss.str();
+}
 
 
 
-#endif
 
-//
-// Local Variables:
-// mode: C++
-// c-file-style: "bsd"
-// c-basic-offset: 4
-// indent-tabs-mode: nil
-// End:
-//
+DAL_NAMESPACE_END

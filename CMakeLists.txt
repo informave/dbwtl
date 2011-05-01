@@ -15,6 +15,10 @@ set(${PROJECT_NAME}_PATCH_LEVEL 0)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 
+set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-possibly-lost=yes
+-show-reachable=no")
+
+
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE)
   message(FATAL_ERROR "In-source builds are not allowed.
   Please create a directory and run cmake from there, passing the path
@@ -134,9 +138,11 @@ if(MSVC)
   endif(DBWTL_ENABLE_WERROR)
 
 elseif(CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions("-std=c++98 -Wno-non-virtual-dtor")
+	#add_definitions("-std=c++98 -Wno-non-virtual-dtor")
+	add_definitions("-Wno-non-virtual-dtor")
   if (DBWTL_ENABLE_WARNINGS)
-    add_definitions("-Wall -W -Wextra -Wno-unused-parameter
+	  add_definitions("-Wall -W -Wextra -Wno-unused-parameter
+	  -Wold-style-cast
     -Wwrite-strings  -Wno-unused -Wno-switch-enum")
     if(DBWTL_ENABLE_PEDANTIC)
       add_definitions("-pedantic -Wno-long-long -Weffc++ -Wno-non-virtual-dtor")
@@ -235,6 +241,14 @@ endif()
 # Source files
 set(dbwtl_srcs
         ${DBWTL_MAIN_SRC_DIR}/dal/dal_interface.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_bigint.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_bool.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_bytestreambuf.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_int.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_ivariant.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_smallint.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_string.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/types/type_unicodestreambuf.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/ustring.cc
@@ -302,7 +316,6 @@ install(DIRECTORY ${DBWTL_MAIN_INCLUDE_DIR}/dbwtl
   DESTINATION include
   FILES_MATCHING
   PATTERN "*.hh"
-  PATTERN "*.inc"
   REGEX "^[^\\.]*$"
   PATTERN ".git*" EXCLUDE
 )

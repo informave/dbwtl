@@ -300,15 +300,15 @@ struct ifnull
 
     /// @param[in] var A IVariant reference
     /// @param[in] def Default value which is returned if var is null
-    ifnull(const dal::IVariant &var, value_type def) : m_var(var), m_def(def)
+    ifnull(const dal::Variant &var, value_type def) : m_var(var), m_def(def)
     {}
 
     /// cast operator to the requested type
     operator value_type() const
-    { return m_var.isnull() ? m_def : dal::variant_dispatch_method<value_type>(m_var)(); }
+    { return m_var.isnull() ? m_def : m_var.get<value_type>(); }
 
 private:
-    const dal::IVariant &m_var;
+    const dal::Variant  &m_var;
     value_type           m_def;
 };
 
@@ -628,7 +628,7 @@ public:
 
     virtual void      bind(int num, const dal::IVariant* data)  { this->m_stmt->bind(num, data); }
 
-    virtual void      bind(int num, dal::Variant data)          { this->m_stmt->bind(num, data); }
+    virtual void      bind(int num, const dal::Variant &data)   { this->m_stmt->bind(num, data); }
 
 
 

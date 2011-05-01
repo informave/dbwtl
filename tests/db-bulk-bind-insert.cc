@@ -45,12 +45,12 @@ int test(void)
 
     dbc.beginTrans(DBMS::Connection::trx_read_committed);
 
-    std::string name;
+    String name;
 
     DBMS::Statement stmt(dbc);
     stmt.prepare("INSERT INTO bulk_bind_insert(name) VALUES(? || ?)");
     //stmt.bind(1, &name);
-    stmt.bind(1, static_cast<const std::string*>(&name));
+    stmt.bind(1, static_cast<const String*>(&name));
 
     for(int i = 0; names[i]; ++i)
     {
@@ -58,7 +58,7 @@ int test(void)
             dbc.savepoint("sp1");
 
         stmt.bind(2, name);
-        name = names[i];
+        name = std::string(names[i]);
         std::cout << "Insert: " << name << std::endl;
         stmt.execute();
     }

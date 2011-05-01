@@ -48,10 +48,14 @@
 #define DAL_DEV_INCLUDE_DEVUTILS
 
 #include "dbwtl/dal/dal_fwd.hh"
-//#include "db_exceptions.hh"
+#include "dbwtl/dal/variant.hh"
+#include "dbwtl/dal/types.hh"
+
 #include "dbwtl/ustring.hh"
 #include "dbwtl/ustreambuf.hh"
 #include "dbwtl/util/smartptr.hh"
+
+#include "dbwtl/db_exceptions.hh"
 
 #ifdef DAL_DEV_INCLUDE_DEVUTILS
 #include "dbwtl/util/devutils.hh"
@@ -69,6 +73,10 @@
 #include <stdint.h> // required until we get cstdint from c++0x
 #else
 typedef long long int64_t;
+#endif
+
+#ifndef DBWTL_CXX98_COMPATIBILITY
+#include <type_traits>
 #endif
 
 
@@ -108,6 +116,7 @@ typedef signed int systype_t;
 
 
 
+
 typedef enum
 {
     DAL_STATE_OK,
@@ -123,56 +132,29 @@ const char* dal_state_msg(int code);
 #define DAL_CODE(codename) dal_state_msg(codename)
 
 
+
+
+
 typedef std::map<std::string, Variant> options_type;
 
 
 
-#define DAL_VARIANT_ACCESSOR          typedef void __accessor_is_defined
-#define DAL_VARIANT_ACCESSOR_CHECK    typedef typename storage_accessor<T>::__accessor_is_defined __compiler_check
 
-
-
-
-//--------------------------------------------------------------------------
-/// All types defined by the DAL
-/// 
-/// @since 0.0.1
-/// @brief DAL datatypes
-enum DatatypeEnumeration
+template<typename T, typename U>
+bool inline convertValue(const T& src, U& dest)
 {
-    DAL_TYPE_CUSTOM = 1,
-    DAL_TYPE_UNKNOWN,
-    DAL_TYPE_INT,
-    DAL_TYPE_UINT,
-    DAL_TYPE_CHAR,
-    DAL_TYPE_UCHAR,
-    DAL_TYPE_STRING,
-    DAL_TYPE_BOOL,
-    DAL_TYPE_SMALLINT,
-    DAL_TYPE_USMALLINT,
-    DAL_TYPE_BIGINT,
-    DAL_TYPE_UBIGINT,
-    //DAL_TYPE_BIT,
-    //DAL_TYPE_VARBIT,
-    DAL_TYPE_BLOB,
-    DAL_TYPE_MEMO,
-    DAL_TYPE_NUMERIC,
-    DAL_TYPE_FLOAT,
-    DAL_TYPE_DOUBLE,
-    DAL_TYPE_DATE,
-    DAL_TYPE_TIME,
-    DAL_TYPE_TIMESTAMP,
-    DAL_TYPE_INTERVAL
-};
+    std::wstringstream ss;
+    ss << src;
+    return ! (!(ss >> dest));
+}
 
-typedef enum DatatypeEnumeration daltype_t;
-
-
-/// @brief Maps a daltype ID to a string name
-DBWTL_EXPORT String daltype2string(daltype_t type);
-
-DBWTL_EXPORT String daltype2sqlname(daltype_t type);
-
+template<typename T, typename U>
+void inline setValue(const T& src, U& dest)
+{
+    std::wstringstream ss;
+    ss << src;
+    dest = ss.str();
+}
 
 
 
@@ -230,20 +212,49 @@ public:
 
     
     /// The reference keeps valid until no other method is called.
-    const T& fetchDiag(void);
-//     {
-//         if(this->m_cur != this->m_list.end())
-//         {
-//             return **this->m_cur++;
-//         }
-//         else
-//             throw ex::not_found(L"foo");
-//             throw std::range_error("No diagnostic records available"); /// @todo replace with not_found?
-//     }
+    const T& fetchDiag(void)
+    {
+        if(this->m_cur != this->m_list.end())
+        {
+            return **this->m_cur++;
+        }
+        else
+            throw ex::not_found(L"No diagnostic records available");
+    }
 
 protected:
     std::list<T*>                     m_list;
     typename std::list<T*>::iterator  m_cur;
+};
+
+
+
+
+//------------------------------------------------------------------------------
+/// Base class for all engine specific implementations of the Variant class.
+///
+/// @since 0.0.1
+/// @brief Base class for engine specific variants
+class DBWTL_EXPORT  EngineVariant : public Variant
+{
+public:
+    template<class T>
+        EngineVariant(const T& value, const String &name = String("<engine-variant>"))
+        : Variant(value, name)
+    {}
+
+
+    virtual ~EngineVariant(void)
+    {}
+
+
+    /// This method refreshes internal states or resources
+    /// which must be syncronised with the current row cursor position.
+    /// If the cursor moves, data must be reloaded from the internal
+    /// resultset handle or resources like streambuf objects (for BLOBs)
+    /// must be invalidated.
+    virtual void refresh(void) = 0;
+
 };
 
 
@@ -288,15 +299,6 @@ public:
 };
 
 
-
-
-//--------------------------------------------------------------------------
-/// @brief Base class for all DAL classes
-class DBWTL_EXPORT IDALObject
-{
-public:
-    virtual ~IDALObject(void) { }
-};
 
 
 
@@ -399,7 +401,7 @@ private:
 class DBWTL_EXPORT IColumnDesc : public IDALObject
 {
 public:
-    typedef IVariant value_type;
+    typedef Variant value_type;
     //typedef util::SmartPtr<ITable, util::RefCounted, util::AllowConversion> ptr;
 
     /// Empty virtual destructor
@@ -425,559 +427,6 @@ public:
 
 
 
-//--------------------------------------------------------------------------
-/// @brief DAL Interface for variant types
-class DBWTL_EXPORT IVariant : public IDALObject
-{
-public:
-    virtual ~IVariant(void) { }
-
-    //  basic functions
-    virtual daltype_t   datatype(void) const = 0;
-    virtual bool        isnull(void) const = 0;
-    virtual void        setNull(void) = 0;
-    virtual void        assign(const IVariant& var);
-
-    /// Creates a deep copy of the variant.
-    /// The returned variant is completly independent from the source
-    /// variant or other resources.
-    virtual Variant     value(void) const;
-
-    operator bool                  (void) const;
-    operator signed int            (void) const;
-    operator unsigned int          (void) const;
-    operator signed char           (void) const;
-    operator unsigned char         (void) const;
-    operator signed short          (void) const;
-    operator unsigned short        (void) const;
-    operator signed long long      (void) const;
-    operator unsigned long long    (void) const;
-    operator float                 (void) const;
-    operator double                (void) const;
-    operator String                (void) const;
-    operator std::string           (void) const;
-    operator ByteStreamBuf*        (void) const;
-    operator UnicodeStreamBuf*     (void) const;
-
-    // This classes should provide a constructor for IVariant&
-    // operator TNumeric              (void) const;
-    // operator TDate                 (void) const;
-    // operator TTime                 (void) const;
-    // operator TTimestamp            (void) const;
-    // operator TInterval             (void) const;
-
-
-    // getter methods
-    virtual signed int           asInt(void) const = 0;
-    virtual unsigned int         asUInt(void) const = 0;
-    virtual signed char          asChar(void) const = 0;
-    virtual unsigned char        asUChar(void) const = 0;
-    virtual String               asStr(std::locale loc = std::locale()) const = 0;
-    virtual bool                 asBool(void) const = 0;
-    virtual signed short         asSmallint(void) const = 0;
-    virtual unsigned short       asUSmallint(void) const = 0;
-    virtual signed long long     asBigint(void) const = 0;
-    virtual unsigned long long   asUBigint(void) const = 0;
-    virtual TNumeric             asNumeric(void) const = 0;
-    virtual float                asReal(void) const = 0;
-    virtual double               asDouble(void) const = 0;
-    virtual TDate                asDate(void) const = 0;
-    virtual TTime                asTime(void) const = 0;
-    virtual TTimestamp           asTimestamp(void) const = 0;
-    virtual TInterval            asInterval(void) const = 0;
-    virtual ByteStreamBuf*       asBlob(void) const = 0;
-    virtual UnicodeStreamBuf*    asMemo(void) const = 0;
-//     virtual const TCustomType&   asCustom(void) const = 0;
-
-
-    // setter methods
-    virtual void                 setInt(const signed int&) = 0;
-    virtual void                 setUInt(const unsigned int&) = 0;
-    virtual void                 setChar(const signed char&) = 0;
-    virtual void                 setUChar(const unsigned char&) = 0;
-    virtual void                 setStr(const String& str, std::locale loc = std::locale()) = 0;
-    virtual void                 setBool(const bool&) = 0;
-    virtual void                 setSmallint(const signed short&) = 0;
-    virtual void                 setUSmallint(const unsigned short&) = 0;
-    virtual void                 setBigint(const signed long long&) = 0;
-    virtual void                 setUBigint(const unsigned long long&) = 0;
-    virtual void                 setNumeric(const TNumeric&) = 0;
-    virtual void                 setReal(const float&) = 0;
-    virtual void                 setDouble(const double&) = 0;
-    virtual void                 setDate(const TDate&) = 0;
-    virtual void                 setTime(const TTime&) = 0;
-    virtual void                 setTimestamp(const TTimestamp&) = 0;
-    virtual void                 setInterval(const TInterval&) = 0;
-    virtual void                 setBlob(ByteStreamBuf*) = 0;
-    virtual void                 setMemo(UnicodeStreamBuf*) = 0;
-//     virtual void                 setCustom(const TCustomType&) const = 0;
-  
-private:
-    IVariant&               operator=(const IVariant& o);
-};
-
-
-
-DBWTL_EXPORT std::wostream&  operator<<(std::wostream& o, const IVariant &var);
-DBWTL_EXPORT std::ostream&   operator<<(std::ostream& o,  const IVariant &var);
-
-
-
-
-//--------------------------------------------------------------------------
-///
-/// @cond DEV_DOCS
-/// @brief Base implementation for Variant
-template<class Base>
-class DBWTL_EXPORT BaseVariantImplFor : public Base
-{
-public:
-    BaseVariantImplFor(void) : m_isnull(true)
-    {}
-
-    virtual ~BaseVariantImplFor(void)
-    {}
-
-
-
-    virtual bool            isnull(void) const;
-    virtual void            setNull(void);
-
-    virtual signed int            asInt(void) const;
-    virtual unsigned int          asUInt(void) const;
-    virtual signed char           asChar(void) const;
-    virtual unsigned char         asUChar(void) const;
-    virtual String                asStr(std::locale loc = std::locale()) const;
-    virtual bool                  asBool(void) const;
-    virtual signed short          asSmallint(void) const;
-    virtual unsigned short        asUSmallint(void) const;
-    virtual signed long long      asBigint(void) const;
-    virtual unsigned long long    asUBigint(void) const;
-    virtual TNumeric              asNumeric(void) const;
-    virtual float                 asReal(void) const;
-    virtual double                asDouble(void) const;
-    virtual TDate                 asDate(void) const;
-    virtual TTime                 asTime(void) const;
-    virtual TTimestamp            asTimestamp(void) const;
-    virtual TInterval             asInterval(void) const;
-    virtual ByteStreamBuf*        asBlob(void) const;
-    virtual UnicodeStreamBuf*     asMemo(void) const;
-    //virtual TCustom&        asCustom(void) const = 0;
-
-
-    virtual void            setInt(const signed int&);
-    virtual void            setUInt(const unsigned int&);
-    virtual void            setChar(const signed char&);
-    virtual void            setUChar(const unsigned char&);
-    virtual void            setStr(const String&, std::locale loc = std::locale());
-    virtual void            setBool(const bool&);
-    virtual void            setSmallint(const signed short&);
-    virtual void            setUSmallint(const unsigned short&);
-    virtual void            setBigint(const signed long long&);
-    virtual void            setUBigint(const unsigned long long&);
-    virtual void            setNumeric(const TNumeric&);
-    virtual void            setReal(const float&);
-    virtual void            setDouble(const double&);
-    virtual void            setDate(const TDate&);
-    virtual void            setTime(const TTime&);
-    virtual void            setTimestamp(const TTimestamp&);
-    virtual void            setInterval(const TInterval&);
-    virtual void            setBlob(ByteStreamBuf*);
-    virtual void            setMemo(UnicodeStreamBuf*);
-    //virtual void        asCustom(void) const = 0;
-
-protected:
-    bool m_isnull;
-};
-
-//--------------------------------------------------------------------------
-///
-/// @brief Internal stored variants needs a clone method
-class DBWTL_EXPORT IStoredVariant : public IVariant
-{
-public:
-    virtual IStoredVariant* clone(void) const = 0;
-
-    virtual void releasePointee(void) = 0;
-};
-
-
-
-//--------------------------------------------------------------------------
-/// Defines the interface for all accessors which can be used
-/// to get the stored variable. 
-///
-/// @brief Storage Accessor Base
-template<class T>
-class sa_base : public IStoredVariant
-{
-public:
-    virtual ~sa_base(void) { }
-
-    virtual const T& getValue() const = 0;
-    virtual T&       getValue() = 0;
-};
-/// @endcond
-
-
-//--------------------------------------------------------------------------
-/// Defines an empty class. For every type which should
-/// be stored, a specialization must be defined.
-///
-/// @brief Storage Accessor, empty template
-template<class T>
-class storage_accessor : public sa_base<T>
-{
-/*
-  This are the minimum of members which are required in specializations.
-
-  public:
-
-  DAL_VARIANT_ACCESSOR;
-
-  virtual ~storage_accessor(void) { }
-  
-  daltype_t datatype(void) const
-  {
-  return DAL_TYPE_CUSTOM;
-  }
-*/
-};
-
-
-
-
-//--------------------------------------------------------------------------
-/// @brief Deletes a Pointee (if T is a pointer)
-template<class T>
-struct pointee_deleter
-{ explicit pointee_deleter(const T* pointer) { } };
-
-template<class T>
-struct pointee_deleter<T*>
-{ explicit pointee_deleter(T** pointer) { delete *pointer; *pointer = 0; } };
-
-
-
-
-//--------------------------------------------------------------------------
-/// Implements the interface for the accessor methods so they
-/// can get the saved value.
-///
-/// @brief Variant Storage
-template<class T>
-class var_storage : public storage_accessor<T>
-{
-    /// check if there is a storage_accessor for T defined
-    DAL_VARIANT_ACCESSOR_CHECK;
-
-    typedef var_storage<T> self_t;
-
-public:
-    var_storage(void) : m_var()
-        {
-            this->m_isnull = true;
-        }
-
-    explicit var_storage(T v) : m_var(v)
-        { 
-            this->m_isnull = false;
-        }
-
-    var_storage(const self_t& orig) : m_var(orig.m_var)
-        {
-            this->m_isnull = orig.m_isnull;
-        }
-
-    virtual ~var_storage(void)
-        { }
-
-    self_t& operator=(const self_t& o)
-        {
-            this->m_var = o.m_var;
-            return *this;
-        }
-
-    virtual self_t* clone() const
-        {
-            return new self_t(*this);
-        }
-
-    virtual const T& getValue() const
-        {
-            return this->m_var;
-        }
-
-    virtual T& getValue()
-        {
-            return this->m_var;
-        }
-
-    virtual void releasePointee(void)
-        {
-            pointee_deleter<T> deleter(&this->m_var);
-        }
-
-
-protected:
-    T m_var;
-};
-
-
-
-/// @brief create a new default storage object
-DBWTL_EXPORT IStoredVariant* new_default_storage(daltype_t type);
-
-
-
-//------------------------------------------------------------------------------
-/// Dispatches the template argument type to a variant getter method
-/// Required specialization for each type which should be dispatched.
-///
-/// @since 0.0.1
-/// @brief Dispatches the template argument type to a variant getter method
-template<typename T>
-struct variant_dispatch_method
-{};
-
-
-
-
-//------------------------------------------------------------------------------
-///
-/// @brief Base class for variant_dispatch_method
-struct variant_dispatch_storage
-{
-protected:
-    explicit variant_dispatch_storage(const IVariant &var) : m_var(var)
-    {}
-
-    virtual ~variant_dispatch_storage(void)
-    {}
-
-    inline const IVariant& get(void) const
-    { return this->m_var; }
-
-private:
-    const IVariant &m_var;
-};
-
-
-
-
-
-//------------------------------------------------------------------------------
-/// A class to represent a variant value and converting the value to another
-/// type. The conversion is done by the storage_accessor<> template.
-///
-/// @note For each type that Variant should store, a specialization for the
-/// storage_accessor<> template must be defined.
-///
-/// @since 0.0.1
-/// @brief Represent a variant value
-class DBWTL_EXPORT  Variant : public IVariant
-{
-public:
-    /// A helper class to the Variant() constructor if you want to create
-    /// a empty Variant object (set to null).
-    //struct NullValue { };
-
-
-    /// This constructor creates a Variant object from the given value
-    /// of type T and initializes the storage accessor of type
-    /// storage_accessor<T> with the given value.
-    /// The optional name can be used to identify the value (e.g. exeptions).
-    /// @brief Creates a Variant object from the given value/type
-    template<class T>
-        Variant(const T& value, const String &name = String("<unnamed>"))
-        : IVariant(),
-        m_storage(new var_storage<T>(value)),
-        m_name(name),
-        m_type(DAL_TYPE_UNKNOWN)
-        {}
-    
-
-    virtual ~Variant(void)
-    {}
-
-    /// This constructor creates a Variant object from another Variant
-    /// object.
-    /// @brief Copy constructor for Variant objects
-    /// @note
-    /// This clones the internal storage, which means that pointers
-    /// just get copied, but no content is transferred.
-    Variant(const Variant& v)
-        : IVariant(),
-        m_storage(),
-        m_name(v.m_name),
-        m_type(v.m_type)
-        {
-            if(! v.isnull())
-                m_storage.reset(v.m_storage->clone());
-        }
-    
-
-    /// Assign a new value to the variant.
-    /// The name, storage etc. are preserved, we only set a
-    /// new value for the internal variant_storage.
-    Variant& operator=(const Variant &v)
-        {
-            this->assign(v);
-            return *this;
-        }
-
-    Variant& operator=(const IVariant &v)
-        {
-            this->assign(v);
-            return *this;
-        }
-
-    
-    /// This constructor can be used to create a empty Variant object.
-    /// The storage accessor is initialized if any of the set-methods is
-    /// called.
-    /// @brief Creates an empty Variant object
-    explicit Variant(daltype_t type = DAL_TYPE_UNKNOWN,
-                     const String &name = String(L"<unnamed>"))
-        : IVariant(),
-        m_storage(),
-        m_name(name),
-        m_type(type)
-        {
-            this->m_storage.reset(new_default_storage(type));
-        }
-
-
-    virtual const String& getName(void) const;
-
-    typedef util::SmartPtr<IStoredVariant,
-        util::RefCounted,
-        util::AllowConversion> storage_type;
-
-
-    
-    /// @brief Check the value object for NULL
-    virtual bool isnull(void) const;
-
-
-    /// @brief Set the value to NULL
-    virtual void setNull(void);
-
-
-    /// If the value is set to NULL, the returned type
-    /// may be DAL_TYPE_UNKNOW.
-    /// @brief Returns the datatype of the value.
-    virtual daltype_t datatype(void) const;
-
-
-    /// Returns the value as signed int
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual signed int asInt(void) const;
-
-
-    /// Returns the value as unsigned int
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual unsigned int asUInt(void) const;
-
-
-    /// Returns the value as signed char
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual signed char asChar(void) const;
-
-
-    /// Returns the value as unsigned char
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual unsigned char  asUChar(void) const;
-
-
-    virtual String              asStr(std::locale loc = std::locale()) const;
-    virtual bool                asBool(void) const;
-    virtual signed short        asSmallint(void) const;
-    virtual unsigned short      asUSmallint(void) const;
-    virtual signed long long    asBigint(void) const;
-    virtual unsigned long long  asUBigint(void) const;
-    virtual TNumeric            asNumeric(void) const;
-    virtual float               asReal(void) const;
-    virtual double              asDouble(void) const;
-    virtual TDate               asDate(void) const;
-    virtual TTime               asTime(void) const;
-    virtual TTimestamp          asTimestamp(void) const;
-    virtual TInterval           asInterval(void) const;
-    virtual ByteStreamBuf*      asBlob(void) const;
-    virtual UnicodeStreamBuf*   asMemo(void) const;
-    //virtual TCustom&        asCustom(void) const = 0;
-
-    virtual void        setInt(const signed int&);
-    virtual void        setUInt(const unsigned int&);
-    virtual void        setChar(const signed char&);
-    virtual void        setUChar(const unsigned char&);
-    virtual void        setStr(const String&, std::locale loc = std::locale());
-    virtual void        setBool(const bool&);
-    virtual void        setSmallint(const signed short&);
-    virtual void        setUSmallint(const unsigned short&);
-    virtual void        setBigint(const signed long long&);
-    virtual void        setUBigint(const unsigned long long&);
-    virtual void        setNumeric(const TNumeric&);
-    virtual void        setReal(const float&);
-    virtual void        setDouble(const double&);
-    virtual void        setDate(const TDate&);
-    virtual void        setTime(const TTime&);
-    virtual void        setTimestamp(const TTimestamp&);
-    virtual void        setInterval(const TInterval&);
-    virtual void        setBlob(ByteStreamBuf*);
-    virtual void        setMemo(UnicodeStreamBuf*);
-    //virtual void       asCustom(void) const = 0;
-
-protected:
-    IStoredVariant*       getStorageImpl(void);
-    const IStoredVariant* getStorageImpl(void) const;
-
-    /// @brief Internal storage of the value
-    storage_type      m_storage;
-    
-    /// @brief Name of the variant
-    String     m_name;
-
-    /// This type is only used if m_storage is not initialized.
-    daltype_t         m_type;
-};
-
-
-
-
-//------------------------------------------------------------------------------
-/// Base class for all engine specific implementations of the Variant class.
-///
-/// @since 0.0.1
-/// @brief Base class for engine specific variants
-class DBWTL_EXPORT  EngineVariant : public Variant
-{
-public:
-    template<class T>
-        EngineVariant(const T& value, const String &name = String("<engine-variant>"))
-        : Variant(value, name)
-        {}
-
-
-    virtual ~EngineVariant(void)
-    {}
-
-
-    /// This method refreshes internal states or resources
-    /// which must be syncronised with the current row cursor position.
-    /// If the cursor moves, data must be reloaded from the internal
-    /// resultset handle or resources like streambuf objects (for BLOBs)
-    /// must be invalidated.
-    virtual void refresh(void) = 0;
-
-};
-
-
-
 
 //------------------------------------------------------------------------------
 /// The ITable interface represents a single table.
@@ -988,7 +437,8 @@ public:
 class DBWTL_EXPORT ITable : IDALObject
 {
 public:
-    typedef IVariant value_type;
+    //typedef IVariant value_type;
+    typedef Variant value_type;
     typedef util::SmartPtr<ITable, util::RefCounted, util::AllowConversion> ptr;
     
     /// Empty virtual destructor
@@ -1025,7 +475,7 @@ public:
 class DBWTL_EXPORT IIndex : IDALObject
 {
 public:
-    typedef IVariant value_type;
+    typedef Variant value_type;
     typedef util::SmartPtr<IIndex, util::RefCounted, util::AllowConversion> ptr;
     
     /// Empty virtual destructor
@@ -1065,10 +515,10 @@ class DBWTL_EXPORT IDatatype : IDALObject
 {
 public:
     typedef util::SmartPtr<IDatatype,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+                           util::RefCounted,
+                           util::AllowConversion> ptr;
 
-    typedef IVariant value_type;
+    typedef Variant value_type;
 
     /// @brief Returns the name of the table
     virtual const value_type& getName(void) const = 0;
@@ -1094,7 +544,7 @@ public:
 class DBWTL_EXPORT IView : IDALObject
 {
 public:
-    typedef IVariant value_type;
+    typedef Variant value_type;
     typedef util::SmartPtr<IView, util::RefCounted, util::AllowConversion> ptr;
     
     /// Empty virtual destructor
@@ -1128,7 +578,7 @@ public:
 class DBWTL_EXPORT ISchema : IDALObject
 {
 public:
-    typedef IVariant value_type;
+    typedef Variant value_type;
     typedef util::SmartPtr<ISchema, util::RefCounted, util::AllowConversion> ptr;
     
     /// Empty virtual destructor
@@ -1160,7 +610,7 @@ public:
 class DBWTL_EXPORT ICatalog : IDALObject
 {
 public:
-    typedef IVariant value_type;
+    typedef Variant value_type;
     typedef util::SmartPtr<ICatalog, util::RefCounted, util::AllowConversion> ptr;
     
     /// Empty virtual destructor
@@ -1187,7 +637,7 @@ public:
 class DBWTL_EXPORT IProcedure : IDALObject
 {
 public:
-    typedef IVariant value_type;
+    typedef Variant value_type;
     typedef util::SmartPtr<IProcedure, util::RefCounted, util::AllowConversion> ptr;
     
     /// Empty virtual destructor
@@ -1498,7 +948,7 @@ public:
     //typedef std::auto_ptr<IResult> ptr;
     typedef util::SmartPtr<IResult, util::RefCounted, util::AllowConversion> ptr;
     typedef size_t                      bookmark_type;
-    typedef IVariant                    value_type;
+    typedef Variant                     value_type;
     /// @todo check if row_type is required
     typedef std::vector<value_type*>    row_type;
 
@@ -1510,7 +960,7 @@ public:
     virtual bool   isBad(void) const = 0;
 
     virtual void   first(void) = 0;
-    virtual void   next(void) = 0;
+    virtual void   next(void) = 0; /// @todo Change return type to bool
     virtual bool   eof(void) const = 0;
     virtual bool   isOpen(void) const = 0;
     virtual void   close(void) = 0;
@@ -1581,7 +1031,7 @@ public:
     virtual size_t    paramCount(void) const = 0;
     virtual void      bind(int num, IVariant* data) = 0;
     virtual void      bind(int num, const IVariant* data) = 0;
-    virtual void      bind(int num, Variant data) = 0;
+    virtual void      bind(int num, const Variant &data) = 0;
     virtual void      bind(int num, ByteStreamBuf *data) = 0;
     virtual void      bind(int num, UnicodeStreamBuf *data) = 0;
 
@@ -1612,147 +1062,6 @@ public:
 
     //static IEnv* createByName(std::wstring name, std::wstring driver); not needed
 };
-
-
-
-
-
-
-//------------------------------------------------------------------------------
-///
-/// @brief DAL Interface for special types
-class DBWTL_EXPORT TType : public BaseVariantImplFor<IVariant>
-{
-public:
-    TType(void) : BaseVariantImplFor<IVariant>()
-    { this->m_isnull = true; }
-};
-
-
-class DBWTL_EXPORT TCustomType : public TType
-{
-public:
-    TCustomType(void) : TType()
-    {}
-
-    virtual ~TCustomType(void)
-    {}
-};
-
-
-
-
-class DBWTL_EXPORT TDate : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-
-    virtual String         asStr(std::locale loc = std::locale()) const;
-};
-
-
-class DBWTL_EXPORT TTime : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-
-    virtual String         asStr(std::locale loc = std::locale()) const;
-
-};
-
-
-class DBWTL_EXPORT TInterval : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual String         asStr(std::locale loc = std::locale()) const;
-
-};
-
-
-class DBWTL_EXPORT TNumeric : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual String         asStr(std::locale loc = std::locale()) const;
-
-};
-
-
-class DBWTL_EXPORT TTimestamp : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual String         asStr(std::locale loc = std::locale()) const;
-
-};
-
-
-
-
-
-
-
-/*
-class DBWTL_EXPORT TCidr : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual std::wstring asWideStr(std::locale loc) const;
-    virtual std::wstring asWideStr() const; // using objects locale
-};
-class DBWTL_EXPORT TMacaddr : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual std::wstring asWideStr(std::locale loc) const;
-    virtual std::wstring asWideStr() const; // using objects locale
-
-public:
-    // converts XX:XX:XX:XX:XX:XX or raises an exception
-    static TMacaddr convert(std::wstring value)
-    {
-        TMacaddr v;
-        v.blocks[0] = 0xAA;
-        v.blocks[1] = 0xBB;
-        v.blocks[2] = 0xCC;
-        v.blocks[3] = 0xDD;
-        v.blocks[4] = 0xEE;
-        v.blocks[5] = 0xFF;
-        return v;
-    }
-
-    unsigned char blocks[6];
-};
-
-class DBWTL_EXPORT TInetaddr : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual std::wstring asWideStr(std::locale loc) const;
-    virtual std::wstring asWideStr() const; // using objects locale
-};
-
-class DBWTL_EXPORT TUuid : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual std::wstring asWideStr(std::locale loc) const;
-    virtual std::wstring asWideStr() const; // using objects locale
-};
-
-
-
-class DBWTL_EXPORT TXml : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual std::wstring asWideStr(std::locale loc) const;
-    virtual std::wstring asWideStr() const; // using objects locale
-};
-*/
-
-
 
 
 
@@ -1817,7 +1126,7 @@ public:
 public:
     virtual void      bind(int num, IVariant* data);
     virtual void      bind(int num, const IVariant* data);
-    virtual void      bind(int num, Variant data);
+    virtual void      bind(int num, const Variant &data);
     virtual void      bind(int num, ByteStreamBuf *data);
     virtual void      bind(int num, UnicodeStreamBuf *data);
 
@@ -2015,32 +1324,7 @@ protected:
 DAL_NAMESPACE_END
 
 
-
-// include the exception declarations
-#include "../db_exceptions.hh"
-
-// include variant accessor specializations
-#include "variant.inc"
-
-
-DAL_NAMESPACE_BEGIN
-
-template<class T> const T& DiagController<T>::fetchDiag(void)
-{
-    if(this->m_cur != this->m_list.end())
-    {
-        return **this->m_cur++;
-    }
-    else
-        throw ex::not_found(L"No diagnostic records available");
-}
-
-DAL_NAMESPACE_END
-
-
 #endif
-
-
 
 //
 // Local Variables:

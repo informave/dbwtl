@@ -44,11 +44,14 @@
 #include "dbwtl/db_exceptions.hh"
 #include "dal_debug.hh"
 
+#include "dbwtl/dal/active_engines.hh"
+
 #include <ctime>
 #include <iostream>
 #include <algorithm>
 #include <sstream>
 #include <typeinfo>
+#include <locale>
 
 DAL_NAMESPACE_BEGIN
 
@@ -76,6 +79,210 @@ TODO
 
 Add the -ldbwtl option to g++
 */
+
+
+
+#define DAL_THROW_INVALID_CAST() throw std::runtime_error(__FUNCTION__)
+
+
+Variant::Variant(const EngineVariant& var) : m_storage()
+{
+    if(!var.isnull())
+        //m_storage.reset(var.getStorageImpl()->clone()); // deep copy? no..
+        m_storage.reset(var.deepcopy()); // deep copy? no..
+        //this->m_storage.reset(var.getStorageImpl()->new_deepcopy());
+
+    
+}
+
+/*
+        Variant::Variant(const SqliteVariant& var)
+        {
+                if(!var.isnull())
+                        this->m_storage.reset(var.getStorageImpl()->new_deepcopy());
+        }
+*/
+
+
+bool DefaultVariant::isnull(void) const
+{
+    return this->m_isnull;
+}
+
+
+void DefaultVariant::setNull(bool mode)
+{
+    this->m_isnull = mode;
+}
+
+
+
+
+
+signed int      DefaultVariant::asInt(void) const
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_INT); }
+
+
+unsigned int    DefaultVariant::asUInt(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_UINT); }
+
+
+signed char     DefaultVariant::asChar(void) const
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_CHAR); }
+
+
+unsigned char   DefaultVariant::asUChar(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_UCHAR); }
+
+
+String   DefaultVariant::asStr(std::locale loc) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_STRING); }
+
+
+
+bool            DefaultVariant::asBool(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_BOOL); }
+
+
+signed short    DefaultVariant::asSmallint(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_SMALLINT); }
+
+
+unsigned short  DefaultVariant::asUSmallint(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_USMALLINT); }
+
+
+signed long long    DefaultVariant::asBigint(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_BIGINT); }
+
+
+unsigned long long  DefaultVariant::asUBigint(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_UBIGINT); }
+
+
+
+
+TNumeric        DefaultVariant::asNumeric(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_NUMERIC); }
+
+
+float           DefaultVariant::asReal(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_FLOAT); }
+
+
+double          DefaultVariant::asDouble(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_DOUBLE); }
+
+
+TDate           DefaultVariant::asDate(void) const
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_DATE); }
+
+
+TTime           DefaultVariant::asTime(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_TIME); }
+
+
+
+TTimestamp      DefaultVariant::asTimestamp(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_TIMESTAMP); }
+
+
+TInterval       DefaultVariant::asInterval(void) const 
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_INTERVAL); }
+
+
+
+ByteStreamBuf*         DefaultVariant::asBlob(void) const
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_BLOB); }
+
+
+UnicodeStreamBuf*         DefaultVariant::asMemo(void) const
+{ throw ex::convert_error(this->datatype(), DAL_TYPE_MEMO); }
+
+
+/*
+void            DefaultVariant::setInt(const signed int&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setUInt(const unsigned int&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setChar(const signed char&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setUChar(const unsigned char&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setStr(const String&, std::locale loc) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setBool(const bool&)
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setSmallint(const signed short&)
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setUSmallint(const unsigned short&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setBigint(const signed long long&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setUBigint(const unsigned long long&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setNumeric(const TNumeric&) 
+{ throw ex::read_only(); }
+
+
+
+void            DefaultVariant::setReal(const float&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setDouble(const double&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setDate(const TDate&)
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setTime(const TTime&) 
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setTimestamp(const TTimestamp&)
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setInterval(const TInterval&)
+{ throw ex::read_only(); }
+
+
+
+
+void            DefaultVariant::setBlob(ByteStreamBuf*)
+{ throw ex::read_only(); }
+
+
+void            DefaultVariant::setMemo(UnicodeStreamBuf*)
+{ throw ex::read_only(); }
+*/
+
+
+
+
 
 
 
@@ -165,6 +372,7 @@ IHandle::IHandle(void)
 //--------------------------------------------------------------------------
 //
 /// If the type is unknown, we must return a NULL pointer.
+/*
 IStoredVariant* new_default_storage(daltype_t type)
 {
     switch(type)
@@ -193,7 +401,7 @@ IStoredVariant* new_default_storage(daltype_t type)
     }
     return 0;
 }
-
+*/
 
 
 
@@ -375,6 +583,7 @@ String daltype2sqlname(daltype_t type)
 ///
 /// This method assigns the value from one variant to another.
 /// If the source value is NULL, the destination value is just set to NULL.
+/*
 void
 IVariant::assign(const IVariant& var)
 {
@@ -410,19 +619,22 @@ IVariant::assign(const IVariant& var)
         }
     }
 }
-
+*/
 
 ///
 ///
+ /*
 Variant
-IVariant::value(void) const
+IVariant::value(void) const /// @bug rename to deepcopy
 {
     Variant tmp(this->datatype(), "created by deepcopy");
     tmp = *this; // assign value
     return tmp;
 }
+ */
 
 
+  
 //--------------------------------------------------------------------------
 ///
 ///
@@ -446,6 +658,26 @@ Variant::getStorageImpl(void) const
 }
 
 
+IStoredVariant*
+Variant::getStoredVar(void)
+{
+    if(this->getStorageImpl()->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl();
+}
+
+
+
+///
+///
+const IStoredVariant*
+Variant::getStoredVar(void) const
+{
+    if(this->getStorageImpl()->isnull()) throw db::ex::null_value(*this);
+    return this->getStorageImpl();
+}
+
+
+
 ///
 const String&
 Variant::getName(void) const
@@ -454,44 +686,73 @@ Variant::getName(void) const
 }
 
 
+
+//template<> int Variant::get<int>(void) const { return this->getStoredVar()->asInt(); }
+
+
+TNumeric::TNumeric(std::string value)
+    : m_value(0),
+      m_frac(0)
+{
+}
+
+TNumeric::TNumeric(void)
+    : m_value(0),
+      m_frac(0)
+{
+}
+
+TNumeric::TNumeric(long long num, long long frac)
+    : m_value(num),
+      m_frac(frac)
+{
+/*
+    std::stringstream ss;
+    ss.imbue(std::locale("C"));
+    ss << num
+       << std::use_facet<std::numpunct<std::stringstream::char_type> >(std::locale("C")).decimal_point()
+       << std::abs(frac);
+    m_value = ss.str();
+
+    std::cout << m_value << std::endl;
+*/
+}
+
+
+
 ///
 signed int
 Variant::asInt(void) const
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asInt(); 
+    return this->getStoredVar()->asInt(); 
 }
 
 ///
 unsigned int
 Variant::asUInt(void) const 
 { 
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asUInt(); 
+    return this->getStoredVar()->asUInt(); 
 }
 
 ///
 signed char
 Variant::asChar(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asChar(); 
+    return this->getStoredVar()->asChar(); 
 }
 
 ///
 unsigned char
 Variant::asUChar(void) const 
 { 
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asUChar(); 
+    return this->getStoredVar()->asUChar(); 
 }
 
 ///
 String 
 Variant::asStr(std::locale loc) const
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asStr(loc); 
+    return this->getStoredVar()->asStr(loc); 
 }
 
 
@@ -499,48 +760,42 @@ Variant::asStr(std::locale loc) const
 bool
 Variant::asBool(void) const 
 { 
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asBool(); 
+    return this->getStoredVar()->asBool(); 
 }
 
 ///
 signed short 
 Variant::asSmallint(void) const 
 { 
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asSmallint(); 
+    return this->getStoredVar()->asSmallint(); 
 }
 
 ///
 unsigned short  
 Variant::asUSmallint(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asUSmallint(); 
+    return this->getStoredVar()->asUSmallint(); 
 }
 
 ///
 signed long long  
 Variant::asBigint(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asBigint(); 
+    return this->getStoredVar()->asBigint(); 
 }
 
 ///
 unsigned long long
 Variant::asUBigint(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asUBigint(); 
+    return this->getStoredVar()->asUBigint(); 
 }
 
 ///
 TNumeric  
 Variant::asNumeric(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asNumeric(); 
+    return this->getStoredVar()->asNumeric(); 
 }
 
 
@@ -548,40 +803,35 @@ Variant::asNumeric(void) const
 float         
 Variant::asReal(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asReal(); 
+    return this->getStoredVar()->asReal(); 
 }
 
 ///
 double        
 Variant::asDouble(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asDouble(); 
+    return this->getStoredVar()->asDouble(); 
 }
 
 ///
 TDate        
 Variant::asDate(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asDate(); 
+    return this->getStoredVar()->asDate(); 
 }
 
 ///
 TTime          
 Variant::asTime(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asTime(); 
+    return this->getStoredVar()->asTime(); 
 }
 
 ///
 TTimestamp
 Variant::asTimestamp(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asTimestamp(); 
+    return this->getStoredVar()->asTimestamp(); 
 }
 
 ///
@@ -592,24 +842,21 @@ Variant::asTimestamp(void) const
 TInterval    
 Variant::asInterval(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asInterval(); 
+    return this->getStoredVar()->asInterval(); 
 }
 
 ///
 ByteStreamBuf*
 Variant::asBlob(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asBlob(); 
+    return this->getStoredVar()->asBlob(); 
 }
 
 ///
 UnicodeStreamBuf*
 Variant::asMemo(void) const 
 {
-    if(this->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl()->asMemo(); 
+    return this->getStoredVar()->asMemo(); 
 }
 
 
@@ -618,6 +865,7 @@ Variant::asMemo(void) const
 /// We first try to get a new StoredVariant with new_default_storage.
 /// If the type is unknown, we use the given T type to get a valid
 /// storage object.
+/*
 template<class T>
 inline void init_if_null(typename Variant::storage_type &storage, daltype_t type)
 {
@@ -664,11 +912,12 @@ DBWTL_VARIANT_SETTER(Timestamp,     TTimestamp)
 DBWTL_VARIANT_SETTER(Interval,      TInterval)
 
 #undef DBWTL_VARIANT_SETTER
-
+*/
 
 /// Copies the given string to the variant storage,
 /// using the locale if conversion to another type (e.g. float)
 /// is required.
+/*
 void                                                        
 Variant::setStr(const String& value, std::locale loc)
 {                                                           
@@ -728,6 +977,7 @@ Variant::setMemo(UnicodeStreamBuf* value)
         throw ex::read_only(this->getName(), __FUNCTION__); 
     }
 }
+*/
    
 
 
@@ -760,7 +1010,7 @@ daltype_t Variant::datatype(void) const
 {
     // if unitialized, we can't determine the datatype
     if(this->m_storage.get() == 0)
-        return this->m_type;
+        return DAL_TYPE_UNKNOWN;
     //throw db::ex::null_value(*this);
     return this->m_storage->datatype();
 }
@@ -773,11 +1023,15 @@ bool Variant::isnull(void) const
 }
 
 
-///
-void Variant::setNull(void) 
+/// If the internal storage points to an external value, it may
+/// be required that this value is notified about the setNull() action.
+void Variant::setNull(bool mode) 
 {
     if(this->m_storage.get()) // only set null if storage is initialized!
-        this->m_storage->setNull();
+    {
+        this->m_storage->setNull(mode);
+        this->m_storage.reset();
+    }
 }
 
 
@@ -884,8 +1138,8 @@ DiagBase::DiagBase(dalstate_t state,
       m_description  (DAL_TYPE_STRING, "SqliteDiag::description")
       //m_sqlstate_id() // fix?
 {
-    m_codepos.setStr(String(codepos, "UTF-8"));
-    m_func.setStr(String(func, "UTF-8"));
+    m_codepos.set<String>(String(codepos, "UTF-8"));
+    m_func.set<String>(String(func, "UTF-8"));
     m_message = message;
     m_description = description;
 }
@@ -968,7 +1222,7 @@ EnvBase::EnvBase(void)
     DAL_ADD_OPTION("env_library_path", DAL_TYPE_STRING);
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
     
-    this->m_options["env_diag_maxsize"].setUInt(50);
+    this->m_options["env_diag_maxsize"].set(50);
 }
 
 
@@ -1022,7 +1276,7 @@ StmtBase::StmtBase(void)
 { 
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
     
-    this->m_options["env_diag_maxsize"].setUInt(50);
+    this->m_options["env_diag_maxsize"].set(50);
 }
 
 
@@ -1065,13 +1319,12 @@ StmtBase::getOption(std::string name) const
 /// Support for binding POD types via an implicit constructor
 /// call.
 void 
-StmtBase::bind(int num, Variant data)
+StmtBase::bind(int num, const Variant &data)
 {
     DALTRACE_VISIT;
-    Variant* tmp = new Variant(data);
+    Variant* tmp = new Variant(data.clone());
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
-    //this->bind(num, tmp);
 }
 
 
@@ -1196,7 +1449,7 @@ DbcBase::DbcBase(void)
 { 
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
     
-    this->m_options["env_diag_maxsize"].setUInt(50);
+    this->m_options["env_diag_maxsize"].set(50);
 }
 
 
@@ -1291,6 +1544,19 @@ dal_debug(const char* func, const char* file, unsigned int line, const char* s)
               << NC << s << " (" << func << "() in " << file << ":" << line << ")" << std::endl;
 #endif
 }
+
+
+
+
+void throw_read_only(void)
+{
+    throw ex::read_only();
+}
+
+
+
+
+
 
 
 

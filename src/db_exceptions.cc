@@ -50,6 +50,36 @@ DB_NAMESPACE_BEGIN
 
 namespace ex
 {
+    sqlstate_exception::sqlstate_exception(const dal::IDiagnostic& diag_to_clone)
+            : engine_error(diag_to_clone.str()),
+            m_diag()
+        
+        { 
+            this->m_diag.reset(diag_to_clone.clone());
+        }
+
+
+         sqlstate_exception::sqlstate_exception(const sqlstate_exception& orig)
+            : engine_error(orig),
+            m_diag()
+        {
+            this->m_diag.reset(orig.m_diag->clone());
+        }
+
+        
+       sqlstate_exception::~sqlstate_exception(void) throw()
+        {}
+
+        const dal::IDiagnostic&
+        sqlstate_exception::diag(void) const
+        {
+            return *this->m_diag.get();
+        }
+
+
+
+
+
     //--------------------------------------------------------------------------
     //
     //

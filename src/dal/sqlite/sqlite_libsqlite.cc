@@ -940,13 +940,13 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
     if(i == 0)
     {
         this->m_daltype = DAL_TYPE_UNKNOWN;
-        this->m_name.setStr("__DBWTL_BOOKMARK__");
+        this->m_name.set(String("__DBWTL_BOOKMARK__"));
     }
     else
     {
         // set name
         const char *s = result.drv()->sqlite3_column_name(result.getHandle(), i-1);
-        this->m_name.setStr(String(s ? s : "", "UTF-8"));
+        this->m_name.set(String(s ? s : "", "UTF-8"));
 
         // set type
         const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
@@ -954,11 +954,11 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
         SqlTypeParser pt;
         pt.registerType(DAL_TYPE_STRING, US("TEXT*"));
         pt.parse(String(type, "UTF-8"));
-        this->m_type_name.setStr(daltype2sqlname(pt.getDaltype()));
+        this->m_type_name.set(daltype2sqlname(pt.getDaltype()));
         this->m_daltype = pt.getDaltype();
-        this->m_size.setInt(pt.getSize());
-        this->m_precision.setUSmallint(pt.getPrecision());
-        this->m_scale.setUSmallint(pt.getSize());
+        this->m_size.set<signed int>(pt.getSize());
+        this->m_precision.set<unsigned short>(pt.getPrecision());
+        this->m_scale.set<unsigned short>(pt.getSize());
     }
 }
 
@@ -1182,7 +1182,7 @@ SqliteDiag_libsqlite::SqliteDiag_libsqlite(dalstate_t state,
     m_sqlite_excode = sqlite_excode;
 
     m_sqlstate_id = sqlite3error_to_sqlstate(sqlite_code);
-    m_sqlstate.setStr(String(sqlite::sqlstate2string(m_sqlstate_id), "UTF-8"));
+    m_sqlstate.set(String(sqlite::sqlstate2string(m_sqlstate_id), "UTF-8"));
 }
 
 

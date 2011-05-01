@@ -49,8 +49,10 @@
 
 
 #include <stdexcept>
+#include <memory>
 
 #include "db_fwd.hh"
+#include "dal/variant.hh"
 
 DB_NAMESPACE_BEGIN
 
@@ -202,34 +204,21 @@ namespace ex
     class DBWTL_EXPORT sqlstate_exception : public engine_error
     {
     public:
-    	sqlstate_exception(const dal::IDiagnostic& diag_to_clone)
-            : engine_error(diag_to_clone.str()),
-            m_diag()
-        
-        { 
-            this->m_diag.reset(diag_to_clone.clone());
-        }
+    	sqlstate_exception(const dal::IDiagnostic& diag_to_clone);
 
 
-        sqlstate_exception(const sqlstate_exception& orig)
-            : engine_error(orig),
-            m_diag()
-        {
-            this->m_diag.reset(orig.m_diag->clone());
-        }
+        sqlstate_exception(const sqlstate_exception& orig);
 
         
-        virtual ~sqlstate_exception(void) throw()
-        {}
+        virtual ~sqlstate_exception(void) throw();
 
-        virtual const dal::IDiagnostic& diag(void) const
-        {
-            return *this->m_diag.get();
-        }
+
+        virtual const dal::IDiagnostic& diag(void) const;
 
       
     protected:
         std::auto_ptr<dal::IDiagnostic> m_diag;
+        //dal::IDiagnostic *m_diag;
     };
 
 

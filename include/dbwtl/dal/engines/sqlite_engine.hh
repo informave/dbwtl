@@ -622,91 +622,80 @@ struct sqlite
 ///
 /// @brief Variant storage accessor for SqliteData 
 template<>
-class storage_accessor<SqliteData*> : public BaseVariantImplFor<sa_base<SqliteData*> >
+class read_accessor<SqliteData> : public default_accessor<SqliteData>
 {
 public:
     DAL_VARIANT_ACCESSOR;
 
-    virtual ~storage_accessor(void) { }
+    virtual ~read_accessor(void) { }
 
-    virtual int asInt() const
-    { return this->getValue()->getInt(); }
+    virtual int asInt() const;
 
+    virtual bool asBool() const;
 
-    virtual bool asBool() const
-    { return this->getValue()->getInt() > 0; }
+    virtual std::streambuf* asBlob(void) const;
 
+    virtual String asStr(std::locale loc = std::locale()) const;
 
-    virtual std::streambuf* asBlob(void) const
-    {
-        return this->getValue()->getBlob();
-    }
+    virtual bool isnull() const;
 
-
-    virtual String asStr(std::locale loc = std::locale()) const
-    {
-        return this->getValue()->getString();
-    }
-
-
-    virtual bool isnull() const
-    {
-        return this->getValue()->isnull();
-    }
-
-
-    virtual daltype_t datatype() const
-    {
-        return this->getValue()->daltype();
-    }
+    virtual daltype_t datatype() const;
 };
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 template<>
-class storage_accessor<sqlite_ext::Text> : public BaseVariantImplFor<sa_base<sqlite_ext::Text> >
+class read_accessor<sqlite_ext::Text> : public default_accessor<sqlite_ext::Text>
 {
-public:
     DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }
+
+    virtual ~read_accessor(void) { }
+    virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }    
+};
+
+
+
+/*
+template<>
+struct assign_value<SqliteData*>
+{
+    void operator()(SqliteData *value, const Variant &src)
+    {
+        // *value = src;
+        //value->assign(src);
+    }
+};
+*/
+
+
+template<>
+struct variant_assign<SqliteData*>
+{
+    void set_new_value(SqliteData*& dest, const Variant &src)
+    {
+        throw std::runtime_error("read only-todo");
+        // *dest = src.get<T>();
+    }
 };
 
 
 template<>
-class storage_accessor<sqlite_ext::Text*> : public BaseVariantImplFor<sa_base<sqlite_ext::Text*> >
+struct variant_deepcopy<SqliteData*>
 {
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }
+    typedef SqliteData* ptr;
+    IStoredVariant* create_deepcopy(const ptr & p, const IStoredVariant *var) const;
 };
 
 
+/*
 template<>
-class storage_accessor<const sqlite_ext::Text*> : public BaseVariantImplFor<sa_base<const sqlite_ext::Text*> >
+struct DeepCopyPtr<SqliteData*>
 {
-public:
-    DAL_VARIANT_ACCESSOR;
-    virtual ~storage_accessor(void) { }
-    virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }
+    Variant operator()(const SqliteData* ptr)
+    {
+    }
 };
-
-
-
-
+*/
 
 
 DAL_NAMESPACE_END
@@ -758,7 +747,7 @@ template<typename tag>
 struct db_traits<dal::sqlite, tag>
 {
     //typedef Environment<dal::sqlite, tag>      environment_type;
-    typedef SqliteEnvironment<tag>             environment_type;
+    typedef SqliteEnvironment<tag>             environment_type; /// @todo for tests only
     typedef Connection<dal::sqlite, tag>       connection_type;
     typedef Statement<dal::sqlite, tag>        statement_type;
     typedef Result<dal::sqlite, tag>           resultset_type;

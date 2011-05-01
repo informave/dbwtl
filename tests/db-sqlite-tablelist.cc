@@ -48,11 +48,10 @@ int test(void)
         std::cout << "DB  : " << (*i)->getCatalog() << std::endl;
         std::cout << "NAME: " << (*i)->getName() << std::endl;
         std::cout << "SYS : " << (*i)->isSystemObject().asBool() << std::endl;
+       // String ssss = (*i)->getDDL().get<String>();
         std::cout << "DLL : " << ifnull<String>((*i)->getDDL(),
-                                                     String("NULL"))
+                                                     String("NULL"))			    
                   << std::endl;
-
-        
 
     }
 

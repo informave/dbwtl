@@ -54,6 +54,54 @@
 DAL_NAMESPACE_BEGIN
 
 
+
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+int
+read_accessor<SqliteData>::asInt() const
+{ 
+    return this->getValue().getInt(); 
+}
+
+bool
+read_accessor<SqliteData>::asBool() const
+{
+    return this->getValue().getInt() > 0;
+}
+
+
+std::streambuf*
+read_accessor<SqliteData>::asBlob(void) const
+{
+    return this->getValue().getBlob();
+}
+
+String
+read_accessor<SqliteData>::asStr(std::locale loc) const
+{
+    return this->getValue().getString();
+}
+
+bool
+read_accessor<SqliteData>::isnull() const
+{
+    return this->getValue().isnull();
+}
+
+daltype_t
+read_accessor<SqliteData>::datatype() const
+{
+    return this->getValue().daltype();
+}
+
+
+
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 bool
 SqliteEnv::diagAvail(void) const
 {
@@ -112,6 +160,41 @@ SqliteData::~SqliteData(void)
 
 
 
+///
+///
+IStoredVariant*
+variant_deepcopy<SqliteData*>::create_deepcopy(const ptr & ref, const IStoredVariant *var) const
+{
+    switch(var->datatype())
+    {
+    case DAL_TYPE_CUSTOM:     return new variant_value<String>(var->asStr());
+    case DAL_TYPE_UNKNOWN:    return new variant_value<String>(var->asStr()); break;
+    case DAL_TYPE_INT:        return new variant_value<signed int>(var->asInt()); break;
+    case DAL_TYPE_UINT:       return new variant_value<unsigned int>(var->asUInt()); break;
+    case DAL_TYPE_CHAR:       return new variant_value<signed char>(var->asChar()); break;
+    case DAL_TYPE_UCHAR:      return new variant_value<unsigned char>(var->asUChar()); break;
+    case DAL_TYPE_STRING:     return new variant_value<String>(var->asStr()); break;
+    case DAL_TYPE_BOOL:       return new variant_value<bool>(var->asBool()); break;
+    case DAL_TYPE_SMALLINT:   return new variant_value<signed short>(var->asSmallint()); break;
+    case DAL_TYPE_USMALLINT:  return new variant_value<unsigned short>(var->asUSmallint()); break;
+    case DAL_TYPE_BIGINT:     return new variant_value<signed long long>(var->asBigint()); break;
+    case DAL_TYPE_UBIGINT:    return new variant_value<unsigned long long>(var->asUBigint()); break;
+    case DAL_TYPE_BLOB:       return new variant_value<ByteStreamBuf*>(var->asBlob()); break;
+    case DAL_TYPE_MEMO:       return new variant_value<UnicodeStreamBuf*>(var->asMemo()); break;
+    case DAL_TYPE_NUMERIC:    return new variant_value<TNumeric>(var->asNumeric()); break;
+    case DAL_TYPE_FLOAT:      return new variant_value<float>(var->asReal()); break;
+    case DAL_TYPE_DOUBLE:     return new variant_value<double>(var->asDouble()); break;
+    case DAL_TYPE_DATE:       return new variant_value<TDate>(var->asDate()); break;
+    case DAL_TYPE_TIME:       return new variant_value<TTime>(var->asTime()); break;
+    case DAL_TYPE_TIMESTAMP:  return new variant_value<TTimestamp>(var->asTimestamp()); break;
+    case DAL_TYPE_INTERVAL:   return new variant_value<TInterval>(var->asInterval()); break;
+    }
+    throw std::runtime_error("unknown type");
+}
+
+
+
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -128,7 +211,7 @@ SqliteTable::SqliteTable(String dbname, SqliteResult& src)
     this->m_name = src.column("name");
     this->m_catalog = dbname;
     this->m_ddl = src.column("sql");
-    this->m_systemobject.setBool(ifnull<bool>(src.column("sys"), false));
+    this->m_systemobject.set<bool>(ifnull<bool>(src.column("sys"), false));
 }
 
 
@@ -201,7 +284,7 @@ SqliteIndex::SqliteIndex(String dbname, SqliteResult& src)
     this->m_catalog = dbname;
     this->m_table = src.column("tbl_name");
     this->m_ddl = src.column("sql");
-    this->m_systemobject.setBool(ifnull<bool>(src.column("sys"), false));
+    this->m_systemobject.set<bool>(ifnull<bool>(src.column("sys"), false));
 }
 
 
@@ -279,7 +362,7 @@ SqliteView::SqliteView(String dbname, SqliteResult& src)
     this->m_name = src.column("name");
     this->m_catalog = dbname;
     this->m_ddl = src.column("sql");
-    this->m_systemobject.setBool(ifnull<bool>(src.column("sys"), false));
+    this->m_systemobject.set<bool>(ifnull<bool>(src.column("sys"), false));
 }
 
 
@@ -346,7 +429,7 @@ SqliteCatalog::SqliteCatalog(String dbname)
       m_systemobject(DAL_TYPE_BOOL, "SqliteCatalog::systemobject")
 {
     this->m_name = dbname;
-    this->m_systemobject.setBool(false);
+    this->m_systemobject.set(false);
 }
 
 
@@ -477,6 +560,8 @@ SqliteDbc::getIndices(const IIndexFilter&)
     SqliteStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
+
+
     
     for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
     {
@@ -485,6 +570,7 @@ SqliteDbc::getIndices(const IIndexFilter&)
         String::Internal sql_column_query =
             US(" SELECT name, tbl_name, sql, 0 AS sys")
             US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'index'");
+
 
 
         SqliteStmt::ptr indices(this->newStatement());
@@ -497,11 +583,15 @@ SqliteDbc::getIndices(const IIndexFilter&)
         {
             continue;
         }
+
+
         
         for(indices->resultset().first(); ! indices->resultset().eof(); indices->resultset().next())
         {
             list.push_back(new SqliteIndex(dbname, indices->resultset()));
         }
+
+
     }
 
     // load temp tables
@@ -510,6 +600,9 @@ SqliteDbc::getIndices(const IIndexFilter&)
         US(" FROM sqlite_temp_master")
         US(" WHERE type = 'index';");
     
+
+
+
     SqliteStmt::ptr indices(this->newStatement());        
     indices->prepare(sql_column_query);
     indices->execute();
@@ -642,31 +735,31 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
     SqliteDatatype *dt = 0;
     
     dt = new SqliteDatatype();
-    dt->m_name.setStr("BLOB");
-    dt->m_size.setInt(-1);
+    dt->m_name.set(String("BLOB"));
+    dt->m_size.set<signed int>(-1);
     dt->m_daltype = DAL_TYPE_BLOB;
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setStr("INTEGER");
-    dt->m_size.setInt(-1);
+    dt->m_name.set(String("INTEGER"));
+    dt->m_size.set<signed int>(-1);
     dt->m_daltype = DAL_TYPE_BIGINT;
-    dt->m_is_unsigned.setBool(false);
+    dt->m_is_unsigned.set(false);
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setStr("REAL");
-    dt->m_size.setInt(sizeof(double));
+    dt->m_name.set(String("REAL"));
+    dt->m_size.set<signed int>(sizeof(double));
     dt->m_daltype = DAL_TYPE_DOUBLE;
-    dt->m_is_unsigned.setBool(false);
+    dt->m_is_unsigned.set(false);
     dtlist.push_back(dt);
 
     dt = new SqliteDatatype();
-    dt->m_name.setStr("TEXT");
-    dt->m_size.setInt(65000);
+    dt->m_name.set(String("TEXT"));
+    dt->m_size.set<signed int>(65000);
     dt->m_daltype = DAL_TYPE_STRING;
-    dt->m_literal_prefix.setStr("'");
-    dt->m_literal_suffix.setStr("'");
+    dt->m_literal_prefix.set(String("'"));
+    dt->m_literal_suffix.set(String("'"));
     dtlist.push_back(dt);
     
    
@@ -771,7 +864,8 @@ SqliteVariant::~SqliteVariant(void)
 //
 void SqliteVariant::refresh(void)
 {
-    SqliteData *data = dynamic_cast<sa_base<SqliteData*>&>(*this->getStorageImpl()).getValue();
+    //SqliteData &data = dynamic_cast<sa_base<SqliteData>&>(*this->getStorageImpl()).getValue();
+    SqliteData *data = dynamic_cast<variant_value<SqliteData*>&>(*this->getStorageImpl()).getRawValue();
     data->refresh();
 }
 

@@ -64,9 +64,10 @@ int test(void)
 
     dbc.commit();
 
-    
 
     dal::IndexList list = dbc.getIndices();
+
+    return 0;
     
     for(dal::IndexList::const_iterator i = list.begin();
         i != list.end();

@@ -46,9 +46,9 @@ int test(void)
     stmt->prepare(L"INSERT INTO test(id, name) VALUES(?, 'foo');");
     const int v = 104;
     stmt->bind(1, &v);
+
     stmt->execute();
     stmt->close();
-
 
     stmt->prepare(L"SELECT * from test;");
     stmt->execute();

@@ -1,5 +1,5 @@
 //
-// ustreambuf.hh - Unicode buffer and conversion functions
+// type_ivariant.cc - Type: IVARIANT (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,89 +36,47 @@
 //
 
 /// @file
-/// @brief Unicode buffer and conversion functions
+/// @brief Type: IVARIANT (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#ifndef INFORMAVE_I18N_USTREAMBUF_HH
-#define INFORMAVE_I18N_USTREAMBUF_HH
+#include "dbwtl/dal/dal_interface.hh"
+#include "dbwtl/db_exceptions.hh"
+#include "../dal_debug.hh"
 
-#include "db_fwd.hh"
+#include <ctime>
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <typeinfo>
 
-
-#include <stdexcept>
-#include <locale>
-#include <iosfwd>
-
-#ifdef DBWTL_CXX98_COMPATIBILITY
-#include <tr1/type_traits>
-#else
-#include <type_traits>
-#endif
+DAL_NAMESPACE_BEGIN
 
 
-DB_NAMESPACE_BEGIN
 
 
-typedef std::wstreambuf        UnicodeStreamBuf;
-typedef std::streambuf         ByteStreamBuf;
+
+int
+read_accessor<IVariant>::asInt() const
+{ 
+    return this->getValue().asInt(); 
+}
 
 
-template<class Elem,
-         class Tr = std::char_traits<Elem> >
-class streambuf_convert : public std::basic_streambuf<wchar_t>
+
+String
+read_accessor<IVariant>::asStr(std::locale loc) const
 {
-public:
-    typedef std::basic_streambuf<Elem, Tr> stream_type;
-
-    typedef typename Tr::state_type state_type;
-
-    streambuf_convert(stream_type *buf = 0,
-                      state_type state = state_type())
-        : m_bufptr(buf),
-          m_state(state)
-    {}
-
-    stream_type* rdbuf() const
-    {
-        return this->m_bufptr;
-    }
-
-    stream_type* rdbuf(stream_type *buf)
-    {
-        stream_type *tmp = this->m_bufptr;
-        this->m_bufptr = buf;
-        return tmp;
-    }
+    return L"Implement me";
+}
 
 
-    state_type state() const
-    {
-        return this->m_state;
-    }
-
-private:
-    stream_type *m_bufptr;
-    //Codecvt *cvtptr;
-    state_type m_state;
-
-    streambuf_convert(const streambuf_convert&);
-    streambuf_convert& operator=(const streambuf_convert&);
-};
+daltype_t
+read_accessor<IVariant>::datatype() const
+{
+    return this->getValue().datatype();
+}
 
 
 
-DB_NAMESPACE_END
-
-
-
-#endif
-
-//
-// Local Variables:
-// mode: C++
-// c-file-style: "bsd"
-// c-basic-offset: 4
-// indent-tabs-mode: nil
-// End:
-//
+DAL_NAMESPACE_END

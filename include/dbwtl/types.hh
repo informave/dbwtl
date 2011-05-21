@@ -44,15 +44,16 @@
 #ifndef INFORMAVE_DB_DAL_TYPES_HH
 #define INFORMAVE_DB_DAL_TYPES_HH
 
-#include "dal_fwd.hh"
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/dal/dal_fwd.hh"
 
 #include "dbwtl/ustring.hh"
 #include "dbwtl/ustreambuf.hh"
 #include "dbwtl/util/smartptr.hh"
-#include "dbwtl/dal/variant.hh"
+#include "dbwtl/variant.hh"
 
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
 
@@ -478,6 +479,10 @@ class read_accessor<double> : public default_accessor<double>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_DOUBLE);
+
+    virtual float                 asReal(void) const;
+    virtual double                asDouble(void) const;
+
 };
 
 ///
@@ -486,6 +491,9 @@ class read_accessor<float> : public default_accessor<float>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_FLOAT);
+
+    virtual float                 asReal(void) const;
+    virtual double                asDouble(void) const;
 };
 
 ///
@@ -775,14 +783,10 @@ template<> struct Converter<String>
     }
 };
 
+
+/// @todo check if this converter is required
 template<> struct Converter<IVariant>
-{
-    typedef IVariant* type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        throw std::runtime_error("err");
-    }
-};
+{};
 
 
 
@@ -820,7 +824,7 @@ struct variant_assign<ByteStreamBuf*>
 
 
 
-DAL_NAMESPACE_END
+DB_NAMESPACE_END
 
 
 

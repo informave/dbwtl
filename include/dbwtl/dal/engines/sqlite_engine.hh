@@ -615,14 +615,18 @@ struct sqlite
 };
 
 
+DAL_NAMESPACE_END
 
+
+
+DB_NAMESPACE_BEGIN
 
 
 //------------------------------------------------------------------------------
 ///
 /// @brief Variant storage accessor for SqliteData 
 template<>
-class read_accessor<SqliteData> : public default_accessor<SqliteData>
+class read_accessor<dal::SqliteData> : public default_accessor<dal::SqliteData>
 {
 public:
     DAL_VARIANT_ACCESSOR;
@@ -645,7 +649,7 @@ public:
 
 
 template<>
-class read_accessor<sqlite_ext::Text> : public default_accessor<sqlite_ext::Text>
+class read_accessor<dal::sqlite_ext::Text> : public default_accessor<dal::sqlite_ext::Text>
 {
     DAL_VARIANT_ACCESSOR;
 
@@ -669,20 +673,16 @@ struct assign_value<SqliteData*>
 
 
 template<>
-struct variant_assign<SqliteData*>
+struct variant_assign<dal::SqliteData*>
 {
-    void set_new_value(SqliteData*& dest, const Variant &src)
-    {
-        throw std::runtime_error("read only-todo");
-        // *dest = src.get<T>();
-    }
+    void set_new_value(dal::SqliteData*& dest, const Variant &src);
 };
 
 
 template<>
-struct variant_deepcopy<SqliteData*>
+struct variant_deepcopy<dal::SqliteData*>
 {
-    typedef SqliteData* ptr;
+    typedef dal::SqliteData* ptr;
     IStoredVariant* create_deepcopy(const ptr & p, const IStoredVariant *var) const;
 };
 
@@ -697,16 +697,6 @@ struct DeepCopyPtr<SqliteData*>
 };
 */
 
-
-DAL_NAMESPACE_END
-
-
-
-
-
-
-
-DB_NAMESPACE_BEGIN
 
 
 
@@ -765,7 +755,7 @@ struct db_traits<dal::sqlite, tag>
     typedef sqlite_datatypes                   datatype_types;
 
 
-    typedef dal::Variant                       dal_variant_type;
+    typedef Variant                            dal_variant_type;
 
     enum { DB_SYSTEM_ID = dal::DAL_ENGINE_SQLITE };
 };

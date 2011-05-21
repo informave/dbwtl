@@ -87,7 +87,6 @@ std::map<std::string, String::Internal> parse_driver(const String::Internal &str
 generic::ENV*
 generic::createEnv(String driver)
 {
-//    sqlite::STATE state; /// @bug wrong type, needs ne GenericState!!! trust me
     String engine = parse_driver(driver)["engine"];
 
     if(! engine.length())
@@ -101,13 +100,9 @@ generic::createEnv(String driver)
     else if(engine.compare(L"postgres") == 0)
         return Postgres::createEnv(driver);
 */
-    // nothing found..
+
 err:
-//    state.setDALCode(DALSTATE_LIB_ERROR);
-//    state.setMsg(L"Engine \"" + engine + L"\" is not a valid identifier.");
-//    state.setSource(__FILE__, __FUNCTION__);
-//    throw ex::engine_error(state);
-      throw ex::engine_error("unknow driver");
+    throw ex::engine_error(format("Env: Unknown driver: %s") % driver);
 }
 
 

@@ -115,6 +115,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
+    /*
     convert_error::convert_error(const String &varname)
         : exception(),
           m_varname(varname)
@@ -126,11 +127,12 @@ namespace ex
 
         this->setMessage(msg);
     }
-
+    */
 
 
     //
     //
+    /*
     convert_error::convert_error(const dal::Variant &var)
         : exception(),
           m_varname()
@@ -142,6 +144,18 @@ namespace ex
 
         this->setMessage(msg);
     }
+    */
+
+
+    convert_error::convert_error(const String &what)
+        : exception(),
+          m_varname()
+    {
+        this->setMessage(what);
+    }
+
+
+    
 
 
 
@@ -176,7 +190,7 @@ namespace ex
 //     }
 
 
-    convert_error::convert_error(informave::db::dal::daltype_t src, informave::db::dal::DatatypeEnumeration dest)
+    convert_error::convert_error(informave::db::daltype_t src, informave::db::DatatypeEnumeration dest)
         : exception(),
           m_varname()
     {
@@ -207,7 +221,7 @@ namespace ex
 
     //
     //
-    null_value::null_value(const dal::Variant &var)
+    null_value::null_value(const Variant &var)
         : exception(),
           m_varname()
     {
@@ -244,7 +258,7 @@ namespace ex
     //
 //     engine_error::engine_error(dal::dalstate_t state)
 //         : exception()
-//     {
+//     {y
 //     	this->setMessage(L"remove dalstate here");
 //     }
 

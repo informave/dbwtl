@@ -48,6 +48,10 @@
 #include "db_fwd.hh"
 #include "ustring.hh"
 #include "ustreambuf.hh"
+
+#include "variant.hh"
+
+
 //#include "db_exceptions.hh"
 #include "dal/dal_interface.hh"
 
@@ -300,7 +304,7 @@ struct ifnull
 
     /// @param[in] var A IVariant reference
     /// @param[in] def Default value which is returned if var is null
-    ifnull(const dal::Variant &var, value_type def) : m_var(var), m_def(def)
+    ifnull(const Variant &var, value_type def) : m_var(var), m_def(def)
     {}
 
     /// cast operator to the requested type
@@ -308,7 +312,7 @@ struct ifnull
     { return m_var.isnull() ? m_def : m_var.get<value_type>(); }
 
 private:
-    const dal::Variant  &m_var;
+    const Variant       &m_var;
     value_type           m_def;
 };
 
@@ -583,7 +587,7 @@ public:
     
     template<class A, class B, class C> void bind(int num, const std::basic_string<A, B, C>& data)
     {
-        this->bind(num, dal::Variant(String(data)));
+        this->bind(num, Variant(String(data)));
     }
 
     template<class A, class B, class C> void bind(int num, std::basic_string<A, B, C>* data)
@@ -592,7 +596,7 @@ public:
         String *s = new String();
         this->m_bind_strings.push_back(s);
         s->sync_with(data);
-        this->bind(num, dal::Variant(s));
+        this->bind(num, Variant(s));
     }
     
     template<class A, class B, class C> void bind(int num, const std::basic_string<A, B, C>* data)
@@ -601,7 +605,7 @@ public:
         String *s = new String();
         this->m_bind_strings.push_back(s);
         s->sync_with(data);
-        this->bind(num, dal::Variant(static_cast<const String*>(s)));
+        this->bind(num, Variant(static_cast<const String*>(s)));
     }
 
 
@@ -616,19 +620,18 @@ public:
     //     streambuf_convert<char> *cvtbuf = new streambuf_convert<char>(data);
     //     std::wstreambuf *wsb = cvtbuf;
     //     this->m_stmt->bind(num, data); 
-    // 	throw std::runtime_error("bind not supp");
     // }
 
 
     // template<class B> void bind(int num, std::basic_streambuf<char, B>* data)
-    // { throw std::runtime_error("bind not supp"); }
+    // {}
 
 
-    virtual void      bind(int num, dal::IVariant* data)        { this->m_stmt->bind(num, data); }
+    virtual void      bind(int num, IVariant* data)        { this->m_stmt->bind(num, data); }
 
-    virtual void      bind(int num, const dal::IVariant* data)  { this->m_stmt->bind(num, data); }
+    virtual void      bind(int num, const IVariant* data)  { this->m_stmt->bind(num, data); }
 
-    virtual void      bind(int num, const dal::Variant &data)   { this->m_stmt->bind(num, data); }
+    virtual void      bind(int num, const Variant &data)   { this->m_stmt->bind(num, data); }
 
 
 
@@ -1407,7 +1410,7 @@ struct basic_datatypes
     typedef db::String            String;
     typedef dal::Blob             Blob;
     typedef dal::Memo             Memo;
-    typedef dal::TNumeric         Numeric;
+    typedef TNumeric              Numeric;
     typedef signed short          Smallint;
     typedef unsigned short        USmallint;
     typedef signed int            Integer;
@@ -1418,10 +1421,10 @@ struct basic_datatypes
     // real
     typedef double                Double;
     typedef bool                  Boolean;
-    typedef dal::TDate            Date;
-    typedef dal::TTime            Time;
-    typedef dal::TTimestamp       Timestamp;
-    typedef dal::TInterval        Interval;
+    typedef TDate                 Date;
+    typedef TTime                 Time;
+    typedef TTimestamp            Timestamp;
+    typedef TInterval             Interval;
 
 
     /*

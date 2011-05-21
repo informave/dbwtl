@@ -40,9 +40,12 @@
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
+#include "dbwtl/db_fwd.hh"
 #include "dbwtl/dal/dal_interface.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
 #include "dbwtl/db_exceptions.hh"
-#include "../dal_debug.hh"
+#include "../dal/dal_debug.hh"
 
 #include <ctime>
 #include <iostream>
@@ -51,7 +54,7 @@
 #include <typeinfo>
 #include <limits>
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
 
@@ -65,11 +68,11 @@ read_accessor<signed int>::asInt(void) const
 unsigned int         
 read_accessor<signed int>::asUInt(void) const
 {
-        const signed int &v = this->getValue();
-        if(v < 0)
-                throw std::runtime_error("negative number can not be converted to unsigned int");
-        else
-            return this->getValue();
+    const signed int &v = this->getValue();
+    if(v < 0)
+        throw ex::convert_error(format("Negative number can't converted to unsigned int: %d") % this->getValue());
+    else
+        return this->getValue();
 
 
 }
@@ -79,7 +82,7 @@ read_accessor<signed int>::asChar(void) const
 {
 	const signed int &v = this->getValue();
 	if(v > std::numeric_limits<signed char>::max() || v < std::numeric_limits<signed char>::min())
-		throw std::runtime_error("to big or small");
+        throw ex::convert_error(format("Number can't converted to signed char: %d") % this->getValue());
 	else
 	    return this->getValue();
 }
@@ -89,7 +92,7 @@ read_accessor<signed int>::asUChar(void) const
 {
         const signed int &v = this->getValue();
         if(v > std::numeric_limits<unsigned char>::max() || v < std::numeric_limits<unsigned char>::min())
-                throw std::runtime_error("to big or small");
+            throw ex::convert_error(format("Number can't converted to unsigned char: %d") % this->getValue());
         else
             return this->getValue();
 }
@@ -114,7 +117,7 @@ read_accessor<signed int>::asSmallint(void) const
 {
         const signed int &v = this->getValue();
         if(v > std::numeric_limits<signed short>::max() || v < std::numeric_limits<signed short>::min())
-                throw std::runtime_error("to big or small");
+            throw ex::convert_error(format("Number can't converted to signed short: %d") % this->getValue());
         else
             return this->getValue();
 }
@@ -124,7 +127,7 @@ read_accessor<signed int>::asUSmallint(void) const
 {
         const signed int &v = this->getValue();
         if(v > std::numeric_limits<unsigned short>::max() || v < std::numeric_limits<unsigned short>::min())
-                throw std::runtime_error("to big or small");
+            throw ex::convert_error(format("Number can't converted to unsigned short: %d") % this->getValue());
         else
             return this->getValue();
 }
@@ -132,21 +135,13 @@ read_accessor<signed int>::asUSmallint(void) const
 signed long long     
 read_accessor<signed int>::asBigint(void) const
 {
-        const signed int &v = this->getValue();
-        if(v > std::numeric_limits<signed long long>::max() || v < std::numeric_limits<signed long long>::min())
-                throw std::runtime_error("to big or small");
-        else
-            return this->getValue();
+    return this->getValue();
 }
 
 unsigned long long   
 read_accessor<signed int>::asUBigint(void) const
 {
-        const signed int &v = this->getValue();
-        if(v < 0)
-                throw std::runtime_error("to big or small");
-        else
-            return this->getValue();
+    return this->getValue();
 }
 
 TNumeric             
@@ -194,4 +189,4 @@ read_accessor<signed int>::asMemo(void) const
 
 
 
-DAL_NAMESPACE_END
+DB_NAMESPACE_END

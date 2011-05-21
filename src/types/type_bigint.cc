@@ -40,9 +40,12 @@
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#include "dbwtl/dal/dal_interface.hh"
+
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
 #include "dbwtl/db_exceptions.hh"
-#include "../dal_debug.hh"
+#include "../dal/dal_debug.hh"
 
 #include <ctime>
 #include <iostream>
@@ -50,7 +53,7 @@
 #include <sstream>
 #include <typeinfo>
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
 
@@ -81,4 +84,4 @@ read_accessor<signed long long>::asStr(std::locale loc) const
 
 
 
-DAL_NAMESPACE_END
+DB_NAMESPACE_END

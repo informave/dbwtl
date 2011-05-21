@@ -13,6 +13,7 @@
 int test(void)
 {
     using namespace informave;
+    using namespace informave::db;
     using namespace informave::db::dal;
 
 

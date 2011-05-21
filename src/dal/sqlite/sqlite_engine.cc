@@ -46,12 +46,14 @@
 #include "../dal_debug.hh"
 #include "../../utils.hh"
 
+#include "../../macros.hh"
+
 #include <sstream>
 #include <string>
 
 
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
 
@@ -60,43 +62,96 @@ DAL_NAMESPACE_BEGIN
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 int
-read_accessor<SqliteData>::asInt() const
+read_accessor<dal::SqliteData>::asInt() const
 { 
     return this->getValue().getInt(); 
 }
 
 bool
-read_accessor<SqliteData>::asBool() const
+read_accessor<dal::SqliteData>::asBool() const
 {
     return this->getValue().getInt() > 0;
 }
 
 
 std::streambuf*
-read_accessor<SqliteData>::asBlob(void) const
+read_accessor<dal::SqliteData>::asBlob(void) const
 {
     return this->getValue().getBlob();
 }
 
 String
-read_accessor<SqliteData>::asStr(std::locale loc) const
+read_accessor<dal::SqliteData>::asStr(std::locale loc) const
 {
     return this->getValue().getString();
 }
 
 bool
-read_accessor<SqliteData>::isnull() const
+read_accessor<dal::SqliteData>::isnull() const
 {
     return this->getValue().isnull();
 }
 
 daltype_t
-read_accessor<SqliteData>::datatype() const
+read_accessor<dal::SqliteData>::datatype() const
 {
     return this->getValue().daltype();
 }
 
 
+
+
+
+
+void
+variant_assign<dal::SqliteData*>::set_new_value(dal::SqliteData*& dest, const Variant &src)
+{
+    throw ex::read_only("SqliteData", DBWTL_MACRO_SRCPOS);
+}
+
+
+///
+///
+IStoredVariant*
+variant_deepcopy<dal::SqliteData*>::create_deepcopy(const ptr & ref, const IStoredVariant *var) const
+{
+    switch(var->datatype())
+    {
+    case DAL_TYPE_CUSTOM:     return new variant_value<String>(var->asStr());
+    case DAL_TYPE_UNKNOWN:    return new variant_value<String>(var->asStr()); break;
+    case DAL_TYPE_INT:        return new variant_value<signed int>(var->asInt()); break;
+    case DAL_TYPE_UINT:       return new variant_value<unsigned int>(var->asUInt()); break;
+    case DAL_TYPE_CHAR:       return new variant_value<signed char>(var->asChar()); break;
+    case DAL_TYPE_UCHAR:      return new variant_value<unsigned char>(var->asUChar()); break;
+    case DAL_TYPE_STRING:     return new variant_value<String>(var->asStr()); break;
+    case DAL_TYPE_BOOL:       return new variant_value<bool>(var->asBool()); break;
+    case DAL_TYPE_SMALLINT:   return new variant_value<signed short>(var->asSmallint()); break;
+    case DAL_TYPE_USMALLINT:  return new variant_value<unsigned short>(var->asUSmallint()); break;
+    case DAL_TYPE_BIGINT:     return new variant_value<signed long long>(var->asBigint()); break;
+    case DAL_TYPE_UBIGINT:    return new variant_value<unsigned long long>(var->asUBigint()); break;
+    case DAL_TYPE_BLOB:       return new variant_value<ByteStreamBuf*>(var->asBlob()); break;
+    case DAL_TYPE_MEMO:       return new variant_value<UnicodeStreamBuf*>(var->asMemo()); break;
+    case DAL_TYPE_NUMERIC:    return new variant_value<TNumeric>(var->asNumeric()); break;
+    case DAL_TYPE_FLOAT:      return new variant_value<float>(var->asReal()); break;
+    case DAL_TYPE_DOUBLE:     return new variant_value<double>(var->asDouble()); break;
+    case DAL_TYPE_DATE:       return new variant_value<TDate>(var->asDate()); break;
+    case DAL_TYPE_TIME:       return new variant_value<TTime>(var->asTime()); break;
+    case DAL_TYPE_TIMESTAMP:  return new variant_value<TTimestamp>(var->asTimestamp()); break;
+    case DAL_TYPE_INTERVAL:   return new variant_value<TInterval>(var->asInterval()); break;
+    default:
+        throw ex::exception(format("Unhandled datatype(%d) at %s") % int(var->datatype()) % DBWTL_MACRO_SRCPOS);
+    }
+}
+
+
+
+
+DB_NAMESPACE_END
+
+
+
+
+DAL_NAMESPACE_BEGIN
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -157,40 +212,6 @@ SqliteData::SqliteData(void)
 ///
 SqliteData::~SqliteData(void)
 {}
-
-
-
-///
-///
-IStoredVariant*
-variant_deepcopy<SqliteData*>::create_deepcopy(const ptr & ref, const IStoredVariant *var) const
-{
-    switch(var->datatype())
-    {
-    case DAL_TYPE_CUSTOM:     return new variant_value<String>(var->asStr());
-    case DAL_TYPE_UNKNOWN:    return new variant_value<String>(var->asStr()); break;
-    case DAL_TYPE_INT:        return new variant_value<signed int>(var->asInt()); break;
-    case DAL_TYPE_UINT:       return new variant_value<unsigned int>(var->asUInt()); break;
-    case DAL_TYPE_CHAR:       return new variant_value<signed char>(var->asChar()); break;
-    case DAL_TYPE_UCHAR:      return new variant_value<unsigned char>(var->asUChar()); break;
-    case DAL_TYPE_STRING:     return new variant_value<String>(var->asStr()); break;
-    case DAL_TYPE_BOOL:       return new variant_value<bool>(var->asBool()); break;
-    case DAL_TYPE_SMALLINT:   return new variant_value<signed short>(var->asSmallint()); break;
-    case DAL_TYPE_USMALLINT:  return new variant_value<unsigned short>(var->asUSmallint()); break;
-    case DAL_TYPE_BIGINT:     return new variant_value<signed long long>(var->asBigint()); break;
-    case DAL_TYPE_UBIGINT:    return new variant_value<unsigned long long>(var->asUBigint()); break;
-    case DAL_TYPE_BLOB:       return new variant_value<ByteStreamBuf*>(var->asBlob()); break;
-    case DAL_TYPE_MEMO:       return new variant_value<UnicodeStreamBuf*>(var->asMemo()); break;
-    case DAL_TYPE_NUMERIC:    return new variant_value<TNumeric>(var->asNumeric()); break;
-    case DAL_TYPE_FLOAT:      return new variant_value<float>(var->asReal()); break;
-    case DAL_TYPE_DOUBLE:     return new variant_value<double>(var->asDouble()); break;
-    case DAL_TYPE_DATE:       return new variant_value<TDate>(var->asDate()); break;
-    case DAL_TYPE_TIME:       return new variant_value<TTime>(var->asTime()); break;
-    case DAL_TYPE_TIMESTAMP:  return new variant_value<TTimestamp>(var->asTimestamp()); break;
-    case DAL_TYPE_INTERVAL:   return new variant_value<TInterval>(var->asInterval()); break;
-    }
-    throw std::runtime_error("unknown type");
-}
 
 
 

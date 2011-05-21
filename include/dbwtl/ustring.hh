@@ -62,6 +62,7 @@
 DB_NAMESPACE_BEGIN
 
 
+
 template<typename T>
 class string_ptr_base;
 
@@ -76,6 +77,13 @@ class string_ptr;
 #endif
 
 
+
+class DBWTL_EXPORT ustring_error : public std::exception
+{
+public:
+	ustring_error(const std::string &what)
+	{}
+};
 
 
 //--------------------------------------------------------------------------
@@ -104,7 +112,7 @@ public:
         case 2: return "UTF-16-LE";
         case 4: return "UTF-32-LE";
         default:
-            throw std::runtime_error("invalid char size");
+	    throw ustring_error("ustring error: invalid character size");
         }
     }
 
@@ -322,9 +330,9 @@ public:
         switch(res)
         {
         case facet::error:
-            throw std::runtime_error("invalid conversion");
+            throw ustring_error("ustring error: conversion error");
         case facet::partial:
-            throw std::runtime_error("Partial conversion");
+            throw ustring_error("ustring error: partial conversion");
         default:
             break;
         }
@@ -521,7 +529,7 @@ public:
 
     virtual void set(const typename T::Internal &data)
     {
-    	throw std::runtime_error("BUG: string_ptr: Writing to a const strptr. Please report this bug.");
+    	throw ustring_error("string_ptr: Unable to update a const string pointer.");
     }
 
 protected:

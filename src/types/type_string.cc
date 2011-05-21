@@ -40,9 +40,13 @@
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#include "dbwtl/dal/dal_interface.hh"
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
 #include "dbwtl/db_exceptions.hh"
-#include "../dal_debug.hh"
+#include "../dal/dal_debug.hh"
+
+#include "dbwtl/dal/dal_interface.hh"
 
 #include <ctime>
 #include <iostream>
@@ -50,7 +54,7 @@
 #include <sstream>
 #include <typeinfo>
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
 
@@ -64,7 +68,7 @@ signed int
 read_accessor<String>::asInt(void) const
 {
     signed int v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -73,7 +77,7 @@ unsigned int
 read_accessor<String>::asUInt(void) const
 {
     unsigned int v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -89,7 +93,7 @@ bool
 read_accessor<String>::asBool(void) const
 {
     bool v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -98,7 +102,7 @@ signed short
 read_accessor<String>::asSmallint(void) const
 {
     signed short v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -107,7 +111,7 @@ unsigned short
 read_accessor<String>::asUSmallint(void) const
 {
     unsigned int v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -116,7 +120,7 @@ signed long long
 read_accessor<String>::asBigint(void) const
 {
     signed long long v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -125,7 +129,7 @@ unsigned long long
 read_accessor<String>::asUBigint(void) const
 {
     unsigned long long v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -134,7 +138,7 @@ float
 read_accessor<String>::asReal(void) const
 {
     float v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -143,7 +147,7 @@ double
 read_accessor<String>::asDouble(void) const
 {
     double v;
-    if(!convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -160,4 +164,4 @@ read_accessor<String>::asMemo(void) const
 
 
 
-DAL_NAMESPACE_END
+DB_NAMESPACE_END

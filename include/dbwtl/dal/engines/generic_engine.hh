@@ -705,7 +705,7 @@ struct db_traits<dal::generic, tag>
     typedef dal::generic::STATES                sqlstate_types;
     typedef basic_datatypes                     datatype_types;
 
-    typedef dal::Variant                        dal_variant_type;
+    typedef Variant                            dal_variant_type;
 
     enum { DB_SYSTEM_ID = 0 };
 };

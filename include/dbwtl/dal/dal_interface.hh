@@ -48,8 +48,8 @@
 #define DAL_DEV_INCLUDE_DEVUTILS
 
 #include "dbwtl/dal/dal_fwd.hh"
-#include "dbwtl/dal/variant.hh"
-#include "dbwtl/dal/types.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
 
 #include "dbwtl/ustring.hh"
 #include "dbwtl/ustreambuf.hh"

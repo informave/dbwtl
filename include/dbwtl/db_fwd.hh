@@ -49,5 +49,62 @@
 #define DB_NAMESPACE_END }}
 
 
+DB_NAMESPACE_BEGIN
+
+
+
+class Variant;
+class TType;
+class TDate;
+class TTime;
+class TInterval;
+class TNumeric;
+class TTimestamp;
+class TCustomType;
+//class TDatetime;
+
+
+
+
+
+
+//--------------------------------------------------------------------------
+/// All types defined by the DAL
+/// 
+/// @since 0.0.1
+/// @brief DAL datatypes
+enum DatatypeEnumeration
+{
+    DAL_TYPE_CUSTOM = 1,
+    DAL_TYPE_UNKNOWN,
+    DAL_TYPE_INT,
+    DAL_TYPE_UINT,
+    DAL_TYPE_CHAR,
+    DAL_TYPE_UCHAR,
+    DAL_TYPE_STRING,
+    DAL_TYPE_BOOL,
+    DAL_TYPE_SMALLINT,
+    DAL_TYPE_USMALLINT,
+    DAL_TYPE_BIGINT,
+    DAL_TYPE_UBIGINT,
+    //DAL_TYPE_BIT,g
+    //DAL_TYPE_VARBIT,
+    DAL_TYPE_BLOB,
+    DAL_TYPE_MEMO,
+    DAL_TYPE_NUMERIC,
+    DAL_TYPE_FLOAT,
+    DAL_TYPE_DOUBLE,
+    DAL_TYPE_DATE,
+    DAL_TYPE_TIME,
+    DAL_TYPE_TIMESTAMP,
+    DAL_TYPE_INTERVAL
+};
+
+typedef enum DatatypeEnumeration daltype_t;
+
+
+
+
+DB_NAMESPACE_END
 
 #endif

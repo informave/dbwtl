@@ -1,5 +1,5 @@
 //
-// type_smallint.cc - Type: SMALLINT (definitions)
+// type_bool.cc - Type: BOOL (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,13 +36,16 @@
 //
 
 /// @file
-/// @brief Type: SMALLINT (definitions)
+/// @brief Type: BOOL (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#include "dbwtl/dal/dal_interface.hh"
+
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
 #include "dbwtl/db_exceptions.hh"
-#include "../dal_debug.hh"
+#include "../dal/dal_debug.hh"
 
 #include <ctime>
 #include <iostream>
@@ -50,13 +53,19 @@
 #include <sstream>
 #include <typeinfo>
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
+
+bool
+read_accessor<bool>::asBool(void) const
+{
+    return this->getValue();
+}
 
 
 
 String
-read_accessor<signed short>::asStr(std::locale loc) const
+read_accessor<bool>::asStr(std::locale loc) const
 {
     std::wstringstream ss;
     ss.imbue(loc);
@@ -66,16 +75,6 @@ read_accessor<signed short>::asStr(std::locale loc) const
 
 
 
-String
-read_accessor<unsigned short>::asStr(std::locale loc) const
-{
-    std::wstringstream ss;
-    ss.imbue(loc);
-    ss << this->getValue();
-    return ss.str();
-}
 
 
-
-
-DAL_NAMESPACE_END
+DB_NAMESPACE_END

@@ -44,16 +44,19 @@
 #ifndef INFORMAVE_DB_DAL_VARIANT_HH
 #define INFORMAVE_DB_DAL_VARIANT_HH
 
-#include "dal_fwd.hh"
+#include "dbwtl/dal/dal_fwd.hh"
 #include "dbwtl/ustring.hh"
 #include "dbwtl/ustreambuf.hh"
 #include "dbwtl/util/smartptr.hh"
 
 #include <memory>
 #include <type_traits>
+//#include <iostream>
+#include <sstream>
+#include <locale>
 
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 template<typename T> struct variant_traits;
 template<typename T> struct variant_assign;
@@ -137,7 +140,7 @@ template<> struct type_id<TInterval>        { static inline daltype_t value(void
 
 //--------------------------------------------------------------------------
 /// @brief DAL Interface for variant types
-class DBWTL_EXPORT IVariant : public IDALObject
+class DBWTL_EXPORT IVariant : public dal::IDALObject
 {
 public:
     virtual ~IVariant(void) { }
@@ -609,7 +612,7 @@ public:
     {}
 
 
-    Variant(const EngineVariant& v);
+    Variant(const dal::EngineVariant& v);
 
 
     template<typename T>
@@ -837,7 +840,389 @@ struct variant_assign<IVariant*>
 
 
 
-DAL_NAMESPACE_END
+
+
+
+class format_error_exception : public std::runtime_error
+{
+public:
+    format_error_exception(const String &fmt, const String &what)
+        : std::runtime_error(String("Formatting exception: ") + what + " format() string: " + fmt)
+    {}
+};
+
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------
+/// @brief Format String Parser
+///
+/// @details
+/// Foo
+template<typename Ch, typename Tr = std::char_traits<Ch>, typename Alloc = std::allocator<Ch> >
+class fmt_parser
+{
+public:
+    /// Formatting settings
+    struct Settings
+    {
+        Settings(void) : alternateForm(false), zeroPadded(false), leftAdjust(false),
+                         blank(false), sign(false), width(0), prec(0)
+        {}
+
+        enum { T_NONE, T_CHAR, T_SMALL, T_LONG, T_LONGLONG, T_LONGDOUBLE } mode;
+
+        bool alternateForm,
+            zeroPadded,
+            leftAdjust,
+            blank,
+            sign;
+        int width, prec;
+    };
+
+
+    typedef std::basic_string<Ch, Tr, Alloc>        string_type;
+    typedef Ch                                      char_type;
+    typedef Tr                                      traits_type;
+    typedef std::basic_stringstream<Ch, Tr, Alloc>  stream_type;
+
+
+    /// Constructor
+    fmt_parser(const std::vector<Variant>& args, const string_type &str)
+        : m_fmt(str), m_in(str.begin()), m_end(str.end()), m_args(args)
+    {}
+
+    /// Consume next character
+    /// Returns false on EOF, otherwise true
+    bool consume(void)
+    {
+        if(this->m_in != m_end)
+        {
+            this->m_char = *this->m_in++;
+            return true;
+        }
+        this->m_char = traits_type::eof();
+        return false;
+    }
+
+
+    /// Consume next character and return it
+    inline char_type getnc(void)
+    {
+        consume();
+        return this->m_char;
+    }
+
+
+    /// Get argument
+    inline const Variant& get_arg(std::vector<Variant>::size_type idx)
+    {
+        if(idx > m_args.size()-1)
+            throw format_error_exception(this->m_fmt, "Index out of range.");
+        return m_args.at(idx);
+    }
+
+
+    /// Do formatting
+    void do_fmt(void)
+    {
+        Settings settings;
+
+        // % err
+        enum { ST_FLAG, ST_CMD } state = ST_FLAG;
+
+        char_type c = this->m_char;
+
+        for(c = this->m_char; c != traits_type::eof(); c = getnc())
+        {
+            switch(c)
+            {
+            case '#': settings.alternateForm = true; continue;
+            case '0': settings.zeroPadded = true; continue;
+            case '-': settings.leftAdjust = true; continue;
+            case ' ': settings.blank = true; continue;
+            case '+': settings.sign = true; continue;
+                //case ''':
+            default:
+                break;
+            }
+            break;
+        }
+        
+        string_type tmp;
+        // check for *
+        for(c = this->m_char; c != traits_type::eof() && isdigit(c); c = getnc())
+        {
+            tmp.push_back(c);
+        }
+        if(!tmp.empty())
+        {
+            settings.width = Variant(String(tmp)).asInt();
+        }
+        else if(c == '*')
+        {
+            settings.width = this->get_arg(m_pos++).template asInt();
+            c = getnc();
+        }
+
+        if(c == '.')
+        {
+            tmp.clear();
+            consume();
+            for(c = this->m_char; c != traits_type::eof() && isdigit(c); c = getnc())
+            {
+                tmp.push_back(c);
+            }
+            if(!tmp.empty())
+            {
+                settings.prec = Variant(String(tmp)).asInt();
+            }
+            else if(c == '*')
+            {
+                settings.prec = this->get_arg(m_pos++).template asInt();
+                c = getnc();
+            }
+        }
+/*
+  std::cout << std::boolalpha
+  << "alt: " << settings.alternateForm << std::endl
+  << "zero: " << settings.zeroPadded << std::endl
+  << "left: " << settings.leftAdjust << std::endl
+  << "blank: " << settings.blank << std::endl
+  << "sign: " << settings.sign << std::endl
+  << "width: " << settings.width << std::endl
+  << "prec: " << settings.prec << std::endl;
+
+*/
+
+        c = this->m_char;
+        switch(c)
+        {
+        case 'h':
+            consume();
+            settings.mode = this->m_char == 'h' ? Settings::T_CHAR : Settings::T_SMALL;
+            if(this->m_char == 'h') consume();
+            break;
+        case 'l':
+            consume();
+            settings.mode = this->m_char == 'l' ? Settings::T_LONGLONG : Settings::T_LONG;
+            if(this->m_char == 'l') consume();
+            break;
+        case 'L':
+            consume();
+            settings.mode = Settings::T_LONGDOUBLE;
+            break;
+        default:
+            settings.mode = Settings::T_NONE;
+        }
+
+
+        c = this->m_char;
+        if(c == traits_type::eof())
+	    throw format_error_exception(this->m_fmt, "EOL reached");
+
+        tmp.clear();
+
+        switch(c)
+        {
+        case 's':
+            m_str.append(this->get_arg(m_pos++).asStr());
+            break;
+        case 'd':
+        case 'i':
+            do_fmt_d(settings);
+            break;
+            //case 'u':
+            //ss << this->get_arg(m_pos++).template get<unsigned int>();
+            break;
+        case 'f':
+        case 'F':
+            do_fmt_f(settings);
+            break;
+        default:
+            throw format_error_exception(this->m_fmt, "Invalid format character");
+        };
+    }
+
+
+
+    /// @brief Do 
+    void do_fmt_base(Settings &s, stream_type &stream)
+    {
+        
+        if(s.sign)
+            stream << std::showpos;
+            
+        stream.width(s.width);
+        stream.precision(s.prec);
+        stream << std::fixed;
+        stream << std::showpoint;
+        
+
+        if(s.zeroPadded && ! s.leftAdjust)
+            stream.fill('0');
+        if(s.leftAdjust)
+            stream << std::left;
+        else
+            stream << std::internal;
+    }
+
+
+    void do_fmt_d(Settings &s)
+    {
+        stream_type stream;
+        do_fmt_base(s, stream);
+	switch(s.mode)
+	{
+	case Settings::T_CHAR:
+		stream << this->get_arg(m_pos++).asChar(); break;
+	case Settings::T_SMALL:
+		stream << this->get_arg(m_pos++).asSmallint(); break;
+	case Settings::T_LONG:
+		stream << this->get_arg(m_pos++).asInt(); break;
+	case Settings::T_LONGLONG:
+		stream << this->get_arg(m_pos++).asBigint(); break;
+	case Settings::T_LONGDOUBLE:
+	case Settings::T_NONE:
+        	stream << this->get_arg(m_pos++).asInt(); break;
+	
+	}
+        m_str.append(stream.str());
+    }
+
+    void do_fmt_f(Settings &s)
+    {
+        stream_type stream;
+        do_fmt_base(s, stream);
+        stream << this->get_arg(m_pos++).asReal();
+        m_str.append(stream.str());
+    }
+
+
+
+
+    string_type parse(void)
+    {
+        m_pos = 0;
+        char_type c = getnc();
+
+        while(c != traits_type::eof())
+        {
+            if(c == '%')
+            {
+                if(getnc() == '%')
+                    m_str.push_back('%');
+                else
+                    do_fmt();
+            }
+            else
+                m_str.push_back(c);
+
+            c = getnc();
+        }
+        
+        return this->m_str;;
+    }
+
+private:
+    const string_type &m_fmt;
+    string_type    m_str;
+    int            m_pos;
+    char_type      m_char;
+    typename string_type::const_iterator m_in, m_end;
+    const std::vector<Variant>& m_args;
+
+};
+
+
+template<typename Ch, typename Tr = std::char_traits<Ch>, typename Alloc = std::allocator<Ch> >
+class basic_format
+{
+public:
+    typedef std::basic_string<Ch, Tr, Alloc>    string_type;
+    typedef fmt_parser<Ch, Tr, Alloc>       parser_type;
+    typedef std::basic_stringstream<Ch, Tr, Alloc> stream_type;
+    typedef Ch  char_type;
+
+
+    typedef format_error_exception format_error;
+
+
+    explicit basic_format(const char_type *str, std::locale loc = std::locale("")) : m_fmt(str), m_loc(loc)
+    {
+    }
+
+    explicit basic_format(const string_type &str, std::locale loc = std::locale("")) : m_fmt(str), m_loc(loc)
+    {
+    }
+
+    
+    basic_format& feed(const Variant &var)
+    {
+        this->m_args.push_back(var);
+        return *this;
+    }
+
+
+    basic_format& operator%(const char_type *str)
+    {
+        String s(str);
+        return this->feed(s);
+    }
+
+    basic_format& operator%(const Variant &var)
+    {
+        return this->feed(var);
+    }
+
+
+    string_type str(void) const
+    {
+        parser_type p(m_args, m_fmt);
+        return p.parse();
+    }
+
+    operator String(void) const
+    {
+        return str();
+    }
+
+
+    operator string_type(void) const
+    {
+        return str();
+    }
+
+    std::vector<Variant> m_args;
+    std::size_t m_argN;
+
+    string_type m_fmt;
+
+
+    std::locale m_loc;
+
+};
+
+typedef basic_format<char> format;
+typedef basic_format<wchar_t> wformat;
+
+
+
+
+
+
+
+
+
+
+DB_NAMESPACE_END
+
+
 
 #endif
 

@@ -1,5 +1,5 @@
 //
-// type_bytestreambuf.cc - Type: BLOB (definitions)
+// dal_debug.hh - DAL debugging
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,29 +36,22 @@
 //
 
 /// @file
-/// @brief Type: BLOB (definitions)
+/// @brief DAL debugging
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#include "dbwtl/dal/dal_interface.hh"
-#include "dbwtl/db_exceptions.hh"
-#include "../dal_debug.hh"
 
-#include <ctime>
-#include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <typeinfo>
+#ifndef INFORMAVE_DB_MACROS_HH
+#define INFORMAVE_DB_MACROS_HH
 
-DAL_NAMESPACE_BEGIN
+#include "dbwtl/dal/dal_fwd.hh"
+#include "dbwtl/util/devutils.hh"
+
+#include <cassert>
 
 
-ByteStreamBuf*
-read_accessor<ByteStreamBuf>::asBlob(void) const
-{
-    return const_cast<ByteStreamBuf*>(&this->getValue()); /// @bug FIX CONST
-}
+#define DBWTL_MACRO_SRCPOS "foo"
 
 
 
-DAL_NAMESPACE_END
+#endif

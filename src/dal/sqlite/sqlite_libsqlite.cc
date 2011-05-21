@@ -42,6 +42,7 @@
 
 
 #include "sqlite_libsqlite.hh"
+#include "dbwtl/variant.hh"
 #include "dbwtl/db_exceptions.hh"
 #include "dbwtl/stdext/functional"
 #include "../dal_debug.hh"
@@ -580,7 +581,8 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             default:
                 // all other types are passed as string
                 err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,
-                                                     var->asStr().to("UTF-8"), -1, SQLITE_TRANSIENT);
+                                                     var->asStr().to("UTF-8"), -1, 
+                                                     SQLITE_TRANSIENT);
                 break;
             }
         }

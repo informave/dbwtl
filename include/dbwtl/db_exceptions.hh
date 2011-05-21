@@ -40,9 +40,6 @@
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#ifndef INFORMAVE_DB_DAL_INTERFACES_HH
-#error "do not include this file directly"
-#endif
 
 #ifndef INFORMAVE_DB_DBEXCEPTIONS_HH
 #define INFORMAVE_DB_DBEXCEPTIONS_HH
@@ -52,7 +49,7 @@
 #include <memory>
 
 #include "db_fwd.hh"
-#include "dal/variant.hh"
+#include "variant.hh"
 
 DB_NAMESPACE_BEGIN
 
@@ -81,6 +78,13 @@ namespace ex
         virtual const char* what(void) const throw();
 
 
+        exception(const String &str) : std::exception(),
+            m_msg()
+            {
+                this->setMessage(str);
+            }
+
+
     protected:
         /// Protected constructor, the user has to construct a derived type
         exception(void) : std::exception(),
@@ -106,10 +110,12 @@ namespace ex
     class DBWTL_EXPORT convert_error : public exception
     {
     public:
-        convert_error(const String &varname = String());
 
         /// @note The name of the variant is extracted from the argument
-        convert_error(const dal::Variant &var);
+        //convert_error(const dal::Variant &var);
+
+
+        convert_error(const String &what);
 
         //convert_error(dal::dalstate_t state, const std::wstring &varname = std::wstring());
 
@@ -117,7 +123,7 @@ namespace ex
         //convert_error(dal::dalstate_t state, const dal::Variant &var);
 
 
-        convert_error(informave::db::dal::daltype_t, informave::db::dal::DatatypeEnumeration);
+        convert_error(informave::db::daltype_t, informave::db::DatatypeEnumeration);
 
         virtual ~convert_error(void) throw()
         {}
@@ -138,7 +144,7 @@ namespace ex
     public:
         null_value(const String &varname = String());
 
-        null_value(const dal::Variant &var);
+        null_value(const Variant &var);
 
         //null_value(dal::dalstate_t state, const std::wstring &varname = std::wstring());
 
@@ -272,6 +278,7 @@ namespace ex
     {
     public:
         //read_only(dal::dalstate_t state, const std::wstring &resource_name);
+
 
         read_only(const String &resource_name = String(L"<unnamed>"),
                   const char *triggered_by = "<unknown>");

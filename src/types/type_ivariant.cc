@@ -1,5 +1,5 @@
 //
-// type_unicodestreambuf.cc - Type: MEMO (definitions)
+// type_ivariant.cc - Type: IVARIANT (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,13 +36,15 @@
 //
 
 /// @file
-/// @brief Type: MEMO (definitions)
+/// @brief Type: IVARIANT (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#include "dbwtl/dal/dal_interface.hh"
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
 #include "dbwtl/db_exceptions.hh"
-#include "../dal_debug.hh"
+#include "../dal/dal_debug.hh"
 
 #include <ctime>
 #include <iostream>
@@ -50,20 +52,33 @@
 #include <sstream>
 #include <typeinfo>
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
-///
-/// @bug FIX CONST
-UnicodeStreamBuf*
-read_accessor<UnicodeStreamBuf>::asMemo(void) const
-{
-    return const_cast<UnicodeStreamBuf*>(&this->getValue());
-    //return this->getPtr();
+
+
+
+int
+read_accessor<IVariant>::asInt() const
+{ 
+    return this->getValue().asInt(); 
 }
 
 
 
+String
+read_accessor<IVariant>::asStr(std::locale loc) const
+{
+    return L"Implement me";
+}
 
 
-DAL_NAMESPACE_END
+daltype_t
+read_accessor<IVariant>::datatype() const
+{
+    return this->getValue().datatype();
+}
+
+
+
+DB_NAMESPACE_END

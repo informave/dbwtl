@@ -142,7 +142,7 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions("-Wno-non-virtual-dtor")
   if (DBWTL_ENABLE_WARNINGS)
 	  add_definitions("-Wall -W -Wextra -Wno-unused-parameter
-	  -Wold-style-cast
+	  -Wno-old-style-cast
     -Wwrite-strings  -Wno-unused -Wno-switch-enum")
     if(DBWTL_ENABLE_PEDANTIC)
       add_definitions("-pedantic -Wno-long-long -Weffc++ -Wno-non-virtual-dtor")
@@ -241,16 +241,18 @@ endif()
 # Source files
 set(dbwtl_srcs
         ${DBWTL_MAIN_SRC_DIR}/dal/dal_interface.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_bigint.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_bool.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_bytestreambuf.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_int.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_ivariant.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_smallint.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_string.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/types/type_unicodestreambuf.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_bigint.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_bool.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_bytestreambuf.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_int.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_float.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_ivariant.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_smallint.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_string.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_unicodestreambuf.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
+	${DBWTL_MAIN_SRC_DIR}/variant.cc
 	${DBWTL_MAIN_SRC_DIR}/ustring.cc
 	${DBWTL_MAIN_SRC_DIR}/dal/sqlutils.cc
 )

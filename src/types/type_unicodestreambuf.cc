@@ -1,5 +1,5 @@
 //
-// type_bool.cc - Type: BOOL (definitions)
+// type_unicodestreambuf.cc - Type: MEMO (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,13 +36,15 @@
 //
 
 /// @file
-/// @brief Type: BOOL (definitions)
+/// @brief Type: MEMO (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#include "dbwtl/dal/dal_interface.hh"
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
 #include "dbwtl/db_exceptions.hh"
-#include "../dal_debug.hh"
+#include "../dal/dal_debug.hh"
 
 #include <ctime>
 #include <iostream>
@@ -50,28 +52,20 @@
 #include <sstream>
 #include <typeinfo>
 
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
-bool
-read_accessor<bool>::asBool(void) const
+///
+/// @bug FIX CONST
+UnicodeStreamBuf*
+read_accessor<UnicodeStreamBuf>::asMemo(void) const
 {
-    return this->getValue();
-}
-
-
-
-String
-read_accessor<bool>::asStr(std::locale loc) const
-{
-    std::wstringstream ss;
-    ss.imbue(loc);
-    ss << this->getValue();
-    return ss.str();
+    return const_cast<UnicodeStreamBuf*>(&this->getValue());
+    //return this->getPtr();
 }
 
 
 
 
 
-DAL_NAMESPACE_END
+DB_NAMESPACE_END

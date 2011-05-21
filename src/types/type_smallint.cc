@@ -1,5 +1,5 @@
 //
-// dal_fwd.hh - DAL forward declarations
+// type_smallint.cc - Type: SMALLINT (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,73 +36,48 @@
 //
 
 /// @file
-/// @brief DAL forward declarations
+/// @brief Type: SMALLINT (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#ifndef INFORMAVE_DB_DAL_FWD_HH
-#define INFORMAVE_DB_DAL_FWD_HH
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
+#include "dbwtl/db_exceptions.hh"
+#include "../dal/dal_debug.hh"
 
+#include <ctime>
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <typeinfo>
 
-#define DAL_NAMESPACE_BEGIN namespace informave { namespace db { namespace dal {
-#define DAL_NAMESPACE_END }}}
-
-
-#include "dbwtl/dbwtl_config.hh"
-
-#ifdef DBWTL_ON_WIN32
-#include "../../targetver.h"
-#include <windows.h>
-#endif
-
-#include "../ustring.hh"
-#include "dbwtl/util/smartptr.hh"
-
-DAL_NAMESPACE_BEGIN
-
-
-
-class IDALDriver;
-class IDALObject;
-
-class IBlobBuffer;
-class IMemoBuffer;
-class Blob;
-class Memo;
-
-class IDiagnostic;
-class IColumnDesc;
-class EngineVariant;
-class ITable;
-class IView;
-class IEnv;
-class IDbc;
-class IResult;
-class IStmt;
-class Factory;
-
-
-class StmtBase;
-class DbcBase;
-class ResultBase;
-class EnvBase;
-/// @todo add missing classes
+DB_NAMESPACE_BEGIN
 
 
 
 
-
-//--------------------------------------------------------------------------
-/// @brief Base class for all DAL classes
-class DBWTL_EXPORT IDALObject
+String
+read_accessor<signed short>::asStr(std::locale loc) const
 {
-public:
-    virtual ~IDALObject(void) { }
-};
+    std::wstringstream ss;
+    ss.imbue(loc);
+    ss << this->getValue();
+    return ss.str();
+}
+
+
+
+String
+read_accessor<unsigned short>::asStr(std::locale loc) const
+{
+    std::wstringstream ss;
+    ss.imbue(loc);
+    ss << this->getValue();
+    return ss.str();
+}
 
 
 
 
-DAL_NAMESPACE_END
-
-#endif
+DB_NAMESPACE_END

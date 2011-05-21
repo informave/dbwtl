@@ -71,7 +71,7 @@ DBWTL_EXPORT String daltype2sqlname(daltype_t type);
 
 //--------------------------------------------------------------------------
 /// @brief BLOB stream
-class DBWTL_EXPORT Blob : public std::istream
+class DBWTL_EXPORT Blob : public std::iostream
 {
 public:
     Blob(ByteStreamBuf *buf);
@@ -91,7 +91,7 @@ private:
 
 //--------------------------------------------------------------------------
 /// @brief MEMO stream
-class DBWTL_EXPORT Memo : public std::wistream
+class DBWTL_EXPORT Memo : public std::wiostream
 {
 public:
     Memo(UnicodeStreamBuf *buf);
@@ -371,7 +371,7 @@ DBWTL_VARIANT_DISPATCHER(asTimestamp,  TTimestamp);
 
 ///
 template<>
-class read_accessor<Blob> : public default_accessor<Blob>
+class DBWTL_EXPORT read_accessor<Blob> : public default_accessor<Blob>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_BLOB);
@@ -382,7 +382,7 @@ public:
 
 ///
 template<>
-class read_accessor<Memo> : public default_accessor<Memo>
+class DBWTL_EXPORT read_accessor<Memo> : public default_accessor<Memo>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_MEMO);
@@ -395,7 +395,7 @@ public:
 
 ///
 template<>
-class read_accessor<signed int> : public default_accessor<signed int>
+class DBWTL_EXPORT read_accessor<signed int> : public default_accessor<signed int>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_INT);
@@ -431,7 +431,7 @@ public:
 
 ///
 template<>
-class read_accessor<unsigned int> : public default_accessor<unsigned int>
+class DBWTL_EXPORT read_accessor<unsigned int> : public default_accessor<unsigned int>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_UINT);
@@ -442,7 +442,7 @@ public:
 
 ///
 template<>
-class read_accessor<signed char> : public default_accessor<signed char>
+class DBWTL_EXPORT read_accessor<signed char> : public default_accessor<signed char>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_CHAR);
@@ -450,7 +450,7 @@ public:
 
 ///
 template<>
-class read_accessor<unsigned char> : public default_accessor<unsigned char>
+class DBWTL_EXPORT read_accessor<unsigned char> : public default_accessor<unsigned char>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_UCHAR);
@@ -458,7 +458,7 @@ public:
 
 ///
 template<>
-class read_accessor<bool> : public default_accessor<bool>
+class DBWTL_EXPORT read_accessor<bool> : public default_accessor<bool>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_BOOL);
@@ -471,7 +471,7 @@ public:
 
 ///
 template<>
-class read_accessor<signed short> : public default_accessor<signed short>
+class DBWTL_EXPORT read_accessor<signed short> : public default_accessor<signed short>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_SMALLINT);
@@ -483,7 +483,7 @@ public:
 
 ///
 template<>
-class read_accessor<unsigned short> : public default_accessor<unsigned short>
+class DBWTL_EXPORT read_accessor<unsigned short> : public default_accessor<unsigned short>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_USMALLINT);
@@ -495,7 +495,7 @@ public:
 
 ///
 template<>
-class read_accessor<signed long long> : public default_accessor<signed long long>
+class DBWTL_EXPORT read_accessor<signed long long> : public default_accessor<signed long long>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_BIGINT);
@@ -508,7 +508,7 @@ public:
 
 ///
 template<>
-class read_accessor<unsigned long long> : public default_accessor<unsigned long long>
+class DBWTL_EXPORT read_accessor<unsigned long long> : public default_accessor<unsigned long long>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_UBIGINT);
@@ -516,7 +516,7 @@ public:
 
 ///
 template<>
-class read_accessor<TNumeric> : public default_accessor<TNumeric>
+class DBWTL_EXPORT read_accessor<TNumeric> : public default_accessor<TNumeric>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_NUMERIC);
@@ -524,7 +524,7 @@ public:
 
 ///
 template<>
-class read_accessor<double> : public default_accessor<double>
+class DBWTL_EXPORT read_accessor<double> : public default_accessor<double>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_DOUBLE);
@@ -536,7 +536,7 @@ public:
 
 ///
 template<>
-class read_accessor<float> : public default_accessor<float>
+class DBWTL_EXPORT read_accessor<float> : public default_accessor<float>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_FLOAT);
@@ -547,7 +547,7 @@ public:
 
 ///
 template<>
-class read_accessor<TDate> : public default_accessor<TDate>
+class DBWTL_EXPORT read_accessor<TDate> : public default_accessor<TDate>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_DATE);
@@ -555,7 +555,7 @@ public:
 
 ///
 template<>
-class read_accessor<TTime> : public default_accessor<TTime>
+class DBWTL_EXPORT read_accessor<TTime> : public default_accessor<TTime>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_TIME);
@@ -563,7 +563,7 @@ public:
 
 ///
 template<>
-class read_accessor<TTimestamp> : public default_accessor<TTimestamp>
+class DBWTL_EXPORT read_accessor<TTimestamp> : public default_accessor<TTimestamp>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_TIMESTAMP);
@@ -571,7 +571,7 @@ public:
 
 ///
 template<>
-class read_accessor<TInterval> : public default_accessor<TInterval>
+class DBWTL_EXPORT read_accessor<TInterval> : public default_accessor<TInterval>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_INTERVAL);
@@ -579,7 +579,7 @@ public:
 
 ///
 template<>
-struct read_accessor<String> : public default_accessor<String>
+struct DBWTL_EXPORT read_accessor<String> : public default_accessor<String>
 {
     READ_ACCESSOR(DAL_TYPE_STRING);
 
@@ -635,7 +635,7 @@ struct read_accessor<String> : public default_accessor<String>
 
 ///
 template<>
-class read_accessor<IVariant> : public default_accessor<IVariant>
+class DBWTL_EXPORT read_accessor<IVariant> : public default_accessor<IVariant>
 {
 public:
     DAL_VARIANT_ACCESSOR;
@@ -858,30 +858,19 @@ template<> struct Converter<IVariant>
 
 
 
-
-
-
-
-
+///
 template<>
-struct variant_assign<Memo>
+struct DBWTL_EXPORT variant_assign<Memo>
 {
-    void set_new_value(Memo& dest, const Variant &src)
-    {
-        throw std::runtime_error("read only-todo");
-        // *dest = src.get<T>();
-    }
+    void set_new_value(Memo& dest, const Variant &src);
 };
 
 
+///
 template<>
-struct variant_assign<Blob>
+struct DBWTL_EXPORT variant_assign<Blob>
 {
-    void set_new_value(Blob& dest, const Variant &src)
-        {
-        throw std::runtime_error("read only-todo");
-        // *dest = src.get<T>();
-    }
+    void set_new_value(Blob& dest, const Variant &src);
 };
 
 

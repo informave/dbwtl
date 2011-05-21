@@ -43,7 +43,7 @@
 #include "dbwtl/db_fwd.hh"
 #include "dbwtl/variant.hh"
 #include "dbwtl/types.hh"
-#include "dbwtl/db_exceptions.hh"
+#include "dbwtl/dal/dal_interface.hh"
 #include "../dal/dal_debug.hh"
 
 #include <ctime>
@@ -58,7 +58,7 @@ DB_NAMESPACE_BEGIN
 
 ///
 ///
-Blob::Blob(ByteStreamBuf *buf) : std::istream(0), m_buf(buf)
+Blob::Blob(ByteStreamBuf *buf) : std::iostream(0), m_buf(buf)
 {
     this->rdbuf(buf);
 }
@@ -66,7 +66,7 @@ Blob::Blob(ByteStreamBuf *buf) : std::istream(0), m_buf(buf)
 
 ///
 ///
-Blob::Blob(const IVariant &variant) : std::istream(0),
+Blob::Blob(const IVariant &variant) : std::iostream(0),
                                       m_buf()
 {
     this->operator=(variant.asBlob());
@@ -76,7 +76,7 @@ Blob::Blob(const IVariant &variant) : std::istream(0),
 ///
 ///
 Blob::Blob(const Blob& b) : std::basic_ios<char>(),
-                            std::istream(0),
+                            std::iostream(0),
                             m_buf()
 {
     this->operator=(b);
@@ -106,6 +106,17 @@ Blob
 read_accessor<Blob>::asBlob(void) const
 {
     return this->getValue();
+}
+
+
+
+///
+/// @todo Check if there are conflicts with binary streams
+/// @todo Write test case
+void
+variant_assign<Blob>::set_new_value(Blob& dest, const Variant &src)
+{
+    dest << src;
 }
 
 

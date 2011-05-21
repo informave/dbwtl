@@ -52,6 +52,7 @@
 
 #ifdef DBWTL_ON_WIN32
 #include "../../targetver.h"
+#define NOMINMAX
 #include <windows.h>
 #endif
 

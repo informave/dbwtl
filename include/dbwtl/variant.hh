@@ -617,7 +617,7 @@ public:
 
 
     template<typename T>
-        Variant(const T& v, typename std::enable_if<!std::is_base_of<Variant, T>::value, void*>::type = 0) 
+        Variant(const T& v, typename std::enable_if<!std::is_base_of<Variant, T>::value, int>::type = 0) 
         : m_storage(new variant_value<T>(v))
     {}
 
@@ -792,7 +792,7 @@ protected:
 
 
 template<typename T>
-struct variant_assign
+struct DBWTL_EXPORT variant_assign
 {
 
     void set_new_value(T& dest, const Variant &src)
@@ -804,7 +804,7 @@ struct variant_assign
 
 
 template<typename T>
-struct variant_assign<T*>
+struct DBWTL_EXPORT variant_assign<T*>
 {
     void set_new_value(T*& dest, const Variant &src)
     {
@@ -814,10 +814,10 @@ struct variant_assign<T*>
 };
 
 
-void throw_read_only(void);
+void DBWTL_EXPORT throw_read_only(void);
 
 template<typename T>
-struct variant_assign<const T*>
+struct DBWTL_EXPORT variant_assign<const T*>
 {
     void set_new_value(const T*& dest, const Variant &src)
     {
@@ -828,7 +828,7 @@ struct variant_assign<const T*>
 
 
 template<>
-struct variant_assign<IVariant*>
+struct DBWTL_EXPORT variant_assign<IVariant*>
 {
 
     /// @todo Implement a testcase
@@ -866,7 +866,7 @@ public:
 /// @details
 /// Foo
 template<typename Ch, typename Tr = std::char_traits<Ch>, typename Alloc = std::allocator<Ch> >
-class fmt_parser
+class DBWTL_EXPORT fmt_parser
 {
 public:
     /// Formatting settings
@@ -967,7 +967,7 @@ public:
         }
         else if(c == '*')
         {
-            settings.width = this->get_arg(m_pos++).template asInt();
+            settings.width = this->get_arg(m_pos++).asInt();
             c = getnc();
         }
 
@@ -985,7 +985,7 @@ public:
             }
             else if(c == '*')
             {
-                settings.prec = this->get_arg(m_pos++).template asInt();
+                settings.prec = this->get_arg(m_pos++).asInt();
                 c = getnc();
             }
         }
@@ -1142,7 +1142,7 @@ private:
 
 
 template<typename Ch, typename Tr = std::char_traits<Ch>, typename Alloc = std::allocator<Ch> >
-class basic_format
+class DBWTL_EXPORT basic_format
 {
 public:
     typedef std::basic_string<Ch, Tr, Alloc>    string_type;

@@ -58,7 +58,7 @@ inline std::wstring to_widen(std::string s)
                   << std::endl;                                         \
     }
 
-#define DAL_NOT_IMPL() { assert(!"not implemented"); }
+#define DAL_NOT_IMPL() { throw std::runtime_error("not impl"); }
 
  
 

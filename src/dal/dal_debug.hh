@@ -62,9 +62,19 @@
 DAL_NAMESPACE_BEGIN
 
 
+class debug_error : public std::runtime_error
+{
+    debug_error(const std::string &what) : std::runtime_error(what)
+        {}
+
+    virtual ~debug_error(void) throw()
+        {}
+};
+
+
 /// 
 #define DBWTL_UNHANDLED(str)                                            \
-    throw std::runtime_error(std::string("[ERR][").append(DBWTL_CODE_POS) \
+    throw debug_error(std::string("[ERR][").append(DBWTL_CODE_POS) \
                              .append("][")                              \
                              .append(DBWTL_FUNC_NAME)                   \
                              .append("] ==>>> ")                        \
@@ -74,7 +84,7 @@ DAL_NAMESPACE_BEGIN
 
 /// Throws if function is not implemented
 #define DBWTL_NOTIMPL()                                             \
-    throw std::runtime_error(std::string("[ERR][")                  \
+    throw debug_error(std::string("[ERR][")                  \
                              .append(DBWTL_CODE_POS)              \
                              .append("][")                          \
                              .append(DBWTL_FUNC_NAME)               \

@@ -43,7 +43,7 @@
 #include "dbwtl/db_fwd.hh"
 #include "dbwtl/variant.hh"
 #include "dbwtl/types.hh"
-#include "dbwtl/db_exceptions.hh"
+#include "dbwtl/dal/dal_interface.hh"
 #include "../dal/dal_debug.hh"
 
 #include <ctime>
@@ -57,7 +57,7 @@ DB_NAMESPACE_BEGIN
 
 ///
 ///
-Memo::Memo(UnicodeStreamBuf *buf) : std::wistream(0),
+Memo::Memo(UnicodeStreamBuf *buf) : std::wiostream(0),
                                     m_buf(buf)
 {
     this->rdbuf(m_buf);
@@ -65,7 +65,7 @@ Memo::Memo(UnicodeStreamBuf *buf) : std::wistream(0),
 
 ///
 ///
-Memo::Memo(const IVariant &variant) : std::wistream(0),
+Memo::Memo(const IVariant &variant) : std::wiostream(0),
                                       m_buf()
 {
     this->operator=(variant.asMemo());
@@ -75,7 +75,7 @@ Memo::Memo(const IVariant &variant) : std::wistream(0),
 ///
 ///
 Memo::Memo(const Memo& m) : std::basic_ios<wchar_t>(),
-                            std::wistream(0),
+                            std::wiostream(0),
                             m_buf()
 {
     this->operator=(m);
@@ -136,6 +136,16 @@ read_accessor<Memo>::asMemo(void) const
 {
     return this->getValue();
 }
+
+
+///
+///
+void
+variant_assign<Memo>::set_new_value(Memo& dest, const Variant &src)
+{
+    dest << src;
+}
+
 
 
 DB_NAMESPACE_END

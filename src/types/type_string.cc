@@ -43,7 +43,7 @@
 #include "dbwtl/db_fwd.hh"
 #include "dbwtl/variant.hh"
 #include "dbwtl/types.hh"
-#include "dbwtl/db_exceptions.hh"
+#include "dbwtl/dal/dal_interface.hh"
 #include "../dal/dal_debug.hh"
 
 #include "dbwtl/dal/dal_interface.hh"

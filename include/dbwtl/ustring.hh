@@ -318,7 +318,7 @@ public:
         const facet &cv = std::use_facet< facet >(loc);
         std::mbstate_t state = std::mbstate_t();
 
-        typename std::wstring::value_type *next;
+        //typename std::wstring::value_type *next;
         out.resize((tmp.size()+1) * cv.max_length());
 
         const typename std::wstring::value_type *in_next;

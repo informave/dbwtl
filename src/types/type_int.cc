@@ -171,14 +171,14 @@ read_accessor<signed int>::asTimestamp(void) const
 
 
 
-ByteStreamBuf*       
+Blob
 read_accessor<signed int>::asBlob(void) const
 {
 	DAL_NOT_IMPL();
     //return this->getValue();
 }
 
-UnicodeStreamBuf*    
+Memo
 read_accessor<signed int>::asMemo(void) const
 {
 	DAL_NOT_IMPL();

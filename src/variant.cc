@@ -168,11 +168,11 @@ TInterval       DefaultVariant::asInterval(void) const
 
 
 
-ByteStreamBuf*         DefaultVariant::asBlob(void) const
+Blob            DefaultVariant::asBlob(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_BLOB); }
 
 
-UnicodeStreamBuf*         DefaultVariant::asMemo(void) const
+Memo            DefaultVariant::asMemo(void) const
 { throw ex::convert_error(this->datatype(), DAL_TYPE_MEMO); }
 
 
@@ -389,14 +389,14 @@ Variant::asInterval(void) const
 }
 
 ///
-ByteStreamBuf*
+Blob
 Variant::asBlob(void) const 
 {
     return this->getStoredVar()->asBlob(); 
 }
 
 ///
-UnicodeStreamBuf*
+Memo
 Variant::asMemo(void) const 
 {
     return this->getStoredVar()->asMemo(); 
@@ -426,8 +426,8 @@ IVariant::operator float                 (void) const { return this->asReal(); }
 IVariant::operator double                (void) const { return this->asDouble(); }
 IVariant::operator String                (void) const { return this->asStr(); }
 IVariant::operator std::string           (void) const { return std::string(this->asStr().to("UTF-8")); }
-IVariant::operator ByteStreamBuf*        (void) const { return this->asBlob(); }
-IVariant::operator UnicodeStreamBuf*     (void) const { return this->asMemo(); }
+IVariant::operator Blob                  (void) const { return this->asBlob(); }
+IVariant::operator Memo                  (void) const { return this->asMemo(); }
 
 // IVariant::operator TNumeric              (void) const { return this->asNumeric(); }
 // IVariant::operator TDate                 (void) const { return this->asDate(); }

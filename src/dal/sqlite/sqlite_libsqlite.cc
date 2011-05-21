@@ -569,7 +569,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             case DAL_TYPE_BLOB:
                 if(var->asBlob())
                 {
-                    tmp_stream << var->asBlob();
+                    tmp_stream << var->asBlob().rdbuf();
                 
                     std::string& tmp_string = tmp_strings[param->first];
                     tmp_string = tmp_stream.str();

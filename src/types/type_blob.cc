@@ -1,5 +1,5 @@
 //
-// type_bytestreambuf.cc - Type: BLOB (definitions)
+// type_blob.cc - Type: BLOB (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -55,10 +55,57 @@
 DB_NAMESPACE_BEGIN
 
 
-ByteStreamBuf*
-read_accessor<ByteStreamBuf>::asBlob(void) const
+
+///
+///
+Blob::Blob(ByteStreamBuf *buf) : std::istream(0), m_buf(buf)
 {
-    return const_cast<ByteStreamBuf*>(&this->getValue()); /// @bug FIX CONST
+    this->rdbuf(buf);
+}
+
+
+///
+///
+Blob::Blob(const IVariant &variant) : std::istream(0),
+                                      m_buf()
+{
+    this->operator=(variant.asBlob());
+}
+
+
+///
+///
+Blob::Blob(const Blob& b) : std::basic_ios<char>(),
+                            std::istream(0),
+                            m_buf()
+{
+    this->operator=(b);
+}
+
+
+///
+///
+Blob&
+Blob::operator=(const Blob& b)
+{
+    this->m_buf = b.m_buf;
+    this->rdbuf(m_buf);
+    return *this;
+}
+
+//
+//
+Blob::~Blob(void)
+{}
+
+
+
+///
+///
+Blob
+read_accessor<Blob>::asBlob(void) const
+{
+    return this->getValue();
 }
 
 

@@ -151,12 +151,12 @@ read_accessor<String>::asDouble(void) const
     else return v;
 }
 
-UnicodeStreamBuf*
+Memo
 read_accessor<String>::asMemo(void) const
 {
     std::wstringbuf *buf = new std::wstringbuf();
     buf->str(this->getValue());
-    return buf;
+    return Memo(buf);
 }
 
 

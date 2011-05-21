@@ -56,12 +56,18 @@
 #include <type_traits>
 #endif
 
+#include <memory>
+
 
 DB_NAMESPACE_BEGIN
 
 
 typedef std::wstreambuf        UnicodeStreamBuf;
 typedef std::streambuf         ByteStreamBuf;
+
+typedef std::shared_ptr<UnicodeStreamBuf> UnicodeStreamBufPtr;
+typedef std::shared_ptr<ByteStreamBuf> ByteStreamBufPtr;
+
 
 
 template<class Elem,

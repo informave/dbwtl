@@ -637,7 +637,7 @@ public:
 
     virtual bool asBool() const;
 
-    virtual std::streambuf* asBlob(void) const;
+    virtual Blob asBlob(void) const;
 
     virtual String asStr(std::locale loc = std::locale()) const;
 

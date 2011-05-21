@@ -74,10 +74,10 @@ read_accessor<dal::SqliteData>::asBool() const
 }
 
 
-std::streambuf*
+Blob
 read_accessor<dal::SqliteData>::asBlob(void) const
 {
-    return this->getValue().getBlob();
+    return Blob(this->getValue().getBlob());
 }
 
 String
@@ -129,8 +129,8 @@ variant_deepcopy<dal::SqliteData*>::create_deepcopy(const ptr & ref, const IStor
     case DAL_TYPE_USMALLINT:  return new variant_value<unsigned short>(var->asUSmallint()); break;
     case DAL_TYPE_BIGINT:     return new variant_value<signed long long>(var->asBigint()); break;
     case DAL_TYPE_UBIGINT:    return new variant_value<unsigned long long>(var->asUBigint()); break;
-    case DAL_TYPE_BLOB:       return new variant_value<ByteStreamBuf*>(var->asBlob()); break;
-    case DAL_TYPE_MEMO:       return new variant_value<UnicodeStreamBuf*>(var->asMemo()); break;
+    case DAL_TYPE_BLOB:       return new variant_value<Blob>(var->asBlob()); break;
+    case DAL_TYPE_MEMO:       return new variant_value<Memo>(var->asMemo()); break;
     case DAL_TYPE_NUMERIC:    return new variant_value<TNumeric>(var->asNumeric()); break;
     case DAL_TYPE_FLOAT:      return new variant_value<float>(var->asReal()); break;
     case DAL_TYPE_DOUBLE:     return new variant_value<double>(var->asDouble()); break;

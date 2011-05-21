@@ -1,5 +1,5 @@
 //
-// type_unicodestreambuf.cc - Type: MEMO (definitions)
+// type_memo.cc - Type: MEMO (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -56,16 +56,86 @@ DB_NAMESPACE_BEGIN
 
 
 ///
-/// @bug FIX CONST
-UnicodeStreamBuf*
-read_accessor<UnicodeStreamBuf>::asMemo(void) const
+///
+Memo::Memo(UnicodeStreamBuf *buf) : std::wistream(0),
+                                    m_buf(buf)
 {
-    return const_cast<UnicodeStreamBuf*>(&this->getValue());
-    //return this->getPtr();
+    this->rdbuf(m_buf);
+}
+
+///
+///
+Memo::Memo(const IVariant &variant) : std::wistream(0),
+                                      m_buf()
+{
+    this->operator=(variant.asMemo());
+}
+
+
+///
+///
+Memo::Memo(const Memo& m) : std::basic_ios<wchar_t>(),
+                            std::wistream(0),
+                            m_buf()
+{
+    this->operator=(m);
+}
+
+
+///
+///
+Memo&
+Memo::operator=(const Memo& m)
+{
+    this->m_buf = m.m_buf;
+    this->rdbuf(m_buf);
+    return *this;
 }
 
 
 
+//
+//
+Memo::~Memo(void)
+{}
+
+
+
+//
+//
+std::string
+Memo::narrow_str(const char *charset) const
+{
+    return String(this->str()).to("UTF-8");
+}
+
+
+//
+//
+std::wstring
+Memo::str() const
+{
+    try
+    {
+        return dynamic_cast<const std::wstringbuf&>(*this->m_buf).str();
+    }
+    catch(std::bad_cast &)
+    {
+        std::wstringstream ss;
+        ss << this->m_buf;
+        return ss.str();
+    }
+}
+
+
+
+///
+/// 
+Memo
+read_accessor<Memo>::asMemo(void) const
+{
+    return this->getValue();
+}
 
 
 DB_NAMESPACE_END

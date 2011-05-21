@@ -356,44 +356,6 @@ protected:
 
 
 
-//--------------------------------------------------------------------------
-/// @brief BLOB stream
-class DBWTL_EXPORT Blob : public std::istream
-{
-public:
-    Blob(ByteStreamBuf *buf);
-    Blob(const IVariant &variant);
-    virtual ~Blob();
-
-protected:
-    ByteStreamBuf *m_buf;
-private:
-    Blob(const Blob&);
-    Blob& operator=(const Blob&);
-};
-
-
-
-//--------------------------------------------------------------------------
-/// @brief MEMO stream
-class DBWTL_EXPORT Memo : public std::wistream
-{
-public:
-    Memo(UnicodeStreamBuf *buf);
-    Memo(const IVariant &variant);
-    virtual ~Memo(void);
-
-    std::string   narrow_str(const char *charset) const;
-    std::wstring  str() const;
-
-protected:
-    UnicodeStreamBuf *m_buf;
-private:
-    Memo(const Memo&);
-    Memo& operator=(const Memo&);
-};
-
-
 
 
 //--------------------------------------------------------------------------

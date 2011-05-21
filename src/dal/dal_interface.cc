@@ -87,81 +87,6 @@ Add the -ldbwtl option to g++
 
 
 
-
-//--------------------------------------------------------------------------
-//
-Blob::Blob(ByteStreamBuf *buf) : std::istream(0), m_buf(buf)
-{
-    this->rdbuf(buf);
-}
-
-
-///
-///
-Blob::Blob(const IVariant &variant) : std::istream(0), m_buf(variant.asBlob())
-{
-    this->rdbuf(m_buf);
-}
-
-
-//
-//
-Blob::~Blob(void)
-{}
-
-
-//--------------------------------------------------------------------------
-//
-Memo::Memo(UnicodeStreamBuf *buf) : std::wistream(0), m_buf(buf)
-{
-    this->rdbuf(m_buf);
-}
-
-///
-///
-Memo::Memo(const IVariant &variant) : std::wistream(0), m_buf(variant.asMemo())
-{
-    // m_buf may leaks memory
-    this->rdbuf(m_buf);
-}
-
-
-
-
-//
-//
-Memo::~Memo(void)
-{}
-
-
-
-//
-//
-std::string
-Memo::narrow_str(const char *charset) const
-{
-    return String(this->str()).to("UTF-8");
-}
-
-
-//
-//
-std::wstring
-Memo::str() const
-{
-    try
-    {
-        return dynamic_cast<std::wstringbuf&>(*this->m_buf).str();
-    }
-    catch(std::bad_cast &)
-    {
-        std::wstringstream ss;
-        ss << this->m_buf;
-        return ss.str();
-    }
-}
-
-
 //--------------------------------------------------------------------------
 //
 IHandle::IHandle(void)
@@ -737,7 +662,7 @@ void
 StmtBase::bind(int num, ByteStreamBuf *data)
 {
     DALTRACE_VISIT;
-    Variant* tmp = new Variant(data);
+    Variant* tmp = new Variant(Blob(data));
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
 }
@@ -746,7 +671,7 @@ void
 StmtBase::bind(int num, UnicodeStreamBuf *data)
 {
     DALTRACE_VISIT;
-    Variant* tmp = new Variant(data);
+    Variant* tmp = new Variant(Memo(data));
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
 }

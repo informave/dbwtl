@@ -68,6 +68,52 @@ DBWTL_EXPORT String daltype2sqlname(daltype_t type);
 
 
 
+
+//--------------------------------------------------------------------------
+/// @brief BLOB stream
+class DBWTL_EXPORT Blob : public std::istream
+{
+public:
+    Blob(ByteStreamBuf *buf);
+    Blob(const IVariant &variant);
+    virtual ~Blob();
+
+    Blob(const Blob&);
+    Blob& operator=(const Blob&);
+
+protected:
+    ByteStreamBuf* m_buf;
+private:
+
+};
+
+
+
+//--------------------------------------------------------------------------
+/// @brief MEMO stream
+class DBWTL_EXPORT Memo : public std::wistream
+{
+public:
+    Memo(UnicodeStreamBuf *buf);
+    Memo(const IVariant &variant);
+    virtual ~Memo(void);
+
+    Memo(const Memo&);
+    Memo& operator=(const Memo&);
+
+
+    std::string   narrow_str(const char *charset) const;
+    std::wstring  str() const;
+
+protected:
+    UnicodeStreamBuf* m_buf;
+private:
+
+};
+
+
+
+
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for special types
@@ -325,24 +371,27 @@ DBWTL_VARIANT_DISPATCHER(asTimestamp,  TTimestamp);
 
 ///
 template<>
-class read_accessor<ByteStreamBuf> : public default_accessor<ByteStreamBuf>
+class read_accessor<Blob> : public default_accessor<Blob>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_BLOB);
 
-    virtual ByteStreamBuf* asBlob(void) const;
+    virtual Blob asBlob(void) const;
 };
 
 
 ///
 template<>
-class read_accessor<UnicodeStreamBuf> : public default_accessor<UnicodeStreamBuf>
+class read_accessor<Memo> : public default_accessor<Memo>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_MEMO);
 
-    virtual UnicodeStreamBuf* asMemo(void) const;
+    virtual Memo asMemo(void) const;
 };
+
+
+
 
 ///
 template<>
@@ -369,8 +418,8 @@ public:
 //    virtual TTime                 asTime(void) const;
     virtual TTimestamp            asTimestamp(void) const;
 //    virtual TInterval             asInterval(void) const;
-    virtual ByteStreamBuf*        asBlob(void) const;
-    virtual UnicodeStreamBuf*     asMemo(void) const;
+    virtual Blob        asBlob(void) const;
+    virtual Memo     asMemo(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
     
     
@@ -575,11 +624,11 @@ struct read_accessor<String> : public default_accessor<String>
 //     {
 //     }
 
-//     virtual ByteStreamBuf* asBlob(void) const
+//     virtual Blob* asBlob(void) const
 //     {
 //     }
 
-    virtual UnicodeStreamBuf* asMemo(void) const;
+    virtual Memo asMemo(void) const;
 };
 
 
@@ -684,7 +733,25 @@ template<> struct Converter<TTimestamp>
 };
 
 
+template<> struct Converter<Blob>
+{
+    typedef Blob type;
+    inline type operator()(const IStoredVariant &sv)
+    {
+        return sv.asBlob();
+    }
+};
 
+
+
+template<> struct Converter<Memo>
+{
+    typedef Memo type;
+    inline type operator()(const IStoredVariant &sv)
+    {
+        return sv.asMemo();
+    }
+};
 
 
 
@@ -797,9 +864,9 @@ template<> struct Converter<IVariant>
 
 
 template<>
-struct variant_assign<UnicodeStreamBuf*>
+struct variant_assign<Memo>
 {
-    void set_new_value(UnicodeStreamBuf*& dest, const Variant &src)
+    void set_new_value(Memo& dest, const Variant &src)
     {
         throw std::runtime_error("read only-todo");
         // *dest = src.get<T>();
@@ -808,17 +875,14 @@ struct variant_assign<UnicodeStreamBuf*>
 
 
 template<>
-struct variant_assign<ByteStreamBuf*>
+struct variant_assign<Blob>
 {
-    void set_new_value(ByteStreamBuf*& dest, const Variant &src)
+    void set_new_value(Blob& dest, const Variant &src)
         {
         throw std::runtime_error("read only-todo");
         // *dest = src.get<T>();
     }
 };
-
-
-
 
 
 

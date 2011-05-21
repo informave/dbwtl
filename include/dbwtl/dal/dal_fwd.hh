@@ -67,8 +67,8 @@ class IDALObject;
 
 class IBlobBuffer;
 class IMemoBuffer;
-class Blob;
-class Memo;
+//class Blob;
+//class Memo;
 
 class IDiagnostic;
 class IColumnDesc;

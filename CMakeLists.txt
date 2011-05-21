@@ -243,13 +243,13 @@ set(dbwtl_srcs
         ${DBWTL_MAIN_SRC_DIR}/dal/dal_interface.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bigint.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bool.cc
-	${DBWTL_MAIN_SRC_DIR}/types/type_bytestreambuf.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_blob.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_int.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_float.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_ivariant.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_smallint.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_string.cc
-	${DBWTL_MAIN_SRC_DIR}/types/type_unicodestreambuf.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_memo.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc

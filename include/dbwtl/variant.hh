@@ -124,8 +124,8 @@ template<> struct type_id<signed short>     { static inline daltype_t value(void
 template<> struct type_id<unsigned short>   { static inline daltype_t value(void) { return DAL_TYPE_USMALLINT; } };
 template<> struct type_id<signed long long> { static inline daltype_t value(void) { return DAL_TYPE_BIGINT; } };
 template<> struct type_id<unsigned long>    { static inline daltype_t value(void) { return DAL_TYPE_UBIGINT; } };
-template<> struct type_id<ByteStreamBuf>    { static inline daltype_t value(void) { return DAL_TYPE_BLOB; } };
-template<> struct type_id<UnicodeStreamBuf> { static inline daltype_t value(void) { return DAL_TYPE_MEMO; } };
+template<> struct type_id<Blob>             { static inline daltype_t value(void) { return DAL_TYPE_BLOB; } };
+template<> struct type_id<Memo>             { static inline daltype_t value(void) { return DAL_TYPE_MEMO; } };
 template<> struct type_id<TNumeric>         { static inline daltype_t value(void) { return DAL_TYPE_NUMERIC; } };
 template<> struct type_id<float>            { static inline daltype_t value(void) { return DAL_TYPE_FLOAT; } };
 template<> struct type_id<double>           { static inline daltype_t value(void) { return DAL_TYPE_DOUBLE; } };
@@ -165,8 +165,8 @@ public:
     operator double                (void) const;
     operator String                (void) const;
     operator std::string           (void) const;
-    operator ByteStreamBuf*        (void) const;
-    operator UnicodeStreamBuf*     (void) const;
+    operator Blob                  (void) const;
+    operator Memo                  (void) const;
 
 
     // This classes should provide a constructor for IVariant&
@@ -195,8 +195,8 @@ public:
     virtual TTime                asTime(void) const = 0;
     virtual TTimestamp           asTimestamp(void) const = 0;
     virtual TInterval            asInterval(void) const = 0;
-    virtual ByteStreamBuf*       asBlob(void) const = 0;
-    virtual UnicodeStreamBuf*    asMemo(void) const = 0;
+    virtual Blob                 asBlob(void) const = 0;
+    virtual Memo                 asMemo(void) const = 0;
 //     virtual const TCustomType&   asCustom(void) const = 0;
 
   
@@ -268,8 +268,8 @@ public:
     virtual TTime                 asTime(void) const;
     virtual TTimestamp            asTimestamp(void) const;
     virtual TInterval             asInterval(void) const;
-    virtual ByteStreamBuf*        asBlob(void) const;
-    virtual UnicodeStreamBuf*     asMemo(void) const;
+    virtual Blob                  asBlob(void) const;
+    virtual Memo                  asMemo(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
 
 
@@ -491,11 +491,11 @@ struct variant_deepcopy<T*>
 
 //--------------------------------------------------------------------------
 ///
-/// @brief Deepcopy for UnicodeStreamBuf*
+/// @brief Deepcopy for Memo*
 template<>
-struct variant_deepcopy<UnicodeStreamBuf*>
+struct variant_deepcopy<Memo>
 {
-    typedef UnicodeStreamBuf* ptr;
+    typedef Memo ptr;
     IStoredVariant* create_deepcopy(const ptr & ref, const IStoredVariant *var) const
     {
         throw std::runtime_error("unicodestreambuf does not deep copy");
@@ -507,17 +507,18 @@ struct variant_deepcopy<UnicodeStreamBuf*>
 
 //--------------------------------------------------------------------------
 ///
-/// @brief Deepcopy for ByteStreamBuf*
+/// @brief Deepcopy for Blob*
 template<>
-struct variant_deepcopy<ByteStreamBuf*>
+struct variant_deepcopy<Blob>
 {
-    typedef ByteStreamBuf* ptr;
+    typedef Blob ptr;
     IStoredVariant* create_deepcopy(const ptr & ref, const IStoredVariant *var) const
     {
         throw std::runtime_error("bytetreambuf does not deep copy");
         //return new variant_value<typename variant_traits<T>::object_type>(*ref);
     }
 };
+
 
 
 
@@ -769,8 +770,8 @@ public:
     virtual TTime               asTime(void) const;
     virtual TTimestamp          asTimestamp(void) const;
     virtual TInterval           asInterval(void) const;
-    virtual ByteStreamBuf*      asBlob(void) const;
-    virtual UnicodeStreamBuf*   asMemo(void) const;
+    virtual Blob                asBlob(void) const;
+    virtual Memo                asMemo(void) const;
     //virtual TCustom&        asCustom(void) const = 0;
 
 

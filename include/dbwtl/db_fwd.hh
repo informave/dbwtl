@@ -54,6 +54,10 @@ DB_NAMESPACE_BEGIN
 
 
 class Variant;
+
+class Blob;
+class Memo;
+
 class TType;
 class TDate;
 class TTime;

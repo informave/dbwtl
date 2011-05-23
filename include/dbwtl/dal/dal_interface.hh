@@ -922,7 +922,7 @@ public:
     virtual bool   isBad(void) const = 0;
 
     virtual void   first(void) = 0;
-    virtual void   next(void) = 0; /// @todo Change return type to bool
+    virtual bool   next(void) = 0;
     virtual bool   eof(void) const = 0;
     virtual bool   isOpen(void) const = 0;
     virtual void   close(void) = 0;

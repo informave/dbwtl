@@ -731,7 +731,7 @@ public:
 
     virtual void   first(void)             { this->m_result->first(); }
 
-    virtual void   next(void)              { this->m_result->next(); }
+    virtual bool   next(void)              { return this->m_result->next(); }
 
     virtual bool   eof(void) const         { return this->m_result->eof(); }
 
@@ -792,6 +792,8 @@ private:
     Result& operator=(const Result&);
 };
 
+
+#define DBWTL_FOREACH_ROW(result) for(result.first(); !result.eof(); result.next())
 
 
 

@@ -671,7 +671,7 @@ SqliteResult_libsqlite::first(void)
 
 
 //
-void
+bool
 SqliteResult_libsqlite::next(void)
 {
     if(this->isBad())
@@ -706,6 +706,8 @@ SqliteResult_libsqlite::next(void)
                                         this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
         break;
     };
+
+    return !this->eof();
 }
 
 

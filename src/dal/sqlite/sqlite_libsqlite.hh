@@ -200,7 +200,7 @@ public:
     virtual ~SqliteResult_libsqlite(void);
 
     virtual void   first(void);
-    virtual void   next(void);
+    virtual bool   next(void);
     virtual bool   eof(void) const;
     virtual void   close(void);
 

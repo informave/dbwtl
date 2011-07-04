@@ -18,6 +18,69 @@ using namespace informave::db::ex;
 
 
 
+CXXC_FIXTURE_TEST(SqliteMemoryFixture, DoubleResultset)
+{
+	DBMS::Statement stmt(dbc);
+	DBMS::Resultset rs;
+
+	stmt.execDirect("SELECT 1 AS f1");
+	rs.attach(stmt),
+	rs.first();
+	CXXC_CHECK( rs.column("f1").get<int>() == 1 ); ////// write get<char> test!
+
+	stmt.close(); // test, should work without...
+	stmt.execDirect("SELECT 2 AS f2");
+	rs.attach(stmt),
+	rs.first();
+	CXXC_CHECK( rs.column("f2").get<int>() == 2 );
+}
+
+
+CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteVariantConversion)
+{
+	DBMS::Statement stmt(dbc);
+	stmt.execDirect("SELECT date('now'), datetime('now'), NULL");
+	DBMS::Resultset rs;
+	rs.attach(stmt);
+	rs.first();
+	TDate x = rs.column(1).get<TDate>();
+
+	std::cout << "VAL: " << std::string(x.str()) << std::endl;
+	std::cout << "VAL: " << std::string(TTime(13,37, 15).str()) << std::endl;
+	std::cout << "VAL: " << std::string(TTimestamp(2011, 12, 31, 10, 35, 23, 888).str()) << std::endl;
+
+	CXXC_CHECK( ! rs.column(1).isnull() );
+	CXXC_CHECK( rs.column(1).get<TDate>() == TDate("now") );
+	CXXC_CHECK( rs.column(2).get<TDate>() == TDate("now") );
+	CXXC_CHECK_THROW( null_value, rs.column(3).get<TDate>() );
+
+	stmt.close();
+	stmt.execDirect("SELECT time('now'), datetime('now'), NULL");
+	rs.attach(stmt);
+	rs.first();
+	TTime y = rs.column(1).get<TTime>();
+	CXXC_CHECK_THROW( null_value, rs.column(3).get<TTime>() );
+}
+
+
+CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteCompare)
+{
+        DBMS::Statement stmt(dbc);
+        stmt.prepare("SELECT date(?), date(?) || 'T' || time(?), date(?), NULL");
+	stmt.bind(1, TDate(2011, 4, 5));
+	stmt.bind(2, TDate(2011, 4, 6));
+	stmt.bind(3, TTime("12:45:01"));
+	stmt.bind(4, TTimestamp(2011, 12, 31, 10, 35, 23, 888));
+	stmt.execute();
+        DBMS::Resultset rs;
+        rs.attach(stmt);
+        rs.first();
+	CXXC_CHECK( rs.column(1).get<TDate>() == TDate(2011, 4, 5) );
+	CXXC_CHECK( rs.column(2).get<TTime>() == TTime(12, 45, 1) );
+	CXXC_CHECK( rs.column(3).get<TDate>() == TDate(2011, 12, 31) );
+}
+
+
 
 CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteVariantTest)
 {

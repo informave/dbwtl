@@ -56,6 +56,12 @@ DB_NAMESPACE_BEGIN
 
 
 
+signed short
+read_accessor<signed short>::asSmallint(void) const
+{
+	return this->getValue();
+}
+
 
 String
 read_accessor<signed short>::asStr(std::locale loc) const

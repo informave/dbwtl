@@ -894,8 +894,8 @@ public:
 
 
     /// Constructor
-    fmt_parser(const std::vector<Variant>& args, const string_type &str)
-        : m_fmt(str), m_in(str.begin()), m_end(str.end()), m_args(args)
+    fmt_parser(const std::vector<Variant>& args, const string_type &str, std::locale loc)
+        : m_fmt(str), m_loc(loc), m_in(str.begin()), m_end(str.end()), m_args(args)
     {}
 
     /// Consume next character
@@ -1055,7 +1055,8 @@ public:
     /// @brief Do 
     void do_fmt_base(Settings &s, stream_type &stream)
     {
-        
+        stream.imbue(this->m_loc);
+
         if(s.sign)
             stream << std::showpos;
             
@@ -1132,6 +1133,7 @@ public:
 
 private:
     const string_type &m_fmt;
+    std::locale    m_loc;
     string_type    m_str;
     int            m_pos;
     char_type      m_char;
@@ -1154,11 +1156,11 @@ public:
     typedef format_error_exception format_error;
 
 
-    explicit basic_format(const char_type *str, std::locale loc = std::locale("")) : m_fmt(str), m_loc(loc)
+    explicit basic_format(const char_type *str, std::locale loc = std::locale()) : m_fmt(str), m_loc(loc)
     {
     }
 
-    explicit basic_format(const string_type &str, std::locale loc = std::locale("")) : m_fmt(str), m_loc(loc)
+    explicit basic_format(const string_type &str, std::locale loc = std::locale()) : m_fmt(str), m_loc(loc)
     {
     }
 
@@ -1184,7 +1186,7 @@ public:
 
     string_type str(void) const
     {
-        parser_type p(m_args, m_fmt);
+        parser_type p(m_args, m_fmt, m_loc);
         return p.parse();
     }
 

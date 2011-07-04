@@ -52,10 +52,10 @@
 #include "dbwtl/util/smartptr.hh"
 #include "dbwtl/variant.hh"
 
+#include <ctime>
+
 
 DB_NAMESPACE_BEGIN
-
-
 
 
 /// @brief Maps a daltype ID to a string name
@@ -65,12 +65,11 @@ DBWTL_EXPORT String daltype2sqlname(daltype_t type);
 
 
 
-
-
-
-
-//--------------------------------------------------------------------------
-/// @brief BLOB stream
+//..............................................................................
+/////////////////////////////////////////////////////////////////////////// Blob
+///
+/// @since 0.0.1
+/// @brief BLOB Datatype
 class DBWTL_EXPORT Blob : public std::iostream
 {
 public:
@@ -89,8 +88,11 @@ private:
 
 
 
-//--------------------------------------------------------------------------
-/// @brief MEMO stream
+//..............................................................................
+/////////////////////////////////////////////////////////////////////////// Memo
+///
+/// @since 0.0.1
+/// @brief MEMO Datatype
 class DBWTL_EXPORT Memo : public std::wiostream
 {
 public:
@@ -113,15 +115,163 @@ private:
 
 
 
+//..............................................................................
+////////////////////////////////////////////////////////////////////////// TDate
+///
+/// @since 0.0.1
+/// @brief DATE Datatype
+class DBWTL_EXPORT TDate
+{
+public:
+    /// @brief Creates a DATE value set to 1970-01-01
+    TDate(void);
+
+    /// @brief Copy constructor
+    TDate(const TDate& date);
+
+    /// @brief Creates a DATE value from TIMESTAMP
+    TDate(const TTimestamp &ts);
+
+    /// @brief Creates a DATE value from an ISO-8601 date string (YYYY-MM-DD)
+    TDate(const String &str);
+
+    TDate(short int year, short int month, short int day);
+
+    TDate(const std::tm &time);
+
+    bool operator==(const TDate &date) const;
+    bool operator!=(const TDate &date) const;
+    bool operator<(const TDate &date) const;
+    bool operator>(const TDate &date) const;
+
+    virtual String str(void) const;
+
+    short int year(void) const;
+    short int month(void) const;
+    short int day(void) const;
+    
+
+protected:
+    short int m_year, m_month, m_day;
+};
+
+
+
+//..............................................................................
+////////////////////////////////////////////////////////////////////////// TTime
+///
+/// @since 0.0.1
+/// @brief TIME Datatype
+class DBWTL_EXPORT TTime
+{
+public:
+    /// @brief Creates a TIME value set to 00:00:00
+    TTime(void);
+
+    /// @brief Copy constructor
+    TTime(const TTime &time);
+
+    /// @brief Creates a TIME value from TIMESTAMP
+    TTime(const TTimestamp &ts);
+
+    TTime(short int hour, short int minute, short int second);
+
+    /// @brief Creates a TIME value from an ISO-8601 time string (HH:MM:SS)
+    TTime(const String &str);
+
+    TTime(const std::tm &time);
+
+    virtual String str(void) const;
+
+    short int hour(void) const;
+    short int minute(void) const;
+    short int second(void) const;
+
+    bool operator==(const TTime &time) const;
+    bool operator!=(const TTime &time) const;
+    bool operator<(const TTime &time) const;
+    bool operator>(const TTime &time) const;
+
+
+protected:
+    short int m_hour, m_minute, m_second;
+};
+
+
+
+//..............................................................................
+///////////////////////////////////////////////////////////////////// TTimestamp
+///
+/// @since 0.0.1
+/// @brief TIMESTAMP Datatype
+class DBWTL_EXPORT TTimestamp
+{
+public:
+    /// @brief Creates a TIMESTAMP value set to 1970-01-01 00:00:00.000
+	TTimestamp(void);
+
+    /// @brief Creates a TIMESTAMP value from TDate
+    TTimestamp(const TDate &date);
+    
+    /// @brief Creates a TIMESTAMP value from TTime
+    TTimestamp(const TTime &time);
+
+    /// @brief Creates a TIMESTAMP from a UNIX Timestamp
+    TTimestamp(signed long long ts);
+    
+    TTimestamp(const std::tm &time);
+
+    /// @brief Creates a TIMESTAMP from an ISO-8601 string (YYYY-MM-DD HH:MM:SS.000)
+    TTimestamp(const String &str);
+
+    TTimestamp(short int year, short int month, short int day,
+               short int hour, short int minute, short int second, int fraction = 0);
+
+    
+    static bool isTimestamp(const String &str);
+
+    virtual String str(void) const;
+
+    short int year(void) const;
+    short int month(void) const;
+    short int day(void) const;
+    short int hour(void) const;
+    short int minute(void) const;
+    short int second(void) const;
+    int fraction(void) const;
+
+    bool operator==(const TTimestamp &ts) const;
+    bool operator!=(const TTimestamp &ts) const;
+    bool operator<(const TTimestamp &ts) const;
+    bool operator>(const TTimestamp &ts) const;
+
+
+protected:
+    short int m_year, m_month, m_day, m_hour, m_minute, m_second;
+    int m_fraction;
+
+};
+
+
+
+
+
+
+
+
 
 //------------------------------------------------------------------------------
 ///
 /// @brief DAL Interface for special types
+
 class DBWTL_EXPORT TType
 {
 public:
-    TType(void)
-    { this->m_isnull = true; }
+    TType(bool null = true)
+    { this->m_isnull = null; }
+
+
+    virtual bool isNull(void) const;
 
     bool m_isnull;
 };
@@ -138,33 +288,6 @@ public:
 };
 
 
-
-
-class DBWTL_EXPORT TDate : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-
-    virtual String         asStr(std::locale loc = std::locale()) const;
-};
-
-
-class DBWTL_EXPORT TTime : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-
-    virtual String         asStr(std::locale loc = std::locale()) const;
-};
-
-
-class DBWTL_EXPORT TInterval : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual String         asStr(std::locale loc = std::locale()) const;
-
-};
 
 
 class DBWTL_EXPORT TNumeric : public TType
@@ -193,26 +316,42 @@ public:
 };
 
 
-class DBWTL_EXPORT TTimestamp : public TType
+
+
+
+
+
+class DBWTL_EXPORT TGuid
+{
+public:
+    virtual daltype_t datatype(void) const;
+    virtual String asStr(void) const;
+
+
+    TGuid(void);
+
+    TGuid(const TGuid &guid);
+
+    TGuid(const String &str);
+
+protected:
+    uint32_t data1;
+    uint16_t data2, data3;
+    uint8_t data4[8];
+};
+
+
+
+
+
+
+class DBWTL_EXPORT TInterval : public TType
 {
 public:
     virtual daltype_t  datatype(void) const;
     virtual String         asStr(std::locale loc = std::locale()) const;
 
-	TTimestamp(void) : m_value(0) {}
-
-	TTimestamp(signed long long ts) : m_value(ts) {}
-
-	bool operator==(const TTimestamp &ts) const
-	{
-		return m_value == ts.m_value;
-	}
-
-protected:
-
-	signed long long m_value;
 };
-
 
 
 
@@ -446,6 +585,8 @@ class DBWTL_EXPORT read_accessor<signed char> : public default_accessor<signed c
 {
 public:
     READ_ACCESSOR(DAL_TYPE_CHAR);
+
+
 };
 
 ///
@@ -477,6 +618,9 @@ public:
     READ_ACCESSOR(DAL_TYPE_SMALLINT);
 
     virtual String asStr(std::locale loc = std::locale()) const;
+
+      virtual signed short          asSmallint(void) const;
+
 };
 
 
@@ -551,6 +695,13 @@ class DBWTL_EXPORT read_accessor<TDate> : public default_accessor<TDate>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_DATE);
+
+	virtual String asStr(std::locale loc = std::locale()) const;
+
+    virtual TDate                 asDate(void) const;
+    virtual TTime                 asTime(void) const;
+    virtual TTimestamp            asTimestamp(void) const;    
+
 };
 
 ///
@@ -559,6 +710,12 @@ class DBWTL_EXPORT read_accessor<TTime> : public default_accessor<TTime>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_TIME);
+
+    virtual String asStr(std::locale loc = std::locale()) const;
+
+    virtual TDate                 asDate(void) const;
+    virtual TTime                 asTime(void) const;
+    virtual TTimestamp            asTimestamp(void) const;    
 };
 
 ///
@@ -567,6 +724,12 @@ class DBWTL_EXPORT read_accessor<TTimestamp> : public default_accessor<TTimestam
 {
 public:
     READ_ACCESSOR(DAL_TYPE_TIMESTAMP);
+
+    virtual String asStr(std::locale loc = std::locale()) const;
+
+    virtual TDate                 asDate(void) const;
+    virtual TTime                 asTime(void) const;
+    virtual TTimestamp            asTimestamp(void) const;    
 };
 
 ///

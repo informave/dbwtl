@@ -639,6 +639,12 @@ public:
 
     virtual Blob asBlob(void) const;
 
+    virtual TDate asDate(void) const;
+
+    virtual TTime asTime(void) const;
+
+    virtual TTimestamp asTimestamp(void) const;
+
     virtual String asStr(std::locale loc = std::locale()) const;
 
     virtual bool isnull() const;

@@ -233,7 +233,7 @@ endif()
 
 #include Debug information
 if(CMAKE_COMPILER_IS_GNUCXX AND (uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG"))
-	add_definitions("-O1 -g")
+	add_definitions("-O0 -g")
 endif()
 
 
@@ -250,6 +250,9 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/types/type_smallint.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_string.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_memo.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_date.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_time.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_timestamp.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc

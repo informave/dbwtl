@@ -469,11 +469,8 @@ void Variant::setNull(bool mode)
 
 
 //--------------------------------------------------------------------------
-daltype_t TDate::datatype(void) const       {  return DAL_TYPE_DATE;       }
-daltype_t TTime::datatype(void) const       {  return DAL_TYPE_TIME;       }
 daltype_t TInterval::datatype(void) const   {  return DAL_TYPE_INTERVAL;   }
 daltype_t TNumeric::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
-daltype_t TTimestamp::datatype(void) const  {  return DAL_TYPE_TIMESTAMP;  }
 
 
 
@@ -484,17 +481,16 @@ daltype_t TTimestamp::datatype(void) const  {  return DAL_TYPE_TIMESTAMP;  }
 
 
 
-String
-TDate::asStr(std::locale loc) const
+
+
+bool
+TType::isNull(void) const
 {
-    DAL_NOT_IMPL();
+	return this->m_isnull;
 }
 
-String
-TTime::asStr(std::locale loc) const
-{
-    DAL_NOT_IMPL();
-}
+
+
 
 String
 TInterval::asStr(std::locale loc) const
@@ -509,11 +505,6 @@ TNumeric::asStr(std::locale loc) const
     DAL_NOT_IMPL();
 }
 
-String
-TTimestamp::asStr(std::locale loc) const
-{
-    DAL_NOT_IMPL();
-}
 
 
 //////////////////////

@@ -80,6 +80,61 @@ read_accessor<dal::SqliteData>::asBlob(void) const
     return Blob(this->getValue().getBlob());
 }
 
+TDate
+read_accessor<dal::SqliteData>::asDate(void) const
+{
+    return TDate(this->asStr());
+
+    String s = this->asStr(std::locale("C"));
+    try
+    {
+        int a = Variant(s).get<int>();
+        return TDate(TTimestamp(a));
+    }
+    catch(ex::convert_error &)
+    {
+        return TDate(s);
+    }
+}
+
+TTime
+read_accessor<dal::SqliteData>::asTime(void) const
+{
+    return TTime(this->asStr());
+
+    String s = this->asStr(std::locale("C"));
+    try
+    {
+        int a = Variant(s).get<int>();
+        return TTime(TTimestamp(a));
+    }
+    catch(ex::convert_error &)
+    {
+        return TTime(std::string(s));
+    }
+}
+
+
+TTimestamp
+read_accessor<dal::SqliteData>::asTimestamp(void) const
+{
+    return TTimestamp(this->asStr());
+
+    String s = this->asStr(std::locale("C"));
+    try
+    {
+        int a = Variant(s).get<int>();
+        return TTimestamp(a);
+    }
+    catch(ex::convert_error &)
+    {
+        return TTimestamp(std::string(s));
+    }
+}
+
+
+
+
 String
 read_accessor<dal::SqliteData>::asStr(std::locale loc) const
 {
@@ -692,19 +747,19 @@ SqliteDbc::getViews(const IViewFilter&)
 
     // load temp views
 /*
-    String::Internal sql_column_query =
-        US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
-        US(" FROM sqlite_temp_master")
-        US(" WHERE type = 'view';");
+  String::Internal sql_column_query =
+  US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+  US(" FROM sqlite_temp_master")
+  US(" WHERE type = 'view';");
     
-    SqliteStmt::ptr tables(this->newStatement());        
-    tables->prepare(sql_column_query);
-    tables->execute();
+  SqliteStmt::ptr tables(this->newStatement());        
+  tables->prepare(sql_column_query);
+  tables->execute();
     
-    for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
-    {
-        list.push_back(new SqliteTable("temp", tables->resultset()));
-    }
+  for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
+  {
+  list.push_back(new SqliteTable("temp", tables->resultset()));
+  }
 */  
     return list;
 }
@@ -728,19 +783,19 @@ SqliteDbc::getCatalogs(const ICatalogFilter&)
 
     // load temp views
 /*
-    String::Internal sql_column_query =
-        US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
-        US(" FROM sqlite_temp_master")
-        US(" WHERE type = 'view';");
+  String::Internal sql_column_query =
+  US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+  US(" FROM sqlite_temp_master")
+  US(" WHERE type = 'view';");
     
-    SqliteStmt::ptr tables(this->newStatement());        
-    tables->prepare(sql_column_query);
-    tables->execute();
+  SqliteStmt::ptr tables(this->newStatement());        
+  tables->prepare(sql_column_query);
+  tables->execute();
     
-    for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
-    {
-        list.push_back(new SqliteTable("temp", tables->resultset()));
-    }
+  for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
+  {
+  list.push_back(new SqliteTable("temp", tables->resultset()));
+  }
 */  
     return list;
 }
@@ -925,12 +980,12 @@ err:
 
 
 
-#define DAL_NAMEOF_STATE(state)	case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: return #state
+#define DAL_NAMEOF_STATE(state) case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: return #state
 
 const char*
 sqlite::sqlstate2string(STATES::engine_states_t id)
 {
-	switch(id)
+    switch(id)
     {
         DAL_NAMEOF_STATE(08000);
         DAL_NAMEOF_STATE(08001);
@@ -979,15 +1034,15 @@ SqliteDiag::SqliteDiag(const SqliteDiag& ref)
 
 
 
-#define DAL_THROW_STATE(state)                              \
-        case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: \
-            throw sqlite::STATES::SQLSTATE_##state(*this)
+#define DAL_THROW_STATE(state)                          \
+    case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: \
+    throw sqlite::STATES::SQLSTATE_##state(*this)
 
 //
 void
 SqliteDiag::raiseException(void) const
 {
-	switch(this->m_sqlstate_id)
+    switch(this->m_sqlstate_id)
     {
         DAL_THROW_STATE(08000);
         DAL_THROW_STATE(08001);

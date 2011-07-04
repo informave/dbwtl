@@ -46,6 +46,7 @@
 
 #include "dbwtl/db_fwd.hh"
 
+#include <vector>
 
 
 #if DBWTL_INTERNAL_CHARTYPE == 1
@@ -57,6 +58,49 @@
 #elif DBWTL_INTERNAL_CHARTYPE == 4
 #define US(str) U##str
 #endif
+
+DB_NAMESPACE_BEGIN
+
+namespace utils
+{
+
+    template<typename T>
+    inline std::vector<T> split(const T& str, const typename T::value_type del)
+    {
+        std::vector<T> v;
+
+        typename T::const_iterator i(str.begin());
+        typename T::const_iterator end(str.end());
+
+        T tmp;
+        while(i != end)
+        {
+            if(*i != del) tmp.push_back(*i);
+            else
+            {
+                v.push_back(tmp);
+                tmp.clear();
+            }
+            ++i;
+        }
+        if(!tmp.empty()) v.push_back(tmp);
+
+        return v;
+    }
+
+
+
+    template<typename T, typename U>
+    inline bool between(const T &v, const U &min, const U &max)
+    {
+        return (v >= min) && (v <= max);
+    }
+
+
+}
+
+
+DB_NAMESPACE_END
 
 
 #endif

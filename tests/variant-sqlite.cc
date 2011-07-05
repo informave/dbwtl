@@ -116,6 +116,27 @@ CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteVariantTest)
 }
 
 
+
+
+CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteNumeric)
+{
+    DBMS::Statement stmt(dbc);
+    int v1 = 5;
+    TNumeric v2(7);
+    stmt.prepare("SELECT ?, CAST(? AS REAL) + 1.534001 - 5, NULL");
+	stmt.bind(1, &v1);
+    stmt.bind(2, &v2);
+    v2 += TNumeric("0.1");
+	stmt.execute();
+    DBMS::Resultset rs;
+    rs.attach(stmt);
+    rs.first();
+	CXXC_CHECK( rs.column(1).get<TNumeric>() == TNumeric(5) );
+	CXXC_CHECK( rs.column(2).get<TNumeric>() == (TNumeric("8.634001") - v1) );
+}
+
+
+
 CXXC_TEST(SimpleNewVariant)
 {
     Variant v;

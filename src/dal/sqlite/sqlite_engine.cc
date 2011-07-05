@@ -134,6 +134,14 @@ read_accessor<dal::SqliteData>::asTimestamp(void) const
 
 
 
+TNumeric
+read_accessor<dal::SqliteData>::asNumeric(void) const
+{
+    return TNumeric(this->asStr());
+}
+
+
+
 
 String
 read_accessor<dal::SqliteData>::asStr(std::locale loc) const

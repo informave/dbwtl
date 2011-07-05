@@ -1,8 +1,8 @@
 //
-// db_fwd.hh - DB forward declarations
+// type_interval.cc - Type: INTERVAL (definitions)
 //
 // Copyright (C)         informave.org
-//   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
+//   2011,               Daniel Vogelbacher <daniel@vogelbacher.name>
 //
 // BSD License
 //
@@ -36,83 +36,39 @@
 //
 
 /// @file
-/// @brief DB forward declarations
+/// @brief Type: INTERVAL (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#ifndef INFORMAVE_DB_DBFWD_HH
-#define INFORMAVE_DB_DBFWD_HH
 
-#include "dbwtl/dbwtl_config.hh"
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
+#include "dbwtl/dal/dal_interface.hh"
+#include "../dal/dal_debug.hh"
+#include "../utils.hh"
 
-#include "dbwtl/util/bcd.hh"
-
-#define DB_NAMESPACE_BEGIN namespace informave { namespace db {
-#define DB_NAMESPACE_END }}
-
+#include <ctime>
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <typeinfo>
 
 DB_NAMESPACE_BEGIN
 
 
-
-class Variant;
-
-class Blob;
-class Memo;
-
-class TType;
-class TDate;
-class TTime;
-class TInterval;
-//class TNumeric;
-typedef informave::utils::bcd TNumeric;
-
-class TTimestamp;
-class TCustomType;
-//class TDatetime;
-
-
-
-
-
-
-//--------------------------------------------------------------------------
-/// All types defined by the DAL
-/// 
-/// @since 0.0.1
-/// @brief DAL datatypes
-enum DatatypeEnumeration
-{
-    DAL_TYPE_CUSTOM = 1,
-    DAL_TYPE_UNKNOWN,
-    DAL_TYPE_INT,
-    DAL_TYPE_UINT,
-    DAL_TYPE_CHAR,
-    DAL_TYPE_UCHAR,
-    DAL_TYPE_STRING,
-    DAL_TYPE_BOOL,
-    DAL_TYPE_SMALLINT,
-    DAL_TYPE_USMALLINT,
-    DAL_TYPE_BIGINT,
-    DAL_TYPE_UBIGINT,
-    //DAL_TYPE_BIT,g
-    //DAL_TYPE_VARBIT,
-    DAL_TYPE_BLOB,
-    DAL_TYPE_MEMO,
-    DAL_TYPE_NUMERIC,
-    DAL_TYPE_FLOAT,
-    DAL_TYPE_DOUBLE,
-    DAL_TYPE_DATE,
-    DAL_TYPE_TIME,
-    DAL_TYPE_TIMESTAMP,
-    DAL_TYPE_INTERVAL
-};
-
-typedef enum DatatypeEnumeration daltype_t;
-
-
+/// @todo implement interval type
 
 
 DB_NAMESPACE_END
 
-#endif
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//
+

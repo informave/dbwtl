@@ -50,6 +50,7 @@
 #include "dbwtl/ustring.hh"
 #include "dbwtl/ustreambuf.hh"
 #include "dbwtl/util/smartptr.hh"
+#include "dbwtl/util/bcd.hh"
 #include "dbwtl/variant.hh"
 
 #include <ctime>
@@ -288,32 +289,6 @@ public:
 };
 
 
-
-
-class DBWTL_EXPORT TNumeric : public TType
-{
-public:
-    virtual daltype_t  datatype(void) const;
-    virtual String         asStr(std::locale loc = std::locale()) const;
-
-
-    TNumeric(void);
-
-    TNumeric(long long num, long long frac = 0);
-
-    TNumeric(std::string value);
-    
-    //std::string m_value;
-
-    long long m_value;
-    long long m_frac;
-
-    bool operator==(const TNumeric &num) const
-    {
-        return m_value == num.m_value && m_frac == num.m_frac;
-    }
-
-};
 
 
 
@@ -664,6 +639,9 @@ class DBWTL_EXPORT read_accessor<TNumeric> : public default_accessor<TNumeric>
 {
 public:
     READ_ACCESSOR(DAL_TYPE_NUMERIC);
+
+    virtual String asStr(std::locale loc = std::locale()) const;
+    virtual bool asBool(void) const;
 };
 
 ///

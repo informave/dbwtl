@@ -229,40 +229,6 @@ Variant::getName(void) const
 }
 
 
-
-//template<> int Variant::get<int>(void) const { return this->getStoredVar()->asInt(); }
-
-
-TNumeric::TNumeric(std::string value)
-    : m_value(0),
-      m_frac(0)
-{
-}
-
-TNumeric::TNumeric(void)
-    : m_value(0),
-      m_frac(0)
-{
-}
-
-TNumeric::TNumeric(long long num, long long frac)
-    : m_value(num),
-      m_frac(frac)
-{
-/*
-    std::stringstream ss;
-    ss.imbue(std::locale("C"));
-    ss << num
-       << std::use_facet<std::numpunct<std::stringstream::char_type> >(std::locale("C")).decimal_point()
-       << std::abs(frac);
-    m_value = ss.str();
-
-    std::cout << m_value << std::endl;
-*/
-}
-
-
-
 ///
 signed int
 Variant::asInt(void) const
@@ -470,7 +436,6 @@ void Variant::setNull(bool mode)
 
 //--------------------------------------------------------------------------
 daltype_t TInterval::datatype(void) const   {  return DAL_TYPE_INTERVAL;   }
-daltype_t TNumeric::datatype(void) const    {  return DAL_TYPE_NUMERIC;    }
 
 
 
@@ -499,12 +464,13 @@ TInterval::asStr(std::locale loc) const
 }
 
 
+/*
 String
 TNumeric::asStr(std::locale loc) const
 {
     DAL_NOT_IMPL();
 }
-
+*/
 
 
 //////////////////////

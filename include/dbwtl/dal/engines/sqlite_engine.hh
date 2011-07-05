@@ -645,6 +645,8 @@ public:
 
     virtual TTimestamp asTimestamp(void) const;
 
+    virtual TNumeric asNumeric(void) const;
+
     virtual String asStr(std::locale loc = std::locale()) const;
 
     virtual bool isnull() const;

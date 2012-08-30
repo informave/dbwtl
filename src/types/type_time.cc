@@ -57,38 +57,24 @@
 DB_NAMESPACE_BEGIN
 
 
+
 /// 
 String
-read_accessor<TTime>::asStr(std::locale loc) const
+sv_accessor<TTime>::cast(String*, std::locale loc) const
 {
-    return this->getValue().str();
+    return this->get_value().str();
 }
 
 
 
-/// 
-TDate
-read_accessor<TTime>::asDate(void) const
-{
-    return TDate(this->getValue());
-}
-
-
-
-/// 
-TTime
-read_accessor<TTime>::asTime(void) const
-{
-    return this->getValue();
-}
 
 
 
 /// 
 TTimestamp
-read_accessor<TTime>::asTimestamp(void) const
+sv_accessor<TTime>::cast(TTimestamp*, std::locale loc) const
 {
-    return TTimestamp(this->getValue());
+    return TTimestamp(this->get_value());
 }
 
 

@@ -31,6 +31,20 @@ CXXC_TEST(SimpleNewVariant)
 }
 
 
+CXXC_TEST(NullVariantCopy)
+{
+	Variant v;
+	CXXC_CHECK( v.isnull() );
+
+	Variant y(v);
+	CXXC_CHECK( y.isnull() );
+
+	Variant z;
+	z = v;
+	CXXC_CHECK( z.isnull() );
+}
+
+
 CXXC_TEST(CtorAndAssign)
 {
 	int x = 5;

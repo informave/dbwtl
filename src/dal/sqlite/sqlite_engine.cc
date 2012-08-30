@@ -61,31 +61,34 @@ DB_NAMESPACE_BEGIN
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-int
-read_accessor<dal::SqliteData>::asInt() const
-{ 
-    return this->getValue().getInt(); 
+
+signed int
+sv_accessor<dal::SqliteData*>::cast(signed int*, std::locale loc) const
+{
+    return this->get_value()->getInt(); 
 }
 
 bool
-read_accessor<dal::SqliteData>::asBool() const
+sv_accessor<dal::SqliteData*>::cast(bool*, std::locale loc) const
 {
-    return this->getValue().getInt() > 0;
+    return this->get_value()->getInt() > 0;
 }
 
 
 Blob
-read_accessor<dal::SqliteData>::asBlob(void) const
+sv_accessor<dal::SqliteData*>::cast(Blob*, std::locale loc) const
 {
-    return Blob(this->getValue().getBlob());
+    return Blob(this->get_value()->getBlob());
 }
 
 TDate
-read_accessor<dal::SqliteData>::asDate(void) const
+sv_accessor<dal::SqliteData*>::cast(TDate*, std::locale loc) const
 {
-    return TDate(this->asStr());
+    return TDate(this->get_value()->getString());
 
-    String s = this->asStr(std::locale("C"));
+    //String s = this->asStr(std::locale("C"));
+/*
+    String s;
     try
     {
         int a = Variant(s).get<int>();
@@ -95,14 +98,15 @@ read_accessor<dal::SqliteData>::asDate(void) const
     {
         return TDate(s);
     }
+*/
 }
 
 TTime
-read_accessor<dal::SqliteData>::asTime(void) const
+sv_accessor<dal::SqliteData*>::cast(TTime*, std::locale loc) const
 {
-    return TTime(this->asStr());
-
-    String s = this->asStr(std::locale("C"));
+    return TTime(this->get_value()->getString());
+/*
+    String s = this->get_value()->getText();
     try
     {
         int a = Variant(s).get<int>();
@@ -112,15 +116,16 @@ read_accessor<dal::SqliteData>::asTime(void) const
     {
         return TTime(std::string(s));
     }
+*/
 }
 
 
 TTimestamp
-read_accessor<dal::SqliteData>::asTimestamp(void) const
+sv_accessor<dal::SqliteData*>::cast(TTimestamp*, std::locale loc) const
 {
-    return TTimestamp(this->asStr());
-
-    String s = this->asStr(std::locale("C"));
+    return TTimestamp(this->get_value()->getString());
+/*
+    String s = this->get_value()->getText();
     try
     {
         int a = Variant(s).get<int>();
@@ -130,81 +135,39 @@ read_accessor<dal::SqliteData>::asTimestamp(void) const
     {
         return TTimestamp(std::string(s));
     }
+*/
 }
 
 
 
 TNumeric
-read_accessor<dal::SqliteData>::asNumeric(void) const
+sv_accessor<dal::SqliteData*>::cast(TNumeric*, std::locale loc) const
 {
-    return TNumeric(this->asStr());
+    String s = this->get_value()->getString();
+    return TNumeric(s);
 }
 
 
 
 
 String
-read_accessor<dal::SqliteData>::asStr(std::locale loc) const
+sv_accessor<dal::SqliteData*>::cast(String*, std::locale loc) const
 {
-    return this->getValue().getString();
+    return this->get_value()->getString();
 }
 
 bool
-read_accessor<dal::SqliteData>::isnull() const
+sv_accessor<dal::SqliteData*>::valueNullCheck() const
 {
-    return this->getValue().isnull();
+    return this->get_value()->isnull();
 }
 
 daltype_t
-read_accessor<dal::SqliteData>::datatype() const
+sv_accessor<dal::SqliteData*>::datatype() const
 {
-    return this->getValue().daltype();
+    return this->get_value()->daltype();
 }
 
-
-
-
-
-
-void
-variant_assign<dal::SqliteData*>::set_new_value(dal::SqliteData*& dest, const Variant &src)
-{
-    throw ex::read_only("SqliteData", DBWTL_MACRO_SRCPOS);
-}
-
-
-///
-///
-IStoredVariant*
-variant_deepcopy<dal::SqliteData*>::create_deepcopy(const ptr & ref, const IStoredVariant *var) const
-{
-    switch(var->datatype())
-    {
-    case DAL_TYPE_CUSTOM:     return new variant_value<String>(var->asStr());
-    case DAL_TYPE_UNKNOWN:    return new variant_value<String>(var->asStr()); break;
-    case DAL_TYPE_INT:        return new variant_value<signed int>(var->asInt()); break;
-    case DAL_TYPE_UINT:       return new variant_value<unsigned int>(var->asUInt()); break;
-    case DAL_TYPE_CHAR:       return new variant_value<signed char>(var->asChar()); break;
-    case DAL_TYPE_UCHAR:      return new variant_value<unsigned char>(var->asUChar()); break;
-    case DAL_TYPE_STRING:     return new variant_value<String>(var->asStr()); break;
-    case DAL_TYPE_BOOL:       return new variant_value<bool>(var->asBool()); break;
-    case DAL_TYPE_SMALLINT:   return new variant_value<signed short>(var->asSmallint()); break;
-    case DAL_TYPE_USMALLINT:  return new variant_value<unsigned short>(var->asUSmallint()); break;
-    case DAL_TYPE_BIGINT:     return new variant_value<signed long long>(var->asBigint()); break;
-    case DAL_TYPE_UBIGINT:    return new variant_value<unsigned long long>(var->asUBigint()); break;
-    case DAL_TYPE_BLOB:       return new variant_value<Blob>(var->asBlob()); break;
-    case DAL_TYPE_MEMO:       return new variant_value<Memo>(var->asMemo()); break;
-    case DAL_TYPE_NUMERIC:    return new variant_value<TNumeric>(var->asNumeric()); break;
-    case DAL_TYPE_FLOAT:      return new variant_value<float>(var->asReal()); break;
-    case DAL_TYPE_DOUBLE:     return new variant_value<double>(var->asDouble()); break;
-    case DAL_TYPE_DATE:       return new variant_value<TDate>(var->asDate()); break;
-    case DAL_TYPE_TIME:       return new variant_value<TTime>(var->asTime()); break;
-    case DAL_TYPE_TIMESTAMP:  return new variant_value<TTimestamp>(var->asTimestamp()); break;
-    case DAL_TYPE_INTERVAL:   return new variant_value<TInterval>(var->asInterval()); break;
-    default:
-        throw ex::exception(format("Unhandled datatype(%d) at %s") % int(var->datatype()) % DBWTL_MACRO_SRCPOS);
-    }
-}
 
 
 
@@ -215,6 +178,53 @@ DB_NAMESPACE_END
 
 
 DAL_NAMESPACE_BEGIN
+
+
+
+
+///
+//
+IVariantValue*
+SqliteData::do_deepcopy(const IVariantValue *owner) const
+{
+    // we make a copy of the variant_storage owner for this instance, so we can use
+    // the get<T> method to reuse cast definitions.
+    Variant tmp(owner->clone());
+
+    switch(tmp.datatype())
+    {
+    case DAL_TYPE_CUSTOM:     return new typename value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_UNKNOWN:    return new typename value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_INT:        return new typename value_traits<signed int>::stored_type(tmp.get<signed int>());       
+    case DAL_TYPE_UINT:       return new typename value_traits<unsigned int>::stored_type(tmp.get<unsigned int>());
+    case DAL_TYPE_CHAR:       return new typename value_traits<signed char>::stored_type(tmp.get<signed char>());
+    case DAL_TYPE_UCHAR:      return new typename value_traits<unsigned char>::stored_type(tmp.get<unsigned char>());
+    case DAL_TYPE_STRING:     return new typename value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_BOOL:       return new typename value_traits<bool>::stored_type(tmp.get<bool>());
+    case DAL_TYPE_SMALLINT:   return new typename value_traits<signed short>::stored_type(tmp.get<signed short>());
+    case DAL_TYPE_USMALLINT:  return new typename value_traits<unsigned short>::stored_type(tmp.get<unsigned short>());
+    case DAL_TYPE_BIGINT:     return new typename value_traits<signed long long>::stored_type(tmp.get<signed long long>());
+    case DAL_TYPE_UBIGINT:    return new typename value_traits<unsigned long long>::stored_type(tmp.get<unsigned long long>());
+    case DAL_TYPE_DATE:       return new typename value_traits<TDate>::stored_type(tmp.get<TDate>());
+    case DAL_TYPE_TIME:       return new typename value_traits<TTime>::stored_type(tmp.get<TTime>());
+    case DAL_TYPE_TIMESTAMP:  return new typename value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
+    case DAL_TYPE_NUMERIC:    return new typename value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
+    case DAL_TYPE_BLOB:       return new typename value_traits<Blob>::stored_type(tmp.get<Blob>());
+    case DAL_TYPE_MEMO:       return new typename value_traits<Memo>::stored_type(tmp.get<Memo>());
+    case DAL_TYPE_FLOAT:      return new typename value_traits<float>::stored_type(tmp.get<float>());
+    case DAL_TYPE_DOUBLE:     return new typename value_traits<double>::stored_type(tmp.get<double>());
+    case DAL_TYPE_INTERVAL:   return new typename value_traits<TInterval>::stored_type(tmp.get<TInterval>());
+/*
+    default:
+        throw ex::exception(format("Unhandled datatype(%d) at %s") % int(this->daltype()) % DBWTL_MACRO_SRCPOS);
+*/
+    }
+        assert(false);
+        return 0;
+}
+
+
+
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -932,7 +942,7 @@ SqliteEnv::~SqliteEnv(void)
 
 //
 SqliteVariant::SqliteVariant(SqliteData* data)
-    : EngineVariant(data)
+    : EngineVariant(data), m_data(data)
 { }
 
 
@@ -940,7 +950,8 @@ SqliteVariant::SqliteVariant(SqliteData* data)
 //
 SqliteVariant::~SqliteVariant(void)
 { 
-    this->m_storage->releasePointee();
+    //this->m_storage->release_pointee();
+    delete this->m_data;
 }
 
 
@@ -949,7 +960,11 @@ SqliteVariant::~SqliteVariant(void)
 void SqliteVariant::refresh(void)
 {
     //SqliteData &data = dynamic_cast<sa_base<SqliteData>&>(*this->getStorageImpl()).getValue();
-    SqliteData *data = dynamic_cast<variant_value<SqliteData*>&>(*this->getStorageImpl()).getRawValue();
+
+
+    //SqliteData *data = dynamic_cast<variant_value<SqliteData*>&>(*this->getStorageImpl()).getRawValue();
+
+    SqliteData *data = this->get<SqliteData*>();
     data->refresh();
 }
 

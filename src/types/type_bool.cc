@@ -56,20 +56,13 @@
 DB_NAMESPACE_BEGIN
 
 
-bool
-read_accessor<bool>::asBool(void) const
-{
-    return this->getValue();
-}
-
-
 
 String
-read_accessor<bool>::asStr(std::locale loc) const
+sv_accessor<bool>::cast(String*, std::locale loc) const
 {
     std::wstringstream ss;
     ss.imbue(loc);
-    ss << this->getValue();
+    ss << this->get_value();
     return ss.str();
 }
 

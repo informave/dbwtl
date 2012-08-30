@@ -66,10 +66,10 @@ Blob::Blob(ByteStreamBuf *buf) : std::iostream(0), m_buf(buf)
 
 ///
 ///
-Blob::Blob(const IVariant &variant) : std::iostream(0),
+Blob::Blob(const Variant &variant) : std::iostream(0),
                                       m_buf()
 {
-    this->operator=(variant.asBlob());
+    this->operator=(variant.get<Blob>());
 }
 
 
@@ -100,24 +100,17 @@ Blob::~Blob(void)
 
 
 
-///
-///
-Blob
-read_accessor<Blob>::asBlob(void) const
-{
-    return this->getValue();
-}
-
-
 
 ///
 /// @todo Check if there are conflicts with binary streams
 /// @todo Write test case
+/*
 void
 variant_assign<Blob>::set_new_value(Blob& dest, const Variant &src)
 {
     dest << src;
 }
+*/
 
 
 

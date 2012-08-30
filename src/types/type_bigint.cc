@@ -58,26 +58,24 @@ DB_NAMESPACE_BEGIN
 
 
 
-int 
-read_accessor<signed long long>::asInt() const
-{
-    return this->getValue();
-}
-
-
-long long
-read_accessor<signed long long>::asBigint() const
-{
-    return this->getValue();
-}
-
-
 String
-read_accessor<signed long long>::asStr(std::locale loc) const
+sv_accessor<signed long long>::cast(String*, std::locale loc) const
 {
     std::wstringstream ss;
     ss.imbue(loc);
-    ss << this->getValue();
+    ss << this->get_value();
+    return ss.str();
+}
+
+
+
+
+String
+sv_accessor<unsigned long long>::cast(String*, std::locale loc) const
+{
+    std::wstringstream ss;
+    ss.imbue(loc);
+    ss << this->get_value();
     return ss.str();
 }
 

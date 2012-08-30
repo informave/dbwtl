@@ -57,32 +57,6 @@ DB_NAMESPACE_BEGIN
 
 
 
-float
-read_accessor<float>::asReal(void) const
-{
-    return this->getValue();
-}
-
-double
-read_accessor<float>::asDouble(void) const
-{
-    return this->getValue();
-}
-
-
-float
-read_accessor<double>::asReal(void) const
-{
-    return this->getValue();
-}
-
-double
-read_accessor<double>::asDouble(void) const
-{
-    return this->getValue();
-}
-
-
 
 
 DB_NAMESPACE_END

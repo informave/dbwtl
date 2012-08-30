@@ -197,7 +197,7 @@ class DBWTL_EXPORT SqliteBlob : public IBlobBuffer
 /// Internal representation of the SQLite data(types).
 ///
 /// @todo How to deal with UTF-8 strings?
-class SqliteData
+class SqliteData : public custom_deepcopy
 {
 public:
     SqliteData(void);
@@ -219,6 +219,8 @@ public:
     virtual void refresh(void) = 0;
 
     virtual daltype_t daltype(void) const = 0;
+
+    virtual IVariantValue* do_deepcopy(const IVariantValue* owner) const;
 };
 
 
@@ -263,6 +265,8 @@ public:
 
 
 private:
+    SqliteData *m_data;
+
     SqliteVariant(const SqliteVariant& ref);
     SqliteVariant(void);
     SqliteVariant& operator=(const SqliteVariant&);
@@ -622,40 +626,62 @@ DAL_NAMESPACE_END
 DB_NAMESPACE_BEGIN
 
 
+
+
+template<>
+struct value_traits<dal::SqliteData*>
+{
+    typedef raw_pointer<dal::SqliteData*>  stored_type;
+    typedef dal::SqliteData*    value_type;
+    typedef var_info<dal::SqliteData*>         info_type;
+};
+
+
+
+template<>
+struct value_traits<const dal::SqliteData*>
+{
+/*
+    typedef raw_pointer<const dal::SqliteData*>  stored_type;
+    typedef const dal::SqliteData*    value_type;
+    typedef var_info<const dal::SqliteData*>         info_type;
+*/
+};
+
+
+
 //------------------------------------------------------------------------------
 ///
 /// @brief Variant storage accessor for SqliteData 
 template<>
-class read_accessor<dal::SqliteData> : public default_accessor<dal::SqliteData>
+struct sv_accessor<dal::SqliteData*> : public virtual sa_base<dal::SqliteData*>,
+                                       public supports<signed int>,
+                                       public supports<bool>,
+                                       public supports<Blob>,
+                                       public supports<TDate>,
+                                       public supports<TTime>,
+                                       public supports<TTimestamp>,
+                                       public supports<TNumeric>,
+                                       public supports<String>
 {
-public:
-    DAL_VARIANT_ACCESSOR;
+    virtual signed int cast(signed int*, std::locale loc) const;
+    virtual bool cast(bool*, std::locale loc) const;
+    virtual Blob cast(Blob*, std::locale loc) const;
+    virtual TDate cast(TDate*, std::locale loc) const;
+    virtual TTime cast(TTime*, std::locale loc) const;
+    virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
+    virtual TNumeric cast(TNumeric*, std::locale loc) const;
+    virtual String cast(String*, std::locale loc) const;
 
-    virtual ~read_accessor(void) { }
 
-    virtual int asInt() const;
-
-    virtual bool asBool() const;
-
-    virtual Blob asBlob(void) const;
-
-    virtual TDate asDate(void) const;
-
-    virtual TTime asTime(void) const;
-
-    virtual TTimestamp asTimestamp(void) const;
-
-    virtual TNumeric asNumeric(void) const;
-
-    virtual String asStr(std::locale loc = std::locale()) const;
-
-    virtual bool isnull() const;
+    virtual bool valueNullCheck(void) const;
+    //virtual bool isNull() const;
 
     virtual daltype_t datatype() const;
 };
 
 
-
+/*
 template<>
 class read_accessor<dal::sqlite_ext::Text> : public default_accessor<dal::sqlite_ext::Text>
 {
@@ -664,7 +690,7 @@ class read_accessor<dal::sqlite_ext::Text> : public default_accessor<dal::sqlite
     virtual ~read_accessor(void) { }
     virtual daltype_t datatype() const { return DAL_TYPE_CUSTOM; }    
 };
-
+*/
 
 
 /*
@@ -678,21 +704,6 @@ struct assign_value<SqliteData*>
     }
 };
 */
-
-
-template<>
-struct variant_assign<dal::SqliteData*>
-{
-    void set_new_value(dal::SqliteData*& dest, const Variant &src);
-};
-
-
-template<>
-struct variant_deepcopy<dal::SqliteData*>
-{
-    typedef dal::SqliteData* ptr;
-    IStoredVariant* create_deepcopy(const ptr & p, const IStoredVariant *var) const;
-};
 
 
 /*

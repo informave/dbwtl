@@ -57,38 +57,32 @@
 DB_NAMESPACE_BEGIN
 
 
+
 ///
 String
-read_accessor<TTimestamp>::asStr(std::locale loc) const
+sv_accessor<TTimestamp>::cast(String*, std::locale loc) const
 {
-    return this->getValue().str();
+    return this->get_value().str();
 }
 
 
 /// 
 TDate
-read_accessor<TTimestamp>::asDate(void) const
+sv_accessor<TTimestamp>::cast(TDate*, std::locale loc) const
 {
-    return TDate(this->getValue());
+    return TDate(this->get_value());
 }
 
 
 
 /// 
 TTime
-read_accessor<TTimestamp>::asTime(void) const
+sv_accessor<TTimestamp>::cast(TTime*, std::locale loc) const
 {
-    return TTime(this->getValue());
+    return TTime(this->get_value());
 }
 
 
-
-/// 
-TTimestamp
-read_accessor<TTimestamp>::asTimestamp(void) const
-{
-    return this->getValue();
-}
 
 
 
@@ -180,7 +174,16 @@ TTimestamp::TTimestamp(const String &str)
     m_second = toInt(i, i+2);
     i += 2+1;
     if(i < s.end())
-        m_fraction = toInt(i, s.end()); /// @bug here
+    {
+        std::string::const_iterator j = i;
+        while(j != s.end() && std::isdigit(*j)) ++j;
+        m_fraction = toInt(i, j);
+        i = j;
+    }
+    if(i != s.end())
+    {
+        /// @todo Implement timezone specification
+    }
 }
 
 

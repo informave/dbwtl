@@ -965,7 +965,7 @@ public:
 class DBWTL_EXPORT IStmt : public IHandle
 {
 public:
-    typedef std::map<int, IVariant*> ParamMapT;
+    typedef std::map<int, Variant*> ParamMapT;
     //typedef std::auto_ptr<IStmt> ptr;
     typedef util::SmartPtr<IStmt, util::RefCounted, util::AllowConversion> ptr;
 
@@ -991,8 +991,8 @@ public:
     virtual bool      moreResultsets(void) const = 0;
 
     virtual size_t    paramCount(void) const = 0;
-    virtual void      bind(int num, IVariant* data) = 0;
-    virtual void      bind(int num, const IVariant* data) = 0;
+    virtual void      bind(int num, Variant* data) = 0;
+    virtual void      bind(int num, const Variant* data) = 0;
     virtual void      bind(int num, const Variant &data) = 0;
     virtual void      bind(int num, ByteStreamBuf *data) = 0;
     virtual void      bind(int num, UnicodeStreamBuf *data) = 0;
@@ -1081,13 +1081,13 @@ protected:
 class DBWTL_EXPORT StmtBase : public IStmt
 {
 public:
-    typedef std::map<int, IVariant*>   ParamMap;
+    typedef std::map<int, Variant*>    ParamMap;
     typedef ParamMap::iterator         ParamMapIterator;
 
 
 public:
-    virtual void      bind(int num, IVariant* data);
-    virtual void      bind(int num, const IVariant* data);
+    virtual void      bind(int num, Variant* data);
+    virtual void      bind(int num, const Variant* data);
     virtual void      bind(int num, const Variant &data);
     virtual void      bind(int num, ByteStreamBuf *data);
     virtual void      bind(int num, UnicodeStreamBuf *data);

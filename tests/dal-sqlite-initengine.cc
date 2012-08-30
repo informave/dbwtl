@@ -70,7 +70,7 @@ int test(void)
     SqliteResult& res = stmt->resultset();    
 
     {
-        const IVariant& var = res.column(3);
+        const Variant& var = res.column(3);
 
         //IBlob& blob = var.asBlob();
 

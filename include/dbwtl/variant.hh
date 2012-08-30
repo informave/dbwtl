@@ -58,52 +58,25 @@
 
 DB_NAMESPACE_BEGIN
 
-template<typename T> struct variant_traits;
-template<typename T> struct variant_assign;
-template<typename T> struct variant_deepcopy;
+class Variant;
+template<typename T> struct value_traits;
 
 
-///
-/// @brief SFINAE based method to check if a type is defined
-#define DAL_DECLARE_HAS_TYPE(type)                                      \
-    template<typename T>                                                \
-    struct has_##type                                                   \
-    {                                                                   \
-        typedef char yes[1];                                            \
-        typedef char no[2];                                             \
-                                                                        \
-        template<typename U>                                            \
-            static yes& test(typename U::type*);                        \
-                                                                        \
-        template<typename>                                              \
-            static no& test(...);                                       \
-                                                                        \
-        static const bool value = sizeof(test<T>(0)) == sizeof(yes);    \
-                                                                        \
-    }                                                                  
+#define VARIANT_PTR 0x01
 
 
 
-
-#define DAL_VARIANT_ACCESSOR          typedef void __accessor_is_defined
-
-DAL_DECLARE_HAS_TYPE(__accessor_is_defined);
-
-
-#ifndef DBWTL_CXX98_COMPATIBILITY
-// Using the SFINAE based method to check if an accessor is defined.
-#define DAL_VARIANT_ACCESSOR_CHECK                                      \
-    static_assert(has___accessor_is_defined<typename variant_traits<T>::accessor_type>::value, \
-                  "No accessor defined for this type.")
-#else
-// Fallback for C++98
-#define DAL_VARIANT_ACCESSOR_CHECK                                      \
-    typedef typename variant_traits<T>::accessor_type::__accessor_is_defined __compiler_check
-#endif
+//struct const_variant {};
+struct noconv
+{
+    noconv(int, int) {}
+};
 
 
 
+void DBWTL_EXPORT throw_read_only(void);
 
+void DBWTL_EXPORT throw_convert_error(daltype_t src, daltype_t dest);
 
 
 //--------------------------------------------------------------------------
@@ -137,706 +110,540 @@ template<> struct type_id<TInterval>        { static inline daltype_t value(void
 
 
 
-
-//--------------------------------------------------------------------------
-/// @brief DAL Interface for variant types
-class DBWTL_EXPORT IVariant : public dal::IDALObject
+//..............................................................................
+////////////////////////////////////////////////////////////////// IVariantValue
+///
+/// @since 0.0.1
+/// @brief Base class for value stores in Variants
+/// 
+struct DBWTL_EXPORT IVariantValue
 {
-public:
-    virtual ~IVariant(void) { }
+    virtual ~IVariantValue(void) {}
 
-    //  basic functions
+
+    virtual int flags(void) const = 0;
+    virtual IVariantValue* deepcopy(void) const = 0;
+    virtual IVariantValue* clone(void) const = 0;
+
+    virtual const char* get_typename(void) const = 0;
     virtual daltype_t   datatype(void) const = 0;
-    virtual bool        isnull(void) const = 0;
-    virtual void        setNull(bool mode = true) = 0;
 
-    virtual void assign(const Variant& v) = 0;
-
-    operator bool                  (void) const;
-    operator signed int            (void) const;
-    operator unsigned int          (void) const;
-    operator signed char           (void) const;
-    operator unsigned char         (void) const;
-    operator signed short          (void) const;
-    operator unsigned short        (void) const;
-    operator signed long long      (void) const;
-    operator unsigned long long    (void) const;
-    operator float                 (void) const;
-    operator double                (void) const;
-    operator String                (void) const;
-    operator std::string           (void) const;
-    operator Blob                  (void) const;
-    operator Memo                  (void) const;
+    virtual void setNull(void) {}
+    virtual bool isNull(void) const = 0;
 
 
-    // This classes should provide a constructor for IVariant&
-    // operator TNumeric              (void) const;
-    // operator TDate                 (void) const;
-    // operator TTime                 (void) const;
-    // operator TTimestamp            (void) const;
-    // operator TInterval             (void) const;
-
-
-    // getter methods
-    virtual signed int           asInt(void) const = 0;
-    virtual unsigned int         asUInt(void) const = 0;
-    virtual signed char          asChar(void) const = 0;
-    virtual unsigned char        asUChar(void) const = 0;
-    virtual String               asStr(std::locale loc = std::locale()) const = 0;
-    virtual bool                 asBool(void) const = 0;
-    virtual signed short         asSmallint(void) const = 0;
-    virtual unsigned short       asUSmallint(void) const = 0;
-    virtual signed long long     asBigint(void) const = 0;
-    virtual unsigned long long   asUBigint(void) const = 0;
-    virtual TNumeric             asNumeric(void) const = 0;
-    virtual float                asReal(void) const = 0;
-    virtual double               asDouble(void) const = 0;
-    virtual TDate                asDate(void) const = 0;
-    virtual TTime                asTime(void) const = 0;
-    virtual TTimestamp           asTimestamp(void) const = 0;
-    virtual TInterval            asInterval(void) const = 0;
-    virtual Blob                 asBlob(void) const = 0;
-    virtual Memo                 asMemo(void) const = 0;
-//     virtual const TCustomType&   asCustom(void) const = 0;
-
-  
-private:
-    IVariant&               operator=(const IVariant& o);
+    virtual void release_pointee(void) {}
 };
 
 
-
-DBWTL_EXPORT std::wostream&  operator<<(std::wostream& o, const IVariant &var);
-DBWTL_EXPORT std::ostream&   operator<<(std::ostream& o,  const IVariant &var);
-
-
-
-
-
-
-
-//--------------------------------------------------------------------------
+//..............................................................................
+//////////////////////////////////////////////////////////////// custom_deepcopy
 ///
-/// @brief Internal stored variants needs a clone method
-class DBWTL_EXPORT IStoredVariant : public IVariant
+/// @since 0.0.1
+/// @brief Deepcopy interface for custom types
+/// 
+struct DBWTL_EXPORT custom_deepcopy
 {
-public:
-    virtual IStoredVariant* clone(void) const = 0;
-
-    virtual bool has_local_storage(void) const = 0;
-
-    virtual void releasePointee(void) = 0;
-
-    virtual IStoredVariant* new_deepcopy(void) const = 0;
+    virtual IVariantValue* do_deepcopy(const IVariantValue*) const = 0;
+    virtual ~custom_deepcopy(void) {}
 };
 
 
-//--------------------------------------------------------------------------
+//..............................................................................
+//////////////////////////////////////////////////////////////// variant_writter
 ///
-/// @cond DEV_DOCS
-///
-/// @brief Default implementation for variants
-///
-/// Each method throws an exception.
-class DBWTL_EXPORT DefaultVariant : public IStoredVariant
+/// @since 0.0.1
+/// @brief Writter interface for custom types
+/// 
+struct DBWTL_EXPORT variant_writter
 {
-public:
-
-    DefaultVariant(void) : m_isnull(true)
-    {}
-
-    virtual ~DefaultVariant(void)
-    {}
-
-    virtual bool            isnull(void) const;
-    virtual void            setNull(bool mode = true);
-
-    virtual signed int            asInt(void) const;
-    virtual unsigned int          asUInt(void) const;
-    virtual signed char           asChar(void) const;
-    virtual unsigned char         asUChar(void) const;
-    virtual String                asStr(std::locale loc = std::locale()) const;
-    virtual bool                  asBool(void) const;
-    virtual signed short          asSmallint(void) const;
-    virtual unsigned short        asUSmallint(void) const;
-    virtual signed long long      asBigint(void) const;
-    virtual unsigned long long    asUBigint(void) const;
-    virtual TNumeric              asNumeric(void) const;
-    virtual float                 asReal(void) const;
-    virtual double                asDouble(void) const;
-    virtual TDate                 asDate(void) const;
-    virtual TTime                 asTime(void) const;
-    virtual TTimestamp            asTimestamp(void) const;
-    virtual TInterval             asInterval(void) const;
-    virtual Blob                  asBlob(void) const;
-    virtual Memo                  asMemo(void) const;
-    //virtual TCustom&        asCustom(void) const = 0;
-
-
-protected:
-    /// This method is provided for derived variants for simple NULL handling.
-    /// It should be called after a new value is set with set*() methods.
-    virtual void hasValue(void)
-    {
-        this->m_isnull = false;
-    }
-
-    bool m_isnull;
+    virtual void set_value(const Variant &value) = 0;
+    virtual ~variant_writter(void) {}
 };
 
 
-
-//--------------------------------------------------------------------------
-/// Defines the interface for all accessors which can be used
-/// to get the stored variable. 
+//..............................................................................
+/////////////////////////////////////////////////////////////////////// var_info
 ///
-/// @brief Storage Accessor Base
+/// @since 0.0.1
+/// @brief Provides information about a type
+/// 
 template<typename T>
-struct sa_base : public variant_traits<T>::base_interface
+struct var_info
 {
-    virtual const T& getValue(void) const = 0;
-};
-
-
-
-//--------------------------------------------------------------------------
-///
-/// @brief Default accessor
-template<typename T>
-struct default_accessor : public sa_base<T>
-{
-};
-
-//--------------------------------------------------------------------------
-///
-/// @brief Read accessor
-template<typename T>
-struct read_accessor : public default_accessor<T>
-{
-};
-
-
-
-//--------------------------------------------------------------------------
-///
-/// @brief Variant traits
-template<typename T>
-struct variant_traits
-{
-    typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type  object_type;
-    typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type&  object_ref_type;
-    typedef typename std::remove_const<typename std::remove_pointer<T>::type>::type*  object_ptr_type;
-
-    typedef const typename std::remove_pointer<T>::type&  const_object_ref_type;
-    typedef const typename std::remove_pointer<T>::type*  const_object_ptr_type;
-
-    typedef read_accessor<object_type> accessor_type;
-
-    typedef DefaultVariant base_interface;
-};
-
-
-//--------------------------------------------------------------------------
-///
-/// @brief Variant storage
-template<typename T>
-struct variant_storage
-{
-    enum { local_storage = true };
-
-    typename variant_traits<T>::const_object_ref_type get_object_ref(const T &val) const
-    {
-        return val;
-    }
+    static daltype_t type(void) { return DAL_TYPE_UNKNOWN; }
+    static const char* name(void) { return "UNKNOWN"; }
     
-    void release_pointee(T &ref)
-    {}
 };
 
-//--------------------------------------------------------------------------
+
+//..............................................................................
+/////////////////////////////////////////////////////////////////////// supports
 ///
-/// @brief Variant storage specialized for pointers
+/// @since 0.0.1
+/// @brief Interface for a specific cast from a value store
+/// 
 template<typename T>
-struct variant_storage<T*>
+struct supports
 {
-    enum { local_storage = false };
+    virtual T cast(T*, std::locale) const = 0;
+    virtual ~supports(void) {}
+};
 
-    typedef T* __ptr_type;
 
-    typename variant_traits<T>::const_object_ref_type get_object_ref(const __ptr_type &val) const
-    {
-        return *val;
-    }
+//..............................................................................
+//////////////////////////////////////////////////////////////////////// sa_base
+///
+/// @since 0.0.1
+/// @brief Base class for storage accessors
+/// 
+template<typename T>
+struct sa_base : public virtual IVariantValue,
+                 public supports<T>
+{
+    virtual       T& get_value(void)       = 0;
+    virtual const T& get_value(void) const = 0;
 
-    void release_pointee(__ptr_type &ref)
-    {
-        delete ref;
-    }
+    virtual const char* get_typename(void) const;
+    virtual daltype_t   datatype(void) const;
+
+    virtual T cast(T*, std::locale) const { return this->get_value(); }
+
+    virtual bool valueNullCheck(void) const { return false; }
+
+    virtual void set_value(const Variant &value) { throw_read_only(); }
+};
+
+
+template<typename T> const char* sa_base<T>::get_typename(void) const { return value_traits<T>::info_type::name(); }
+
+
+template<typename T> daltype_t sa_base<T>::datatype(void) const { return value_traits<T>::info_type::type(); }
+
+
+
+//..............................................................................
+////////////////////////////////////////////////////////////////// supports_cast
+///
+/// @since 0.0.1
+/// @brief Interface for a supported implicit type cast from a value store
+/// 
+template<typename U, typename T>
+struct supports_cast : public virtual sa_base<U>,
+                       public supports<T>
+{
+    virtual T cast(T*, std::locale) const { return (T)this->get_value(); }
+};
+
+
+//..............................................................................
+//////////////////////////////////////////////////////////////////// sv_accessor
+///
+/// @since 0.0.1
+/// @brief Default accessor
+/// 
+template<typename T>
+struct sv_accessor : public virtual sa_base<T>
+{
+    virtual bool valueNullCheck(void) const { return false; }
+    static_assert(sizeof(T) == -1, "No accessor defined");
 };
 
 
 
-//--------------------------------------------------------------------------
+//..............................................................................
+////////////////////////////////////////////////////////////////// variant_value
 ///
-/// @brief Variant value
-template<typename T,
-         template<typename> class StoragePolicy  = variant_storage,
-         template<typename> class AssignPolicy   = variant_assign,
-         template<typename> class DeepcopyPolicy = variant_deepcopy>
-class variant_value : public variant_traits<T>::accessor_type,
-                      protected StoragePolicy<T>,
-                      protected AssignPolicy<T>,
-                      protected DeepcopyPolicy<T>
+/// @since 0.0.1
+/// @brief Storage class for values
+/// 
+template<typename T>
+struct variant_value : public sv_accessor<T>
 {
-public:
-    DAL_VARIANT_ACCESSOR_CHECK;
+    variant_value(const T& value) : m_value(value) {}
 
-    typedef typename variant_traits<T>::object_type           object_type;
-    typedef typename variant_traits<T>::object_ref_type       object_ref_type;
-    typedef typename variant_traits<T>::const_object_ref_type const_object_ref_type;
+    virtual T& get_value(void) { return this->m_value; }
+    virtual const T& get_value(void) const { return this->m_value; }
+
+    virtual int flags(void) const { return 0; }
+
+    virtual IVariantValue* deepcopy(void) const { return new typename value_traits<T>::stored_type(m_value); }
+    virtual IVariantValue* clone(void) const { return new variant_value<T>(m_value); }
+
+    virtual bool isNull(void) const { return this->valueNullCheck(); }
+
+    T m_value;
+
+private:
+    variant_value(const variant_value& value) : m_value(value.m_value) {}
+    variant_value& operator=(const variant_value&);
+};
 
 
-    explicit variant_value(const T &v) : m_value(v)
+
+//..............................................................................
+//////////////////////////////////////////////////////////////// deepcopy_helper
+///
+/// @since 0.0.1
+/// @brief Helper class for custom deepcopy
+/// 
+struct deepcopy_helper
+{
+    static IVariantValue* try_copy(const IVariantValue *owner, const custom_deepcopy *x)
+    { return x->do_deepcopy(owner); }
+    
+    static IVariantValue* try_copy(const IVariantValue *owner, const void*) { return 0; }
+};
+
+
+
+//..............................................................................
+////////////////////////////////////////////////////////////////////// ptr_value
+///
+/// @since 0.0.1
+/// @brief Storage class for non-const pointers
+/// 
+template<typename T>
+struct ptr_value : public sv_accessor<T>, public variant_writter
+{
+    ptr_value(T* value) : m_value(value) {}
+
+    virtual T& get_value(void) { return *this->m_value; }
+    virtual const T& get_value(void) const { return *this->m_value; }
+
+    virtual void set_value(const Variant &value);
+
+
+    virtual int flags(void) const { return 0 | VARIANT_PTR; }
+
+    virtual IVariantValue* deepcopy(void) const
     {
-        this->hasValue();
+        if(IVariantValue *copy = deepcopy_helper::try_copy(this, this->m_value))
+            return copy;
+        else
+            return new typename value_traits<T>::stored_type(*m_value);
     }
 
-    explicit variant_value(const variant_value<T> &v) : m_value(v.m_value)
+    virtual IVariantValue* clone(void) const { return new ptr_value<T>(m_value); }
+
+    virtual void release_pointee(void)
     {
-        this->setNull(v.isnull());
+        delete m_value;
     }
 
+    virtual bool isNull(void) const { return 0 == this->m_value || this->valueNullCheck(); }
 
-    virtual bool has_local_storage(void) const { return StoragePolicy<T>::local_storage; }
+    T *m_value;
+private:
+    ptr_value(const ptr_value&);
+    ptr_value& operator=(const ptr_value&);
+};
 
 
-    // only called if variant_value* cant replaced with the new variant_value (e.g. ptr)
-    virtual void assign(const Variant& v)
+//..............................................................................
+//////////////////////////////////////////////////////////////// const_ptr_value
+///
+/// @since 0.0.1
+/// @brief Storage class for const pointers
+/// 
+template<typename T>
+struct const_ptr_value : public sv_accessor<T>
+{
+    const_ptr_value(const T* value) : m_value(value) {}
+    
+    virtual T& get_value(void) { throw_read_only(); throw 0; }
+    virtual const T& get_value(void) const { return *this->m_value; }
+    
+    virtual int flags(void) const { return 0 | VARIANT_PTR; }
+    
+    virtual IVariantValue* deepcopy(void) const
     {
-        AssignPolicy<T>::set_new_value(m_value, v);
+        if(IVariantValue *copy = deepcopy_helper::try_copy(this, this->m_value))
+            return copy;
+        else
+            return new typename value_traits<T>::stored_type(*m_value);
     }
 
-    virtual IStoredVariant* clone(void) const
-    {
-        return new variant_value<T, StoragePolicy, AssignPolicy, DeepcopyPolicy>(*this);
-    }
+    virtual IVariantValue* clone(void) const { return new const_ptr_value<T>(m_value); }
+    
+    virtual bool isNull(void) const { return 0 == this->m_value || this->valueNullCheck(); }
 
-
-    // creates a new stored variant with has its own value, even if source was a pointer
-    virtual IStoredVariant* new_deepcopy(void) const
-    {
-        return DeepcopyPolicy<T>::create_deepcopy(m_value, this);
-    }
-
-
-    virtual const_object_ref_type getValue(void) const
-    { 
-        return StoragePolicy<T>::get_object_ref(this->m_value);
-    }
-
-    virtual T& getRawValue(void)
-    { 
-        return this->m_value;
-    }
-
-
-    virtual const T& getRawValue(void) const
-    { 
-        return this->m_value;
-    }
-
-
-    virtual void releasePointee(void)
-    {
-        StoragePolicy<T>::release_pointee(m_value);
-    }
+    const T *m_value;
 
 
 private:
+    const_ptr_value(const const_ptr_value&);
+    const_ptr_value& operator=(const const_ptr_value&);
+};
+
+
+//..............................................................................
+//////////////////////////////////////////////////////////////////// raw_pointer
+///
+/// @since 0.0.1
+/// @brief Storage class for raw pointers
+/// @detail
+/// While get_value() for ptr_value returns a reference to the value, this
+/// storage class returns the stored pointer itself.
+template<typename T>
+struct raw_pointer : public sv_accessor<T>
+{
+    raw_pointer(T value) : m_value(value) {}
+    
+    virtual T& get_value(void) { return this->m_value; }
+    virtual const T& get_value(void) const { return this->m_value; }
+    
+    virtual int flags(void) const { return 0 | VARIANT_PTR; }
+    
+    virtual IVariantValue* deepcopy(void) const
+    {
+        if(IVariantValue *copy = deepcopy_helper::try_copy(this, this->m_value))
+            return copy;
+        else
+            return new typename value_traits<T>::stored_type(m_value);
+    }
+
+    virtual IVariantValue* clone(void) const { return new raw_pointer<T>(m_value); }
+    
+    virtual bool isNull(void) const { return 0 == this->m_value || this->valueNullCheck(); }
+
     T m_value;
+
+
+private:
+    raw_pointer(const raw_pointer&);
+    raw_pointer& operator=(const raw_pointer&);
 };
 
 
 
-
-//--------------------------------------------------------------------------
+//..............................................................................
+/////////////////////////////////////////////////////////////////// value_traits
 ///
-/// @brief Deepcopy for T
+/// @since 0.0.1
+/// @brief Traits class for values
+/// 
 template<typename T>
-struct variant_deepcopy
+struct value_traits
 {
-    IStoredVariant* create_deepcopy(const T& ref, const IStoredVariant *var) const
-    {
-        return new variant_value<typename variant_traits<T>::object_type>(ref);
-    }
+    typedef variant_value<T>    stored_type;
+    typedef T                   value_type;
+    typedef var_info<T>         info_type;
 };
 
 
-
-//--------------------------------------------------------------------------
-///
-/// @brief Deepcopy for T*
 template<typename T>
-struct variant_deepcopy<T*>
+struct value_traits<T*>
 {
-    typedef T* ptr;
-    IStoredVariant* create_deepcopy(const ptr & ref, const IStoredVariant *var) const
-    {
-        return new variant_value<typename variant_traits<T>::object_type>(*ref);
-    }
+    typedef ptr_value<T>        stored_type;
+    typedef T                   value_type;
+    typedef var_info<T>         info_type;
+};
+
+template<typename T>
+struct value_traits<const T*>
+{
+    typedef const_ptr_value<T>  stored_type;
+    typedef T                   value_type;
+    typedef var_info<T>         info_type;
 };
 
 
 
-
-//--------------------------------------------------------------------------
+//..............................................................................
+////////////////////////////////////////////////////////////////////// Converter
 ///
-/// @brief Deepcopy for Memo*
-template<>
-struct variant_deepcopy<Memo>
-{
-    typedef Memo ptr;
-    IStoredVariant* create_deepcopy(const ptr & ref, const IStoredVariant *var) const
-    {
-        throw std::runtime_error("unicodestreambuf does not deep copy");
-        //return new variant_value<typename variant_traits<T>::object_type>(*ref);
-    }
-};
-
-
-
-//--------------------------------------------------------------------------
-///
-/// @brief Deepcopy for Blob*
-template<>
-struct variant_deepcopy<Blob>
-{
-    typedef Blob ptr;
-    IStoredVariant* create_deepcopy(const ptr & ref, const IStoredVariant *var) const
-    {
-        throw std::runtime_error("bytetreambuf does not deep copy");
-        //return new variant_value<typename variant_traits<T>::object_type>(*ref);
-    }
-};
-
-
-
-
-//--------------------------------------------------------------------------
-///
-/// @brief Deepcopy for IVariant*
-template<>
-struct variant_deepcopy<IVariant*>
-{
-    typedef IVariant* ptr;
-    IStoredVariant* create_deepcopy(const ptr & ref, const IStoredVariant *var) const
-    {
-        try
-        {
-            return dynamic_cast<const IStoredVariant&>(*ref).new_deepcopy();
-        }
-        catch(std::bad_cast&)
-        {
-            throw;
-        }
-        //return new variant_value<typename variant_traits<T>::object_type>(*ref);
-    }
-};
-
-
-
-//--------------------------------------------------------------------------
-///
-/// @brief Deepcopy for const IVariant*
-template<>
-struct variant_deepcopy<const IVariant*>
-{
-    typedef const IVariant* ptr;
-    IStoredVariant* create_deepcopy(const ptr & ref, const IStoredVariant *var) const
-    {
-        try
-        {
-            return dynamic_cast<const IStoredVariant&>(*ref).new_deepcopy();
-        }
-        catch(std::bad_cast&)
-        {
-            throw;
-        }
-        //return new variant_value<typename variant_traits<T>::object_type>(*ref);
-    }
-};
-/// @endcond
-
-
-
-//--------------------------------------------------------------------------
-///
-/// @brief Converter template
+/// @since 0.0.1
+/// @brief Converter for variant values
+/// 
 template<typename T>
 struct Converter
 {
-    static_assert(sizeof(T) == -1, "There is no Converter defined for this type.");
-
-    T operator()(const IStoredVariant &sv); // not defined
+    //static_assert(sizeof(T) == -1, "Converter needs to be specialized.");
+    static T convert(const Variant&);
 };
 
 
 
-
-//------------------------------------------------------------------------------
-/// A class to represent a variant value and converting the value to another
-/// type. The conversion is done by the storage_accessor<> template.
-///
-/// @note For each type that Variant should store, a specialization for the
-/// storage_accessor<> template must be defined.
+//..............................................................................
+//////////////////////////////////////////////////////////////////////// Variant
 ///
 /// @since 0.0.1
-/// @brief Represent a variant value
-class DBWTL_EXPORT  Variant : public IVariant
+/// @brief Variant type
+/// 
+class DBWTL_EXPORT Variant
 {
 public:
 
-    Variant(void) : m_storage()
-    {}
-
-
-    Variant(const Variant &var)
+    ///
+    template<typename T>
+        Variant(const T& value, const String& name = String())
         : m_storage(),
-        m_name(var.m_name)
+        m_name(name),
+        m_type_ifnull(DAL_TYPE_UNKNOWN)
         {
-            if(! var.isnull())
-                m_storage.reset(var.deepcopy());
+            this->m_storage.reset(new typename value_traits<T>::stored_type(value));
         }
 
-    template<typename T>
-        Variant(const T& v, const String &name) : m_storage(new variant_value<T>(v))
-    {}
+    ///
+    Variant(const Variant& value)
+        : m_storage(),
+        m_name(value.m_name),
+        m_type_ifnull(value.m_type_ifnull)
+        {
+            this->assign(value); // assign via deepcopy
+        }
 
-
-    Variant(const dal::EngineVariant& v);
-
-
-    template<typename T>
-        Variant(const T& v, typename std::enable_if<!std::is_base_of<Variant, T>::value, int>::type = 0) 
-        : m_storage(new variant_value<T>(v))
-    {}
-
-
-
-    explicit Variant(daltype_t type,
-                     const String &name = String(L"<unnamed>"))
-        : IVariant(),
-        m_storage(),
-        m_name(name)
+    
+    ///
+    Variant(void) 
+        : m_storage(),
+        m_name(),
+        m_type_ifnull(DAL_TYPE_UNKNOWN)
+        {}
+    
+    ///
+    Variant(IVariantValue *value) 
+        : m_storage(value),
+        m_name(),
+        m_type_ifnull(DAL_TYPE_UNKNOWN)
         {}
 
 
+    ///
+    explicit Variant(daltype_t type, const String &name = String(L"<unnamed>"))
+        : m_storage(),
+        m_name(name),
+        m_type_ifnull(type)
+        {}
 
-    // used for Variant x(colval.deepcopy()); or x(colval.clone());
-    explicit Variant(IStoredVariant *var) : m_storage(var)
-    {}
-    
 
-    virtual const String& getName(void) const;
-    
+    ///
+    virtual ~Variant(void) {}
 
-    IStoredVariant* deepcopy(void) const
+
+
+    ///
+    template<typename T> inline T get(std::locale loc = std::locale()) const
     {
-        if(this->isnull())
-            return 0;
+        if(const supports<T> *a = dynamic_cast<const supports<T>*>(this->get_storage()))
+        {
+            return a->cast((T*)0, loc);
+        }
         else
-            return this->getStorageImpl()->new_deepcopy();
+            return Converter<T>::convert(*this);
     }
 
 
-    IStoredVariant* clone(void) const
-    {
-        if(this->isnull())
-            return 0;
-        else
-            return this->getStorageImpl()->clone();
-    }
-
-
-    template<typename T>
-        operator T(void) const
+    ///
+    template<typename T> inline operator T(void) const
     {
         return this->get<T>();
     }
 
 
-    virtual ~Variant(void)
-    {}
 
-
-    Variant& operator=(const Variant& var)
-        {
-            this->assign(var);
-            return *this;
-        }
-    
-
-    virtual void assign(const Variant& var)
+    ///
+    template<typename T> inline void set(const T& value)
     {
-        if(var.isnull())
+
+        if((!this->isnull()) && this->get_storage()->flags() & VARIANT_PTR)
         {
-            this->m_storage.reset(0);
-        }
-        else
-        {
-            if(this->m_storage.get() && ! this->getStorageImpl()->has_local_storage())
+            if(variant_writter *vw = dynamic_cast<variant_writter*>(this->get_storage()))
             {
-                this->getStoredVar()->assign(var);
+                vw->set_value(Variant(value));
             }
             else
             {
-                m_storage.reset(var.getStorageImpl()->new_deepcopy()); 
-                }                
-        }
-    }
-
-
-    template<typename T>
-        inline void set(const T &v)
-    {
-        if(this->m_storage.get() && ! this->getStorageImpl()->has_local_storage())
-        {
-            Variant va(v);
-            this->getStoredVar()->assign(va);
+                throw_read_only();
+            }
         }
         else
         {
-            this->m_storage.reset(new variant_value<T>(v));
+            this->m_storage.reset(new typename value_traits<T>::stored_type(value));
         }
     }
 
 
-    template<typename T>
-        typename Converter<T>::type get(void) const
-    {
-        return Converter<T>()(*this->getStoredVar());
-    }
+    ///
+    inline Variant& operator=(const Variant& value)
+        {
+            this->assign(value);
+            return *this;
+        }
 
 
 
-    /// @brief Check the value object for NULL
-    virtual bool isnull(void) const;
+    const char* get_typename(void) const;
 
+    void replace_storage(IVariantValue* value);
 
-    /// @brief Set the value to NULL
-    virtual void        setNull(bool mode = true);
+    virtual IVariantValue* clone(void) const;
 
-
-    /// If the value is set to NULL, the returned type
-    /// may be DAL_TYPE_UNKNOW.
-    /// @brief Returns the datatype of the value.
     virtual daltype_t datatype(void) const;
 
+    virtual bool isnull(void) const;
 
-    /// Returns the value as signed int
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual signed int asInt(void) const;
+    virtual void assign(const Variant& value);
 
+    virtual void setNull(void);
 
-    /// Returns the value as unsigned int
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual unsigned int asUInt(void) const;
+    inline const String& getName(void) const { return this->m_name; }
 
 
-    /// Returns the value as signed char
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual signed char asChar(void) const;
+    IVariantValue*       get_storage(void);
+    const IVariantValue* get_storage(void) const;
 
 
-    /// Returns the value as unsigned char
-    /// @exception convert_error if the value can't converted
-    /// @exception null_value if the value is null
-    virtual unsigned char  asUChar(void) const;
-
-
-    virtual String              asStr(std::locale loc = std::locale()) const;
-    virtual bool                asBool(void) const;
-    virtual signed short        asSmallint(void) const;
-    virtual unsigned short      asUSmallint(void) const;
-    virtual signed long long    asBigint(void) const;
-    virtual unsigned long long  asUBigint(void) const;
-    virtual TNumeric            asNumeric(void) const;
-    virtual float               asReal(void) const;
-    virtual double              asDouble(void) const;
-    virtual TDate               asDate(void) const;
-    virtual TTime               asTime(void) const;
-    virtual TTimestamp          asTimestamp(void) const;
-    virtual TInterval           asInterval(void) const;
-    virtual Blob                asBlob(void) const;
-    virtual Memo                asMemo(void) const;
-    //virtual TCustom&        asCustom(void) const = 0;
-
-
-    IStoredVariant*       getStorageImpl(void);
-    const IStoredVariant* getStorageImpl(void) const;
-
-    IStoredVariant*       getStoredVar(void);
-    const IStoredVariant* getStoredVar(void) const;
+    signed int          asInt(void) const;
+    unsigned int        asUInt(void) const;
+    signed char         asChar(void) const;
+    unsigned char       asUChar(void) const;
+    String              asStr(std::locale loc = std::locale()) const;
+    bool                asBool(void) const;
+    signed short        asSmallint(void) const;
+    unsigned short      asUSmallint(void) const;
+    signed long long    asBigint(void) const;
+    unsigned long long  asUBigint(void) const;
+    TNumeric            asNumeric(void) const;
+    float               asReal(void) const;
+    double              asDouble(void) const;
+    TDate               asDate(void) const;
+    TTime               asTime(void) const;
+    TTimestamp          asTimestamp(void) const;
+    TInterval           asInterval(void) const;
+    Blob                asBlob(void) const;
+    Memo                asMemo(void) const;
 
 
 protected:
-    std::auto_ptr<IStoredVariant> m_storage;
-
-    /// @brief Name of the variant
-    String     m_name;
+    std::auto_ptr<IVariantValue> m_storage;
+    String    m_name;
+    daltype_t m_type_ifnull;
 };
+
+
+
+DBWTL_EXPORT std::wostream&  operator<<(std::wostream& o, const Variant &var);
+DBWTL_EXPORT std::ostream&   operator<<(std::ostream& o,  const Variant &var);
+
+
 
 
 
 template<typename T>
-struct DBWTL_EXPORT variant_assign
-{
-
-    void set_new_value(T& dest, const Variant &src)
-    {
-        dest = src.get<typename variant_traits<T>::object_type>();
-    }
-
-};
+void ptr_value<T>::set_value(const Variant &value)
+{  
+    *this->m_value = value.get<T>();
+}
 
 
 template<typename T>
-struct DBWTL_EXPORT variant_assign<T*>
+T Converter<T>::convert(const Variant &v)
 {
-    void set_new_value(T*& dest, const Variant &src)
-    {
-        *dest = src.get<T>();
-    }
-
-};
-
-
-void DBWTL_EXPORT throw_read_only(void);
-
-template<typename T>
-struct DBWTL_EXPORT variant_assign<const T*>
-{
-    void set_new_value(const T*& dest, const Variant &src)
-    {
-        throw_read_only();
-    }
-
-};
-
-
-template<>
-struct DBWTL_EXPORT variant_assign<IVariant*>
-{
-
-    /// @todo Implement a testcase
-    void set_new_value(IVariant*& dest, const Variant &src)
-    {
-        dest->assign(src);
-    }
-};
+    throw_convert_error(v.datatype(), value_traits<T>::info_type::type());
+    throw 0;
+}
 
 
 
@@ -844,17 +651,14 @@ struct DBWTL_EXPORT variant_assign<IVariant*>
 
 
 
-class format_error_exception : public std::runtime_error
+
+class DBWTL_EXPORT format_error_exception : public std::runtime_error
 {
 public:
     format_error_exception(const String &fmt, const String &what)
         : std::runtime_error(String("Formatting exception: ") + what + " format() string: " + fmt)
     {}
 };
-
-
-
-
 
 
 
@@ -1025,7 +829,7 @@ public:
 
         c = this->m_char;
         if(c == traits_type::eof())
-	    throw format_error_exception(this->m_fmt, "EOL reached");
+            throw format_error_exception(this->m_fmt, "EOL reached");
 
         tmp.clear();
 
@@ -1079,21 +883,21 @@ public:
     {
         stream_type stream;
         do_fmt_base(s, stream);
-	switch(s.mode)
-	{
-	case Settings::T_CHAR:
-		stream << this->get_arg(m_pos++).asChar(); break;
-	case Settings::T_SMALL:
-		stream << this->get_arg(m_pos++).asSmallint(); break;
-	case Settings::T_LONG:
-		stream << this->get_arg(m_pos++).asInt(); break;
-	case Settings::T_LONGLONG:
-		stream << this->get_arg(m_pos++).asBigint(); break;
-	case Settings::T_LONGDOUBLE:
-	case Settings::T_NONE:
-        	stream << this->get_arg(m_pos++).asInt(); break;
-	
-	}
+        switch(s.mode)
+        {
+        case Settings::T_CHAR:
+            stream << this->get_arg(m_pos++).asChar(); break;
+        case Settings::T_SMALL:
+            stream << this->get_arg(m_pos++).asSmallint(); break;
+        case Settings::T_LONG:
+            stream << this->get_arg(m_pos++).asInt(); break;
+        case Settings::T_LONGLONG:
+            stream << this->get_arg(m_pos++).asBigint(); break;
+        case Settings::T_LONGDOUBLE:
+        case Settings::T_NONE:
+            stream << this->get_arg(m_pos++).asInt(); break;
+    
+        }
         m_str.append(stream.str());
     }
 
@@ -1221,13 +1025,16 @@ typedef basic_format<wchar_t> wformat;
 
 
 
-
-
 DB_NAMESPACE_END
 
 
 
+
+
+
 #endif
+
+
 
 //
 // Local Variables:

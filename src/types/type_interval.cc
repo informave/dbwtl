@@ -60,6 +60,15 @@ DB_NAMESPACE_BEGIN
 /// @todo implement interval type
 
 
+
+String
+TInterval::asStr(std::locale loc) const
+{
+    DAL_NOT_IMPL();
+}
+
+
+
 DB_NAMESPACE_END
 
 

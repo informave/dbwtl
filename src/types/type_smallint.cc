@@ -56,32 +56,28 @@ DB_NAMESPACE_BEGIN
 
 
 
-signed short
-read_accessor<signed short>::asSmallint(void) const
-{
-	return this->getValue();
-}
-
 
 String
-read_accessor<signed short>::asStr(std::locale loc) const
+sv_accessor<signed short>::cast(String*, std::locale loc) const
 {
     std::wstringstream ss;
     ss.imbue(loc);
-    ss << this->getValue();
+    ss << this->get_value();
     return ss.str();
 }
 
 
 
-String
-read_accessor<unsigned short>::asStr(std::locale loc) const
+String               
+sv_accessor<unsigned short>::cast(String*, std::locale loc) const
 {
-    std::wstringstream ss;
-    ss.imbue(loc);
-    ss << this->getValue();
-    return ss.str();
+	std::wstringstream ss;
+	ss.imbue(loc);
+	ss << this->get_value();
+	return ss.str();
 }
+
+
 
 
 

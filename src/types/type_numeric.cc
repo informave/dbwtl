@@ -59,17 +59,17 @@ DB_NAMESPACE_BEGIN
 
 /// 
 String
-read_accessor<TNumeric>::asStr(std::locale loc) const
+sv_accessor<TNumeric>::cast(String*, std::locale loc) const
 {
-    return this->getValue().str();
+    return this->get_value().str();
 }
-
-
+                            
+                            
 /// 
 bool
-read_accessor<TNumeric>::asBool(void) const
+sv_accessor<TNumeric>::cast(bool*, std::locale loc) const
 {
-    return this->getValue() != TNumeric(0);
+    return this->get_value() != TNumeric(0);
 }
 
 

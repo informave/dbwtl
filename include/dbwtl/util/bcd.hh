@@ -196,6 +196,7 @@ public:
     /// @brief Set value as string
     void set_value(std::string s)
     {
+    	std::string orig(s);
         m_nibbles.clear();
         m_sign = true;
         m_scale = 0;
@@ -212,7 +213,7 @@ public:
             s.erase(s.begin());
         }
         
-        /// @bug "+" or "-" causes invalid state
+        if(!s.size()) throw std::invalid_argument(std::string("Invalid numeric value: ").append(orig));
 
         for(size_t i = 0; i < s.size(); ++i)
         {
@@ -222,7 +223,7 @@ public:
                 continue;
             }
             if(s[i] < 0x30 || s[i] > 0x39)
-                throw 1;
+                throw std::invalid_argument(std::string("Invalid numeric value: ").append(orig));
             *d++ = s[i] - 0x30;
         }
         if(dot)

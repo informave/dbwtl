@@ -57,134 +57,89 @@
 DB_NAMESPACE_BEGIN
 
 
-
-
-signed int           
-read_accessor<signed int>::asInt(void) const
-{
-    return this->getValue();
-}
-
 unsigned int         
-read_accessor<signed int>::asUInt(void) const
+sv_accessor<signed int>::cast(unsigned int*, std::locale loc) const
 {
-    const signed int &v = this->getValue();
+    const signed int &v = this->get_value();
     if(v < 0)
-        throw ex::convert_error(format("Negative number can't converted to unsigned int: %d") % this->getValue());
+        throw ex::convert_error(format("Negative number can't converted to unsigned int: %d") % this->get_value());
     else
-        return this->getValue();
+        return this->get_value();
 
 
 }
 
 signed char          
-read_accessor<signed int>::asChar(void) const
+sv_accessor<signed int>::cast(signed char*, std::locale loc) const
 {
-	const signed int &v = this->getValue();
+	const signed int &v = this->get_value();
 	if(v > std::numeric_limits<signed char>::max() || v < std::numeric_limits<signed char>::min())
-        throw ex::convert_error(format("Number can't converted to signed char: %d") % this->getValue());
+        throw ex::convert_error(format("Number can't converted to signed char: %d") % this->get_value());
 	else
-	    return this->getValue();
+	    return this->get_value();
 }
 
 unsigned char        
-read_accessor<signed int>::asUChar(void) const
+sv_accessor<signed int>::cast(unsigned char*, std::locale loc) const
 {
-        const signed int &v = this->getValue();
+        const signed int &v = this->get_value();
         if(v > std::numeric_limits<unsigned char>::max() || v < std::numeric_limits<unsigned char>::min())
-            throw ex::convert_error(format("Number can't converted to unsigned char: %d") % this->getValue());
+            throw ex::convert_error(format("Number can't converted to unsigned char: %d") % this->get_value());
         else
-            return this->getValue();
+            return this->get_value();
 }
 
-String               
-read_accessor<signed int>::asStr(std::locale loc) const
-{
-	std::wstringstream ss;
-	ss.imbue(loc);
-	ss << this->getValue();
-	return ss.str();
-}
-
-bool                 
-read_accessor<signed int>::asBool(void) const
-{
-	return this->getValue() > 0 ? true : false;
-}
 
 signed short         
-read_accessor<signed int>::asSmallint(void) const
+sv_accessor<signed int>::cast(signed short*, std::locale loc) const
 {
-        const signed int &v = this->getValue();
+        const signed int &v = this->get_value();
         if(v > std::numeric_limits<signed short>::max() || v < std::numeric_limits<signed short>::min())
-            throw ex::convert_error(format("Number can't converted to signed short: %d") % this->getValue());
+            throw ex::convert_error(format("Number can't converted to signed short: %d") % this->get_value());
         else
-            return this->getValue();
+            return this->get_value();
 }
 
 unsigned short       
-read_accessor<signed int>::asUSmallint(void) const
+sv_accessor<signed int>::cast(unsigned short*, std::locale loc) const
 {
-        const signed int &v = this->getValue();
+        const signed int &v = this->get_value();
         if(v > std::numeric_limits<unsigned short>::max() || v < std::numeric_limits<unsigned short>::min())
-            throw ex::convert_error(format("Number can't converted to unsigned short: %d") % this->getValue());
+            throw ex::convert_error(format("Number can't converted to unsigned short: %d") % this->get_value());
         else
-            return this->getValue();
-}
-
-signed long long     
-read_accessor<signed int>::asBigint(void) const
-{
-    return this->getValue();
+            return this->get_value();
 }
 
 unsigned long long   
-read_accessor<signed int>::asUBigint(void) const
+sv_accessor<signed int>::cast(unsigned long long*, std::locale loc) const
 {
-    return this->getValue();
+         const signed int &v = this->get_value();
+        if(v < 0)
+            throw ex::convert_error(format("Number can't converted to unsigned long long: %d") % this->get_value());
+        else
+            return this->get_value();
+ 
 }
 
-TNumeric             
-read_accessor<signed int>::asNumeric(void) const
+
+
+String               
+sv_accessor<signed int>::cast(String*, std::locale loc) const
 {
-    return TNumeric(this->getValue());
+	std::wstringstream ss;
+	ss.imbue(loc);
+	ss << this->get_value();
+	return ss.str();
 }
 
-float                
-read_accessor<signed int>::asReal(void) const
-{
-	return this->getValue();
-}
 
-double               
-read_accessor<signed int>::asDouble(void) const
-{
-	return this->getValue();
-}
 
 
 TTimestamp           
-read_accessor<signed int>::asTimestamp(void) const
+sv_accessor<signed int>::cast(TTimestamp*, std::locale loc) const
 {
-	return TTimestamp(this->getValue());
+	return TTimestamp(this->get_value());
 }
-
-
-
-Blob
-read_accessor<signed int>::asBlob(void) const
-{
-	DAL_NOT_IMPL();
-    //return this->getValue();
-}
-
-Memo
-read_accessor<signed int>::asMemo(void) const
-{
-	DAL_NOT_IMPL();
-    //return this->getValue();
-}
-
 
 
 

@@ -58,12 +58,19 @@ int test(void)
     DBMS::Resultset rs(stmt);
     rs.first();
 
+
     const DBMS::Value &data = rs.column("data");    
+
     DBMS::Blob blob(data);
+	
+
     //blob.exceptions ( DBMS::Blob::eofbit | DBMS::Blob::failbit | DBMS::Blob::badbit );
     std::stringstream ss;
     ss << "Data: " << data.asBlob().rdbuf();
+
+
     assert(ss.str() == std::string("Data: Hello World"));
+
 
     data.asBlob().rdbuf()->pubseekoff(-7, std::ios_base::cur);
     std::cout << data.asBlob().rdbuf() << std::endl;

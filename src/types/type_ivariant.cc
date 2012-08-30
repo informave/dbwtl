@@ -56,7 +56,7 @@ DB_NAMESPACE_BEGIN
 
 
 
-
+/*
 
 int
 read_accessor<IVariant>::asInt() const
@@ -79,6 +79,7 @@ read_accessor<IVariant>::datatype() const
     return this->getValue().datatype();
 }
 
+*/
 
 
 DB_NAMESPACE_END

@@ -532,7 +532,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     StmtBase::ParamMapIterator param;
     for(param = params.begin(); param != params.end(); ++param)
     {
-        IVariant *var = param->second;
+        Variant *var = param->second;
         std::stringstream tmp_stream;
 
 
@@ -567,9 +567,9 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
                 break;
 
             case DAL_TYPE_BLOB:
-                if(var->asBlob())
+                if(var->get<Blob>())
                 {
-                    tmp_stream << var->asBlob().rdbuf();
+                    tmp_stream << var->get<Blob>().rdbuf();
                 
                     std::string& tmp_string = tmp_strings[param->first];
                     tmp_string = tmp_stream.str();

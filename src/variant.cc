@@ -61,419 +61,233 @@ DB_NAMESPACE_BEGIN
 #define DAL_THROW_INVALID_CAST() throw std::runtime_error(__FUNCTION__)
 
 
-Variant::Variant(const dal::EngineVariant& var) : m_storage()
+
+//..............................................................................
+//////////////////////////////////////////////////////////////////////// Variant
+
+/// @details
+/// 
+const char*
+Variant::get_typename(void) const
 {
-    if(!var.isnull())
-        //m_storage.reset(var.getStorageImpl()->clone()); // deep copy? no..
-        m_storage.reset(var.deepcopy()); // deep copy? no..
-        //this->m_storage.reset(var.getStorageImpl()->new_deepcopy());
-
-    
+    return this->get_storage()->get_typename();
 }
 
-/*
-        Variant::Variant(const SqliteVariant& var)
-        {
-                if(!var.isnull())
-                        this->m_storage.reset(var.getStorageImpl()->new_deepcopy());
-        }
-*/
-
-
-bool DefaultVariant::isnull(void) const
+/// @details
+/// 
+void
+Variant::replace_storage(IVariantValue* value)
 {
-    return this->m_isnull;
+    this->m_storage.reset(value);
 }
 
 
-void DefaultVariant::setNull(bool mode)
+/// @details
+/// 
+IVariantValue*
+Variant::clone(void) const
 {
-    this->m_isnull = mode;
+    if(this->m_storage.get())
+        return this->get_storage()->clone();
+    else
+        return 0;
 }
 
 
-
-
-
-signed int      DefaultVariant::asInt(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_INT); }
-
-
-unsigned int    DefaultVariant::asUInt(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_UINT); }
-
-
-signed char     DefaultVariant::asChar(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_CHAR); }
-
-
-unsigned char   DefaultVariant::asUChar(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_UCHAR); }
-
-
-String   DefaultVariant::asStr(std::locale loc) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_STRING); }
-
-
-
-bool            DefaultVariant::asBool(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_BOOL); }
-
-
-signed short    DefaultVariant::asSmallint(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_SMALLINT); }
-
-
-unsigned short  DefaultVariant::asUSmallint(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_USMALLINT); }
-
-
-signed long long    DefaultVariant::asBigint(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_BIGINT); }
-
-
-unsigned long long  DefaultVariant::asUBigint(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_UBIGINT); }
-
-
-
-
-TNumeric        DefaultVariant::asNumeric(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_NUMERIC); }
-
-
-float           DefaultVariant::asReal(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_FLOAT); }
-
-
-double          DefaultVariant::asDouble(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_DOUBLE); }
-
-
-TDate           DefaultVariant::asDate(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_DATE); }
-
-
-TTime           DefaultVariant::asTime(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_TIME); }
-
-
-
-TTimestamp      DefaultVariant::asTimestamp(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_TIMESTAMP); }
-
-
-TInterval       DefaultVariant::asInterval(void) const 
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_INTERVAL); }
-
-
-
-Blob            DefaultVariant::asBlob(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_BLOB); }
-
-
-Memo            DefaultVariant::asMemo(void) const
-{ throw ex::convert_error(this->datatype(), DAL_TYPE_MEMO); }
-
-
-
-
-//--------------------------------------------------------------------------
-///
-///
-IStoredVariant*
-Variant::getStorageImpl(void)
+/// @details
+/// If we have a valid storage object, we ask the storage for the current
+/// daltype. If the storage is not set, we use the daltype from the
+/// constructor argument.
+daltype_t 
+Variant::datatype(void) const
 {
-    /// do not use this->isnull() because it checks the m_storage, too!
-    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
-    return this->m_storage.get();
+    if(this->m_storage.get())
+        return this->get_storage()->datatype();
+    else
+        return this->m_type_ifnull;
 }
 
-
-
-///
-///
-const IStoredVariant*
-Variant::getStorageImpl(void) const
-{
-    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
-    return this->m_storage.get();
-}
-
-
-IStoredVariant*
-Variant::getStoredVar(void)
-{
-    if(this->getStorageImpl()->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl();
-}
-
-
-
-///
-///
-const IStoredVariant*
-Variant::getStoredVar(void) const
-{
-    if(this->getStorageImpl()->isnull()) throw db::ex::null_value(*this);
-    return this->getStorageImpl();
-}
-
-
-
-///
-const String&
-Variant::getName(void) const
-{
-    return this->m_name;
-}
-
-
-///
-signed int
-Variant::asInt(void) const
-{
-    return this->getStoredVar()->asInt(); 
-}
-
-///
-unsigned int
-Variant::asUInt(void) const 
-{ 
-    return this->getStoredVar()->asUInt(); 
-}
-
-///
-signed char
-Variant::asChar(void) const 
-{
-    return this->getStoredVar()->asChar(); 
-}
-
-///
-unsigned char
-Variant::asUChar(void) const 
-{ 
-    return this->getStoredVar()->asUChar(); 
-}
-
-///
-String 
-Variant::asStr(std::locale loc) const
-{
-    return this->getStoredVar()->asStr(loc); 
-}
-
-
-///
+/// @details
+/// 
 bool
-Variant::asBool(void) const 
-{ 
-    return this->getStoredVar()->asBool(); 
-}
-
-///
-signed short 
-Variant::asSmallint(void) const 
-{ 
-    return this->getStoredVar()->asSmallint(); 
-}
-
-///
-unsigned short  
-Variant::asUSmallint(void) const 
+Variant::isnull(void) const
 {
-    return this->getStoredVar()->asUSmallint(); 
-}
-
-///
-signed long long  
-Variant::asBigint(void) const 
-{
-    return this->getStoredVar()->asBigint(); 
-}
-
-///
-unsigned long long
-Variant::asUBigint(void) const 
-{
-    return this->getStoredVar()->asUBigint(); 
-}
-
-///
-TNumeric  
-Variant::asNumeric(void) const 
-{
-    return this->getStoredVar()->asNumeric(); 
+    return (this->m_storage.get() == 0 || this->m_storage->isNull());
 }
 
 
-///
-float         
-Variant::asReal(void) const 
+/// @details
+/// 
+void
+Variant::assign(const Variant& value)
 {
-    return this->getStoredVar()->asReal(); 
-}
-
-///
-double        
-Variant::asDouble(void) const 
-{
-    return this->getStoredVar()->asDouble(); 
-}
-
-///
-TDate        
-Variant::asDate(void) const 
-{
-    return this->getStoredVar()->asDate(); 
-}
-
-///
-TTime          
-Variant::asTime(void) const 
-{
-    return this->getStoredVar()->asTime(); 
-}
-
-///
-TTimestamp
-Variant::asTimestamp(void) const 
-{
-    return this->getStoredVar()->asTimestamp(); 
-}
-
-///
-//virtual TCustom&        asCustom(void) const = 0;
-
-
-///
-TInterval    
-Variant::asInterval(void) const 
-{
-    return this->getStoredVar()->asInterval(); 
-}
-
-///
-Blob
-Variant::asBlob(void) const 
-{
-    return this->getStoredVar()->asBlob(); 
-}
-
-///
-Memo
-Variant::asMemo(void) const 
-{
-    return this->getStoredVar()->asMemo(); 
-}
-
-
-
-
-
-
-
-
-
-
-
-// OPERATORS
-IVariant::operator bool                  (void) const { return this->asBool(); }
-IVariant::operator signed int            (void) const { return this->asInt(); }
-IVariant::operator unsigned int          (void) const { return this->asUInt(); }
-IVariant::operator signed char           (void) const { return this->asChar(); }
-IVariant::operator unsigned char         (void) const { return this->asUChar(); }
-IVariant::operator signed short          (void) const { return this->asSmallint(); }
-IVariant::operator unsigned short        (void) const { return this->asUSmallint(); }
-IVariant::operator signed long long      (void) const { return this->asBigint(); }
-IVariant::operator unsigned long long    (void) const { return this->asUBigint(); }
-IVariant::operator float                 (void) const { return this->asReal(); }
-IVariant::operator double                (void) const { return this->asDouble(); }
-IVariant::operator String                (void) const { return this->asStr(); }
-IVariant::operator std::string           (void) const { return std::string(this->asStr().to("UTF-8")); }
-IVariant::operator Blob                  (void) const { return this->asBlob(); }
-IVariant::operator Memo                  (void) const { return this->asMemo(); }
-
-// IVariant::operator TNumeric              (void) const { return this->asNumeric(); }
-// IVariant::operator TDate                 (void) const { return this->asDate(); }
-// IVariant::operator TTime                 (void) const { return this->asTime(); }
-// IVariant::operator TTimestamp            (void) const { return this->asTimestamp(); }
-// IVariant::operator TInterval             (void) const { return this->asInterval(); }
-
-
-///
-daltype_t Variant::datatype(void) const
-{
-    // if unitialized, we can't determine the datatype
-    if(this->m_storage.get() == 0)
-        return DAL_TYPE_UNKNOWN;
-    //throw db::ex::null_value(*this);
-    return this->m_storage->datatype();
-}
-
-
-///
-bool Variant::isnull(void) const
-{
-    return (this->m_storage.get() == 0 || this->m_storage->isnull());
-}
-
-
-/// If the internal storage points to an external value, it may
-/// be required that this value is notified about the setNull() action.
-void Variant::setNull(bool mode) 
-{
-    if(this->m_storage.get()) // only set null if storage is initialized!
+    if(value.isnull())
     {
-        this->m_storage->setNull(mode);
-        this->m_storage.reset();
+        this->m_storage.reset(0);
+    }
+    else
+    {
+        this->m_storage.reset(value.get_storage()->deepcopy());
     }
 }
 
 
+/// @details
+/// 
+void
+Variant::setNull(void) { this->m_storage.reset(0); }
 
 
-//--------------------------------------------------------------------------
-daltype_t TInterval::datatype(void) const   {  return DAL_TYPE_INTERVAL;   }
+/// @details
+/// 
+IVariantValue*
+Variant::get_storage(void)
+{
+    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
+    return this->m_storage.get();
+}
+
+
+/// @details
+/// 
+const IVariantValue*
+Variant::get_storage(void) const
+{
+    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
+    return this->m_storage.get();
+}
 
 
 
 
-//--------------------------------------------------------------------------
-///
-///
+
+signed int Variant::asInt(void) const
+{
+    return this->get<signed int>();
+}
+
+unsigned int
+Variant::asUInt(void) const
+{
+    return this->get<unsigned int>();
+}
+
+signed char
+Variant::asChar(void) const
+{
+    return this->get<signed char>();
+}
+
+unsigned char
+Variant::asUChar(void) const
+{
+    return this->get<unsigned char>();
+}
+
+String
+Variant::asStr(std::locale loc) const
+{
+    return this->get<String>();
+}
+
+bool
+Variant::asBool(void) const
+{
+    return this->get<bool>();
+}
+
+signed short
+Variant::asSmallint(void) const
+{
+    return this->get<signed short>();
+}
+
+unsigned short
+Variant::asUSmallint(void) const
+{
+    return this->get<unsigned short>();
+}
+
+signed long long
+Variant::asBigint(void) const
+{
+    return this->get<signed long long>();
+}
+
+unsigned long long
+Variant::asUBigint(void) const
+{
+    return this->get<unsigned long long>();
+}
+
+TNumeric    
+Variant::asNumeric(void) const
+{
+    return this->get<TNumeric>();
+}
+
+float
+Variant::asReal(void) const
+{
+    return this->get<float>();
+}
+
+double
+Variant::asDouble(void) const
+{
+    return this->get<double>();
+}
+
+TDate              
+Variant::asDate(void) const
+{
+    return this->get<TDate>();
+}
+
+TTime               
+Variant::asTime(void) const
+{
+    return this->get<TTime>();
+}
+
+TTimestamp   
+Variant::asTimestamp(void) const
+{
+    return this->get<TTimestamp>();
+}
+
+TInterval    
+Variant::asInterval(void) const
+{
+    return this->get<TInterval>();
+}
+
+Blob     
+Variant::asBlob(void) const
+{
+    return this->get<Blob>();
+}
+
+Memo  
+Variant::asMemo(void) const
+{
+    return this->get<Memo>();
+}
 
 
 
 
+//..............................................................................
+////////////////////////////////////////////////////////////////////////// TType
 
+/// @details
+/// 
 bool
 TType::isNull(void) const
 {
-	return this->m_isnull;
+    return this->m_isnull;
 }
 
-
-
-
-String
-TInterval::asStr(std::locale loc) const
-{
-    DAL_NOT_IMPL();
-}
-
-
-/*
-String
-TNumeric::asStr(std::locale loc) const
-{
-    DAL_NOT_IMPL();
-}
-*/
-
-
-//////////////////////
 
 
 
@@ -547,10 +361,10 @@ String daltype2sqlname(daltype_t type)
 
 
 
-//--------------------------------------------------------------------------
+
 ///
 /// 
-std::wostream&  operator<<(std::wostream& o, const IVariant &var)
+std::wostream&  operator<<(std::wostream& o, const Variant &var)
 {
     String str = var.asStr(o.getloc());
     o << str;
@@ -559,7 +373,7 @@ std::wostream&  operator<<(std::wostream& o, const IVariant &var)
 
 ///
 ///
-std::ostream& operator<<(std::ostream& o,  const IVariant &var)
+std::ostream& operator<<(std::ostream& o,  const Variant &var)
 {
     String str = var.asStr(o.getloc());
     o << str;
@@ -573,11 +387,24 @@ std::ostream& operator<<(std::ostream& o,  const IVariant &var)
 
 void throw_read_only(void)
 {
-    throw ex::read_only();
+    throw ex::read_only(); /// @todo include variant name for more information
 }
 
 
+void throw_convert_error(daltype_t src, daltype_t dest)
+{
+    throw ex::convert_error(src, dest);
+}
 
 
 DB_NAMESPACE_END
 
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

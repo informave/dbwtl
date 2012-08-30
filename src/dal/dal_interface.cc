@@ -635,10 +635,10 @@ StmtBase::bind(int num, const Variant &data)
 ///
 ///
 void
-StmtBase::bind(int num, IVariant* data)
+StmtBase::bind(int num, Variant* data)
 {
     DALTRACE_VISIT;
-    Variant* tmp = new Variant(data);
+    Variant* tmp = new Variant(data->clone());
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
 }
@@ -647,10 +647,10 @@ StmtBase::bind(int num, IVariant* data)
 ///
 ///
 void
-StmtBase::bind(int num, const IVariant* data)
+StmtBase::bind(int num, const Variant* data)
 {
     DALTRACE_VISIT;
-    Variant* tmp = new Variant(data);
+    Variant* tmp = new Variant(data->clone());
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
 }

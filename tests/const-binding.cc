@@ -57,7 +57,7 @@ int test(void)
     SqliteResult& res = stmt->resultset();    
 
     {
-        const IVariant& var = res.column(2);
+        const Variant& var = res.column(2);
     }
 
     stmt->close();

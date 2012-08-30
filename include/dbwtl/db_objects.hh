@@ -627,9 +627,9 @@ public:
     // {}
 
 
-    virtual void      bind(int num, IVariant* data)        { this->m_stmt->bind(num, data); }
+    virtual void      bind(int num, Variant* data)         { this->m_stmt->bind(num, data); }
 
-    virtual void      bind(int num, const IVariant* data)  { this->m_stmt->bind(num, data); }
+    virtual void      bind(int num, const Variant* data)   { this->m_stmt->bind(num, data); }
 
     virtual void      bind(int num, const Variant &data)   { this->m_stmt->bind(num, data); }
 

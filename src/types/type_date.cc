@@ -59,37 +59,22 @@ DB_NAMESPACE_BEGIN
 
 /// 
 String
-read_accessor<TDate>::asStr(std::locale loc) const
+sv_accessor<TDate>::cast(String*, std::locale loc) const
 {
-    return this->getValue().str();
-}
-
-
-/// 
-TDate
-read_accessor<TDate>::asDate(void) const
-{
-    return this->getValue();
+    return this->get_value().str();
 }
 
 
 
-/// 
-TTime
-read_accessor<TDate>::asTime(void) const
-{
-    return TTime(this->getValue());
-}
 
 
 
 /// 
 TTimestamp
-read_accessor<TDate>::asTimestamp(void) const
+sv_accessor<TDate>::cast(TTimestamp*, std::locale loc) const
 {
-    return TTimestamp(this->getValue());
+    return TTimestamp(this->get_value());
 }
-
 
 
 
@@ -145,16 +130,21 @@ TDate::TDate(const String &str)
         return;
     }
 
-    /// @bug use try catch(conversion_error) to handle invalid numbers
 
     std::vector<std::string> parts = utils::split<std::string>(str, '-');
     if(parts.size() != 3)
         throw ex::convert_error(format("Invalid date format: %s") % str);
 
-    //m_year = utils::lexical_cast<int>(parts[0]);
-    m_year = Variant(String(parts[0])).asInt();
-    m_month = Variant(String(parts[1])).asInt();
-    m_day = Variant(String(parts[2])).asInt();
+    try
+    {
+        m_year = Variant(String(parts[0])).asInt();
+        m_month = Variant(String(parts[1])).asInt();
+        m_day = Variant(String(parts[2])).asInt();
+    }
+    catch(ex::convert_error&)
+    {
+        throw ex::convert_error(format("Invalid date format: %s") % str);
+    }
 
     if(m_month < 1 || m_month > 12 || m_day < 1 || m_day > 31)
         throw ex::convert_error(format("Invalid date format: %s") % str);

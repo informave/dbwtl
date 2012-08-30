@@ -58,109 +58,98 @@ DB_NAMESPACE_BEGIN
 
 
 
-
-#define DAL_THROW_INVALID_CAST() throw std::runtime_error(__FUNCTION__)
-
-
+/// @todo include value in error message
+#define DAL_THROW_INVALID_CAST() throw ex::convert_error("Invalid format")
 
 
 signed int
-read_accessor<String>::asInt(void) const
+    sv_accessor<String>::cast(signed int*, std::locale loc) const
 {
     signed int v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
 unsigned int
-read_accessor<String>::asUInt(void) const
+sv_accessor<String>::cast(unsigned int*, std::locale loc) const
 {
     unsigned int v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
-String
-read_accessor<String>::asStr(std::locale loc) const
-{
-    return this->getValue();
-}
-
 
 bool
-read_accessor<String>::asBool(void) const
+sv_accessor<String>::cast(bool*, std::locale loc) const
 {
     bool v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
 signed short
-read_accessor<String>::asSmallint(void) const
+sv_accessor<String>::cast(signed short*, std::locale loc) const
 {
     signed short v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
 unsigned short
-read_accessor<String>::asUSmallint(void) const
+sv_accessor<String>::cast(unsigned short*, std::locale loc) const
 {
     unsigned int v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
 signed long long
-read_accessor<String>::asBigint(void) const
+sv_accessor<String>::cast(signed long long*, std::locale loc) const
 {
     signed long long v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
 unsigned long long
-read_accessor<String>::asUBigint(void) const
+sv_accessor<String>::cast(unsigned long long*, std::locale loc) const
 {
     unsigned long long v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
 float
-read_accessor<String>::asReal(void) const
+sv_accessor<String>::cast(float*, std::locale loc) const
 {
     float v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 
 double
-read_accessor<String>::asDouble(void) const
+sv_accessor<String>::cast(double*, std::locale loc) const
 {
     double v;
-    if(!dal::convertValue(this->getValue(), v)) DAL_THROW_INVALID_CAST();
+    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
 Memo
-read_accessor<String>::asMemo(void) const
+sv_accessor<String>::cast(Memo*, std::locale loc) const
 {
     std::wstringbuf *buf = new std::wstringbuf();
-    buf->str(this->getValue());
+    buf->str(this->get_value());
     return Memo(buf);
 }
-
-
-
 
 
 

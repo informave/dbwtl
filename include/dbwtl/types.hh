@@ -75,7 +75,7 @@ class DBWTL_EXPORT Blob : public std::iostream
 {
 public:
     Blob(ByteStreamBuf *buf);
-    Blob(const IVariant &variant);
+    Blob(const Variant &variant);
     virtual ~Blob();
 
     Blob(const Blob&);
@@ -98,7 +98,7 @@ class DBWTL_EXPORT Memo : public std::wiostream
 {
 public:
     Memo(UnicodeStreamBuf *buf);
-    Memo(const IVariant &variant);
+    Memo(const Variant &variant);
     virtual ~Memo(void);
 
     Memo(const Memo&);
@@ -323,7 +323,6 @@ protected:
 class DBWTL_EXPORT TInterval : public TType
 {
 public:
-    virtual daltype_t  datatype(void) const;
     virtual String         asStr(std::locale loc = std::locale()) const;
 
 };
@@ -407,611 +406,616 @@ public:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-#define DBWTL_VARIANT_DISPATCHER(method, type)              \
-    template<>                                              \
-    struct variant_dispatch_method<type>                    \
-        : public variant_dispatch_storage                   \
-    {                                                       \
-        variant_dispatch_method(const dal::IVariant &var)   \
-            : variant_dispatch_storage(var)                 \
-        {}                                                  \
-                                                            \
-        virtual ~variant_dispatch_method(void) {}           \
-                                                            \
-        type operator()(void) const                         \
-        {                                                   \
-            return this->get().method();                    \
-        }                                                   \
-    }
-
-
-DBWTL_VARIANT_DISPATCHER(asInt,        signed int);
-DBWTL_VARIANT_DISPATCHER(asUInt,       unsigned int);
-DBWTL_VARIANT_DISPATCHER(asChar,       signed char);
-DBWTL_VARIANT_DISPATCHER(asUChar,      unsigned char);
-DBWTL_VARIANT_DISPATCHER(asStr,        String);
-DBWTL_VARIANT_DISPATCHER(asBool,       bool);
-DBWTL_VARIANT_DISPATCHER(asSmallint,   signed short);
-DBWTL_VARIANT_DISPATCHER(asUSmallint,  unsigned short);
-DBWTL_VARIANT_DISPATCHER(asBigint,     signed long long);
-DBWTL_VARIANT_DISPATCHER(asUBigint,    unsigned long long);
-DBWTL_VARIANT_DISPATCHER(asNumeric,    TNumeric);
-DBWTL_VARIANT_DISPATCHER(asReal,       float);
-DBWTL_VARIANT_DISPATCHER(asDouble,     double);
-DBWTL_VARIANT_DISPATCHER(asDate,       TDate);
-DBWTL_VARIANT_DISPATCHER(asTime,       TTime);
-DBWTL_VARIANT_DISPATCHER(asTimestamp,  TTimestamp);
-
-*/
-
-
-#define DAL_SET_STORAGE_TYPE(type)              \
-    virtual daltype_t datatype() const          \
-    {                                           \
-        return type;                            \
-    }
-
-#define DAL_VARIANT_DEFINE_ACCESSOR(type)       \
-    DAL_VARIANT_ACCESSOR;                       \
-    DAL_SET_STORAGE_TYPE(type)                  \
-    virtual ~storage_accessor(void) { }
-
-
-#define READ_ACCESSOR(typeval)                              \
-    DAL_VARIANT_ACCESSOR;                                   \
-    virtual ~read_accessor(void) { }                        \
-    virtual daltype_t datatype() const { return typeval; }
-
-
-#define READWRITE_ACCESSOR                      \
-    DAL_VARIANT_ACCESSOR;                       \
-    virtual ~readwrite_accessor(void) { }                     
-
-
-
-///
 template<>
-class DBWTL_EXPORT read_accessor<Blob> : public default_accessor<Blob>
+struct var_info<bool>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_BLOB);
-
-    virtual Blob asBlob(void) const;
-};
-
-
-///
-template<>
-class DBWTL_EXPORT read_accessor<Memo> : public default_accessor<Memo>
-{
-public:
-    READ_ACCESSOR(DAL_TYPE_MEMO);
-
-    virtual Memo asMemo(void) const;
-};
-
-
-
-
-///
-template<>
-class DBWTL_EXPORT read_accessor<signed int> : public default_accessor<signed int>
-{
-public:
-    READ_ACCESSOR(DAL_TYPE_INT);
-
-
-    virtual signed int            asInt(void) const;
-    virtual unsigned int          asUInt(void) const;
-    virtual signed char           asChar(void) const;
-    virtual unsigned char         asUChar(void) const;
-    virtual String                asStr(std::locale loc = std::locale()) const;
-    virtual bool                  asBool(void) const;
-    virtual signed short          asSmallint(void) const;
-    virtual unsigned short        asUSmallint(void) const;
-    virtual signed long long      asBigint(void) const;
-    virtual unsigned long long    asUBigint(void) const;
-    virtual TNumeric              asNumeric(void) const;
-    virtual float                 asReal(void) const;
-    virtual double                asDouble(void) const;
-//    virtual TDate                 asDate(void) const;
-//    virtual TTime                 asTime(void) const;
-    virtual TTimestamp            asTimestamp(void) const;
-//    virtual TInterval             asInterval(void) const;
-    virtual Blob        asBlob(void) const;
-    virtual Memo     asMemo(void) const;
-    //virtual TCustom&        asCustom(void) const = 0;
+    static daltype_t type(void) { return DAL_TYPE_BOOL; }
+    static const char* name(void) { return "DAL_TYPE_BOOL"; }
     
+};
+
+
+template<>
+struct var_info<signed char>
+{
+    static daltype_t type(void) { return DAL_TYPE_CHAR; }
+    static const char* name(void) { return "DAL_TYPE_CHAR"; }
     
-
-//    virtual int asInt() const;
-//    virtual String asStr(std::locale loc = std::locale()) const;
 };
 
 
-///
 template<>
-class DBWTL_EXPORT read_accessor<unsigned int> : public default_accessor<unsigned int>
+struct var_info<unsigned char>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_UINT);
-
+    static daltype_t type(void) { return DAL_TYPE_UCHAR; }
+    static const char* name(void) { return "DAL_TYPE_UCHAR"; }
+    
 };
 
-///
 
-///
+
 template<>
-class DBWTL_EXPORT read_accessor<signed char> : public default_accessor<signed char>
+struct var_info<signed short>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_CHAR);
-
-
+    static daltype_t type(void) { return DAL_TYPE_SMALLINT; }
+    static const char* name(void) { return "DAL_TYPE_SMALLINT"; }
+    
 };
 
-///
+
 template<>
-class DBWTL_EXPORT read_accessor<unsigned char> : public default_accessor<unsigned char>
+struct var_info<unsigned short>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_UCHAR);
+    static daltype_t type(void) { return DAL_TYPE_USMALLINT; }
+    static const char* name(void) { return "DAL_TYPE_USMALLINT"; }
+    
 };
 
-///
+
+
 template<>
-class DBWTL_EXPORT read_accessor<bool> : public default_accessor<bool>
+struct var_info<signed int>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_BOOL);
-
-    virtual bool asBool(void) const;
-    virtual String asStr(std::locale loc = std::locale()) const;
+    static daltype_t type(void) { return DAL_TYPE_INT; }
+    static const char* name(void) { return "DAL_TYPE_INT"; }
+    
 };
 
 
-
-///
 template<>
-class DBWTL_EXPORT read_accessor<signed short> : public default_accessor<signed short>
+struct var_info<unsigned int>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_SMALLINT);
-
-    virtual String asStr(std::locale loc = std::locale()) const;
-
-      virtual signed short          asSmallint(void) const;
-
+    static daltype_t type(void) { return DAL_TYPE_UINT; }
+    static const char* name(void) { return "DAL_TYPE_UINT"; }
+    
 };
 
 
 
-///
 template<>
-class DBWTL_EXPORT read_accessor<unsigned short> : public default_accessor<unsigned short>
+struct var_info<signed long long>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_USMALLINT);
-
-    virtual String asStr(std::locale loc = std::locale()) const;
+    static daltype_t type(void) { return DAL_TYPE_BIGINT; }
+    static const char* name(void) { return "DAL_TYPE_BIGINT"; }
+    
 };
 
 
-
-///
 template<>
-class DBWTL_EXPORT read_accessor<signed long long> : public default_accessor<signed long long>
+struct var_info<unsigned long long>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_BIGINT);
-
-    virtual int asInt() const;
-    virtual long long asBigint() const;
-    virtual String asStr(std::locale loc = std::locale()) const;
+    static daltype_t type(void) { return DAL_TYPE_UBIGINT; }
+    static const char* name(void) { return "DAL_TYPE_UBIGINT"; }
+    
 };
 
 
-///
+
 template<>
-class DBWTL_EXPORT read_accessor<unsigned long long> : public default_accessor<unsigned long long>
+struct var_info<float>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_UBIGINT);
+    static daltype_t type(void) { return DAL_TYPE_FLOAT; }
+    static const char* name(void) { return "DAL_TYPE_FLOAT"; }
+    
 };
 
-///
+
 template<>
-class DBWTL_EXPORT read_accessor<TNumeric> : public default_accessor<TNumeric>
+struct var_info<double>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_NUMERIC);
-
-    virtual String asStr(std::locale loc = std::locale()) const;
-    virtual bool asBool(void) const;
+    static daltype_t type(void) { return DAL_TYPE_DOUBLE; }
+    static const char* name(void) { return "DAL_TYPE_DOUBLE"; }
+    
 };
 
-///
+
 template<>
-class DBWTL_EXPORT read_accessor<double> : public default_accessor<double>
+struct var_info<TDate>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_DOUBLE);
-
-    virtual float                 asReal(void) const;
-    virtual double                asDouble(void) const;
-
+    static daltype_t type(void) { return DAL_TYPE_DATE; }
+    static const char* name(void) { return "DAL_TYPE_DATE"; }
+    
 };
 
-///
+
 template<>
-class DBWTL_EXPORT read_accessor<float> : public default_accessor<float>
+struct var_info<TTime>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_FLOAT);
-
-    virtual float                 asReal(void) const;
-    virtual double                asDouble(void) const;
+    static daltype_t type(void) { return DAL_TYPE_TIME; }
+    static const char* name(void) { return "DAL_TYPE_TIME"; }
+    
 };
 
-///
+
+
 template<>
-class DBWTL_EXPORT read_accessor<TDate> : public default_accessor<TDate>
+struct var_info<TTimestamp>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_DATE);
-
-	virtual String asStr(std::locale loc = std::locale()) const;
-
-    virtual TDate                 asDate(void) const;
-    virtual TTime                 asTime(void) const;
-    virtual TTimestamp            asTimestamp(void) const;    
-
+    static daltype_t type(void) { return DAL_TYPE_TIMESTAMP; }
+    static const char* name(void) { return "DAL_TYPE_TIMESTAMP"; }
+    
 };
 
-///
+
+
 template<>
-class DBWTL_EXPORT read_accessor<TTime> : public default_accessor<TTime>
+struct var_info<TInterval>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_TIME);
-
-    virtual String asStr(std::locale loc = std::locale()) const;
-
-    virtual TDate                 asDate(void) const;
-    virtual TTime                 asTime(void) const;
-    virtual TTimestamp            asTimestamp(void) const;    
+    static daltype_t type(void) { return DAL_TYPE_INTERVAL; }
+    static const char* name(void) { return "DAL_TYPE_INTERVAL"; }
+    
 };
 
-///
+
+
 template<>
-class DBWTL_EXPORT read_accessor<TTimestamp> : public default_accessor<TTimestamp>
+struct var_info<String>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_TIMESTAMP);
-
-    virtual String asStr(std::locale loc = std::locale()) const;
-
-    virtual TDate                 asDate(void) const;
-    virtual TTime                 asTime(void) const;
-    virtual TTimestamp            asTimestamp(void) const;    
+    static daltype_t type(void) { return DAL_TYPE_STRING; }
+    static const char* name(void) { return "DAL_TYPE_STRING"; }
+    
 };
 
-///
+
 template<>
-class DBWTL_EXPORT read_accessor<TInterval> : public default_accessor<TInterval>
+struct var_info<TNumeric>
 {
-public:
-    READ_ACCESSOR(DAL_TYPE_INTERVAL);
+    static daltype_t type(void) { return DAL_TYPE_NUMERIC; }
+    static const char* name(void) { return "DAL_TYPE_NUMERIC"; }
+    
 };
 
-///
+
 template<>
-struct DBWTL_EXPORT read_accessor<String> : public default_accessor<String>
+struct var_info<Blob>
 {
-    READ_ACCESSOR(DAL_TYPE_STRING);
-
-    virtual signed int asInt(void) const;
-    virtual unsigned int asUInt(void) const;
-
-//     virtual signed char asChar(void) const
-//     {
-//     }
-
-//     virtual unsigned char asUChar(void) const
-//     {
-//     }
-
-    virtual String asStr(std::locale loc = std::locale()) const;
-    virtual bool asBool(void) const;
-    virtual signed short asSmallint(void) const;
-    virtual unsigned short asUSmallint(void) const;
-    virtual signed long long asBigint(void) const;
-    virtual unsigned long long asUBigint(void) const;
-
-//     virtual TNumeric asNumeric(void) const
-//     {
-//     }
-
-    virtual float asReal(void) const;
-    virtual double asDouble(void) const;
-
-//     virtual TDate asDate(void) const
-//     {
-//     }
-
-//     virtual TTime asTime(void) const
-//     {
-//     }
-
-//     virtual TTimestamp asTimestamp(void) const
-//     {
-//     }
-
-//     virtual TInterval asInterval(void) const
-//     {
-//     }
-
-//     virtual Blob* asBlob(void) const
-//     {
-//     }
-
-    virtual Memo asMemo(void) const;
+    static daltype_t type(void) { return DAL_TYPE_BLOB; }
+    static const char* name(void) { return "DAL_TYPE_BLOB"; }
+    
 };
 
 
-
-///
 template<>
-class DBWTL_EXPORT read_accessor<IVariant> : public default_accessor<IVariant>
+struct var_info<Memo>
 {
-public:
-    DAL_VARIANT_ACCESSOR;
-
-    virtual ~read_accessor(void) { }
-
-    virtual int asInt() const;
-
-    virtual String asStr(std::locale loc = std::locale()) const;
-
-    virtual daltype_t datatype() const;
+    static daltype_t type(void) { return DAL_TYPE_MEMO; }
+    static const char* name(void) { return "DAL_TYPE_MEMO"; }
+    
 };
 
 
 
 
 
-template<> struct Converter<signed char>
-{
-    typedef signed char type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asChar();
-    }
-};
+#define SV_CAST_METHOD(type) virtual type cast(type*, std::locale loc) const
 
 
-template<> struct Converter<unsigned char>
-{
-    typedef unsigned char type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asUChar();
-    }
-};
+template<>
+struct sv_accessor<Blob> : public virtual sa_base<Blob>
+{};
 
-
-template<> struct Converter<float>
-{
-    typedef float type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asReal();
-    }
-};
-
-
-template<> struct Converter<double>
-{
-    typedef double type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asDouble();
-    }
-};
-
-
-template<> struct Converter<TNumeric>
-{
-    typedef TNumeric type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asNumeric();
-    }
-};
-
-
-template<> struct Converter<TTime>
-{
-    typedef TTime type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asTime();
-    }
-};
-
-
-template<> struct Converter<TDate>
-{
-    typedef TDate type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asDate();
-    }
-};
-
-
-template<> struct Converter<TTimestamp>
-{
-    typedef TTimestamp type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asTimestamp();
-    }
-};
-
-
-template<> struct Converter<Blob>
-{
-    typedef Blob type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asBlob();
-    }
-};
-
-
-
-template<> struct Converter<Memo>
-{
-    typedef Memo type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asMemo();
-    }
-};
-
-
-
-
-template<> struct Converter<signed int>
-{
-    typedef signed int type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asInt();
-    }
-};
-
-
-template<> struct Converter<TInterval>
-{
-    typedef TInterval type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asInterval();
-    }
-};
-
-
-
-
-template<> struct Converter<unsigned int>
-{
-    typedef unsigned int type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asUInt();
-    }
-};
-
-
-
-template<> struct Converter<signed short>
-{
-    typedef signed short type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asSmallint();
-    }
-};
-
-
-template<> struct Converter<unsigned short>
-{
-    typedef unsigned short type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asUSmallint();
-    }
-};
-
-
-
-template<> struct Converter<signed long long>
-{
-    typedef signed long long type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asBigint();
-    }
-};
-
-
-template<> struct Converter<unsigned long long>
-{
-    typedef unsigned long long type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asUBigint();
-    }
-};
-
-
-
-template<> struct Converter<bool>
-{
-    typedef bool type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asBool();
-    }
-};
-
-
-template<> struct Converter<String>
-{
-    typedef String type;
-    inline type operator()(const IStoredVariant &sv)
-    {
-        return sv.asStr();
-    }
-};
-
-
-/// @todo check if this converter is required
-template<> struct Converter<IVariant>
+template<>
+struct sv_accessor<Memo> : public virtual sa_base<Memo>
 {};
 
 
 
-
-///
 template<>
-struct DBWTL_EXPORT variant_assign<Memo>
+struct sv_accessor<signed int> : public virtual sa_base<signed int>,
+                                 public supports_cast<signed int, bool>,
+                                 public supports<signed char>,
+                                 public supports<signed short>,
+//public supports_cast<signed int, signed int>,
+                                 public supports_cast<signed int, signed long long>,
+                                 public supports<unsigned char>,
+                                 public supports<unsigned short>,
+                                 public supports<unsigned int>,
+                                 public supports<unsigned long long>,
+                                 public supports_cast<signed int, float>,
+                                 public supports_cast<signed int, double>,
+                                 public supports_cast<signed int, TNumeric>,
+                                 public supports<TTimestamp>,
+                                 public supports<String>
 {
-    void set_new_value(Memo& dest, const Variant &src);
+	SV_CAST_METHOD(signed char);
+	SV_CAST_METHOD(signed short);
+	SV_CAST_METHOD(unsigned char);
+	SV_CAST_METHOD(unsigned short);
+	SV_CAST_METHOD(unsigned int);
+	SV_CAST_METHOD(unsigned long long);
+	SV_CAST_METHOD(String);
+	SV_CAST_METHOD(TTimestamp);
 };
 
 
-///
+
 template<>
-struct DBWTL_EXPORT variant_assign<Blob>
+struct sv_accessor<unsigned int> : public virtual sa_base<unsigned int>
+                                   // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{};
+
+template<>
+struct sv_accessor<signed char> : public virtual sa_base<signed char>
+                                   // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{};
+
+
+template<>
+struct sv_accessor<unsigned char> : public virtual sa_base<unsigned char>
+                                   // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{};
+
+template<>
+struct sv_accessor<bool> : public virtual sa_base<bool>,
+                           public supports<String>
+
+                                   // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
 {
-    void set_new_value(Blob& dest, const Variant &src);
+    virtual String cast(String*, std::locale loc) const;
+};
+
+template<>
+struct sv_accessor<signed short> : public virtual sa_base<signed short>,
+                                   public supports<String>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual String cast(String*, std::locale loc) const;
+};
+
+template<>
+struct sv_accessor<unsigned short> : public virtual sa_base<unsigned short>,
+                                     public supports<String>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual String cast(String*, std::locale loc) const;
+};
+
+
+
+template<>
+struct sv_accessor<signed long long> : public virtual sa_base<signed long long>,
+                                       public supports<String>,
+                                       public supports_cast<signed long long, signed int>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual String cast(String*, std::locale loc) const;
+};
+
+template<>
+struct sv_accessor<unsigned long long> : public virtual sa_base<unsigned long long>,
+                                       public supports<String>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual String cast(String*, std::locale loc) const;
+};
+
+
+template<>
+struct sv_accessor<TNumeric> : public virtual sa_base<TNumeric>,
+                               public supports<String>,
+                               public supports<bool>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual String cast(String*, std::locale loc) const;
+    virtual bool cast(bool*, std::locale loc) const;
+};
+
+
+template<>
+struct sv_accessor<double> : public virtual sa_base<double>,
+                             public supports_cast<double, float>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+};
+
+template<>
+struct sv_accessor<float> : public virtual sa_base<float>,
+                            public supports_cast<float, double>
+{
+};
+
+
+template<>
+struct sv_accessor<TDate> : public virtual sa_base<TDate>,
+                            public supports<TTimestamp>,
+                            public supports<String>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
+    virtual String cast(String*, std::locale loc) const;
+};
+
+
+template<>
+struct sv_accessor<TTime> : public virtual sa_base<TTime>,
+                            public supports<TTimestamp>,
+                            public supports<String>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
+    virtual String cast(String*, std::locale loc) const;
+};
+
+
+template<>
+struct sv_accessor<TTimestamp> : public virtual sa_base<TTimestamp>,
+                                 public supports<TDate>,
+                                 public supports<TTime>,
+                                 public supports<String>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual TDate cast(TDate*, std::locale loc) const;
+    virtual TTime cast(TTime*, std::locale loc) const;
+    virtual String cast(String*, std::locale loc) const;
+};
+
+
+template<>
+struct sv_accessor<TInterval> : public virtual sa_base<TInterval>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+};
+
+template<>
+struct sv_accessor<String> : public virtual sa_base<String>,
+                             public supports<signed int>,
+                             public supports<unsigned int>,
+                             public supports<bool>,
+                             public supports<signed short>,
+                             public supports<unsigned short>,
+                             public supports<signed long long>,
+                             public supports<unsigned long long>,
+                             public supports<float>,
+                             public supports<double>,
+                             public supports<Memo>
+
+                                  // public supports_cast<signed int, bool>,
+                                   // public supports_cast<signed int, signed char>,
+                                   // public supports_cast<signed int, signed short>,
+                                   // public supports_cast<signed int, signed int>,
+                                   // public supports_cast<signed int, signed long long>,
+                                   // public supports_cast<signed int, unsigned char>,
+                                   // public supports_cast<signed int, unsigned short>,
+                                   // public supports_cast<signed int, unsigned int>,
+                                   // public supports_cast<signed int, unsigned long long>,
+                                   // public supports_cast<signed int, float>,
+                                   // public supports_cast<signed int, double>,
+                                   // public supports_cast<signed int, TNumeric>,
+                                   // public supports<TTimestamp>,
+                                   // public supports<Blob>,
+                                   // public supports<Memo>,
+                                   // public supports<String>
+{
+    virtual signed int cast(signed int*, std::locale loc) const;
+    virtual unsigned int cast(unsigned int*, std::locale loc) const;
+    virtual bool cast(bool*, std::locale loc) const;
+    virtual signed short cast(signed short*, std::locale loc) const;
+    virtual unsigned short cast(unsigned short*, std::locale loc) const;
+    virtual signed long long cast(signed long long*, std::locale loc) const;
+    virtual unsigned long long cast(unsigned long long*, std::locale loc) const;
+    virtual float cast(float*, std::locale loc) const;
+    virtual double cast(double*, std::locale loc) const;
+    virtual Memo cast(Memo*, std::locale loc) const;
 };
 
 

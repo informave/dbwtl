@@ -65,7 +65,7 @@ Memo::Memo(UnicodeStreamBuf *buf) : std::wiostream(0),
 
 ///
 ///
-Memo::Memo(const IVariant &variant) : std::wiostream(0),
+Memo::Memo(const Variant &variant) : std::wiostream(0),
                                       m_buf()
 {
     this->operator=(variant.asMemo());
@@ -127,7 +127,7 @@ Memo::str() const
     }
 }
 
-
+/*
 
 ///
 /// 
@@ -145,7 +145,7 @@ variant_assign<Memo>::set_new_value(Memo& dest, const Variant &src)
 {
     dest << src;
 }
-
+*/
 
 
 DB_NAMESPACE_END

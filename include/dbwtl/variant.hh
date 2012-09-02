@@ -976,13 +976,13 @@ public:
     }
 
 
-    basic_format& operator%(const char_type *str)
+    basic_format operator%(const char_type *str)
     {
         String s(str);
         return this->feed(s);
     }
 
-    basic_format& operator%(const Variant &var)
+    basic_format operator%(const Variant &var)
     {
         return this->feed(var);
     }

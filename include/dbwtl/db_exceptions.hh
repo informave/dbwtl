@@ -80,7 +80,8 @@ namespace ex
 
 
         exception(const String &str) : std::exception(),
-            m_msg()
+            m_msg(),
+	    m_msg_narrow()
             {
                 this->setMessage(str);
             }

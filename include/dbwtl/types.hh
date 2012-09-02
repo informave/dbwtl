@@ -268,8 +268,8 @@ protected:
 class DBWTL_EXPORT TType
 {
 public:
-    TType(bool null = true)
-    { this->m_isnull = null; }
+    TType(bool null = true) : m_isnull(null)
+    {}
 
 
     virtual bool isNull(void) const;

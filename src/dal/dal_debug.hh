@@ -45,7 +45,7 @@
 #define INFORMAVE_DB_DAL_DEBUG_HH
 
 #include "dbwtl/dal/dal_fwd.hh"
-#include "dbwtl/util/devutils.hh"
+#include "../devutils.hh"
 
 #include <cassert>
 
@@ -62,8 +62,13 @@
 DAL_NAMESPACE_BEGIN
 
 
+
+std::string string_format(const std::string &fmt, ...);
+
+
 class debug_error : public std::runtime_error
 {
+public:
     debug_error(const std::string &what) : std::runtime_error(what)
         {}
 
@@ -93,6 +98,25 @@ class debug_error : public std::runtime_error
 
 
 
+#define DBWTL_BUGCHECK(cond) if(!(cond)) throw std::runtime_error("BUG on " DBWTL_CODE_POS ": Expression failed: " #cond )
+
+#define DBWTL_BUGCHECK_SOFT(cond) if(!(cond)) throw std::runtime_error("BUG on " DBWTL_CODE_POS ": Expression failed: " #cond )
+
+#define DBWTL_BUGCHECK_EX(cond, msg) if(!(cond)) throw std::runtime_error(msg)
+
+#define DBWTL_BUG() throw std::runtime_error("BUG on " DBWTL_CODE_POS )
+
+
+#define DBWTL_BUG_FMT(fmt, ...) throw std::runtime_error(std::string("BUG at ") \
+                                                        .append(DBWTL_CODE_POS) \
+                                                        .append(": ")   \
+                                                        .append(string_format(fmt, ##__VA_ARGS__)))
+
+
+#define DBWTL_BUG_EX(what) throw std::runtime_error(std::string("BUG at ") \
+                                                        .append(DBWTL_CODE_POS) \
+                                                        .append(": ")   \
+                                                        .append(what))
 
 /// @brief Standard debug macro
 #ifdef DBWTL_DEBUG_MESSAGES

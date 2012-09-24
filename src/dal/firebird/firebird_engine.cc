@@ -1,5 +1,5 @@
 //
-// sqlite_engine.cc - SQLite engine (definition)
+// firebird_engine.cc - Firebird engine (definition)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,18 +36,21 @@
 //
 
 /// @file
-/// @brief SQLite engine (definition)
+/// @brief Firebird engine (definition)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
 #include "dbwtl/dal/engines/generic_engine.hh"
-#include "dbwtl/dal/engines/sqlite_engine.hh"
-#include "sqlite_libsqlite.hh"
+#include "dbwtl/dal/engines/firebird_engine.hh"
+#include "firebird_libfbclient.hh"
 #include "../dal_debug.hh"
 #include "../../utils.hh"
 
+
 #include <sstream>
 #include <string>
+#include <locale>
+#include <fstream>
 
 
 
@@ -61,107 +64,146 @@ DB_NAMESPACE_BEGIN
 
 
 signed int
-sv_accessor<dal::SqliteData*>::cast(signed int*, std::locale loc) const
+sv_accessor<dal::FirebirdData*>::cast(signed int*, std::locale loc) const
 {
-    return this->get_value()->getInt(); 
+    if(this->get_value()->daltype() == DAL_TYPE_INT)
+        return this->get_value()->getLong();
+    else
+        return Variant(this->deepcopy()).get<signed int>();
 }
 
-bool
-sv_accessor<dal::SqliteData*>::cast(bool*, std::locale loc) const
+signed short
+sv_accessor<dal::FirebirdData*>::cast(signed short*, std::locale loc) const
 {
-    return this->get_value()->getInt() > 0;
+    if(this->get_value()->daltype() == DAL_TYPE_SMALLINT)
+        return this->get_value()->getSmallint();
+    else
+        return Variant(this->deepcopy()).get<signed short>();
+}
+
+signed long long
+sv_accessor<dal::FirebirdData*>::cast(signed long long*, std::locale loc) const
+{
+    if(this->get_value()->daltype() == DAL_TYPE_BIGINT)
+        return this->get_value()->getInt64();
+    else
+        return Variant(this->deepcopy()).get<signed long long>();
+}
+
+float
+sv_accessor<dal::FirebirdData*>::cast(float*, std::locale loc) const
+{
+    if(this->get_value()->daltype() == DAL_TYPE_FLOAT)
+        return this->get_value()->getFloat();
+    else
+        return Variant(this->deepcopy()).get<float>();
+}
+
+double
+sv_accessor<dal::FirebirdData*>::cast(double*, std::locale loc) const
+{
+    if(this->get_value()->daltype() == DAL_TYPE_DOUBLE)
+        return this->get_value()->getDouble();
+    else
+        return Variant(this->deepcopy()).get<double>();
+}
+
+
+bool
+sv_accessor<dal::FirebirdData*>::cast(bool*, std::locale loc) const
+{
+    return Variant(this->deepcopy()).get<bool>();
 }
 
 
 Blob
-sv_accessor<dal::SqliteData*>::cast(Blob*, std::locale loc) const
+sv_accessor<dal::FirebirdData*>::cast(Blob*, std::locale loc) const
 {
-    return Blob(this->get_value()->getBlob());
+    if(this->get_value()->daltype() == DAL_TYPE_BLOB || this->get_value()->daltype() == DAL_TYPE_MEMO)
+        return Blob(this->get_value()->getBlob());
+    else
+	throw std::runtime_error("bug: fb blob convert error");
+}
+
+
+Memo
+sv_accessor<dal::FirebirdData*>::cast(Memo*, std::locale loc) const
+{
+    std::stringstream ss;
+    //ss.imbue(std::locale(""));
+    ss << this->get_value()->getBlob();
+
+
+    String s(ss.str(), "UTF-8");
+
+    ws = new std::wstringstream();
+    //ws->imbue(std::locale(""));
+    
+    *ws << s;
+
+    return Memo(ws->rdbuf());
 }
 
 TDate
-sv_accessor<dal::SqliteData*>::cast(TDate*, std::locale loc) const
+sv_accessor<dal::FirebirdData*>::cast(TDate*, std::locale loc) const
 {
-    return TDate(this->get_value()->getString());
-
-    //String s = this->asStr(std::locale("C"));
-/*
-    String s;
-    try
-    {
-        int a = Variant(s).get<int>();
-        return TDate(TTimestamp(a));
-    }
-    catch(ex::convert_error &)
-    {
-        return TDate(s);
-    }
-*/
+    if(this->get_value()->daltype() == DAL_TYPE_DATE)
+        return this->get_value()->getDate();
+    else
+        return Variant(this->deepcopy()).get<TDate>();
+    return TDate(this->get_value()->getDate());
 }
 
 TTime
-sv_accessor<dal::SqliteData*>::cast(TTime*, std::locale loc) const
+sv_accessor<dal::FirebirdData*>::cast(TTime*, std::locale loc) const
 {
-    return TTime(this->get_value()->getString());
-/*
-    String s = this->get_value()->getText();
-    try
-    {
-        int a = Variant(s).get<int>();
-        return TTime(TTimestamp(a));
-    }
-    catch(ex::convert_error &)
-    {
-        return TTime(std::string(s));
-    }
-*/
+    if(this->get_value()->daltype() == DAL_TYPE_TIME)
+        return this->get_value()->getTime();
+    else
+        return Variant(this->deepcopy()).get<TTime>();
 }
 
 
 TTimestamp
-sv_accessor<dal::SqliteData*>::cast(TTimestamp*, std::locale loc) const
+sv_accessor<dal::FirebirdData*>::cast(TTimestamp*, std::locale loc) const
 {
-    return TTimestamp(this->get_value()->getString());
-/*
-    String s = this->get_value()->getText();
-    try
-    {
-        int a = Variant(s).get<int>();
-        return TTimestamp(a);
-    }
-    catch(ex::convert_error &)
-    {
-        return TTimestamp(std::string(s));
-    }
-*/
+    if(this->get_value()->daltype() == DAL_TYPE_TIMESTAMP)
+        return this->get_value()->getTimestamp();
+    else
+        return Variant(this->deepcopy()).get<TTimestamp>();
 }
 
 
 
 TNumeric
-sv_accessor<dal::SqliteData*>::cast(TNumeric*, std::locale loc) const
+sv_accessor<dal::FirebirdData*>::cast(TNumeric*, std::locale loc) const
 {
-    String s = this->get_value()->getString();
-    return TNumeric(s);
+    if(this->get_value()->daltype() == DAL_TYPE_NUMERIC)
+        return this->get_value()->getNumeric();
+    else
+        return Variant(this->deepcopy()).get<TNumeric>();
 }
 
 
 
 
 String
-sv_accessor<dal::SqliteData*>::cast(String*, std::locale loc) const
+sv_accessor<dal::FirebirdData*>::cast(String*, std::locale loc) const
 {
-    return this->get_value()->getString();
+    if(this->get_value()->daltype() == DAL_TYPE_STRING)
+        return this->get_value()->getText();
+    else
+        return Variant(this->deepcopy()).get<String>();
 }
 
 bool
-sv_accessor<dal::SqliteData*>::valueNullCheck() const
+sv_accessor<dal::FirebirdData*>::valueNullCheck() const
 {
     return this->get_value()->isnull();
 }
 
 daltype_t
-sv_accessor<dal::SqliteData*>::datatype() const
+sv_accessor<dal::FirebirdData*>::datatype() const
 {
     return this->get_value()->daltype();
 }
@@ -180,48 +222,6 @@ DAL_NAMESPACE_BEGIN
 
 
 
-///
-//
-IVariantValue*
-SqliteData::do_deepcopy(const IVariantValue *owner) const
-{
-    // we make a copy of the variant_storage owner for this instance, so we can use
-    // the get<T> method to reuse cast definitions.
-    Variant tmp(owner->clone());
-
-    switch(tmp.datatype())
-    {
-    case DAL_TYPE_CUSTOM:     return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_UNKNOWN:    return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_INT:        return new typename value_traits<signed int>::stored_type(tmp.get<signed int>());       
-    case DAL_TYPE_UINT:       return new typename value_traits<unsigned int>::stored_type(tmp.get<unsigned int>());
-    case DAL_TYPE_CHAR:       return new typename value_traits<signed char>::stored_type(tmp.get<signed char>());
-    case DAL_TYPE_UCHAR:      return new typename value_traits<unsigned char>::stored_type(tmp.get<unsigned char>());
-    case DAL_TYPE_STRING:     return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_BOOL:       return new typename value_traits<bool>::stored_type(tmp.get<bool>());
-    case DAL_TYPE_SMALLINT:   return new typename value_traits<signed short>::stored_type(tmp.get<signed short>());
-    case DAL_TYPE_USMALLINT:  return new typename value_traits<unsigned short>::stored_type(tmp.get<unsigned short>());
-    case DAL_TYPE_BIGINT:     return new typename value_traits<signed long long>::stored_type(tmp.get<signed long long>());
-    case DAL_TYPE_UBIGINT:    return new typename value_traits<unsigned long long>::stored_type(tmp.get<unsigned long long>());
-    case DAL_TYPE_DATE:       return new typename value_traits<TDate>::stored_type(tmp.get<TDate>());
-    case DAL_TYPE_TIME:       return new typename value_traits<TTime>::stored_type(tmp.get<TTime>());
-    case DAL_TYPE_TIMESTAMP:  return new typename value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
-    case DAL_TYPE_NUMERIC:    return new typename value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
-    case DAL_TYPE_BLOB:       return new typename value_traits<Blob>::stored_type(tmp.get<Blob>());
-    case DAL_TYPE_MEMO:       return new typename value_traits<Memo>::stored_type(tmp.get<Memo>());
-    case DAL_TYPE_FLOAT:      return new typename value_traits<float>::stored_type(tmp.get<float>());
-    case DAL_TYPE_DOUBLE:     return new typename value_traits<double>::stored_type(tmp.get<double>());
-    case DAL_TYPE_INTERVAL:   return new typename value_traits<TInterval>::stored_type(tmp.get<TInterval>());
-/*
-    default:
-        throw ex::exception(format("Unhandled datatype(%d) at %s") % int(this->daltype()) % DBWTL_MACRO_SRCPOS);
-*/
-    }
-        assert(false);
-        return 0;
-}
-
-
 
 
 
@@ -229,13 +229,13 @@ SqliteData::do_deepcopy(const IVariantValue *owner) const
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 bool
-SqliteEnv::diagAvail(void) const
+FirebirdEnv::diagAvail(void) const
 {
     return this->m_diag.diagAvail();
 }
 
-const SqliteDiag&
-SqliteEnv::fetchDiag(void)
+const FirebirdDiag&
+FirebirdEnv::fetchDiag(void)
 {
     return this->m_diag.fetchDiag();
 }
@@ -243,26 +243,26 @@ SqliteEnv::fetchDiag(void)
 
 
 bool
-SqliteStmt::diagAvail(void) const
+FirebirdStmt::diagAvail(void) const
 {
     return this->m_diag.diagAvail();
 }
 
-const SqliteDiag&
-SqliteStmt::fetchDiag(void)
+const FirebirdDiag&
+FirebirdStmt::fetchDiag(void)
 {
     return this->m_diag.fetchDiag();
 }
 
 
 bool
-SqliteDbc::diagAvail(void) const
+FirebirdDbc::diagAvail(void) const
 {
     return this->m_diag.diagAvail();
 }
 
-const SqliteDiag&
-SqliteDbc::fetchDiag(void)
+const FirebirdDiag&
+FirebirdDbc::fetchDiag(void)
 {
     return this->m_diag.fetchDiag();
 }
@@ -274,14 +274,14 @@ SqliteDbc::fetchDiag(void)
 
 ///
 ///
-SqliteData::SqliteData(void)
+FirebirdData::FirebirdData(void)
 {}
 
 
 
 ///
 ///
-SqliteData::~SqliteData(void)
+FirebirdData::~FirebirdData(void)
 {}
 
 
@@ -292,13 +292,13 @@ SqliteData::~SqliteData(void)
 
 ///
 ///
-SqliteTable::SqliteTable(String dbname, SqliteResult& src)
-    : m_name(DAL_TYPE_STRING, "SqliteTable::name"),
-      m_catalog(DAL_TYPE_STRING, "SqliteTable::catalog"),
-      m_schema(DAL_TYPE_STRING, "SqliteTable::schema"),
-      m_comment(DAL_TYPE_STRING, "SqliteTable::comment"),
-      m_ddl(DAL_TYPE_STRING, "SqliteTable::ddl"),
-      m_systemobject(DAL_TYPE_BOOL, "SqliteTable::systemobject")
+FirebirdTable::FirebirdTable(String dbname, FirebirdResult& src)
+    : m_name(DAL_TYPE_STRING, "FirebirdTable::name"),
+      m_catalog(DAL_TYPE_STRING, "FirebirdTable::catalog"),
+      m_schema(DAL_TYPE_STRING, "FirebirdTable::schema"),
+      m_comment(DAL_TYPE_STRING, "FirebirdTable::comment"),
+      m_ddl(DAL_TYPE_STRING, "FirebirdTable::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "FirebirdTable::systemobject")
 {
     this->m_name = src.column("name");
     this->m_catalog = dbname;
@@ -310,48 +310,48 @@ SqliteTable::SqliteTable(String dbname, SqliteResult& src)
  
 ///
 ///
-SqliteTable::~SqliteTable(void)
+FirebirdTable::~FirebirdTable(void)
 {}
 
 
 ///
 ///
-const ITable::value_type& SqliteTable::getName(void) const
+const ITable::value_type& FirebirdTable::getName(void) const
 {
     return this->m_name;
 }
 
 ///
 ///
-const ITable::value_type& SqliteTable::getCatalog(void) const
+const ITable::value_type& FirebirdTable::getCatalog(void) const
 {
     return this->m_catalog;
 }
 
 ///
 ///
-const ITable::value_type& SqliteTable::getSchema(void) const
+const ITable::value_type& FirebirdTable::getSchema(void) const
 {
     return this->m_schema;
 }
 
 ///
 ///
-const ITable::value_type& SqliteTable::getComment(void) const
+const ITable::value_type& FirebirdTable::getComment(void) const
 {
     return this->m_comment;
 }
 
 ///
 ///
-const ITable::value_type& SqliteTable::getDDL(void) const
+const ITable::value_type& FirebirdTable::getDDL(void) const
 {
     return this->m_ddl;
 }
 
 ///
 ///
-const ITable::value_type& SqliteTable::isSystemObject(void) const
+const ITable::value_type& FirebirdTable::isSystemObject(void) const
 {
     return this->m_systemobject;
 }
@@ -363,14 +363,14 @@ const ITable::value_type& SqliteTable::isSystemObject(void) const
 
 ///
 ///
-SqliteIndex::SqliteIndex(String dbname, SqliteResult& src)
-    : m_name(DAL_TYPE_STRING, "SqliteIndex::name"),
-      m_table(DAL_TYPE_STRING, "SqliteIndex::table"),
-      m_catalog(DAL_TYPE_STRING, "SqliteIndex::catalog"),
-      m_schema(DAL_TYPE_STRING, "SqliteIndex::schema"),
-      m_comment(DAL_TYPE_STRING, "SqliteIndex::comment"),
-      m_ddl(DAL_TYPE_STRING, "SqliteIndex::ddl"),
-      m_systemobject(DAL_TYPE_BOOL, "SqliteIndex::systemobject")
+FirebirdIndex::FirebirdIndex(String dbname, FirebirdResult& src)
+    : m_name(DAL_TYPE_STRING, "FirebirdIndex::name"),
+      m_table(DAL_TYPE_STRING, "FirebirdIndex::table"),
+      m_catalog(DAL_TYPE_STRING, "FirebirdIndex::catalog"),
+      m_schema(DAL_TYPE_STRING, "FirebirdIndex::schema"),
+      m_comment(DAL_TYPE_STRING, "FirebirdIndex::comment"),
+      m_ddl(DAL_TYPE_STRING, "FirebirdIndex::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "FirebirdIndex::systemobject")
 {
     this->m_name = src.column("name");
     this->m_catalog = dbname;
@@ -383,55 +383,55 @@ SqliteIndex::SqliteIndex(String dbname, SqliteResult& src)
  
 ///
 ///
-SqliteIndex::~SqliteIndex(void)
+FirebirdIndex::~FirebirdIndex(void)
 {}
 
 
 ///
 ///
-const IIndex::value_type& SqliteIndex::getName(void) const
+const IIndex::value_type& FirebirdIndex::getName(void) const
 {
     return this->m_name;
 }
 
 ///
 ///
-const IIndex::value_type& SqliteIndex::getTable(void) const
+const IIndex::value_type& FirebirdIndex::getTable(void) const
 {
     return this->m_table;
 }
 
 ///
 ///
-const IIndex::value_type& SqliteIndex::getCatalog(void) const
+const IIndex::value_type& FirebirdIndex::getCatalog(void) const
 {
     return this->m_catalog;
 }
 
 ///
 ///
-const IIndex::value_type& SqliteIndex::getSchema(void) const
+const IIndex::value_type& FirebirdIndex::getSchema(void) const
 {
     return this->m_schema;
 }
 
 ///
 ///
-const IIndex::value_type& SqliteIndex::getComment(void) const
+const IIndex::value_type& FirebirdIndex::getComment(void) const
 {
     return this->m_comment;
 }
 
 ///
 ///
-const IIndex::value_type& SqliteIndex::getDDL(void) const
+const IIndex::value_type& FirebirdIndex::getDDL(void) const
 {
     return this->m_ddl;
 }
 
 ///
 ///
-const IIndex::value_type& SqliteIndex::isSystemObject(void) const
+const IIndex::value_type& FirebirdIndex::isSystemObject(void) const
 {
     return this->m_systemobject;
 }
@@ -443,13 +443,13 @@ const IIndex::value_type& SqliteIndex::isSystemObject(void) const
 
 ///
 ///
-SqliteView::SqliteView(String dbname, SqliteResult& src)
-    : m_name(DAL_TYPE_STRING, "SqliteView::name"),
-      m_catalog(DAL_TYPE_STRING, "SqliteView::catalog"),
-      m_schema(DAL_TYPE_STRING, "SqliteView::schema"),
-      m_comment(DAL_TYPE_STRING, "SqliteView::comment"),
-      m_ddl(DAL_TYPE_STRING, "SqliteView::ddl"),
-      m_systemobject(DAL_TYPE_BOOL, "SqliteView::systemobject")
+FirebirdView::FirebirdView(String dbname, FirebirdResult& src)
+    : m_name(DAL_TYPE_STRING, "FirebirdView::name"),
+      m_catalog(DAL_TYPE_STRING, "FirebirdView::catalog"),
+      m_schema(DAL_TYPE_STRING, "FirebirdView::schema"),
+      m_comment(DAL_TYPE_STRING, "FirebirdView::comment"),
+      m_ddl(DAL_TYPE_STRING, "FirebirdView::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "FirebirdView::systemobject")
 {
     this->m_name = src.column("name");
     this->m_catalog = dbname;
@@ -461,48 +461,48 @@ SqliteView::SqliteView(String dbname, SqliteResult& src)
  
 ///
 ///
-SqliteView::~SqliteView(void)
+FirebirdView::~FirebirdView(void)
 {}
 
 
 ///
 ///
-const IView::value_type& SqliteView::getName(void) const
+const IView::value_type& FirebirdView::getName(void) const
 {
     return this->m_name;
 }
 
 ///
 ///
-const IView::value_type& SqliteView::getCatalog(void) const
+const IView::value_type& FirebirdView::getCatalog(void) const
 {
     return this->m_catalog;
 }
 
 ///
 ///
-const IView::value_type& SqliteView::getSchema(void) const
+const IView::value_type& FirebirdView::getSchema(void) const
 {
     return this->m_schema;
 }
 
 ///
 ///
-const IView::value_type& SqliteView::getComment(void) const
+const IView::value_type& FirebirdView::getComment(void) const
 {
     return this->m_comment;
 }
 
 ///
 ///
-const IView::value_type& SqliteView::getDDL(void) const
+const IView::value_type& FirebirdView::getDDL(void) const
 {
     return this->m_ddl;
 }
 
 ///
 ///
-const IView::value_type& SqliteView::isSystemObject(void) const
+const IView::value_type& FirebirdView::isSystemObject(void) const
 {
     return this->m_systemobject;
 }
@@ -514,11 +514,11 @@ const IView::value_type& SqliteView::isSystemObject(void) const
 
 ///
 ///
-SqliteCatalog::SqliteCatalog(String dbname)
-    : m_name(DAL_TYPE_STRING, "SqliteCatalg::name"),
-      m_comment(DAL_TYPE_STRING, "SqliteCatalog::comment"),
-      m_ddl(DAL_TYPE_STRING, "SqliteCatalog::ddl"),
-      m_systemobject(DAL_TYPE_BOOL, "SqliteCatalog::systemobject")
+FirebirdCatalog::FirebirdCatalog(String dbname)
+    : m_name(DAL_TYPE_STRING, "FirebirdCatalg::name"),
+      m_comment(DAL_TYPE_STRING, "FirebirdCatalog::comment"),
+      m_ddl(DAL_TYPE_STRING, "FirebirdCatalog::ddl"),
+      m_systemobject(DAL_TYPE_BOOL, "FirebirdCatalog::systemobject")
 {
     this->m_name = dbname;
     this->m_systemobject.set(false);
@@ -528,34 +528,34 @@ SqliteCatalog::SqliteCatalog(String dbname)
  
 ///
 ///
-SqliteCatalog::~SqliteCatalog(void)
+FirebirdCatalog::~FirebirdCatalog(void)
 {}
 
 
 ///
 ///
-const ICatalog::value_type& SqliteCatalog::getName(void) const
+const ICatalog::value_type& FirebirdCatalog::getName(void) const
 {
     return this->m_name;
 }
 
 ///
 ///
-const ICatalog::value_type& SqliteCatalog::getComment(void) const
+const ICatalog::value_type& FirebirdCatalog::getComment(void) const
 {
     return this->m_comment;
 }
 
 ///
 ///
-const ICatalog::value_type& SqliteCatalog::getDDL(void) const
+const ICatalog::value_type& FirebirdCatalog::getDDL(void) const
 {
     return this->m_ddl;
 }
 
 ///
 ///
-const ICatalog::value_type& SqliteCatalog::isSystemObject(void) const
+const ICatalog::value_type& FirebirdCatalog::isSystemObject(void) const
 {
     return this->m_systemobject;
 }
@@ -568,14 +568,14 @@ const ICatalog::value_type& SqliteCatalog::isSystemObject(void) const
 
 ///
 ///
-SqliteDatatype::SqliteDatatype(void)
+FirebirdDatatype::FirebirdDatatype(void)
     : DatatypeBase()
 {}
 
 
 ///
 ///
-SqliteDatatype::~SqliteDatatype(void)
+FirebirdDatatype::~FirebirdDatatype(void)
 {}
 
 
@@ -585,10 +585,10 @@ SqliteDatatype::~SqliteDatatype(void)
 
 //
 TableList
-SqliteDbc::getTables(const ITableFilter&)
+FirebirdDbc::getTables(const ITableFilter&)
 {
     TableList list;
-    SqliteStmt::ptr dblist(this->newStatement());
+    FirebirdStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
     
@@ -597,46 +597,46 @@ SqliteDbc::getTables(const ITableFilter&)
         String::Internal dbname = dblist->resultset().column("name").asStr();
         
         String::Internal sql_column_query =
-            US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
-            US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'table'")
+            US(" SELECT name, sql, CASE WHEN name IN ('firebird_stat1', 'firebird_sequence') THEN 1 ELSE 0 END AS sys")
+            US(" FROM ")+dbname+US(".firebird_master WHERE type = 'table'")
             US(" UNION")
-            US(" SELECT 'sqlite_master', NULL, 1")
+            US(" SELECT 'firebird_master', NULL, 1")
             US(" UNION")
-            US(" SELECT 'sqlite_temp_master', NULL, 1");
+            US(" SELECT 'firebird_temp_master', NULL, 1");
 
 
         //std::cout << i18n::conv_to(sql_column_query, "UTF-8") << std::endl;
 
-        SqliteStmt::ptr tables(this->newStatement());
+        FirebirdStmt::ptr tables(this->newStatement());
         try
         {
             tables->prepare(sql_column_query);
             tables->execute();
         }
-        catch(sqlite::STATES::SQLSTATE_42000 &)
+        catch(firebird::STATES::SQLSTATE_42000 &)
         {
             continue;
         }
         
         for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
         {
-            list.push_back(new SqliteTable(dbname, tables->resultset()));
+            list.push_back(new FirebirdTable(dbname, tables->resultset()));
         }
     }
 
     // load temp tables
     String::Internal sql_column_query =
-        US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
-        US(" FROM sqlite_temp_master")
+        US(" SELECT name, sql, CASE WHEN name IN ('firebird_stat1', 'firebird_sequence') THEN 1 ELSE 0 END AS sys")
+        US(" FROM firebird_temp_master")
         US(" WHERE type = 'table';");
     
-    SqliteStmt::ptr tables(this->newStatement());        
+    FirebirdStmt::ptr tables(this->newStatement());        
     tables->prepare(sql_column_query);
     tables->execute();
     
     for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
     {
-        list.push_back(new SqliteTable("temp", tables->resultset()));
+        list.push_back(new FirebirdTable("temp", tables->resultset()));
     }
     
     return list;
@@ -646,10 +646,10 @@ SqliteDbc::getTables(const ITableFilter&)
 
 //
 IndexList
-SqliteDbc::getIndices(const IIndexFilter&)
+FirebirdDbc::getIndices(const IIndexFilter&)
 {
     IndexList list;
-    SqliteStmt::ptr dblist(this->newStatement());
+    FirebirdStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
 
@@ -661,17 +661,17 @@ SqliteDbc::getIndices(const IIndexFilter&)
         
         String::Internal sql_column_query =
             US(" SELECT name, tbl_name, sql, 0 AS sys")
-            US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'index'");
+            US(" FROM ")+dbname+US(".firebird_master WHERE type = 'index'");
 
 
 
-        SqliteStmt::ptr indices(this->newStatement());
+        FirebirdStmt::ptr indices(this->newStatement());
         try
         {
             indices->prepare(sql_column_query);
             indices->execute();
         }
-        catch(sqlite::STATES::SQLSTATE_42000 &)
+        catch(firebird::STATES::SQLSTATE_42000 &)
         {
             continue;
         }
@@ -680,7 +680,7 @@ SqliteDbc::getIndices(const IIndexFilter&)
         
         for(indices->resultset().first(); ! indices->resultset().eof(); indices->resultset().next())
         {
-            list.push_back(new SqliteIndex(dbname, indices->resultset()));
+            list.push_back(new FirebirdIndex(dbname, indices->resultset()));
         }
 
 
@@ -688,20 +688,20 @@ SqliteDbc::getIndices(const IIndexFilter&)
 
     // load temp tables
     String::Internal sql_column_query =
-        US(" SELECT name, tbl_name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
-        US(" FROM sqlite_temp_master")
+        US(" SELECT name, tbl_name, sql, CASE WHEN name IN ('firebird_stat1', 'firebird_sequence') THEN 1 ELSE 0 END AS sys")
+        US(" FROM firebird_temp_master")
         US(" WHERE type = 'index';");
     
 
 
 
-    SqliteStmt::ptr indices(this->newStatement());        
+    FirebirdStmt::ptr indices(this->newStatement());        
     indices->prepare(sql_column_query);
     indices->execute();
     
     for(indices->resultset().first(); ! indices->resultset().eof(); indices->resultset().next())
     {
-        list.push_back(new SqliteIndex("temp", indices->resultset()));
+        list.push_back(new FirebirdIndex("temp", indices->resultset()));
     }
     
     return list;
@@ -710,7 +710,7 @@ SqliteDbc::getIndices(const IIndexFilter&)
 
 //
 ProcedureList
-SqliteDbc::getProcedures(const IProcedureFilter&)
+FirebirdDbc::getProcedures(const IProcedureFilter&)
 {
     ProcedureList list;
     return list;
@@ -719,7 +719,7 @@ SqliteDbc::getProcedures(const IProcedureFilter&)
 
 //
 SchemaList
-SqliteDbc::getSchemas(const ISchemaFilter&)
+FirebirdDbc::getSchemas(const ISchemaFilter&)
 {
     SchemaList list;
     return list;
@@ -729,10 +729,10 @@ SqliteDbc::getSchemas(const ISchemaFilter&)
 
 //
 ViewList
-SqliteDbc::getViews(const IViewFilter&)
+FirebirdDbc::getViews(const IViewFilter&)
 {
     ViewList list;
-    SqliteStmt::ptr dblist(this->newStatement());
+    FirebirdStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
     
@@ -742,39 +742,39 @@ SqliteDbc::getViews(const IViewFilter&)
         
         String::Internal sql_column_query =
             US(" SELECT name, sql, 0 AS sys")
-            US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'view'");
+            US(" FROM ")+dbname+US(".firebird_master WHERE type = 'view'");
 
-        SqliteStmt::ptr views(this->newStatement());
+        FirebirdStmt::ptr views(this->newStatement());
         try
         {
             views->prepare(sql_column_query);
             views->execute();
         }
-        catch(sqlite::STATES::SQLSTATE_42000 &)
+        catch(firebird::STATES::SQLSTATE_42000 &)
         {
             continue;
         }
         
         for(views->resultset().first(); ! views->resultset().eof(); views->resultset().next())
         {
-            list.push_back(new SqliteView(dbname, views->resultset()));
+            list.push_back(new FirebirdView(dbname, views->resultset()));
         }
     }
 
     // load temp views
 /*
   String::Internal sql_column_query =
-  US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
-  US(" FROM sqlite_temp_master")
+  US(" SELECT name, sql, CASE WHEN name IN ('firebird_stat1', 'firebird_sequence') THEN 1 ELSE 0 END AS sys")
+  US(" FROM firebird_temp_master")
   US(" WHERE type = 'view';");
     
-  SqliteStmt::ptr tables(this->newStatement());        
+  FirebirdStmt::ptr tables(this->newStatement());        
   tables->prepare(sql_column_query);
   tables->execute();
     
   for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
   {
-  list.push_back(new SqliteTable("temp", tables->resultset()));
+  list.push_back(new FirebirdTable("temp", tables->resultset()));
   }
 */  
     return list;
@@ -783,10 +783,10 @@ SqliteDbc::getViews(const IViewFilter&)
 
 //
 CatalogList
-SqliteDbc::getCatalogs(const ICatalogFilter&)
+FirebirdDbc::getCatalogs(const ICatalogFilter&)
 {
     CatalogList list;
-    SqliteStmt::ptr dblist(this->newStatement());
+    FirebirdStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
     
@@ -794,23 +794,23 @@ SqliteDbc::getCatalogs(const ICatalogFilter&)
     {
         String::Internal dbname = dblist->resultset().column("name").asStr();
 
-        list.push_back(new SqliteCatalog(dbname));
+        list.push_back(new FirebirdCatalog(dbname));
     }
 
     // load temp views
 /*
   String::Internal sql_column_query =
-  US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
-  US(" FROM sqlite_temp_master")
+  US(" SELECT name, sql, CASE WHEN name IN ('firebird_stat1', 'firebird_sequence') THEN 1 ELSE 0 END AS sys")
+  US(" FROM firebird_temp_master")
   US(" WHERE type = 'view';");
     
-  SqliteStmt::ptr tables(this->newStatement());        
+  FirebirdStmt::ptr tables(this->newStatement());        
   tables->prepare(sql_column_query);
   tables->execute();
     
   for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
   {
-  list.push_back(new SqliteTable("temp", tables->resultset()));
+  list.push_back(new FirebirdTable("temp", tables->resultset()));
   }
 */  
     return list;
@@ -821,32 +821,32 @@ SqliteDbc::getCatalogs(const ICatalogFilter&)
 //
 /// @todo use cache
 DatatypeList
-SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
+FirebirdDbc::getDatatypes(const IDatatypeFilter& filter)
 {
     DatatypeList dtlist;
-    SqliteDatatype *dt = 0;
+    FirebirdDatatype *dt = 0;
     
-    dt = new SqliteDatatype();
+    dt = new FirebirdDatatype();
     dt->m_name.set(String("BLOB"));
     dt->m_size.set<signed int>(-1);
     dt->m_daltype = DAL_TYPE_BLOB;
     dtlist.push_back(dt);
 
-    dt = new SqliteDatatype();
+    dt = new FirebirdDatatype();
     dt->m_name.set(String("INTEGER"));
     dt->m_size.set<signed int>(-1);
     dt->m_daltype = DAL_TYPE_BIGINT;
     dt->m_is_unsigned.set(false);
     dtlist.push_back(dt);
 
-    dt = new SqliteDatatype();
+    dt = new FirebirdDatatype();
     dt->m_name.set(String("REAL"));
     dt->m_size.set<signed int>(sizeof(double));
     dt->m_daltype = DAL_TYPE_DOUBLE;
     dt->m_is_unsigned.set(false);
     dtlist.push_back(dt);
 
-    dt = new SqliteDatatype();
+    dt = new FirebirdDatatype();
     dt->m_name.set(String("TEXT"));
     dt->m_size.set<signed int>(65000);
     dt->m_daltype = DAL_TYPE_STRING;
@@ -860,42 +860,19 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
 
 
 
-//
-void
-SqliteDbc::beginTrans(IDbc::trx_mode mode,
-                      IDbc::access_mode access,
-                      String name)
-{
-    std::string s_cmd("BEGIN TRANSACTION ");
-    this->directCmd(s_cmd);
-}
-
-
 
 //
 void      
-SqliteDbc::commit(void)
+FirebirdDbc::commit(void)
 {
     this->directCmd("COMMIT");
 }
 
 
-void
-SqliteDbc::commit(Transaction trx)
-{
-    DBWTL_NOTIMPL();
-}
-
-void
-SqliteDbc::rollback(Transaction trx)
-{
-    DBWTL_NOTIMPL();
-}
-
 
 //
 void    
-SqliteDbc::savepoint(String name)
+FirebirdDbc::savepoint(String name)
 {
     String s("SAVEPOINT ");
     s.append(name);
@@ -906,7 +883,7 @@ SqliteDbc::savepoint(String name)
 
 //
 void    
-SqliteDbc::rollback(String name)
+FirebirdDbc::rollback(String name)
 {
     String s("ROLLBACK");
     if(! name.empty())
@@ -921,9 +898,9 @@ SqliteDbc::rollback(String name)
 
 //
 void     
-SqliteDbc::directCmd(String cmd)
+FirebirdDbc::directCmd(String cmd)
 {
-    SqliteStmt::ptr stmt(this->newStatement());
+    FirebirdStmt::ptr stmt(this->newStatement());
     stmt->execDirect(cmd);
 }
 
@@ -935,14 +912,14 @@ SqliteDbc::directCmd(String cmd)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //
-SqliteEnv::SqliteEnv(void) : EnvBase(),
+FirebirdEnv::FirebirdEnv(void) : EnvBase(),
                              m_diag()
 { }
 
 
 
 //
-SqliteEnv::~SqliteEnv(void)
+FirebirdEnv::~FirebirdEnv(void)
 { }
 
 
@@ -951,14 +928,14 @@ SqliteEnv::~SqliteEnv(void)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //
-SqliteVariant::SqliteVariant(SqliteData* data)
+FirebirdVariant::FirebirdVariant(FirebirdData* data)
     : EngineVariant(data), m_data(data)
 { }
 
 
 
 //
-SqliteVariant::~SqliteVariant(void)
+FirebirdVariant::~FirebirdVariant(void)
 { 
     //this->m_storage->release_pointee();
     delete this->m_data;
@@ -967,14 +944,14 @@ SqliteVariant::~SqliteVariant(void)
 
 
 //
-void SqliteVariant::refresh(void)
+void FirebirdVariant::refresh(void)
 {
-    //SqliteData &data = dynamic_cast<sa_base<SqliteData>&>(*this->getStorageImpl()).getValue();
+    //FirebirdData &data = dynamic_cast<sa_base<FirebirdData>&>(*this->getStorageImpl()).getValue();
 
 
-    //SqliteData *data = dynamic_cast<variant_value<SqliteData*>&>(*this->getStorageImpl()).getRawValue();
+    //FirebirdData *data = dynamic_cast<variant_value<FirebirdData*>&>(*this->getStorageImpl()).getRawValue();
 
-    SqliteData *data = this->get<SqliteData*>();
+    FirebirdData *data = this->get<FirebirdData*>();
     data->refresh();
 }
 
@@ -989,8 +966,8 @@ void SqliteVariant::refresh(void)
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //
-sqlite::ENV*
-sqlite::createEnv(String driver)
+firebird::ENV*
+firebird::createEnv(String driver)
 {
     String::Internal drv;
 
@@ -998,12 +975,12 @@ sqlite::createEnv(String driver)
     if(! drv.length())
         goto err;
 
-    else if(drv.compare(String("libsqlite")) == 0)
-        return new SqliteEnv_libsqlite(parse_driver(driver)["lib"]);
+    else if(drv.compare(String("libfbclient")) == 0)
+        return new FirebirdEnv_libfbclient(parse_driver(driver)["lib"]);
 
 /*
   else if(drv.compare("odbc") == 0)
-  return new SqliteEnv_odbc(parse_driver(driver)["lib"]);
+  return new FirebirdEnv_odbc(parse_driver(driver)["lib"]);
 */
 
     // nothing found..
@@ -1013,10 +990,10 @@ err:
 
 
 
-#define DAL_NAMEOF_STATE(state) case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: return #state
+#define DAL_NAMEOF_STATE(state) case firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_##state: return #state
 
 const char*
-sqlite::sqlstate2string(STATES::engine_states_t id)
+firebird::sqlstate2string(STATES::engine_states_t id)
 {
     switch(id)
     {
@@ -1025,11 +1002,14 @@ sqlite::sqlstate2string(STATES::engine_states_t id)
         DAL_NAMEOF_STATE(0A000);
         DAL_NAMEOF_STATE(22000);
         DAL_NAMEOF_STATE(23000);
+	DAL_NAMEOF_STATE(24000);
         DAL_NAMEOF_STATE(25000);
         DAL_NAMEOF_STATE(25001);
         DAL_NAMEOF_STATE(25006);
         DAL_NAMEOF_STATE(28000);
         DAL_NAMEOF_STATE(42000);
+
+        DAL_NAMEOF_STATE(HY000);
 
         //DAL_NAMEOF_STATE(XY000);
     }
@@ -1043,21 +1023,19 @@ sqlite::sqlstate2string(STATES::engine_states_t id)
 
 
 
-//
-SqliteDiag::SqliteDiag(dalstate_t state,
-                       CodePosInfo pos,
-                       Variant what,
-                       String description)
+/// @detail
+/// As default SQLSTATE, we set HY000
+FirebirdDiag::FirebirdDiag(dalstate_t state,
+                           CodePosInfo pos,
+                           Variant what,
+                           String description)
     : DiagBase(state, pos, what, description),
-      m_sqlstate_id() // fix?
-{
-    //m_sqlstate_id = sqlite3error_to_sqlstate(sqlite_code);
-    //m_sqlstate.setWideStr(sqlstate_to_name(m_sqlstate_id), "UTF-8");
-}
+      m_sqlstate_id(firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000)
+{}
 
 
 //
-SqliteDiag::SqliteDiag(const SqliteDiag& ref)
+FirebirdDiag::FirebirdDiag(const FirebirdDiag& ref)
     : DiagBase(ref),
       m_sqlstate_id(ref.m_sqlstate_id)
 {}
@@ -1067,12 +1045,12 @@ SqliteDiag::SqliteDiag(const SqliteDiag& ref)
 
 
 #define DAL_THROW_STATE(state)                          \
-    case sqlite_sqlstates::DAL_SQLITE_SQLSTATE_##state: \
-    throw sqlite::STATES::SQLSTATE_##state(*this)
+    case firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_##state: \
+    throw firebird::STATES::SQLSTATE_##state(*this)
 
 //
 void
-SqliteDiag::raiseException(void) const
+FirebirdDiag::raiseException(void) const
 {
     switch(this->m_sqlstate_id)
     {
@@ -1081,11 +1059,13 @@ SqliteDiag::raiseException(void) const
         DAL_THROW_STATE(0A000);
         DAL_THROW_STATE(22000);
         DAL_THROW_STATE(23000);
+	DAL_THROW_STATE(24000);
         DAL_THROW_STATE(25000);
         DAL_THROW_STATE(25001);
         DAL_THROW_STATE(25006);
         DAL_THROW_STATE(28000);
         DAL_THROW_STATE(42000);
+        DAL_THROW_STATE(HY000);
 
         //DAL_THROW_STATE(XY000);
     }

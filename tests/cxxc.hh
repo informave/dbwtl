@@ -141,6 +141,7 @@ namespace cxxc
     { 
     public:
         TestDetails(const char *name, const char *file, int line, const char *extra = 0)
+            : m_what()
         {
             std::stringstream ss;
             ss << name << " failed at " << file << "(" << line << "). ";
@@ -158,7 +159,7 @@ namespace cxxc
     class Failure : public std::exception
     { 
     public:
-        Failure(TestDetails tr) { m_what = tr.what(); }
+        Failure(TestDetails tr) :m_what(tr.what()) {}
 
         virtual ~Failure(void) throw() {}
 
@@ -237,17 +238,37 @@ namespace cxxc
     namespace details
     {
         template<typename T>
-        struct EventSetUpMapper : public virtual T { void do_SetUp(void) { T::onSetUp(); } };
+        struct EventSetUpMapper : public virtual T
+        { 
+            void do_SetUp(void) { T::onSetUp(); } 
+
+            virtual ~EventSetUpMapper(void) {}
+        };
 
         template<typename T>
-        struct EmptyEventSetUp : public virtual T { void do_SetUp(void) { } };
+        struct EmptyEventSetUp : public virtual T
+        { 
+            void do_SetUp(void) { } 
+            
+            virtual ~EmptyEventSetUp(void) {}
+        };
 
 
         template<typename T>
-        struct EventTearDownMapper : public virtual T { void do_TearDown(void) { T::onTearDown(); } };
+        struct EventTearDownMapper : public virtual T
+        {
+            void do_TearDown(void) { T::onTearDown(); } 
+
+            virtual ~EventTearDownMapper(void) {}
+        };
 
         template<typename T>
-        struct EmptyEventTearDown : public virtual T { void do_TearDown(void) { } };
+        struct EmptyEventTearDown : public virtual T
+        {
+            void do_TearDown(void) { } 
+
+            virtual ~EmptyEventTearDown(void) {}
+        };
 
     } // namespace details end
 
@@ -268,6 +289,20 @@ namespace cxxc
                                                                                   "Failed expression: (" #expr ")")); }
 
 
+/// EVAL(expr) Macro
+///
+/// Prints the expr and evaluates it
+///
+#define CXXC_EVAL(expr) std::cout << "\tEVAL[ " << #expr << " ]: " << (expr) << std::endl
+
+/// ECHO(expr) Macro
+///
+/// Prints the expr
+///
+#define CXXC_ECHO(expr) std::cout << "\t" << expr << std::endl
+
+
+
 /// TEST(name) Macro
 ///
 /// Defines a new test which is automatically registered in the
@@ -280,6 +315,7 @@ namespace cxxc
         Test##name(void) : cxxc::Test(#name, __LINE__, __FILE__)    \
         {}                                                          \
                                                                     \
+        virtual ~Test##name(void) {}                                \
     private:                                                        \
         virtual void run_impl(void);                                \
     } test##name##Instance;                                         \
@@ -315,6 +351,7 @@ namespace cxxc
         FixtureTest##name##Helper(void)                                 \
         {}                                                              \
                                                                         \
+        virtual ~FixtureTest##name##Helper(void) {}                     \
         void run(void) { this->run_impl(); }                            \
                                                                         \
         void triggerSetUp(void) { do_SetUp(); }                         \

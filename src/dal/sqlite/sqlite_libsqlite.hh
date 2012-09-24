@@ -69,9 +69,8 @@ class SqliteDiag_libsqlite : public SqliteDiag
 {
 public:
     SqliteDiag_libsqlite(dalstate_t state,
-                         const char *codepos,
-                         const char *func,
-                         String message,
+                         CodePosInfo pos,
+                         Variant what,
                          String description,
                          int sqlite_code,
                          int sqlite_excode);
@@ -232,6 +231,8 @@ public:
 
     inline ::sqlite3_stmt* getHandle(void) const { return this->m_handle; }
 
+    virtual SqliteDiag& appendDiagRec(const SqliteDiag &diag);
+
     // sqlite specific
     virtual void   prepare(String sql);
     virtual void   execute(StmtBase::ParamMap& params);
@@ -328,6 +329,8 @@ public:
 
     virtual SqliteDbc_libsqlite& getDbc(void) const; // interface
 
+    virtual SqliteDiag& appendDiagRec(const SqliteDiag &diag);
+
 protected:
     SqliteResult_libsqlite* newResultset(void);
 
@@ -373,6 +376,8 @@ public:
 
     virtual SQLite3Drv*    drv(void) const;
 
+    virtual SqliteDiag& appendDiagRec(const SqliteDiag &diag);
+
 
 protected:
     virtual void           setDbcEncoding(std::string encoding);
@@ -404,6 +409,7 @@ public:
     virtual SqliteDbc_libsqlite* newConnection(void);
     virtual SQLite3Drv* drv(void) const;
 
+    virtual SqliteDiag& appendDiagRec(const SqliteDiag &diag);
 
 protected:
     mutable std::auto_ptr<SQLite3Drv>    m_lib;

@@ -9,7 +9,7 @@
 #include <memory>
 #include <cstdlib>
 
-#include "cxxc.hh"
+#include "../cxxc.hh"
 
 
 using namespace informave::db;

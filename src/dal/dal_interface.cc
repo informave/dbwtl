@@ -86,6 +86,16 @@ Add the -ldbwtl option to g++
 
 
 
+String
+CodePosInfo::str(void) const
+{
+    std::stringstream ss;
+    ss.imbue(std::locale("C"));
+    ss << m_file << ":" << m_line << " (" << m_func << ")";
+    return ss.str();
+}
+
+
 
 //--------------------------------------------------------------------------
 //
@@ -94,6 +104,53 @@ IHandle::IHandle(void)
 {}
 
 
+
+Transaction::Transaction(void)
+	: m_handle(0),
+	  m_trxid(0)
+{}
+
+Transaction::Transaction(IHandle *handle, trxid_t trxid)
+	: m_handle(handle),
+	  m_trxid(trxid)
+{}
+
+Transaction::Transaction(const Transaction& trx)
+	: m_handle(trx.m_handle),
+	m_trxid(trx.m_trxid)
+{}
+
+
+Transaction::~Transaction(void)
+{}
+
+
+Transaction& Transaction::operator=(const Transaction &trx)
+{
+	m_handle = trx.m_handle;
+	m_trxid = trx.m_trxid;
+    return *this;
+}
+
+
+void
+Transaction::commit(void)
+{
+    if(IDbc *dbc = dynamic_cast<IDbc*>(m_handle))
+    {
+        dbc->commit(*this);
+    }
+}
+
+
+void
+Transaction::rollback(void)
+{
+    if(IDbc *dbc = dynamic_cast<IDbc*>(m_handle))
+    {
+        dbc->rollback(*this);
+    }
+}
 
 
 //--------------------------------------------------------------------------
@@ -428,22 +485,18 @@ IDbc::~IDbc(void)
 
 //
 DiagBase::DiagBase(dalstate_t state,
-                   const char *codepos,
-                   const char *func,
-                   String message,
+                   CodePosInfo pos,
+                   Variant what,
                    String description)
     : IDiagnostic(),
       m_state        (state),
       m_sqlstate     (DAL_TYPE_STRING, "SqliteDiag::sqlstate"),
-      m_codepos      (DAL_TYPE_STRING, "SqliteDiag::codepos"),
-      m_func         (DAL_TYPE_STRING, "SqliteDiag::func"),
+      m_codepos      (pos),
       m_message      (DAL_TYPE_STRING, "SqliteDiag::message"),
       m_description  (DAL_TYPE_STRING, "SqliteDiag::description")
       //m_sqlstate_id() // fix?
 {
-    m_codepos.set<String>(String(codepos, "UTF-8"));
-    m_func.set<String>(String(func, "UTF-8"));
-    m_message = message;
+    m_message = what;
     m_description = description;
 }
 
@@ -454,7 +507,6 @@ DiagBase::DiagBase(const DiagBase& ref)
       m_state(ref.m_state),
       m_sqlstate(ref.m_sqlstate),
       m_codepos(ref.m_codepos),
-      m_func(ref.m_func),
       m_message(ref.m_message),
       m_description(ref.m_description)
       //m_sqlstate_id(ref.m_sqlstate_id)
@@ -488,7 +540,7 @@ DiagBase::getSqlstate(void) const
     return this->m_sqlstate;
 }
 
-const Variant&
+const CodePosInfo&
 DiagBase::getCodepos(void) const
 {
     return this->m_codepos;
@@ -573,8 +625,7 @@ StmtBase::StmtBase(void)
   : IStmt(),
     m_params(),
     m_temp_params(),
-    m_isPrepared(false),
-    m_isBad(false),
+    m_cursorstate(DAL_CURSOR_CLOSED),
     m_options()
 { 
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
@@ -682,8 +733,7 @@ StmtBase::bind(int num, UnicodeStreamBuf *data)
 void
 StmtBase::close(void)
 {
-    this->m_isPrepared = false;
-    this->m_isBad = false; 
+    this->m_cursorstate = DAL_CURSOR_CLOSED;
 
     this->m_params.clear(); // better use smartobjects?
     for_each(this->m_temp_params.begin(),
@@ -699,7 +749,7 @@ StmtBase::close(void)
 bool
 StmtBase::isPrepared(void) const
 {
-    return this->m_isPrepared;
+    return this->m_cursorstate & DAL_CURSOR_PREPARED;
 }
 
 
@@ -708,7 +758,7 @@ StmtBase::isPrepared(void) const
 bool
 StmtBase::isBad(void) const
 {
-    return this->m_isBad;
+    return this->m_cursorstate & DAL_CURSOR_BAD;
 }
 
 
@@ -719,7 +769,7 @@ StmtBase::isBad(void) const
 bool
 ResultBase::isPrepared(void) const
 {
-    return this->m_isPrepared;
+    return this->m_cursorstate & DAL_CURSOR_PREPARED;
 }
 
 
@@ -728,7 +778,7 @@ ResultBase::isPrepared(void) const
 bool
 ResultBase::isBad(void) const
 {
-    return this->m_isBad;
+    return this->m_cursorstate & DAL_CURSOR_BAD;
 }
 
 
@@ -737,7 +787,7 @@ ResultBase::isBad(void) const
 bool
 ResultBase::isOpen(void) const
 {
-    return this->m_isOpen;
+    return this->m_cursorstate & DAL_CURSOR_OPEN;
 }
 
 

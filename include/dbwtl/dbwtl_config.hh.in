@@ -12,6 +12,8 @@
 
 #cmakedefine DBWTL_WITH_SQLITE
 
+#cmakedefine DBWTL_WITH_FIREBIRD
+
 #cmakedefine DBWTL_WITH_POSTGRES
 
 #cmakedefine DBWTL_ON_WIN32

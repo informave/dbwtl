@@ -73,6 +73,8 @@ option(DBWTL_WITH_TESTS
 option(DBWTL_WITH_SQLITE
         "Compile with SQLite support" ON)
 
+option(DBWTL_WITH_FIREBIRD
+	"Compile with Firebird support" ON)
 
 #select plattform
 if(WIN32)
@@ -259,6 +261,7 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc
 	${DBWTL_MAIN_SRC_DIR}/ustring.cc
+	${DBWTL_MAIN_SRC_DIR}/debug.cc
 	${DBWTL_MAIN_SRC_DIR}/dal/sqlutils.cc
 )
 
@@ -269,6 +272,16 @@ if(DBWTL_WITH_SQLITE)
 		${dbwtl_srcs}
 	)
 endif(DBWTL_WITH_SQLITE)
+
+
+if(DBWTL_WITH_FIREBIRD)
+        set(dbwtl_srcs
+                ${DBWTL_MAIN_SRC_DIR}/dal/firebird/firebird_engine.cc
+                ${DBWTL_MAIN_SRC_DIR}/dal/firebird/firebird_libfbclient.cc
+                ${dbwtl_srcs}
+        )
+endif(DBWTL_WITH_FIREBIRD)
+
 
 if(MSVC)  
 	set(dbwtl_srcs

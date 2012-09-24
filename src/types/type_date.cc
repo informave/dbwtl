@@ -206,10 +206,6 @@ TDate::str(void) const
 bool
 TDate::operator==(const TDate &date) const
 {
-
-    std::cout << this->year() << this->month() << this->day() << std::endl;
-    std::cout << date.year() << date.month() << date.day() << std::endl;
-
     return this->year() == date.year() &&
         this->month() == date.month() &&
         this->day() == date.day();
@@ -252,6 +248,14 @@ TDate::operator>(const TDate &date) const
     return (!this->operator<(date)) && (!this->operator==(date));
 }
 
+TDate::operator ::tm(void) const
+{
+    ::tm data;
+    data.tm_year = m_year - 1900;
+    data.tm_mon = m_month - 1;
+    data.tm_mday = m_day;
+    return data;
+}
 
 
 DB_NAMESPACE_END

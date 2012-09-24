@@ -676,7 +676,7 @@ public:
     /// Formatting settings
     struct Settings
     {
-        Settings(void) : alternateForm(false), zeroPadded(false), leftAdjust(false),
+        Settings(void) : mode(T_NONE), alternateForm(false), zeroPadded(false), leftAdjust(false),
                          blank(false), sign(false), width(0), prec(0)
         {}
 
@@ -699,8 +699,10 @@ public:
 
     /// Constructor
     fmt_parser(const std::vector<Variant>& args, const string_type &str, std::locale loc)
-        : m_fmt(str), m_loc(loc), m_in(str.begin()), m_end(str.end()), m_args(args)
+        : m_fmt(str), m_loc(loc), m_str(), m_pos(), m_char(), 
+        m_in(str.begin()), m_end(str.end()), m_args(args)
     {}
+
 
     /// Consume next character
     /// Returns false on EOF, otherwise true
@@ -960,11 +962,13 @@ public:
     typedef format_error_exception format_error;
 
 
-    explicit basic_format(const char_type *str, std::locale loc = std::locale()) : m_fmt(str), m_loc(loc)
+    explicit basic_format(const char_type *str, std::locale loc = std::locale()) 
+        : m_args(), m_argN(), m_fmt(str), m_loc(loc)
     {
     }
 
-    explicit basic_format(const string_type &str, std::locale loc = std::locale()) : m_fmt(str), m_loc(loc)
+    explicit basic_format(const string_type &str, std::locale loc = std::locale()) 
+        : m_args(), m_argN(), m_fmt(str), m_loc(loc)
     {
     }
 
@@ -1005,6 +1009,7 @@ public:
         return str();
     }
 
+protected:
     std::vector<Variant> m_args;
     std::size_t m_argN;
 

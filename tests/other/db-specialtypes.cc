@@ -25,10 +25,9 @@ int test(void)
 
     DBMS::Environment env("sqlite:libsqlite");
     //env.create("sqlite:libsqlite");
-    env.specialFunc();
 
     DBMS::Connection dbc(env);
-    dbc.connect(L"sampledb.sqlitedb");
+    dbc.connect(L"../sampledb.sqlitedb");
 
 
     std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
@@ -36,26 +35,6 @@ int test(void)
 
 
     dbc.directCmd(L"create temp table foo(id int);");
-
-    try
-    {
-        dal::TableList list = dbc.getTables();
-
-        for(dal::TableList::iterator i = list.begin(); i != list.end(); ++i)
-        {
-            std::cout
-                << (*i)->getName().asStr().to("iso-8859-1") << "|"
-                << (*i)->getCatalog().asStr().to("iso-8859-1") << "|"
-                << (*i)->getSchema().asStr().to("iso-8859-1") << "|"
-                << (*i)->getDDL().asStr().to("iso-8859-1") << "|"
-                << std::endl;
-        }
-    }
-    catch(...)
-    {
-    }
-    //abort();
-
 
 
     DBMS::Statement stmt(dbc);
@@ -75,6 +54,18 @@ int test(void)
             {
                 //DBMS::Value x = res.column(i);
                 const DBMS::Value& v = res.column(i);
+                
+                DBMS::Integer myi(res.column(i));
+                DBMS::Text  mfi = res.column(i).asText();
+                DBMS::Text ffa = res.column(i);
+                //DBMS::Memo ffm(res.column(i));
+		/*
+                stmt.bind(1, myi);
+                stmt.bind(2, mfi);
+                stmt.bind(2, &mfi);
+		*/
+
+
                 std::cout << res.column(i).asStr().to("UTF-8") << " ";
                 //std::cout << res.field(i).asWideStr("ISO-8859-15") << " | ";
             }

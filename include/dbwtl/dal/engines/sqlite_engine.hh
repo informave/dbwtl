@@ -162,9 +162,8 @@ public:
 
 protected:
     SqliteDiag(dalstate_t state,
-               const char *codepos,
-               const char *func,
-               String message,
+               CodePosInfo pos,
+               Variant what,
                String description);
     
     SqliteDiag(const SqliteDiag& ref);
@@ -545,9 +544,12 @@ public:
 
     virtual void           directCmd(String cmd);
 
+    virtual void           commit(Transaction trx);
+    virtual void           rollback(Transaction trx);
 
-    virtual bool                diagAvail(void) const;
-    virtual const SqliteDiag&   fetchDiag(void);
+    virtual bool                 diagAvail(void) const;
+    virtual const SqliteDiag&    fetchDiag(void);
+
 
 protected:
     SqliteDiagController m_diag;

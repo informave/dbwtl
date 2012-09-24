@@ -232,6 +232,14 @@ TTime::operator>(const TTime &time) const
     return (!this->operator<(time)) && (!this->operator==(time));
 }
 
+TTime::operator ::tm(void) const
+{
+    ::tm data;
+    data.tm_hour = m_hour;
+    data.tm_min = m_minute;
+    data.tm_sec = m_second;
+    return data;
+}
 
 
 DB_NAMESPACE_END

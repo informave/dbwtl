@@ -58,7 +58,7 @@
 #include "dbwtl/db_exceptions.hh"
 
 #ifdef DAL_DEV_INCLUDE_DEVUTILS
-#include "dbwtl/util/devutils.hh"
+//#include "dbwtl/util/devutils.hh"
 #endif
 
 #include <string>
@@ -68,7 +68,7 @@
 #include <iosfwd>
 #include <list>
 #include <algorithm>
-#include <sstream>
+//#include <sstream>
 #ifdef DBWTL_HAVE_STDINT_H
 #include <stdint.h> // required until we get cstdint from c++0x
 #else
@@ -86,17 +86,18 @@ DAL_NAMESPACE_BEGIN
 typedef enum dal_engines_enum
 {
     DAL_ENGINE_GENERIC=0,
-    DAL_ENGINE_SQLITE=50
+    DAL_ENGINE_SQLITE=50,
+    DAL_ENGINE_FIREBIRD=51
 } dal_engine;
 
 ///
 /// @brief Type for row IDs
-typedef signed long        rowid_t;
+typedef signed long long        rowid_t;
 
 #define DAL_TYPE_ROWID_FIRST_ROW   1      /// Row IDs starts at 1
 #define DAL_TYPE_ROWID_NPOS        0      /// not positioned
 
-typedef signed long        rowcount_t;
+typedef signed long long        rowcount_t;
 
 ///
 /// @brief Type for column numbers
@@ -111,16 +112,36 @@ typedef size_t             colnum_t;
 typedef signed int systype_t;
 
 
+/// 
+/// @brief Transaction id
+typedef unsigned int trxid_t;
+
 
 #define DAL_MSG_SUCCESS                 L"Success."
 
 
+/// 
+/// Cursor states
+#define DAL_CURSOR_CLOSED        0
+#define DAL_CURSOR_PREPARED      0x01
+#define DAL_CURSOR_OPEN          0x02
+#define DAL_CURSOR_POSITIONED    0x04
+#define DAL_CURSOR_EOF           0x08
+#define DAL_CURSOR_BAD           0x10
+
+typedef unsigned char cursorstate_t;
+
+//#define DAL_MASK_LOW(mask) (mask | (mask-1))
+
+#define DAL_SET_CURSORSTATE(cs, state) cs =             \
+        state == DAL_CURSOR_BAD ? (cs | state) : (state | (state-1))
 
 
 typedef enum
 {
     DAL_STATE_OK,
     DAL_STATE_INFO,
+    DAL_STATE_WARNING,
     DAL_STATE_ERROR
 } dalstate_t;
 
@@ -132,10 +153,34 @@ const char* dal_state_msg(int code);
 #define DAL_CODE(codename) dal_state_msg(codename)
 
 
-
+#define DAL_STREAMBUF_BUFSIZE 1024*4
+#define DAL_STREAMBUF_PUTBACK 8
 
 
 typedef std::map<std::string, Variant> options_type;
+
+struct CodePosInfo
+{
+    CodePosInfo(const char *file, int line, const char *func)
+        : m_file(file),
+          m_line(line),
+          m_func(func)
+        {}
+
+    CodePosInfo(const CodePosInfo &pos)
+    : m_file(pos.m_file),
+      m_line(pos.m_line),
+      m_func(pos.m_func)
+        {}
+
+    String str(void) const;
+
+
+protected:
+    const char *m_file;
+    int m_line;
+    const char *m_func;
+};
 
 
 
@@ -178,7 +223,11 @@ public:
     /// Free all records
     ~DiagController(void)
     {
-        std::for_each(this->m_list.begin(), this->m_list.end(), delete_object());
+        std::for_each(this->m_list.begin(), this->m_list.end(),
+                      [](T* i)
+                      {
+                          delete i;
+                      });
     }
 
 
@@ -186,7 +235,7 @@ public:
     /// this controller class.
     ///
     /// @todo Use an option variable for the max. size of the deque.
-    void push_back(T *diag)
+    T* push_back(T *diag)
     {
         this->m_list.push_back(diag);
         if(m_cur == m_list.end())
@@ -201,6 +250,7 @@ public:
             delete *f;
             m_list.pop_front();
         }
+        return diag;
     }
 
 
@@ -276,7 +326,7 @@ public:
 //     virtual const Variant&     getNativeErrorCode(void) const = 0;
     virtual const Variant&     getMsg(void) const = 0;
     virtual const Variant&     getDescription(void) const = 0;
-    virtual const Variant&     getCodepos(void) const = 0;
+    virtual const CodePosInfo&     getCodepos(void) const = 0;
     virtual const Variant&     getSqlstate(void) const = 0;
 
 //     virtual const Variant&     getRowNumber(void) const = 0;
@@ -302,7 +352,6 @@ public:
 
 
 
-
 //--------------------------------------------------------------------------
 /// @brief Base class for Handles
 class DBWTL_EXPORT IHandle : public IDALObject
@@ -319,8 +368,30 @@ public:
 
     virtual void             setOption(std::string name, const Variant &data) = 0;
     virtual const Variant&   getOption(std::string name) const = 0;
+};
 
 
+//--------------------------------------------------------------------------
+/////// @brief Transaction Handle
+class DBWTL_EXPORT Transaction
+{
+public:
+    Transaction(void);
+    Transaction(IHandle *handle, trxid_t trxid);
+    Transaction(const Transaction& trx);
+    ~Transaction(void);
+
+    Transaction& operator=(const Transaction &trx);
+
+    inline trxid_t  id(void)     const { return this->m_trxid;  }
+    inline IHandle* handle(void) const { return this->m_handle; }
+
+    void commit(void);
+    void rollback(void);
+
+protected:
+    IHandle   *m_handle;
+    trxid_t    m_trxid;
 };
 
 
@@ -872,13 +943,19 @@ public:
     virtual String         dbmsName(void) const = 0;
     virtual IStmt*         newStatement(void) = 0;
     virtual IDALDriver*    drv(void) const = 0;
+
     virtual void           beginTrans(IDbc::trx_mode mode,
                                       IDbc::access_mode access = IDbc::trx_default,
-                                      String name = String()) { };
-    virtual void           commit(void) { };
-    virtual void           savepoint(String name) { }
-    virtual void           rollback(String name = String()) { }
-    virtual void           directCmd(String cmd) { }
+                                      String name = String()) = 0;
+    virtual void           commit(void) = 0;
+    virtual void           savepoint(String name) = 0;
+    virtual void           rollback(String name = String()) = 0;
+
+    virtual void           commit(Transaction trx) = 0;
+    virtual void           rollback(Transaction trx) = 0;
+
+
+    virtual void           directCmd(String cmd) = 0;
     virtual std::string    getDbcEncoding(void) const = 0;
 
 
@@ -1041,9 +1118,8 @@ public:
     {}
 
     DiagBase(dalstate_t state,
-             const char *codepos,
-             const char *func,
-             String message,
+             CodePosInfo pos,
+             Variant what,
              String description);
     
     DiagBase(const DiagBase& ref);
@@ -1055,7 +1131,7 @@ public:
 //     virtual const Variant&     getNativeErrorCode(void) const;
     virtual const Variant&     getMsg(void) const;
     virtual const Variant&     getDescription(void) const;
-    virtual const Variant&     getCodepos(void) const;
+    virtual const CodePosInfo&     getCodepos(void) const;
     virtual const Variant&     getSqlstate(void) const;
 //     virtual const Variant&     getRowNumber(void) const;
 //     virtual const Variant&     getServerName(void) const;
@@ -1066,8 +1142,7 @@ public:
 protected:
     dalstate_t m_state;
     Variant m_sqlstate;
-    Variant m_codepos;
-    Variant m_func;
+    CodePosInfo m_codepos;
     Variant m_message;
     Variant m_description;
 };
@@ -1119,8 +1194,8 @@ protected:
     ParamMap                  m_params;
     /** @brief Temp. POD Variants, destroyed by StmtBase */
     std::vector<Variant*>    m_temp_params;
-    bool                      m_isPrepared;
-    bool                      m_isBad;
+
+    cursorstate_t m_cursorstate;
     //ResultsetMode             m_mode;
     options_type m_options;
 };
@@ -1144,14 +1219,10 @@ public:
 
 protected:
 
-    ResultBase(void) : m_isPrepared(false),
-        m_isOpen(false),
-        m_isBad(false)
-        { }
+    ResultBase(void) : m_cursorstate(DAL_CURSOR_CLOSED)
+    {}
 
-    bool    m_isPrepared;
-    bool    m_isOpen;
-    bool    m_isBad;
+    cursorstate_t m_cursorstate;
 };
 
 

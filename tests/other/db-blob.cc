@@ -25,7 +25,7 @@ int test(void)
     DBMS::Environment env("sqlite:libsqlite");
 
     DBMS::Connection dbc(env);
-    dbc.connect(L"sampledb.sqlitedb");
+    dbc.connect(L"../sampledb.sqlitedb");
 
 
     std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;

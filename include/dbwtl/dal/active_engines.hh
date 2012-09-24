@@ -9,5 +9,10 @@
 #include "engines/sqlite_engine.hh"
 #endif
 
+
+#if defined(DBWTL_WITH_FIREBIRD)
+#include "engines/firebird_engine.hh"
+#endif
+
 #endif
 

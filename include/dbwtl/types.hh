@@ -145,6 +145,8 @@ public:
     bool operator<(const TDate &date) const;
     bool operator>(const TDate &date) const;
 
+    operator ::tm(void) const;
+
     virtual String str(void) const;
 
     short int year(void) const;
@@ -192,6 +194,8 @@ public:
     bool operator!=(const TTime &time) const;
     bool operator<(const TTime &time) const;
     bool operator>(const TTime &time) const;
+
+    operator ::tm(void) const;
 
 
 protected:
@@ -246,7 +250,8 @@ public:
     bool operator<(const TTimestamp &ts) const;
     bool operator>(const TTimestamp &ts) const;
 
-
+    operator ::tm(void) const;
+    
 protected:
     short int m_year, m_month, m_day, m_hour, m_minute, m_second;
     int m_fraction;
@@ -716,13 +721,12 @@ struct sv_accessor<bool> : public virtual sa_base<bool>,
 
 template<>
 struct sv_accessor<signed short> : public virtual sa_base<signed short>,
-                                   public supports<String>
-
-                                  // public supports_cast<signed int, bool>,
+                                   public supports<String>,
+                                  public supports_cast<signed short, bool>,
                                    // public supports_cast<signed int, signed char>,
                                    // public supports_cast<signed int, signed short>,
-                                   // public supports_cast<signed int, signed int>,
-                                   // public supports_cast<signed int, signed long long>,
+                                   public supports_cast<signed short, signed int>,
+                                   public supports_cast<signed short, signed long long>
                                    // public supports_cast<signed int, unsigned char>,
                                    // public supports_cast<signed int, unsigned short>,
                                    // public supports_cast<signed int, unsigned int>,

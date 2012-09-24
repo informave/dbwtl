@@ -1,6 +1,6 @@
 #include <dbwtl/dbobjects>
-#include <dbwtl/dal/engines/sqlite>
-#include <dbwtl/dal/engines/generic>
+#include <dbwtl/dal/engines/firebird>
+//#include <dbwtl/dal/engines/generic>
 #include <dbwtl/ustring>
 
 
@@ -13,22 +13,24 @@ using namespace informave::db::ex;
 
 
 using namespace informave::db;
-typedef Database<dal::sqlite> DBMS;
+typedef Database<dal::firebird> DBMS;
 
 
-struct SqliteMemoryFixture
+struct FirebirdTestbaseFixture
 {
-    SqliteMemoryFixture(void)
-        : env("sqlite:libsqlite"),
+    FirebirdTestbaseFixture(void)
+        : env("firebird:libfbclient"),
           dbc(env)
     {}
     
     
     void onSetUp(void)
     {
-        dbc.connect(L":memory:");
+    	 dbc.connect("localhost:/var/lib/firebird/dbwtldb.fdb", "SYSDBA", "masterkey");
     }
     
+   virtual ~FirebirdTestbaseFixture(void) {}
+
     DBMS::Environment env;
     DBMS::Connection dbc;
 };

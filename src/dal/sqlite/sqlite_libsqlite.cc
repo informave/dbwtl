@@ -72,9 +72,8 @@
     {                                                                   \
         sqlite::DIAG *__dal__diag =                                     \
             new SqliteDiag_libsqlite(DAL_STATE_ERROR,                   \
-                                     DBWTL_CODE_POS,                    \
-                                     DBWTL_FUNC_NAME,                   \
-                                     msg, desc, code, excode);          \
+                                     DBWTL_SPOS(),                      \
+                                     String(msg), desc, code, excode);  \
         handle->m_diag.push_back(__dal__diag);                          \
         __dal__diag->raiseException();                                  \
     } 
@@ -99,6 +98,37 @@ struct delete_object
 static void delete_resultset(SqliteResult_libsqlite* rs)
 {
     delete rs;
+}
+
+
+
+
+SqliteDiag&
+SqliteEnv_libsqlite::appendDiagRec(const SqliteDiag &diag)
+{
+    
+    return *this->m_diag.push_back(diag.clone());
+}
+
+SqliteDiag&
+SqliteResult_libsqlite::appendDiagRec(const SqliteDiag &diag)
+{
+    
+    return *this->m_diag.push_back(diag.clone());
+}
+
+SqliteDiag&
+SqliteDbc_libsqlite::appendDiagRec(const SqliteDiag &diag)
+{
+    
+    return *this->m_diag.push_back(diag.clone());
+}
+
+SqliteDiag&
+SqliteStmt_libsqlite::appendDiagRec(const SqliteDiag &diag)
+{
+    
+    return *this->m_diag.push_back(diag.clone());
 }
 
 
@@ -492,7 +522,7 @@ SqliteResult_libsqlite::prepare(String sql)
     switch(err)
     {
     case SQLITE_OK:
-        this->m_isPrepared = true;
+        this->m_cursorstate |= DAL_CURSOR_PREPARED;
         break;
     default:
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
@@ -526,8 +556,11 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     /// If the resultset is already open, we cleanup all bindings
     /// because the current bindings are maintained by this class instead
     /// of SQLite.
-    if(this->m_isOpen)
+    if(this->m_cursorstate & DAL_CURSOR_OPEN)
+    {
         this->drv()->sqlite3_reset(this->getHandle());
+        DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_PREPARED);
+    }
 
     StmtBase::ParamMapIterator param;
     for(param = params.begin(); param != params.end(); ++param)
@@ -601,7 +634,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
             String u_msg(msg, "UTF-8");
             DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                            "Can not prepare query",
+                                            "Can not execute query",
                                             u_msg,
                                             this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                             this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
@@ -616,16 +649,16 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     case SQLITE_ROW:
     case SQLITE_DONE:
         this->m_current_tuple = 1;
-        this->m_isOpen = true;
+        DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
         this->refreshMetadata();
         break;
 
     default:
-        this->m_isOpen = false;
+        DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_BAD);
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
         String u_msg(msg, "UTF-8");
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                        "Can not prepare query",
+                                        "Can not execute query",
                                         u_msg,
                                         this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                         this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));
@@ -688,8 +721,10 @@ SqliteResult_libsqlite::next(void)
         // refresh all column accessors
         std::for_each(this->m_column_accessors.begin(),
                       this->m_column_accessors.end(),
-                      informave::stdext::compose1(std::mem_fun(&SqliteVariant::refresh),
-                                                  informave::stdext::select2nd<VariantListT::value_type>()));
+                      [](VariantListT::value_type& p)
+                      {
+                          p.second->refresh();
+                      });
         ++this->m_current_tuple;
         break;
     case SQLITE_DONE:
@@ -1172,13 +1207,12 @@ static sqlite_sqlstates::engine_states_t sqlite3error_to_sqlstate(int code)
 
 //
 SqliteDiag_libsqlite::SqliteDiag_libsqlite(dalstate_t state,
-                                           const char *codepos,
-                                           const char *func,
-                                           String message,
+                                           CodePosInfo pos,
+                                           Variant what,
                                            String description,
                                            int sqlite_code,
                                            int sqlite_excode)
-    : SqliteDiag(state, codepos, func, message, description),
+    : SqliteDiag(state, pos, what, description),
       m_sqlite_code(DAL_TYPE_STRING, "SqliteDiag::sqlite_code"),
       m_sqlite_excode(DAL_TYPE_STRING, "SqliteDiag::sqlite_excode")
 {
@@ -1225,8 +1259,8 @@ SqliteDiag_libsqlite::str(void) const
        << ifnull<String>(this->m_description, L"No description") << std::endl
        << L"SQLite errcode: " << ifnull<String>(this->m_sqlite_code, L"NULL")
        << L" (" << ifnull<String>(this->m_sqlite_excode, L"NULL") << L")" << std::endl
-       << L"Raised at: " << ifnull<String>(this->m_func, L"unknown") << L"()"
-       << L" [" << ifnull<String>(this->m_codepos, L"unknown") << "]";
+       << L"Raised at: " 
+       << L" [" << this->m_codepos.str() << "]";
 
     return ss.str();
 }

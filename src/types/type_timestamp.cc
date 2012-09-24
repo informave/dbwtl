@@ -339,7 +339,17 @@ TTimestamp::str(void) const
     	 % year() % month() % day() % hour() % minute() % second() % fraction());
 }
 
-
+TTimestamp::operator ::tm(void) const
+{
+    ::tm data;
+    data.tm_year = m_year - 1900;
+    data.tm_mon = m_month - 1;
+    data.tm_mday = m_day;
+    data.tm_hour = m_hour;
+    data.tm_min = m_minute;
+    data.tm_sec = m_second;
+    return data;
+}
 
 
 DB_NAMESPACE_END

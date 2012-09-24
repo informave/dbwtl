@@ -110,6 +110,8 @@ struct default_tag { };
 struct extended_api_tag { };
 
 
+typedef enum dal::IDbc::trx_mode trx_mode;
+typedef enum dal::IDbc::access_mode access_mode;
 
 
 //------------------------------------------------------------------------------
@@ -286,6 +288,8 @@ struct basic_states
         DAL_SQLSTATE_50002, // integrity constraint violation
         DAL_SQLSTATE_50003, // statement completion unknown
         DAL_SQLSTATE_50004, // triggered action exception
+
+        DAL_SQLSTATE_HY000, // 
         DAL_SQLSTATE_LAST
     } states_t;
 
@@ -453,6 +457,8 @@ public:
 
     virtual void              commit(void)                  { this->m_dbc->commit(); }
 
+    virtual void              commit(dal::Transaction trx)  { this->m_dbc->commit(trx); }
+
     virtual void              savepoint(String name)        { this->m_dbc->savepoint(name); }
 
     virtual void              directCmd(String cmd)         { this->m_dbc->directCmd(cmd); }
@@ -460,6 +466,8 @@ public:
     virtual std::string       getDbcEncoding(void) const    { return this->m_dbc->getDbcEncoding(); }
 
     virtual void              rollback(String name = String()) { this->m_dbc->rollback(name); }
+
+    virtual void              rollback(dal::Transaction trx){ this->m_dbc->rollback(trx); }
 
     virtual void              beginTrans(dal::IDbc::trx_mode mode,
                                          dal::IDbc::access_mode access = dal::IDbc::trx_default,

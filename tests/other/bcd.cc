@@ -1,7 +1,7 @@
 
 #include <dbwtl/dbobjects>
 #include <iostream>
-#include "cxxc.hh"
+#include "../cxxc.hh"
 
 
 using informave::utils::bcd;

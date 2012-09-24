@@ -1,10 +1,11 @@
-#ifndef INFORMAVE_DB_UTIL_DEVUTILS_HH
-#define INFORMAVE_DB_UTIL_DEVUTILS_HH
+#ifndef INFORMAVE_DB_DEVUTILS_HH
+#define INFORMAVE_DB_DEVUTILS_HH
 
 //#include <iostream>
 #include <cassert>
 #include <string>
 
+DB_NAMESPACE_BEGIN
 
 inline std::wstring to_widen(std::string s)
 { return std::wstring(s.begin(), s.end()); }
@@ -39,6 +40,12 @@ inline std::wstring to_widen(std::string s)
 #define DBWTL_STRINGIFY(x) #x
 #define DBWTL_TOSTRING(x) DBWTL_STRINGIFY(x)
 
+
+#define DBWTL_FMT(data, args) String(format(data) % args)
+
+
+
+#define DBWTL_SPOS() CodePosInfo(__FILE__, __LINE__, __FUNCTION__)
 
 
 /// @brief Current code position as string
@@ -76,6 +83,6 @@ struct delete_object
 };
 /// @endcond
 
-
+DB_NAMESPACE_END
 
 #endif

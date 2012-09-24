@@ -52,6 +52,7 @@
 #include <iterator>
 #include <deque>
 #include <cassert>
+#include <sstream>
 //#include <cstdint>
 //#include <cstdlib>
 
@@ -99,6 +100,14 @@ public:
 
     template<typename T>             friend basic_bcd<T> std::abs(const basic_bcd<T> &v);
 
+    signed long long asLongLong(void) const
+    {
+        std::stringstream ss;
+        ss << str();
+        signed long long data;
+        ss >> data;
+        return data;
+    }
 
     /// @brief Empty constructor
     basic_bcd(void)
@@ -115,8 +124,8 @@ public:
           m_sign(orig.m_sign)
     {}
 
-    /// @brief Construct from long
-    basic_bcd(long v)
+    /// @brief Construct from long long
+    basic_bcd(long long v)
         : m_nibbles(),
           m_scale(0),
           m_sign(true)
@@ -124,12 +133,17 @@ public:
         set_value(v);
     }
 
-    /// @brief Construct from long, long
-    basic_bcd(long v1, long v2)
+    /// @brief Construct from long long and specific scale
+    basic_bcd(long long num, unsigned short scale)
        : m_nibbles(),
          m_scale(0),
 	 m_sign(true)
     {
+        set_value(num);
+        m_scale = scale;
+        if(this->precision() == this->scale())
+            this->m_nibbles.push_front(0);
+        assert(this->precision() > this->scale());
     }
 
     /// @brief Construct from string
@@ -176,7 +190,7 @@ public:
 
 
     /// @brief Set value as long
-    void set_value(long v)
+    void set_value(long long v)
     {
         m_nibbles.clear();
         m_sign = v >= 0;

@@ -116,19 +116,21 @@ sv_accessor<dal::FirebirdData*>::cast(bool*, std::locale loc) const
 }
 
 
-Blob
-sv_accessor<dal::FirebirdData*>::cast(Blob*, std::locale loc) const
+BlobStream
+sv_accessor<dal::FirebirdData*>::cast(BlobStream*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_BLOB || this->get_value()->daltype() == DAL_TYPE_MEMO)
-        return Blob(this->get_value()->getBlob());
+        return BlobStream(this->get_value()->getBlob());
     else
 	throw std::runtime_error("bug: fb blob convert error");
 }
 
 
-Memo
-sv_accessor<dal::FirebirdData*>::cast(Memo*, std::locale loc) const
+MemoStream
+sv_accessor<dal::FirebirdData*>::cast(MemoStream*, std::locale loc) const
 {
+    return this->get_value()->getMemo();
+/*
     std::stringstream ss;
     //ss.imbue(std::locale(""));
     ss << this->get_value()->getBlob();
@@ -141,7 +143,8 @@ sv_accessor<dal::FirebirdData*>::cast(Memo*, std::locale loc) const
     
     *ws << s;
 
-    return Memo(ws->rdbuf());
+    return MemoStream(ws->rdbuf());
+*/
 }
 
 TDate

@@ -61,7 +61,7 @@ int test(void)
 
     const DBMS::Value &data = rs.column("data");    
 
-    DBMS::Blob blob(data);
+    DBMS::BlobStream blob(data);
 	
 
     //blob.exceptions ( DBMS::Blob::eofbit | DBMS::Blob::failbit | DBMS::Blob::badbit );

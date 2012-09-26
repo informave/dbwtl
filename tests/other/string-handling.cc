@@ -92,7 +92,7 @@ int test(void)
         //std::cout << conv_to(stmt.resultset().column(2).asWideStr(), "UTF-8") << std::endl;
         if(! rs.column(2).isnull())
         {
-            DBMS::Blob bl(rs.column(2).asBlob());
+            DBMS::BlobStream bl(rs.column(2).asBlob());
             //DBMS::Memo me(rs.column(2).asMemo());
             //std::cout << bl.rdbuf() << std::endl;
         }

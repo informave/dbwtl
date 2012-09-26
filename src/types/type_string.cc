@@ -143,12 +143,13 @@ sv_accessor<String>::cast(double*, std::locale loc) const
     else return v;
 }
 
-Memo
-sv_accessor<String>::cast(Memo*, std::locale loc) const
+MemoStream
+sv_accessor<String>::cast(MemoStream*, std::locale loc) const
 {
+	/// @bug fixme, use Memo instead of MemoStream?
     std::wstringbuf *buf = new std::wstringbuf();
     buf->str(this->get_value());
-    return Memo(buf);
+    return MemoStream(buf);
 }
 
 

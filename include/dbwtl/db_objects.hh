@@ -1418,8 +1418,10 @@ struct basic_datatypes
     typedef std::streambuf*       Blob; // better use dal::Blob with implicit ctor?
 */
     typedef db::String            String;
-    typedef db::Blob             Blob;
-    typedef db::Memo             Memo;
+    typedef db::BlobStream             BlobStream;
+    typedef db::MemoStream             MemoStream;
+    typedef db::Blob		Blob;
+    typedef db::Memo		Memo;
     typedef TNumeric              Numeric;
     typedef signed short          Smallint;
     typedef unsigned short        USmallint;

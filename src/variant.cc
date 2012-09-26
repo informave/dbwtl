@@ -262,16 +262,16 @@ Variant::asInterval(void) const
     return this->get<TInterval>();
 }
 
-Blob     
+BlobStream
 Variant::asBlob(void) const
 {
-    return this->get<Blob>();
+    return this->get<BlobStream>();
 }
 
-Memo  
+MemoStream
 Variant::asMemo(void) const
 {
-    return this->get<Memo>();
+    return this->get<MemoStream>();
 }
 
 

@@ -152,7 +152,7 @@ public:
     virtual TNumeric     getNumeric(void) const;
 
     virtual FirebirdBlob_libfbclient*       getBlob(void) const;
-    //virtual FirebirdMemo*  getMemo(void) const = 0;
+    virtual UnicodeStreamBuf* getMemo(void) const;
 
 
     virtual IVariantValue* do_deepcopy(const IVariantValue *owner) const;
@@ -169,6 +169,7 @@ protected:
 
     colnum_t   m_colnum;
     mutable std::auto_ptr<FirebirdBlob_libfbclient> m_blobbuf;
+    mutable std::auto_ptr<std::wstringstream> m_memostream;
     XSQLVAR *m_sqlvar;
 
 private:

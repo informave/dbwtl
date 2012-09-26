@@ -55,26 +55,82 @@
 DB_NAMESPACE_BEGIN
 
 
+
+//
+//
+Memo::Memo(const Memo& blob) : m_data()
+{
+    this->m_data << blob.rdbuf();
+}
+
+//
+//
+Memo::Memo(const Variant& data) : m_data()
+{
+    this->m_data << data.get<String>(this->m_data.getloc());
+}
+
+
+
+//
+//
+Memo& Memo::operator=(const Memo& blob)
+{
+    this->m_data.clear();
+    this->m_data << blob.rdbuf();
+    return *this;
+}
+
+
+//
+//
+Memo::Memo(void) : m_data()
+{}
+
+
+//
+//
+Memo::Memo(UnicodeStreamBuf *buf) : m_data()
+{
+    this->m_data << buf;
+}
+
+
+//
+//
+Memo::~Memo(void)
+{
+}
+
+
+//
+//
+std::wstreambuf*
+Memo::rdbuf(void) const
+{
+    return this->m_data.rdbuf();
+}
+
+
+
+
+
+
+
+
 ///
 ///
-Memo::Memo(UnicodeStreamBuf *buf) : std::wiostream(0),
+MemoStream::MemoStream(UnicodeStreamBuf *buf) : std::wiostream(0),
                                     m_buf(buf)
 {
     this->rdbuf(m_buf);
 }
 
-///
-///
-Memo::Memo(const Variant &variant) : std::wiostream(0),
-                                      m_buf()
-{
-    this->operator=(variant.asMemo());
-}
 
 
 ///
 ///
-Memo::Memo(const Memo& m) : std::basic_ios<wchar_t>(),
+MemoStream::MemoStream(const MemoStream& m) : std::basic_ios<wchar_t>(),
                             std::wiostream(0),
                             m_buf()
 {
@@ -84,8 +140,8 @@ Memo::Memo(const Memo& m) : std::basic_ios<wchar_t>(),
 
 ///
 ///
-Memo&
-Memo::operator=(const Memo& m)
+MemoStream&
+MemoStream::operator=(const MemoStream& m)
 {
     this->m_buf = m.m_buf;
     this->rdbuf(m_buf);
@@ -96,7 +152,7 @@ Memo::operator=(const Memo& m)
 
 //
 //
-Memo::~Memo(void)
+MemoStream::~MemoStream(void)
 {}
 
 
@@ -104,7 +160,7 @@ Memo::~Memo(void)
 //
 //
 std::string
-Memo::narrow_str(const char *charset) const
+MemoStream::narrow_str(const char *charset) const
 {
     return String(this->str()).to("UTF-8");
 }
@@ -113,7 +169,7 @@ Memo::narrow_str(const char *charset) const
 //
 //
 std::wstring
-Memo::str() const
+MemoStream::str() const
 {
     try
     {
@@ -127,25 +183,47 @@ Memo::str() const
     }
 }
 
-/*
 
-///
-/// 
-Memo
-read_accessor<Memo>::asMemo(void) const
+
+//
+//
+MemoStream
+sv_accessor<Memo>::cast(MemoStream*, std::locale loc) const
 {
-    return this->getValue();
+    return MemoStream(this->get_value().rdbuf());
 }
 
 
-///
-///
-void
-variant_assign<Memo>::set_new_value(Memo& dest, const Variant &src)
+
+//
+//
+String
+Memo::str(void) const
 {
-    dest << src;
+    return this->m_data.str();
 }
-*/
+
+
+
+//
+//
+String
+sv_accessor<Memo>::cast(String*, std::locale loc) const
+{
+    return this->get_value().str();
+}
+
+
+//
+//
+String
+sv_accessor<MemoStream>::cast(String*, std::locale loc) const
+{
+    std::wstringstream ss;
+    ss << this->get_value().rdbuf();
+    return ss.str();
+}
+
 
 
 DB_NAMESPACE_END

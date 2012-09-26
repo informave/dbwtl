@@ -157,7 +157,39 @@ CXXC_TEST(PointerStorage)
 
 
 
+CXXC_TEST(BlobDeepCopy)
+{
+	std::stringstream ss;
+	ss << "test";
+	Variant v(Blob(ss.rdbuf()));
 
+	std::stringstream aa;
+	
+	Blob x(v.get<Blob>());
+
+	aa << x.rdbuf();
+
+	CXXC_CHECK( ss.str() == "test" );
+	CXXC_CHECK( ss.str() == aa.str() );
+
+}
+
+
+CXXC_TEST(MemoDeepCopy)
+{
+        std::wstringstream ss;
+        ss << L"test";
+        Variant v(Memo(ss.rdbuf()));
+
+        std::wstringstream aa;
+
+        Memo x(v.get<Memo>());
+
+        aa << x.rdbuf();
+
+        CXXC_CHECK( ss.str() == L"test" );
+        CXXC_CHECK( ss.str() == aa.str() );
+}
 
 
 int main(void)

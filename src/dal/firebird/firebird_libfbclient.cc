@@ -256,6 +256,7 @@ FirebirdData_libfbclient::FirebirdData_libfbclient(FirebirdResult_libfbclient& r
       m_resultset(result),
       m_colnum(colnum),
       m_blobbuf(),
+      m_memostream(),
       m_sqlvar(0)
 { 
     assert(result.m_osqlda);
@@ -283,6 +284,16 @@ FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
         return new typename value_traits<TNumeric>::stored_type(this->getNumeric());
     }
 
+    if(this->daltype() == DAL_TYPE_BLOB)
+    {
+        return new typename value_traits<Blob>::stored_type(this->getBlob());
+    }
+
+    if(this->daltype() == DAL_TYPE_MEMO)
+    {
+        return new typename value_traits<Memo>::stored_type(this->getMemo());
+    }
+
     switch(this->m_sqlvar->sqltype & ~1)
     {
     case SQL_TEXT:
@@ -295,9 +306,9 @@ FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
     case SQL_FLOAT:        return new typename value_traits<float>::stored_type(this->getFloat());
     case SQL_TYPE_TIME:    return new typename value_traits<TTime>::stored_type(this->getTime());
     case SQL_TIMESTAMP:    return new typename value_traits<TTimestamp>::stored_type(this->getTimestamp());
+    case SQL_BLOB:         DBWTL_BUG_EX("SQL_BLOB is alread handled");
     case SQL_ARRAY:
-    case SQL_BLOB:
-        return new typename value_traits<String>::stored_type("BLOB/ARRAY UNHANDLED"); /// @bug
+        DBWTL_NOTIMPL(); /// @todo Implement array type
     default:
         DBWTL_BUG_FMT("unknown sqltype: %hd", this->m_sqlvar->sqltype & ~1);
     }
@@ -312,9 +323,6 @@ FirebirdData_libfbclient::getBlob(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_BLOB);
 
-    size_t size = 0;
-    const void *buf = NULL;
-
     if(this->isnull())
         throw ex::null_value(String("FirebirdData_libfbclient result column"));
 
@@ -325,6 +333,33 @@ FirebirdData_libfbclient::getBlob(void) const
 
     return this->m_blobbuf.get();
 }
+
+
+
+/// @details
+/// 
+UnicodeStreamBuf*
+FirebirdData_libfbclient::getMemo(void) const
+{
+    DALTRACE("VISIT");
+    DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_BLOB);
+
+    FirebirdBlob_libfbclient *blob = this->getBlob();
+
+    if(! this->m_memostream.get())
+    {
+        this->m_memostream.reset(new std::wstringstream());
+    }
+
+    std::stringstream ss;
+    ss.imbue(std::locale("C"));
+    ss << blob;
+
+    *this->m_memostream << String(ss.str(), "UTF-8");
+
+    return this->m_memostream->rdbuf();
+}
+
 
 
 /// @details
@@ -1000,7 +1035,7 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
 
         if(data.datatype() == DAL_TYPE_BLOB)
         {
-            std::streambuf *buf = data.get<Blob>().rdbuf();
+            std::streambuf *buf = data.get<BlobStream>().rdbuf();
         
             while(std::streamsize i = buf->sgetn(vec.data(), vec.size()))
             {
@@ -1016,7 +1051,7 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
             std::stringstream ss;
             {
                 std::wstringstream ws;
-                ws << data.get<Memo>().rdbuf();
+                ws << data.get<MemoStream>().rdbuf();
                 String s(ws.str());
                 ss << s.utf8();
             }

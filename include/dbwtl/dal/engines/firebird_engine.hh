@@ -243,7 +243,8 @@ public:
     virtual TTimestamp   getTimestamp(void) const = 0;
     virtual TNumeric     getNumeric(void) const = 0;
 
-    virtual FirebirdBlob*  getBlob(void) const = 0;    
+    virtual FirebirdBlob*  getBlob(void) const = 0;
+    virtual UnicodeStreamBuf* getMemo(void) const = 0;
     //virtual FirebirdMemo*  getMemo(void) const = 0;
 
  
@@ -713,8 +714,8 @@ struct sv_accessor<dal::FirebirdData*> : public virtual sa_base<dal::FirebirdDat
                                          public supports<float>,
                                          public supports<double>,
                                          public supports<bool>,
-                                         public supports<Blob>,
-                                         public supports<Memo>,
+                                         public supports<BlobStream>,
+                                         public supports<MemoStream>,
                                          public supports<TDate>,
                                          public supports<TTime>,
                                          public supports<TTimestamp>,
@@ -727,8 +728,8 @@ struct sv_accessor<dal::FirebirdData*> : public virtual sa_base<dal::FirebirdDat
     virtual float cast(float*, std::locale loc) const;
     virtual double cast(double*, std::locale loc) const;
     virtual bool cast(bool*, std::locale loc) const;
-    virtual Blob cast(Blob*, std::locale loc) const;
-    virtual Memo cast(Memo*, std::locale loc) const;
+    virtual BlobStream cast(BlobStream*, std::locale loc) const;
+    virtual MemoStream cast(MemoStream*, std::locale loc) const;
     virtual TDate cast(TDate*, std::locale loc) const;
     virtual TTime cast(TTime*, std::locale loc) const;
     virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
@@ -741,16 +742,13 @@ struct sv_accessor<dal::FirebirdData*> : public virtual sa_base<dal::FirebirdDat
 
     virtual daltype_t datatype() const;
 
-    sv_accessor(void) : ws(0) {}
+    sv_accessor(void) 
+    {}
 
     virtual ~sv_accessor(void)
-    {
-        delete ws;
-    }
+    {}
 
-private:
-    mutable std::wstringstream *ws;
-    
+private:    
     sv_accessor(const sv_accessor&);
     sv_accessor& operator=(const sv_accessor&);
 };

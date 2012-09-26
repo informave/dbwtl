@@ -600,9 +600,9 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
                 break;
 
             case DAL_TYPE_BLOB:
-                if(var->get<Blob>())
+                if(var->get<BlobStream>())
                 {
-                    tmp_stream << var->get<Blob>().rdbuf();
+                    tmp_stream << var->get<BlobStream>().rdbuf();
                 
                     std::string& tmp_string = tmp_strings[param->first];
                     tmp_string = tmp_stream.str();

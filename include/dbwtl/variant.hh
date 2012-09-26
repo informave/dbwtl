@@ -97,6 +97,8 @@ template<> struct type_id<signed short>     { static inline daltype_t value(void
 template<> struct type_id<unsigned short>   { static inline daltype_t value(void) { return DAL_TYPE_USMALLINT; } };
 template<> struct type_id<signed long long> { static inline daltype_t value(void) { return DAL_TYPE_BIGINT; } };
 template<> struct type_id<unsigned long>    { static inline daltype_t value(void) { return DAL_TYPE_UBIGINT; } };
+template<> struct type_id<BlobStream>       { static inline daltype_t value(void) { return DAL_TYPE_BLOB; } };
+template<> struct type_id<MemoStream>       { static inline daltype_t value(void) { return DAL_TYPE_MEMO; } };
 template<> struct type_id<Blob>             { static inline daltype_t value(void) { return DAL_TYPE_BLOB; } };
 template<> struct type_id<Memo>             { static inline daltype_t value(void) { return DAL_TYPE_MEMO; } };
 template<> struct type_id<TNumeric>         { static inline daltype_t value(void) { return DAL_TYPE_NUMERIC; } };
@@ -612,8 +614,8 @@ public:
     TTime               asTime(void) const;
     TTimestamp          asTimestamp(void) const;
     TInterval           asInterval(void) const;
-    Blob                asBlob(void) const;
-    Memo                asMemo(void) const;
+    BlobStream                asBlob(void) const;
+    MemoStream                asMemo(void) const;
 
 
 protected:

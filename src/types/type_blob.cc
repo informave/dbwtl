@@ -56,9 +56,70 @@ DB_NAMESPACE_BEGIN
 
 
 
+//
+//
+Blob::Blob(const Blob& blob) : m_data()
+{
+    this->m_data << blob.rdbuf();
+}
+
+
+
+//
+//
+Blob& Blob::operator=(const Blob& blob)
+{
+    this->m_data.clear();
+    this->m_data << blob.rdbuf();
+    return *this;
+}
+
+
+
+//
+//
+Blob::Blob(void) : m_data()
+{}
+
+
+
+//
+//
+Blob::Blob(ByteStreamBuf *buf) : m_data()
+{
+/*
+  this->m_data.assign(std::istreambuf_iterator<char>(buf),
+  std::istreambuf_iterator<char>());
+*/
+    this->m_data << buf;
+}
+
+
+//
+//
+Blob::~Blob(void)
+{
+}
+
+
+//
+//
+std::streambuf*
+Blob::rdbuf(void) const
+{
+    return this->m_data.rdbuf();
+}
+
+
+
+
+
+
+
+
 ///
 ///
-Blob::Blob(ByteStreamBuf *buf) : std::iostream(0), m_buf(buf)
+BlobStream::BlobStream(ByteStreamBuf *buf) : std::iostream(0), m_buf(buf)
 {
     this->rdbuf(buf);
 }
@@ -66,18 +127,18 @@ Blob::Blob(ByteStreamBuf *buf) : std::iostream(0), m_buf(buf)
 
 ///
 ///
-Blob::Blob(const Variant &variant) : std::iostream(0),
-                                      m_buf()
+BlobStream::BlobStream(const Variant &variant) : std::iostream(0),
+                                                 m_buf()
 {
-    this->operator=(variant.get<Blob>());
+    this->operator=(variant.get<BlobStream>());
 }
 
 
 ///
 ///
-Blob::Blob(const Blob& b) : std::basic_ios<char>(),
-                            std::iostream(0),
-                            m_buf()
+BlobStream::BlobStream(const BlobStream& b) : std::basic_ios<char>(),
+                                              std::iostream(0),
+                                              m_buf()
 {
     this->operator=(b);
 }
@@ -85,32 +146,31 @@ Blob::Blob(const Blob& b) : std::basic_ios<char>(),
 
 ///
 ///
-Blob&
-Blob::operator=(const Blob& b)
+BlobStream&
+BlobStream::operator=(const BlobStream& b)
 {
     this->m_buf = b.m_buf;
     this->rdbuf(m_buf);
     return *this;
 }
 
+
 //
 //
-Blob::~Blob(void)
+BlobStream::~BlobStream(void)
 {}
 
 
 
 
-///
-/// @todo Check if there are conflicts with binary streams
-/// @todo Write test case
-/*
-void
-variant_assign<Blob>::set_new_value(Blob& dest, const Variant &src)
+//
+//
+BlobStream
+sv_accessor<Blob>::cast(BlobStream*, std::locale loc) const
 {
-    dest << src;
+    return BlobStream(this->get_value().rdbuf());
 }
-*/
+
 
 
 

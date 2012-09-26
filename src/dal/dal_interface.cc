@@ -713,7 +713,7 @@ void
 StmtBase::bind(int num, ByteStreamBuf *data)
 {
     DALTRACE_VISIT;
-    Variant* tmp = new Variant(Blob(data));
+    Variant* tmp = new Variant(BlobStream(data));
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
 }
@@ -722,7 +722,7 @@ void
 StmtBase::bind(int num, UnicodeStreamBuf *data)
 {
     DALTRACE_VISIT;
-    Variant* tmp = new Variant(Memo(data));
+    Variant* tmp = new Variant(MemoStream(data));
     this->m_temp_params.push_back(tmp);
     this->m_params[num] = tmp;
 }

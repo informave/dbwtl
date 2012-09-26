@@ -73,10 +73,10 @@ sv_accessor<dal::SqliteData*>::cast(bool*, std::locale loc) const
 }
 
 
-Blob
-sv_accessor<dal::SqliteData*>::cast(Blob*, std::locale loc) const
+BlobStream
+sv_accessor<dal::SqliteData*>::cast(BlobStream*, std::locale loc) const
 {
-    return Blob(this->get_value()->getBlob());
+    return BlobStream(this->get_value()->getBlob());
 }
 
 TDate
@@ -207,8 +207,8 @@ SqliteData::do_deepcopy(const IVariantValue *owner) const
     case DAL_TYPE_TIME:       return new typename value_traits<TTime>::stored_type(tmp.get<TTime>());
     case DAL_TYPE_TIMESTAMP:  return new typename value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
     case DAL_TYPE_NUMERIC:    return new typename value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
-    case DAL_TYPE_BLOB:       return new typename value_traits<Blob>::stored_type(tmp.get<Blob>());
-    case DAL_TYPE_MEMO:       return new typename value_traits<Memo>::stored_type(tmp.get<Memo>());
+    case DAL_TYPE_BLOB:       return new typename value_traits<BlobStream>::stored_type(tmp.get<BlobStream>());
+    case DAL_TYPE_MEMO:       return new typename value_traits<MemoStream>::stored_type(tmp.get<MemoStream>());
     case DAL_TYPE_FLOAT:      return new typename value_traits<float>::stored_type(tmp.get<float>());
     case DAL_TYPE_DOUBLE:     return new typename value_traits<double>::stored_type(tmp.get<double>());
     case DAL_TYPE_INTERVAL:   return new typename value_traits<TInterval>::stored_type(tmp.get<TInterval>());

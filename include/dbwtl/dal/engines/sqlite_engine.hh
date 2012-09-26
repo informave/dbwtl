@@ -659,7 +659,7 @@ template<>
 struct sv_accessor<dal::SqliteData*> : public virtual sa_base<dal::SqliteData*>,
                                        public supports<signed int>,
                                        public supports<bool>,
-                                       public supports<Blob>,
+                                       public supports<BlobStream>,
                                        public supports<TDate>,
                                        public supports<TTime>,
                                        public supports<TTimestamp>,
@@ -668,7 +668,7 @@ struct sv_accessor<dal::SqliteData*> : public virtual sa_base<dal::SqliteData*>,
 {
     virtual signed int cast(signed int*, std::locale loc) const;
     virtual bool cast(bool*, std::locale loc) const;
-    virtual Blob cast(Blob*, std::locale loc) const;
+    virtual BlobStream cast(BlobStream*, std::locale loc) const;
     virtual TDate cast(TDate*, std::locale loc) const;
     virtual TTime cast(TTime*, std::locale loc) const;
     virtual TTimestamp cast(TTimestamp*, std::locale loc) const;

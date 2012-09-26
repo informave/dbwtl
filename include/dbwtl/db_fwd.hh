@@ -57,6 +57,9 @@ DB_NAMESPACE_BEGIN
 
 class Variant;
 
+class BlobStream;
+class MemoStream;
+
 class Blob;
 class Memo;
 

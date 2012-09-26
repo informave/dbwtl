@@ -67,20 +67,22 @@ DBWTL_EXPORT String daltype2sqlname(daltype_t type);
 
 
 //..............................................................................
-/////////////////////////////////////////////////////////////////////////// Blob
+///////////////////////////////////////////////////////////////////// BlobStream
 ///
 /// @since 0.0.1
-/// @brief BLOB Datatype
-class DBWTL_EXPORT Blob : public std::iostream
+/// @brief BlobStream Datatype
+class DBWTL_EXPORT BlobStream : public std::iostream
 {
 public:
-    Blob(ByteStreamBuf *buf);
-    Blob(const Variant &variant);
-    virtual ~Blob();
+    BlobStream(ByteStreamBuf *buf);
+    BlobStream(const Variant &variant);
+    virtual ~BlobStream();
 
-    Blob(const Blob&);
-    Blob& operator=(const Blob&);
+    BlobStream(const BlobStream&);
+    BlobStream& operator=(const BlobStream&);
 
+
+///@bug use std::istream instead? and override rdbuf()
 protected:
     ByteStreamBuf* m_buf;
 private:
@@ -90,19 +92,18 @@ private:
 
 
 //..............................................................................
-/////////////////////////////////////////////////////////////////////////// Memo
+///////////////////////////////////////////////////////////////////// MemoStream
 ///
 /// @since 0.0.1
-/// @brief MEMO Datatype
-class DBWTL_EXPORT Memo : public std::wiostream
+/// @brief MemoStream Datatype
+class DBWTL_EXPORT MemoStream : public std::wiostream
 {
 public:
-    Memo(UnicodeStreamBuf *buf);
-    Memo(const Variant &variant);
-    virtual ~Memo(void);
+    MemoStream(UnicodeStreamBuf *buf);
+    virtual ~MemoStream(void);
 
-    Memo(const Memo&);
-    Memo& operator=(const Memo&);
+    MemoStream(const MemoStream&);
+    MemoStream& operator=(const MemoStream&);
 
 
     std::string   narrow_str(const char *charset) const;
@@ -112,6 +113,58 @@ protected:
     UnicodeStreamBuf* m_buf;
 private:
 
+};
+
+
+
+//..............................................................................
+/////////////////////////////////////////////////////////////////////////// Blob
+///
+/// @since 0.0.1
+/// @brief BLOB Datatype
+class Blob
+{
+public:
+	Blob(void);
+	Blob(ByteStreamBuf *buf);
+
+	virtual ~Blob(void);
+
+	std::streambuf* rdbuf(void) const;
+
+
+    Blob(const Blob&);
+    Blob& operator=(const Blob&);
+
+protected:
+    std::stringstream m_data;
+};
+
+
+
+//..............................................................................
+/////////////////////////////////////////////////////////////////////////// Memo
+///
+/// @since 0.0.1
+/// @brief MEMO Datatype
+class Memo
+{
+public:
+	Memo(void);
+	Memo(UnicodeStreamBuf *buf);
+
+	virtual ~Memo(void);
+
+	std::wstreambuf* rdbuf(void) const;
+
+    Memo(const Memo&);
+    Memo(const Variant&);
+    Memo& operator=(const Memo&);
+
+    String str(void) const;
+
+protected:
+	std::wstringstream m_data;
 };
 
 
@@ -589,19 +642,57 @@ struct var_info<Memo>
 };
 
 
+template<>
+struct var_info<BlobStream>
+{
+    static daltype_t type(void) { return DAL_TYPE_BLOB; }
+    static const char* name(void) { return "DAL_TYPE_BLOB"; }
+
+};
+
+
+template<>
+struct var_info<MemoStream>
+{
+    static daltype_t type(void) { return DAL_TYPE_MEMO; }
+    static const char* name(void) { return "DAL_TYPE_MEMO"; }
+
+};
 
 
 
+
+/// @bug fixme
 #define SV_CAST_METHOD(type) virtual type cast(type*, std::locale loc) const
 
 
 template<>
-struct sv_accessor<Blob> : public virtual sa_base<Blob>
+struct sv_accessor<Blob> : public virtual sa_base<Blob>,
+                           public supports<BlobStream>
+{
+	SV_CAST_METHOD(BlobStream);
+};
+
+template<>
+struct sv_accessor<Memo> : public virtual sa_base<Memo>,
+                           public supports<String>,
+                           public supports<MemoStream>
+{
+    SV_CAST_METHOD(String);
+	SV_CAST_METHOD(MemoStream);
+};
+
+
+template<>
+struct sv_accessor<BlobStream> : public virtual sa_base<BlobStream>
 {};
 
 template<>
-struct sv_accessor<Memo> : public virtual sa_base<Memo>
-{};
+struct sv_accessor<MemoStream> : public virtual sa_base<MemoStream>,
+                                 public supports<String>
+{
+    SV_CAST_METHOD(String);
+};
 
 
 
@@ -991,7 +1082,7 @@ struct sv_accessor<String> : public virtual sa_base<String>,
                              public supports<unsigned long long>,
                              public supports<float>,
                              public supports<double>,
-                             public supports<Memo>
+                             public supports<MemoStream>
 
                                   // public supports_cast<signed int, bool>,
                                    // public supports_cast<signed int, signed char>,
@@ -1019,7 +1110,7 @@ struct sv_accessor<String> : public virtual sa_base<String>,
     virtual unsigned long long cast(unsigned long long*, std::locale loc) const;
     virtual float cast(float*, std::locale loc) const;
     virtual double cast(double*, std::locale loc) const;
-    virtual Memo cast(Memo*, std::locale loc) const;
+    virtual MemoStream cast(MemoStream*, std::locale loc) const;
 };
 
 

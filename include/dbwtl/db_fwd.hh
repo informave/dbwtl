@@ -69,6 +69,7 @@ class TTime;
 class TInterval;
 //class TNumeric;
 typedef informave::utils::bcd TNumeric;
+//typedef informave::utils::bcd TDecimal;
 
 class TTimestamp;
 class TCustomType;
@@ -103,6 +104,8 @@ enum DatatypeEnumeration
     DAL_TYPE_BLOB,
     DAL_TYPE_MEMO,
     DAL_TYPE_NUMERIC,
+    DAL_TYPE_DECIMAL,
+    DAL_TYPE_VARBINARY,
     DAL_TYPE_FLOAT,
     DAL_TYPE_DOUBLE,
     DAL_TYPE_DATE,

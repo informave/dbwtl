@@ -1658,29 +1658,50 @@ FirebirdColumnDesc_libfbclient::FirebirdColumnDesc_libfbclient(colnum_t i,
         switch(var->sqltype & ~1)
         {
         case SQL_VARYING:
-            this->m_daltype = DAL_TYPE_STRING;
+	    // Firebird stores the charset ID in the low byte of the sqlsubtype field.
+	    // The high byte contains the collation ID.
+	    // The OCTETS character set has the ID 1, but it is also possible to
+	    // check the RDB$CHARACTER_SETS system table against the ID.
+	    if((var->sqlsubtype & 0xFF) == 1)
+	    	this->m_daltype = DAL_TYPE_VARBINARY;
+	    else
+            	this->m_daltype = DAL_TYPE_STRING;
             break;
         case SQL_TEXT:
-            this->m_daltype = DAL_TYPE_STRING;
+	    if((var->sqlsubtype & 0xFF) == 1)
+	    	this->m_daltype = DAL_TYPE_VARBINARY;
+            else
+	    	this->m_daltype = DAL_TYPE_STRING;
             break;
         case SQL_TYPE_DATE:
             this->m_daltype = DAL_TYPE_DATE;
             break;
         case SQL_SHORT:
-            if(var->sqlscale < 0)
+	    // For NUMERIC/DECIMAL values, sqlsubtype is set 1 or 2.
+            if(var->sqlscale < 0 || var->sqlsubtype == 1)
             {
                 this->m_daltype = DAL_TYPE_NUMERIC;
                 this->m_scale.set<unsigned short>(::abs(var->sqlscale));
             }
+	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
+	    {
+	    	this->m_daltype = DAL_TYPE_DECIMAL;
+		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+	    }
             else
                 this->m_daltype = DAL_TYPE_SMALLINT;
             break;
         case SQL_LONG:
-            if(var->sqlscale < 0)
+            if(var->sqlscale < 0 || var->sqlsubtype == 1)
             {
                 this->m_daltype = DAL_TYPE_NUMERIC;
                 this->m_scale.set<unsigned short>(::abs(var->sqlscale));
             }
+	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
+	    {
+	    	this->m_daltype = DAL_TYPE_DECIMAL;
+		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+	    }
             else
                 this->m_daltype = DAL_TYPE_INT;
             break;
@@ -1688,11 +1709,16 @@ FirebirdColumnDesc_libfbclient::FirebirdColumnDesc_libfbclient(colnum_t i,
             this->m_daltype = DAL_TYPE_DOUBLE;
             break;
         case SQL_INT64:
-            if(var->sqlscale < 0)
+            if(var->sqlscale < 0 || var->sqlsubtype == 1)
             {
                 this->m_daltype = DAL_TYPE_NUMERIC;
                 this->m_scale.set<unsigned short>(::abs(var->sqlscale));
             }
+	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
+	    {
+	    	this->m_daltype = DAL_TYPE_DECIMAL;
+		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+	    }
             else
                 this->m_daltype = DAL_TYPE_BIGINT;
             break;

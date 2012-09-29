@@ -193,6 +193,14 @@ struct supports
 };
 
 
+
+
+/// @detail
+/// Helper macro to declare a cast method
+#define SV_CAST_METHOD(type) virtual type cast(type*, std::locale loc) const
+
+
+
 //..............................................................................
 //////////////////////////////////////////////////////////////////////// sa_base
 ///
@@ -463,6 +471,8 @@ struct Converter
 {
     //static_assert(sizeof(T) == -1, "Converter needs to be specialized.");
     static T convert(const Variant&);
+
+    static bool can_convert(const Variant&);
 };
 
 
@@ -523,6 +533,18 @@ public:
     ///
     virtual ~Variant(void) {}
 
+
+
+    ///
+    template<typename T> inline bool can_convert(void) const
+    {
+        if(const supports<T> *a = dynamic_cast<const supports<T>*>(this->get_storage()))
+        {
+            return true;
+        }
+        else
+            return Converter<T>::can_convert(*this);
+    }
 
 
     ///
@@ -645,6 +667,12 @@ T Converter<T>::convert(const Variant &v)
 {
     throw_convert_error(v.datatype(), value_traits<T>::info_type::type());
     throw 0;
+}
+
+template<typename T>
+bool Converter<T>::can_convert(const Variant &v)
+{
+    return false;
 }
 
 

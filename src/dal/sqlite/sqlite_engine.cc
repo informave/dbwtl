@@ -1033,7 +1033,7 @@ sqlite::sqlstate2string(STATES::engine_states_t id)
 
         //DAL_NAMEOF_STATE(XY000);
     }
-    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    DBWTL_BUG_EX("Unhandled internal SQLSTATE. Please report this bug!");
 }
 #undef DAL_NAMEOF_STATE
 
@@ -1089,7 +1089,7 @@ SqliteDiag::raiseException(void) const
 
         //DAL_THROW_STATE(XY000);
     }
-    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    DBWTL_BUG_EX("Unhandled internal SQLSTATE. Please report this bug!");
 }
 
 #undef DAL_THROW_STATE

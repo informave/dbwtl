@@ -1065,6 +1065,8 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
     ISC_STATUS sv[20];
     isc_blob_handle blobh = 0;
 
+    DBWTL_BUGCHECK((var->sqltype & ~1) == SQL_BLOB);
+
     ::isc_tr_handle *trans = this->m_stmt.getDbc().getTrxHandle(this->m_stmt.getCurrentTrx());
 
 
@@ -1077,11 +1079,26 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
 
     try
     {
-        std::vector<char> vec(DAL_FIREBIRD_BLOBBUF_SIZE);
 
-        if(data.datatype() == DAL_TYPE_BLOB)
+        if(var->sqlsubtype == 0 || var->sqlsubtype != 1) // binary or anything other than text
         {
-            std::streambuf *buf = data.get<BlobStream>().rdbuf();
+            Blob tmp_blob;
+            ByteStreamBuf *buf = 0;
+            if(data.can_convert<BlobStream>())
+            {
+                buf = data.get<BlobStream>().rdbuf();
+            }
+            else if(data.can_convert<Blob>())
+            {
+                tmp_blob = data.get<Blob>();
+                buf = tmp_blob.rdbuf();
+            }
+            else
+            {
+                // error
+            }
+
+            std::vector<char> vec(DAL_FIREBIRD_BLOBBUF_SIZE);
         
             while(std::streamsize i = buf->sgetn(vec.data(), vec.size()))
             {
@@ -1091,19 +1108,39 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
                     THROW_ERROR(this, sv, "isc_put_segment failed");
                 }
             }
+            
+
         }
-        else if(data.datatype() == DAL_TYPE_MEMO)
+        else if(var->sqlsubtype == 1) // text
         {
+            Memo tmp_memo;
+            UnicodeStreamBuf *buf = 0;
+            if(data.can_convert<MemoStream>())
+            {
+                buf = data.get<MemoStream>().rdbuf();
+            }
+            else if(data.can_convert<Memo>())
+            {
+                tmp_memo = data.get<Memo>();
+                buf = tmp_memo.rdbuf();
+            }
+            else
+            {
+                // error
+            }
+
+            std::vector<char> vec(DAL_FIREBIRD_BLOBBUF_SIZE);
+
             std::stringstream ss;
             {
                 std::wstringstream ws;
-                ws << data.get<MemoStream>().rdbuf();
+                ws << buf;
                 String s(ws.str());
-                ss << s.utf8();
+                ss << s.to(this->getDbc().getDbcEncoding());
             }
-            std::streambuf *buf = ss.rdbuf();
+            std::streambuf *charbuf = ss.rdbuf();
         
-            while(std::streamsize i = buf->sgetn(vec.data(), vec.size()))
+            while(std::streamsize i = charbuf->sgetn(vec.data(), vec.size()))
             {
                 this->drv()->isc_put_segment(sv, &blobh, i, vec.data());
                 if(sv[0] == 1 && sv[1] > 0)
@@ -1111,10 +1148,11 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
                     THROW_ERROR(this, sv, "isc_put_segment failed");
                 }
             }
+
         }
-        else
+        else // should never happen
         {
-            DBWTL_BUG_EX("Invalid datatype for BLOB writing");
+            DBWTL_BUG();
         }
     }
     catch(...)
@@ -1778,7 +1816,7 @@ FirebirdColumnDesc_libfbclient::FirebirdColumnDesc_libfbclient(colnum_t i,
             this->m_daltype = DAL_TYPE_TIMESTAMP;
             break;
         case SQL_ARRAY:
-            this->m_daltype = DAL_TYPE_CUSTOM; // @bug introduce array type
+            this->m_daltype = DAL_TYPE_CUSTOM; // @todo introduce array type
             break;
         case SQL_BLOB:
             if(var->sqlsubtype == 0)

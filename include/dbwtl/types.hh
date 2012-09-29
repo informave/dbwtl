@@ -178,7 +178,6 @@ class DBWTL_EXPORT TVarbinary
 {
 public:
 	TVarbinary(void);
-    TVarbinary(int); /// @bug
 
     TVarbinary(const void* buf, size_t n);
 
@@ -706,11 +705,6 @@ struct var_info<TVarbinary>
 
 
 
-
-/// @bug fixme
-#define SV_CAST_METHOD(type) virtual type cast(type*, std::locale loc) const
-
-
 template<>
 struct sv_accessor<Blob> : public virtual sa_base<Blob>,
                            public supports<BlobStream>
@@ -1136,7 +1130,7 @@ struct sv_accessor<String> : public virtual sa_base<String>,
                              public supports<unsigned long long>,
                              public supports<float>,
                              public supports<double>,
-                             public supports<MemoStream>
+                             public supports<Memo>
 
                                   // public supports_cast<signed int, bool>,
                                    // public supports_cast<signed int, signed char>,
@@ -1164,7 +1158,7 @@ struct sv_accessor<String> : public virtual sa_base<String>,
     virtual unsigned long long cast(unsigned long long*, std::locale loc) const;
     virtual float cast(float*, std::locale loc) const;
     virtual double cast(double*, std::locale loc) const;
-    virtual MemoStream cast(MemoStream*, std::locale loc) const;
+    virtual Memo cast(Memo*, std::locale loc) const;
 };
 
 

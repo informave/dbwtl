@@ -122,29 +122,18 @@ sv_accessor<dal::FirebirdData*>::cast(BlobStream*, std::locale loc) const
     if(this->get_value()->daltype() == DAL_TYPE_BLOB || this->get_value()->daltype() == DAL_TYPE_MEMO)
         return BlobStream(this->get_value()->getBlob());
     else
-	throw std::runtime_error("bug: fb blob convert error");
+        throw ex::convert_error(this->datatype(), value_traits<BlobStream>::info_type::type());
 }
 
 
 MemoStream
 sv_accessor<dal::FirebirdData*>::cast(MemoStream*, std::locale loc) const
 {
-    return this->get_value()->getMemo();
-/*
-    std::stringstream ss;
-    //ss.imbue(std::locale(""));
-    ss << this->get_value()->getBlob();
+    if(this->get_value()->daltype() == DAL_TYPE_MEMO)
+        return this->get_value()->getMemo();
+    else
+        throw ex::convert_error(this->datatype(), value_traits<MemoStream>::info_type::type());
 
-
-    String s(ss.str(), "UTF-8");
-
-    ws = new std::wstringstream();
-    //ws->imbue(std::locale(""));
-    
-    *ws << s;
-
-    return MemoStream(ws->rdbuf());
-*/
 }
 
 TDate
@@ -1024,7 +1013,7 @@ firebird::sqlstate2string(STATES::engine_states_t id)
 
         //DAL_NAMEOF_STATE(XY000);
     }
-    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    DBWTL_BUG_EX("Unhandled internal SQLSTATE. Please report this bug!");
 }
 #undef DAL_NAMEOF_STATE
 
@@ -1070,7 +1059,7 @@ FirebirdDiag::raiseException(void) const
         DAL_THROW_STATE(0A000);
         DAL_THROW_STATE(22000);
         DAL_THROW_STATE(23000);
-	DAL_THROW_STATE(24000);
+        DAL_THROW_STATE(24000);
         DAL_THROW_STATE(25000);
         DAL_THROW_STATE(25001);
         DAL_THROW_STATE(25006);
@@ -1080,7 +1069,7 @@ FirebirdDiag::raiseException(void) const
 
         //DAL_THROW_STATE(XY000);
     }
-    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    DBWTL_BUG_EX("Unhandled internal SQLSTATE. Please report this bug!");
 }
 
 #undef DAL_THROW_STATE

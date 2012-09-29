@@ -321,7 +321,7 @@ String daltype2string(daltype_t type)
     case DAL_TYPE_INTERVAL:   return "DAL_TYPE_INTERVAL";
     case DAL_TYPE_VARBINARY:  return "DAL_TYPE_VARBINARY";
     }
-    throw ex::engine_error("Found BUG: daltype2string(): Given type is not handled");
+    DBWTL_BUG_EX("daltype2string(): Given type is not handled");
 }
 
 
@@ -354,7 +354,7 @@ String daltype2sqlname(daltype_t type)
     case DAL_TYPE_TIMESTAMP:  return "TIMESTAMP";
     case DAL_TYPE_INTERVAL:   return "INTERVAL";
     }
-    throw ex::engine_error("Found BUG: daltype2sqlname(): Given type is not handled");
+    DBWTL_BUG_EX("Found BUG: daltype2sqlname(): Given type is not handled");
 }
 
 

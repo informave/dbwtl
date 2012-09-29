@@ -11,6 +11,57 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, DatabaseVersion)
 	std::cout << dbc.dbmsName() << std::endl;
 }
 
+
+CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, NumericTest)
+{
+	DBMS::Statement stmt(dbc);
+	DBMS::Resultset rs;
+	stmt.execDirect("SELECT CAST(5 AS NUMERIC(3,0)) FROM RDB$DATABASE");
+	rs.attach(stmt);
+	rs.first();
+	CXXC_CHECK( !rs.eof() );
+	CXXC_CHECK( rs.column(1).datatype() == DAL_TYPE_NUMERIC );
+	stmt.close();
+}
+
+
+CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, OctetString)
+{
+        DBMS::Statement stmt(dbc);
+        DBMS::Resultset rs;
+        stmt.execDirect("SELECT CAST('abc' AS VARCHAR(5) CHARACTER SET OCTETS) FROM RDB$DATABASE");
+        rs.attach(stmt);
+        rs.first();
+        CXXC_CHECK( !rs.eof() );
+        CXXC_CHECK( rs.column(1).datatype() == DAL_TYPE_VARBINARY );
+        stmt.close();
+}
+
+
+CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, OctetStringReadWrite)
+{
+	dbc.directCmd("RECREATE TABLE octet_test(name VARCHAR(20), data VARCHAR(10) CHARACTER SET OCTETS)");
+	const char data[] = { 'A', 'B', 'C' };
+        DBMS::Statement stmt(dbc);
+        DBMS::Resultset rs;
+        stmt.prepare("INSERT INTO octet_test VALUES(?, ?)");
+	stmt.bind(1, String("CDA"));
+	stmt.bind(2, TVarbinary(data, sizeof(data)));
+	stmt.execute();
+	stmt.close();
+	stmt.execDirect("SELECT * FROM octet_test WHERE data = 'ABC'");
+        rs.attach(stmt);
+        rs.first();
+        CXXC_CHECK( !rs.eof() );
+        CXXC_CHECK( rs.column(2).datatype() == DAL_TYPE_VARBINARY );
+	CXXC_CHECK( rs.column(2).get<TVarbinary>().size() == 3 );
+	CXXC_CHECK( rs.column(2).get<TVarbinary>()[3-1] == 'C' );
+        stmt.close();
+}
+
+
+
+
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, ScalarValueSelect)
 {
 	DBMS::Statement stmt(dbc);

@@ -188,6 +188,14 @@ sv_accessor<dal::FirebirdData*>::cast(TNumeric*, std::locale loc) const
 }
 
 
+TVarbinary
+sv_accessor<dal::FirebirdData*>::cast(TVarbinary*, std::locale loc) const
+{
+    if(this->get_value()->daltype() == DAL_TYPE_VARBINARY)
+        return this->get_value()->getVarbinary();
+    else
+        return Variant(this->deepcopy()).get<TVarbinary>();
+}
 
 
 String

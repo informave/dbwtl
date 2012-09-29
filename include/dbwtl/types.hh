@@ -170,6 +170,41 @@ protected:
 
 
 //..............................................................................
+///////////////////////////////////////////////////////////////////// TVarbinary
+///
+/// @since 0.0.1
+/// @brief VARBINARY Datatype
+class DBWTL_EXPORT TVarbinary
+{
+public:
+	TVarbinary(void);
+    TVarbinary(int); /// @bug
+
+    TVarbinary(const void* buf, size_t n);
+
+    String str(void) const;
+
+    size_t size(void) const;
+
+    size_t write(void *buf, size_t size) const;
+
+    inline uint8_t operator[](size_t i) const
+    {
+    	return m_data[i];
+    }
+
+/*
+	template<typename T>
+	Varbinary(T beginIterator, T endIterator);
+*/
+	
+
+protected:
+	std::vector<uint8_t> m_data;
+};
+
+
+//..............................................................................
 ////////////////////////////////////////////////////////////////////////// TDate
 ///
 /// @since 0.0.1
@@ -661,6 +696,16 @@ struct var_info<MemoStream>
 
 
 
+template<>
+struct var_info<TVarbinary>
+{
+    static daltype_t type(void) { return DAL_TYPE_VARBINARY; }
+    static const char* name(void) { return "DAL_TYPE_VARBINARY"; }
+
+};
+
+
+
 
 /// @bug fixme
 #define SV_CAST_METHOD(type) virtual type cast(type*, std::locale loc) const
@@ -689,6 +734,15 @@ struct sv_accessor<BlobStream> : public virtual sa_base<BlobStream>
 
 template<>
 struct sv_accessor<MemoStream> : public virtual sa_base<MemoStream>,
+                                 public supports<String>
+{
+    SV_CAST_METHOD(String);
+};
+
+
+
+template<>
+struct sv_accessor<TVarbinary> : public virtual sa_base<TVarbinary>,
                                  public supports<String>
 {
     SV_CAST_METHOD(String);

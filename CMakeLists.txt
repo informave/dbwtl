@@ -257,6 +257,7 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/types/type_timestamp.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_numeric.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_interval.cc
+	${DBWTL_MAIN_SRC_DIR}/types/type_varbinary.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc

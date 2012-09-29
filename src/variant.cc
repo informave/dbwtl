@@ -319,6 +319,7 @@ String daltype2string(daltype_t type)
     case DAL_TYPE_TIME:       return "DAL_TYPE_TIME";
     case DAL_TYPE_TIMESTAMP:  return "DAL_TYPE_TIMESTAMP";
     case DAL_TYPE_INTERVAL:   return "DAL_TYPE_INTERVAL";
+    case DAL_TYPE_VARBINARY:  return "DAL_TYPE_VARBINARY";
     }
     throw ex::engine_error("Found BUG: daltype2string(): Given type is not handled");
 }

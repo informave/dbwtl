@@ -278,6 +278,8 @@ FirebirdData_libfbclient::~FirebirdData_libfbclient(void)
 IVariantValue*
 FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
 {
+    /// @bug What about NULL values?
+
     // Numeric columns need special handling
     if(this->daltype() == DAL_TYPE_NUMERIC)
     {
@@ -292,6 +294,11 @@ FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
     if(this->daltype() == DAL_TYPE_MEMO)
     {
         return new typename value_traits<Memo>::stored_type(this->getMemo());
+    }
+
+    if(this->daltype() == DAL_TYPE_VARBINARY)
+    {
+        return new typename value_traits<TVarbinary>::stored_type(this->getVarbinary());
     }
 
     switch(this->m_sqlvar->sqltype & ~1)
@@ -554,6 +561,32 @@ FirebirdData_libfbclient::getLong(void) const
     else
     {
         return *reinterpret_cast<ISC_LONG*>(this->m_sqlvar->sqldata);
+    }
+}
+
+
+/// @details
+/// 
+TVarbinary
+FirebirdData_libfbclient::getVarbinary(void) const
+{
+    DALTRACE("VISIT");
+    DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_VARBINARY);
+    if(this->isnull())
+        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+    else
+    {
+        short len = 0;
+        switch(this->m_sqlvar->sqltype & ~1)
+        {
+        case SQL_VARYING:
+            len = reinterpret_cast<short*>(this->m_sqlvar->sqldata)[0];
+            return TVarbinary(this->m_sqlvar->sqldata + 2, len);
+        case SQL_TEXT:
+            return TVarbinary(this->m_sqlvar->sqldata, this->m_sqlvar->sqllen);
+        default:
+            DBWTL_BUG_FMT("unknown sqltype: %hd", this->m_sqlvar->sqltype & ~1);
+        }
     }
 }
 
@@ -941,13 +974,26 @@ FirebirdResult_libfbclient::fillBindBuffers(StmtBase::ParamMap &params)
                     {
                         sqlv->sqltype = SQL_TEXT | (sqlv->sqltype & 1);                        
                     }
-                    std::string s = v->get<String>().to("UTF-8");
-                    free(sqlv->sqldata);
-                    sqlv->sqldata = 0;
-                    sqlv->sqllen = s.length();
-                    sqlv->sqldata = allocspace(sqlv->sqllen);
-                    assert(sqlv->sqldata);
-                    ::memcpy(sqlv->sqldata, s.c_str(), sqlv->sqllen);
+                    if((da->sqlvar[n-1].sqlsubtype & 0xFF) == 1) // mask low byte for character set ID
+                    {
+                        TVarbinary p = v->get<TVarbinary>();
+                        free(sqlv->sqldata);
+                        sqlv->sqldata = 0;
+                        sqlv->sqllen = p.size();
+                        sqlv->sqldata = allocspace(sqlv->sqllen);
+                        assert(sqlv->sqldata);
+                        p.write(sqlv->sqldata, sqlv->sqllen);
+                    }
+                    else
+                    {
+                        std::string s = v->get<String>().to("UTF-8");
+                        free(sqlv->sqldata);
+                        sqlv->sqldata = 0;
+                        sqlv->sqllen = s.length();
+                        sqlv->sqldata = allocspace(sqlv->sqllen);
+                        assert(sqlv->sqldata);
+                        ::memcpy(sqlv->sqldata, s.c_str(), sqlv->sqllen);
+                    }
                     continue;
                 }
 

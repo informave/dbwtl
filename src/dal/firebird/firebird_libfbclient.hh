@@ -150,6 +150,7 @@ public:
     virtual TTime        getTime(void) const;
     virtual TTimestamp   getTimestamp(void) const;
     virtual TNumeric     getNumeric(void) const;
+    virtual TVarbinary   getVarbinary(void) const;
 
     virtual FirebirdBlob_libfbclient*       getBlob(void) const;
     virtual UnicodeStreamBuf* getMemo(void) const;

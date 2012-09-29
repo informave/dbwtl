@@ -242,6 +242,7 @@ public:
     virtual TTime        getTime(void) const = 0;
     virtual TTimestamp   getTimestamp(void) const = 0;
     virtual TNumeric     getNumeric(void) const = 0;
+    virtual TVarbinary   getVarbinary(void) const = 0;
 
     virtual FirebirdBlob*  getBlob(void) const = 0;
     virtual UnicodeStreamBuf* getMemo(void) const = 0;
@@ -720,6 +721,7 @@ struct sv_accessor<dal::FirebirdData*> : public virtual sa_base<dal::FirebirdDat
                                          public supports<TTime>,
                                          public supports<TTimestamp>,
                                          public supports<TNumeric>,
+                                         public supports<TVarbinary>,
                                          public supports<String>
 {
     virtual signed int cast(signed int*, std::locale loc) const;
@@ -734,6 +736,7 @@ struct sv_accessor<dal::FirebirdData*> : public virtual sa_base<dal::FirebirdDat
     virtual TTime cast(TTime*, std::locale loc) const;
     virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
     virtual TNumeric cast(TNumeric*, std::locale loc) const;
+    virtual TVarbinary cast(TVarbinary*, std::locale loc) const;
     virtual String cast(String*, std::locale loc) const;
 
 

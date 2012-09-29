@@ -119,7 +119,7 @@ Blob::rdbuf(void) const
 
 ///
 ///
-BlobStream::BlobStream(ByteStreamBuf *buf) : std::iostream(0), m_buf(buf)
+BlobStream::BlobStream(ByteStreamBuf *buf) : std::istream(0), m_buf(buf)
 {
     this->rdbuf(buf);
 }
@@ -127,7 +127,7 @@ BlobStream::BlobStream(ByteStreamBuf *buf) : std::iostream(0), m_buf(buf)
 
 ///
 ///
-BlobStream::BlobStream(const Variant &variant) : std::iostream(0),
+BlobStream::BlobStream(const Variant &variant) : std::istream(0),
                                                  m_buf()
 {
     this->operator=(variant.get<BlobStream>());
@@ -137,7 +137,7 @@ BlobStream::BlobStream(const Variant &variant) : std::iostream(0),
 ///
 ///
 BlobStream::BlobStream(const BlobStream& b) : std::basic_ios<char>(),
-                                              std::iostream(0),
+                                              std::istream(0),
                                               m_buf()
 {
     this->operator=(b);
@@ -159,6 +159,23 @@ BlobStream::operator=(const BlobStream& b)
 //
 BlobStream::~BlobStream(void)
 {}
+
+
+
+ByteStreamBuf*
+BlobStream::rdbuf(void) const
+{
+    return this->m_buf;
+}
+
+
+ByteStreamBuf*
+BlobStream::rdbuf(ByteStreamBuf *buf)
+{
+    ByteStreamBuf* tmp = this->m_buf;
+    this->m_buf = buf;
+    return tmp;
+}
 
 
 

@@ -71,7 +71,7 @@ DBWTL_EXPORT String daltype2sqlname(daltype_t type);
 ///
 /// @since 0.0.1
 /// @brief BlobStream Datatype
-class DBWTL_EXPORT BlobStream : public std::iostream
+class DBWTL_EXPORT BlobStream : public std::istream
 {
 public:
     BlobStream(ByteStreamBuf *buf);
@@ -81,8 +81,10 @@ public:
     BlobStream(const BlobStream&);
     BlobStream& operator=(const BlobStream&);
 
+    virtual std::streambuf* rdbuf(void) const;
+    virtual std::streambuf* rdbuf(std::streambuf* sb);
 
-///@bug use std::istream instead? and override rdbuf()
+
 protected:
     ByteStreamBuf* m_buf;
 private:
@@ -96,7 +98,7 @@ private:
 ///
 /// @since 0.0.1
 /// @brief MemoStream Datatype
-class DBWTL_EXPORT MemoStream : public std::wiostream
+class DBWTL_EXPORT MemoStream : public std::wistream
 {
 public:
     MemoStream(UnicodeStreamBuf *buf);
@@ -108,6 +110,9 @@ public:
 
     std::string   narrow_str(const char *charset) const;
     std::wstring  str() const;
+
+    virtual UnicodeStreamBuf* rdbuf(void) const;
+    virtual UnicodeStreamBuf* rdbuf(UnicodeStreamBuf* sb);
 
 protected:
     UnicodeStreamBuf* m_buf;

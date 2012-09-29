@@ -120,7 +120,7 @@ Memo::rdbuf(void) const
 
 ///
 ///
-MemoStream::MemoStream(UnicodeStreamBuf *buf) : std::wiostream(0),
+MemoStream::MemoStream(UnicodeStreamBuf *buf) : std::wistream(0),
                                     m_buf(buf)
 {
     this->rdbuf(m_buf);
@@ -131,7 +131,7 @@ MemoStream::MemoStream(UnicodeStreamBuf *buf) : std::wiostream(0),
 ///
 ///
 MemoStream::MemoStream(const MemoStream& m) : std::basic_ios<wchar_t>(),
-                            std::wiostream(0),
+                            std::wistream(0),
                             m_buf()
 {
     this->operator=(m);
@@ -147,6 +147,24 @@ MemoStream::operator=(const MemoStream& m)
     this->rdbuf(m_buf);
     return *this;
 }
+
+
+
+UnicodeStreamBuf*
+MemoStream::rdbuf(void) const
+{
+    return this->m_buf;
+}
+
+
+UnicodeStreamBuf*
+MemoStream::rdbuf(UnicodeStreamBuf *buf)
+{
+    UnicodeStreamBuf* tmp = this->m_buf;
+    this->m_buf = buf;
+    return tmp;
+}
+
 
 
 

@@ -60,6 +60,20 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, OctetStringReadWrite)
 }
 
 
+CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, NullValueDeepcopy)
+{
+	DBMS::Statement stmt(dbc);
+	DBMS::Resultset rs;
+	stmt.execDirect("SELECT NULL FROM RDB$DATABASE");
+	rs.attach(stmt);
+	rs.first();
+	CXXC_CHECK( !rs.eof() );
+	Variant x(6);
+	CXXC_CHECK(! x.isnull() );
+	x.assign(rs.column(1)); // deepcopy
+	CXXC_CHECK( x.isnull() );
+	stmt.close();
+}
 
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, ScalarValueSelect)

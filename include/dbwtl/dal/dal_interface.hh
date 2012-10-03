@@ -1196,7 +1196,6 @@ protected:
     std::vector<Variant*>    m_temp_params;
 
     cursorstate_t m_cursorstate;
-    //ResultsetMode             m_mode;
     options_type m_options;
 };
 

@@ -310,7 +310,6 @@ public:
     virtual const SqliteResult&  resultset(void) const;
 
     virtual void      prepare(String sql);
-    virtual bool      isPrepared(void) const;
     virtual void      execute(void);
     virtual void      execDirect(String sql);
     //virtual void      execDirect(std::istream src) = 0;
@@ -337,7 +336,7 @@ protected:
     SqliteDbc_libsqlite      &m_conn;
     ResultsetVectorT          m_resultsets;
     int                       m_currentResultset;
-    bool                      m_isPrepared;
+    //bool                      m_isPrepared;
 
 
 private:

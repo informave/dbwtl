@@ -1395,8 +1395,7 @@ SqliteDbc_libsqlite::drv(void) const
 SqliteStmt_libsqlite::SqliteStmt_libsqlite(SqliteDbc_libsqlite& conn)
     : m_conn(conn),
       m_resultsets(),
-      m_currentResultset(0),
-      m_isPrepared(false)
+      m_currentResultset(0)
 { }
 
 
@@ -1437,15 +1436,7 @@ SqliteStmt_libsqlite::prepare(String sql)
     /// a query can never return more then one resultset.
     SqliteResult_libsqlite* rs = this->newResultset();
     rs->prepare(sql);
-    this->m_isPrepared = true;
-}
-
-
-
-bool   
-SqliteStmt_libsqlite::isPrepared(void) const
-{
-    return this->m_isPrepared;
+    DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_PREPARED);
 }
 
 

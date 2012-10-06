@@ -88,6 +88,7 @@ struct firebird_sqlstates : public basic_states
         DAL_FIREBIRD_SQLSTATE_08000 = DAL_SQLSTATE_08000, // connection exception
         DAL_FIREBIRD_SQLSTATE_08001 = DAL_SQLSTATE_08001, // SQL-client unable to establish SQL-connection
         DAL_FIREBIRD_SQLSTATE_08002 = DAL_SQLSTATE_08002, // connection name in use
+        DAL_FIREBIRD_SQLSTATE_08004 = DAL_SQLSTATE_08004, // SQL-server rejected establishment of SQL-connection
         DAL_FIREBIRD_SQLSTATE_0A000 = DAL_SQLSTATE_0A000, // feature not supported
         DAL_FIREBIRD_SQLSTATE_22000 = DAL_SQLSTATE_22000, // data exception
         DAL_FIREBIRD_SQLSTATE_23000 = DAL_SQLSTATE_23000, // integrity constraint violation
@@ -115,6 +116,10 @@ struct firebird_sqlstates : public basic_states
 // connection name in use
     typedef sqlstate<DAL_FIREBIRD_SQLSTATE_08002, SQLSTATE_08000>         SQLSTATE_08002;
     typedef sqlstate<DAL_FIREBIRD_SQLSTATE_08002, SQLSTATE_08000>         SQLSTATE_connection_name_in_use;
+
+// SQL-server rejected establishment of SQL-connection
+    typedef sqlstate<DAL_FIREBIRD_SQLSTATE_08004, SQLSTATE_08000>         SQLSTATE_08004;
+    typedef sqlstate<DAL_FIREBIRD_SQLSTATE_08004, SQLSTATE_08000>         SQLSTATE_server_rejected_connection;
 
 // feature not supported
     typedef sqlstate<DAL_FIREBIRD_SQLSTATE_0A000>                         SQLSTATE_0A000;

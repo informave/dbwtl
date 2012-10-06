@@ -1000,6 +1000,7 @@ firebird::sqlstate2string(STATES::engine_states_t id)
         DAL_NAMEOF_STATE(08000);
         DAL_NAMEOF_STATE(08001);
         DAL_NAMEOF_STATE(08002);
+        DAL_NAMEOF_STATE(08004);
         DAL_NAMEOF_STATE(0A000);
         DAL_NAMEOF_STATE(22000);
         DAL_NAMEOF_STATE(23000);
@@ -1058,6 +1059,7 @@ FirebirdDiag::raiseException(void) const
         DAL_THROW_STATE(08000);
         DAL_THROW_STATE(08001);
         DAL_THROW_STATE(08002);
+        DAL_THROW_STATE(08004);
         DAL_THROW_STATE(0A000);
         DAL_THROW_STATE(22000);
         DAL_THROW_STATE(23000);

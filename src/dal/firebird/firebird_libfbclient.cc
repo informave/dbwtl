@@ -3135,7 +3135,7 @@ static firebird_sqlstates::engine_states_t gdscode2sqlstate(ISC_STATUS code)
     case isc_wal_err_setup:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_wal_err_ww_sync:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_wal_err_ww_start:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
-    case isc_shutdown:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
+    case isc_shutdown:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_08004;
     case isc_existing_priv_mod:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_primary_key_ref:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_primary_key_notnull:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;

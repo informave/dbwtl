@@ -2063,6 +2063,14 @@ FirebirdDbc_libfbclient::connect(IDbc::Options& options)
 {
     DALTRACE_ENTER;
 
+    if(this->isConnected())
+    {
+        this->appendDiagRec(CREATE_DIAG(DAL_STATE_ERROR, 08002,
+                                        String("This connection is already active."),
+                                        "Call disconnect() before making a new connection."))
+            .raiseException();        
+    }
+
     std::string database(options[ "database" ].to("UTF-8"));
     std::string username(options[ "username" ].to("UTF-8"));
     std::string password(options[ "password" ].to("UTF-8"));
@@ -2943,7 +2951,7 @@ static firebird_sqlstates::engine_states_t gdscode2sqlstate(ISC_STATUS code)
     case isc_infunk:        return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_integ_fail:        return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_invalid_blr:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
-    case isc_io_error:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
+    case isc_io_error:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_08000;
     case isc_lock_conflict:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_metadata_corrupt:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_not_valid:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
@@ -3071,7 +3079,7 @@ static firebird_sqlstates::engine_states_t gdscode2sqlstate(ISC_STATUS code)
     case isc_trans_invalid:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_buf_invalid:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_indexnotdefined:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
-    case isc_login:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
+    case isc_login:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_28000;
     case isc_invalid_bookmark:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_bad_lock_level:        return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_relation_lock:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
@@ -3320,7 +3328,7 @@ static firebird_sqlstates::engine_states_t gdscode2sqlstate(ISC_STATUS code)
     case isc_invalid_key:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_net_init_error:        return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_loadlib_failure:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
-    case isc_network_error:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
+    case isc_network_error:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_08001;
     case isc_net_connect_err:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_net_connect_listen_err:        return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_net_event_connect_err:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;

@@ -6,10 +6,47 @@
 using namespace informave::db::ex;
 
 
+CXXC_TEST(InvalidDb)
+{
+	DBMS::Environment env("firebird:libfbclient");
+	DBMS::Connection db(env);
+	CXXC_CHECK_THROW(DBMS::SQLSTATE_08000, db.connect("localhost:/var/lib/firebird/dbwtldbX.fdb", "SYSDBA", "masterkey"));
+}
+
+CXXC_TEST(InvalidServer)
+{
+        DBMS::Environment env("firebird:libfbclient");
+        DBMS::Connection db(env);
+        CXXC_CHECK_THROW(DBMS::SQLSTATE_08001, db.connect("informave.org:/var/lib/firebird/dbwtldb.fdb", "SYSDBA", "masterkey"));
+}
+
+CXXC_TEST(InvalidUser)
+{
+        DBMS::Environment env("firebird:libfbclient");
+        DBMS::Connection db(env);
+        CXXC_CHECK_THROW(DBMS::SQLSTATE_28000, db.connect("localhost:/var/lib/firebird/dbwtldb.fdb", "INVUSER", "masterkey"));
+
+}
+
+CXXC_TEST(InvalidPasswd)
+{
+        DBMS::Environment env("firebird:libfbclient");
+        DBMS::Connection db(env);
+        CXXC_CHECK_THROW(DBMS::SQLSTATE_28000, db.connect("localhost:/var/lib/firebird/dbwtldb.fdb", "SYSDBA", "INVPASS"));
+
+}
+
+CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, ConnectionInUse)
+{
+	CXXC_CHECK_THROW(DBMS::SQLSTATE_08002, dbc.connect("localhost:not_existing_database.fdb", "X", "Y"));
+}
+
+
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, DatabaseVersion)
 {
 	std::cout << dbc.dbmsName() << std::endl;
 }
+
 
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, NumericTest)

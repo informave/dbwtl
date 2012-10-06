@@ -299,9 +299,9 @@ protected:
     ///
     /// @note all objects (this container stores pointer to these) are free'd if
     /// the user closes the resultset.
-    std::vector<informave::util::SmartPtr<FirebirdVariant,
-                                          informave::util::RefCounted,
-                                          informave::util::AllowConversion> > m_allocated_accessors;
+    std::vector<informave::utils::SmartPtr<FirebirdVariant,
+                                          informave::utils::RefCounted,
+                                          informave::utils::AllowConversion> > m_allocated_accessors;
 
 
 private:
@@ -411,8 +411,8 @@ public:
 
     virtual void           directCmd(String cmd);
 
-    virtual void           beginTrans(IDbc::trx_mode mode,
-                                      IDbc::access_mode access = IDbc::trx_default,
+    virtual void           beginTrans(trx_mode mode,
+                                      access_mode access = trx_default,
                                       String name = String());
     virtual void           commit(void);
     virtual void           savepoint(String name);
@@ -423,8 +423,8 @@ public:
 
     virtual bool              hasActiveTrx(void);
     virtual Transaction       currentTrx(void);
-    virtual Transaction       makeTrx(IDbc::trx_mode mode,
-                                      IDbc::access_mode access = IDbc::trx_default,
+    virtual Transaction       makeTrx(trx_mode mode,
+                                      access_mode access = trx_default,
                                       String name = String());
     virtual ::isc_tr_handle*  getTrxHandle(const Transaction &trx);
     virtual unsigned short    getDialect(void) const;
@@ -435,8 +435,8 @@ public:
 protected:
     virtual void           setDbcEncoding(std::string encoding);
 
-    virtual ::isc_tr_handle           makeTrxInternal(IDbc::trx_mode mode,
-                                           IDbc::access_mode access,
+    virtual ::isc_tr_handle           makeTrxInternal(trx_mode mode,
+                                           access_mode access,
                                            String name);
 
     FBClientDrv               *m_lib; /* lib is stored in ENV */

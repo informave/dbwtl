@@ -1,5 +1,5 @@
 //
-// dal_fwd.hh - DAL forward declarations
+// type_varbinary.cc - Type: VARBINARY (definitions)
 //
 // Copyright (C)         informave.org
 //   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
@@ -36,74 +36,95 @@
 //
 
 /// @file
-/// @brief DAL forward declarations
+/// @brief Type: VARBINARY (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#ifndef INFORMAVE_DB_DAL_FWD_HH
-#define INFORMAVE_DB_DAL_FWD_HH
+#include "dbwtl/db_fwd.hh"
+#include "dbwtl/variant.hh"
+#include "dbwtl/types.hh"
+#include "dbwtl/dal/dal_interface.hh"
+#include "../dal/dal_debug.hh"
 
+#include <ctime>
+#include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <typeinfo>
 
-#define DAL_NAMESPACE_BEGIN namespace informave { namespace db { // namespace dal {
-#define DAL_NAMESPACE_END }} // }
-
-
-#include "dbwtl/dbwtl_config.hh"
-
-#ifdef DBWTL_ON_WIN32
-#include "../../targetver.h"
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-#include "../ustring.hh"
-#include "dbwtl/util/smartptr.hh"
-
-DAL_NAMESPACE_BEGIN
+DB_NAMESPACE_BEGIN
 
 
 
-class IDALDriver;
-class IDALObject;
-
-class IBlobBuffer;
-class IMemoBuffer;
-//class Blob;
-//class Memo;
-
-class IDiagnostic;
-class IColumnDesc;
-class EngineVariant;
-class ITable;
-class IView;
-class IEnv;
-class IDbc;
-class IResult;
-class IStmt;
-class Factory;
-
-
-class StmtBase;
-class DbcBase;
-class ResultBase;
-class EnvBase;
-/// @todo add missing classes
-
-
-
-
-
-//--------------------------------------------------------------------------
-/// @brief Base class for all DAL classes
-class DBWTL_EXPORT IDALObject
+/// @details
+/// 
+TVarbinary::TVarbinary(const void *buf, size_t n)
+    : m_data()
 {
-public:
-    virtual ~IDALObject(void) { }
-};
+    const uint8_t *p = static_cast<const uint8_t*>(buf);
+    if(p && n > 0)
+        this->m_data.assign(p, p+n);
+    else
+        this->m_data.clear();
+}
+
+
+/// @details
+/// 
+String
+TVarbinary::str(void) const
+{
+    static const char hexmap[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
+
+    if(this->size() == 0)
+        return String();
+    std::string s;
+    s.resize(this->size()*2);
+
+    std::string::iterator i = s.begin();
+
+    std::for_each(this->m_data.begin(), this->m_data.end(), [&](uint8_t v)
+                  {
+                      *i++ = hexmap[(v >> 4) & 0x0F];
+                      *i++ = hexmap[v & 0x0F];
+                  });
+    return s;
+}
+
+
+/// @details
+/// 
+size_t
+TVarbinary::write(void *buf, size_t size) const
+{
+    DBWTL_BUGCHECK(buf);
+    if(!size || !this->size()) return 0;
+    size_t c = this->size() > size ? size : this->size();
+    ::memcpy(buf, this->m_data.data(), c);
+    return c;
+}
+
+
+/// @details
+/// 
+size_t
+TVarbinary::size(void) const
+{
+    return this->m_data.size();
+}
+
+
+/// @details
+/// 
+String
+sv_accessor<TVarbinary>::cast(String*, std::locale loc) const
+{
+    return this->get_value().str();
+}
 
 
 
 
-DAL_NAMESPACE_END
-
-#endif
+DB_NAMESPACE_END

@@ -20,7 +20,7 @@ int test(void)
     
     //typedef Database<DAL::sqlite> DBMS;
 
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
 
     DBMS::Environment env("sqlite:libsqlite");
@@ -39,9 +39,9 @@ int test(void)
 
     try
     {
-        dal::TableList list = dbc.getTables();
+        TableList list = dbc.getTables();
 
-        for(dal::TableList::iterator i = list.begin(); i != list.end(); ++i)
+        for(TableList::iterator i = list.begin(); i != list.end(); ++i)
         {
             std::cout
                 << (*i)->getName().asStr().to("iso-8859-1") << "|"

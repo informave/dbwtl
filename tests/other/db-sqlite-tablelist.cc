@@ -20,7 +20,7 @@ int test(void)
     
     //typedef Database<DAL::sqlite> DBMS;
 
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
 
     DBMS::Environment env("sqlite:libsqlite");
@@ -38,9 +38,9 @@ int test(void)
 
 
 
-    dal::TableList list = dbc.getTables();
+    TableList list = dbc.getTables();
     
-    for(dal::TableList::const_iterator i = list.begin();
+    for(TableList::const_iterator i = list.begin();
         i != list.end();
         ++i)
     {

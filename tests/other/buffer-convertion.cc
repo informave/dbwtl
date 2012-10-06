@@ -10,7 +10,7 @@
 int main(void)
 {
     using namespace informave::db;
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
     std::locale::global(std::locale(""));
     std::wcout.imbue(std::locale());

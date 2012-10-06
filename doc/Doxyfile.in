@@ -136,6 +136,7 @@ EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = *driver_api* \
 			 *examples* \
 			 *tests* \
+			 *include/headers* \
 			 *snippets* \
 			 *btrieve*
 EXCLUDE_SYMBOLS        = 

@@ -20,7 +20,7 @@ int test(void)
     
     //typedef Database<DAL::sqlite> DBMS;
 
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
 
     DBMS::Environment env("sqlite:libsqlite");

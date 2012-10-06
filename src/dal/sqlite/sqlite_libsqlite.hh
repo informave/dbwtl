@@ -277,9 +277,9 @@ protected:
     ///
     /// @note all objects (this container stores pointer to these) are free'd if
     /// the user closes the resultset.
-    std::vector<informave::util::SmartPtr<SqliteVariant,
-                                          informave::util::RefCounted,
-                                          informave::util::AllowConversion> > m_allocated_accessors;
+    std::vector<informave::utils::SmartPtr<SqliteVariant,
+                                          informave::utils::RefCounted,
+                                          informave::utils::AllowConversion> > m_allocated_accessors;
 
 
 private:

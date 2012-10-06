@@ -8,12 +8,11 @@
 #include "../cxxc.hh"
 
 
-using namespace informave::db::dal;
 using namespace informave::db::ex;
 
 
 using namespace informave::db;
-typedef Database<dal::firebird> DBMS;
+typedef Database<firebird> DBMS;
 
 
 struct FirebirdTestbaseFixture

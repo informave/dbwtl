@@ -13,7 +13,6 @@
 #include "fixtures/sqlite_memory.hh"
 
 
-using namespace informave::db::dal;
 using namespace informave::db::ex;
 
 

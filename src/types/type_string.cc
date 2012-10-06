@@ -66,7 +66,7 @@ signed int
     sv_accessor<String>::cast(signed int*, std::locale loc) const
 {
     signed int v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -75,7 +75,7 @@ unsigned int
 sv_accessor<String>::cast(unsigned int*, std::locale loc) const
 {
     unsigned int v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -85,7 +85,7 @@ bool
 sv_accessor<String>::cast(bool*, std::locale loc) const
 {
     bool v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -94,7 +94,7 @@ signed short
 sv_accessor<String>::cast(signed short*, std::locale loc) const
 {
     signed short v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -103,7 +103,7 @@ unsigned short
 sv_accessor<String>::cast(unsigned short*, std::locale loc) const
 {
     unsigned int v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -112,7 +112,7 @@ signed long long
 sv_accessor<String>::cast(signed long long*, std::locale loc) const
 {
     signed long long v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -121,7 +121,7 @@ unsigned long long
 sv_accessor<String>::cast(unsigned long long*, std::locale loc) const
 {
     unsigned long long v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -130,7 +130,7 @@ float
 sv_accessor<String>::cast(float*, std::locale loc) const
 {
     float v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 
@@ -139,7 +139,7 @@ double
 sv_accessor<String>::cast(double*, std::locale loc) const
 {
     double v;
-    if(!dal::convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
+    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
     else return v;
 }
 

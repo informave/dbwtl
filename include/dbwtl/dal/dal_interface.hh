@@ -57,6 +57,7 @@
 
 #include "dbwtl/db_exceptions.hh"
 
+
 #ifdef DAL_DEV_INCLUDE_DEVUTILS
 //#include "dbwtl/util/devutils.hh"
 #endif
@@ -155,6 +156,29 @@ const char* dal_state_msg(int code);
 
 #define DAL_STREAMBUF_BUFSIZE 1024*4
 #define DAL_STREAMBUF_PUTBACK 8
+
+
+
+    /// @brief Connection transaction modes
+    typedef enum trx_mode_enum
+    {
+        trx_read_uncommitted,   /// SQL:2003 TRX UNCOMMITTED
+        trx_read_committed,     /// SQL:2003 TRX COMMITTED
+        trx_repeatable_read,    /// SQL:2003 TRX REPEATABLE READ
+        trx_serializable        /// SQL:2003 TRX SERIALIZABLE
+    } trx_mode;
+
+    
+    /// @brief Transaction access mode
+typedef enum access_mode_enum
+    {
+        trx_readwrite,
+        trx_readonly,
+        trx_default        /// default is the default of the database engine
+    } access_mode;
+
+
+
 
 
 typedef std::map<std::string, Variant> options_type;
@@ -472,7 +496,7 @@ class DBWTL_EXPORT ITable : IDALObject
 public:
     //typedef IVariant value_type;
     typedef Variant value_type;
-    typedef util::SmartPtr<ITable, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<ITable, utils::RefCounted, utils::AllowConversion> ptr;
     
     /// Empty virtual destructor
     virtual ~ITable(void) { }
@@ -509,7 +533,7 @@ class DBWTL_EXPORT IIndex : IDALObject
 {
 public:
     typedef Variant value_type;
-    typedef util::SmartPtr<IIndex, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IIndex, utils::RefCounted, utils::AllowConversion> ptr;
     
     /// Empty virtual destructor
     virtual ~IIndex(void) { }
@@ -547,9 +571,9 @@ public:
 class DBWTL_EXPORT IDatatype : IDALObject
 {
 public:
-    typedef util::SmartPtr<IDatatype,
-                           util::RefCounted,
-                           util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IDatatype,
+                            utils::RefCounted,
+                            utils::AllowConversion> ptr;
 
     typedef Variant value_type;
 
@@ -578,7 +602,7 @@ class DBWTL_EXPORT IView : IDALObject
 {
 public:
     typedef Variant value_type;
-    typedef util::SmartPtr<IView, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IView, utils::RefCounted, utils::AllowConversion> ptr;
     
     /// Empty virtual destructor
     virtual ~IView(void) { }
@@ -612,7 +636,7 @@ class DBWTL_EXPORT ISchema : IDALObject
 {
 public:
     typedef Variant value_type;
-    typedef util::SmartPtr<ISchema, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<ISchema, utils::RefCounted, utils::AllowConversion> ptr;
     
     /// Empty virtual destructor
     virtual ~ISchema(void) { }
@@ -644,7 +668,7 @@ class DBWTL_EXPORT ICatalog : IDALObject
 {
 public:
     typedef Variant value_type;
-    typedef util::SmartPtr<ICatalog, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<ICatalog, utils::RefCounted, utils::AllowConversion> ptr;
     
     /// Empty virtual destructor
     virtual ~ICatalog(void) { }
@@ -671,7 +695,7 @@ class DBWTL_EXPORT IProcedure : IDALObject
 {
 public:
     typedef Variant value_type;
-    typedef util::SmartPtr<IProcedure, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IProcedure, utils::RefCounted, utils::AllowConversion> ptr;
     
     /// Empty virtual destructor
     virtual ~IProcedure(void) { }
@@ -877,7 +901,7 @@ class DBWTL_EXPORT IEnv : public IHandle
 {
 public:
     //typedef std::auto_ptr<IEnv> ptr;
-    typedef util::SmartPtr<IEnv, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IEnv, utils::RefCounted, utils::AllowConversion> ptr;
 
     virtual ~IEnv(void) { }
 
@@ -897,26 +921,8 @@ class DBWTL_EXPORT IDbc : public IHandle
 {
 public:
     //typedef std::auto_ptr<IDbc>                      ptr;
-    typedef util::SmartPtr<IDbc, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IDbc, utils::RefCounted, utils::AllowConversion> ptr;
     typedef std::map<String, String>   Options;
-
-    /// @brief Connection transaction modes
-    enum trx_mode
-    {
-        trx_read_uncommitted,   /// SQL:2003 TRX UNCOMMITTED
-        trx_read_committed,     /// SQL:2003 TRX COMMITTED
-        trx_repeatable_read,    /// SQL:2003 TRX REPEATABLE READ
-        trx_serializable        /// SQL:2003 TRX SERIALIZABLE
-    };
-
-    
-    /// @brief Transaction access mode
-    enum access_mode
-    {
-        trx_readwrite,
-        trx_readonly,
-        trx_default        /// default is the default of the database engine
-    };
 
 
     virtual ~IDbc(void);
@@ -944,8 +950,8 @@ public:
     virtual IStmt*         newStatement(void) = 0;
     virtual IDALDriver*    drv(void) const = 0;
 
-    virtual void           beginTrans(IDbc::trx_mode mode,
-                                      IDbc::access_mode access = IDbc::trx_default,
+    virtual void           beginTrans(trx_mode mode,
+                                      access_mode access = trx_default,
                                       String name = String()) = 0;
     virtual void           commit(void) = 0;
     virtual void           savepoint(String name) = 0;
@@ -985,7 +991,7 @@ class DBWTL_EXPORT IResult : public IDALObject
 {
 public:
     //typedef std::auto_ptr<IResult> ptr;
-    typedef util::SmartPtr<IResult, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IResult, utils::RefCounted, utils::AllowConversion> ptr;
     typedef size_t                      bookmark_type;
     typedef Variant                     value_type;
     /// @todo check if row_type is required
@@ -1044,7 +1050,7 @@ class DBWTL_EXPORT IStmt : public IHandle
 public:
     typedef std::map<int, Variant*> ParamMapT;
     //typedef std::auto_ptr<IStmt> ptr;
-    typedef util::SmartPtr<IStmt, util::RefCounted, util::AllowConversion> ptr;
+    typedef utils::SmartPtr<IStmt, utils::RefCounted, utils::AllowConversion> ptr;
 
     virtual ~IStmt(void);
 

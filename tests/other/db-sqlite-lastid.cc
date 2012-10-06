@@ -14,7 +14,7 @@
 int test(void)
 {
     using namespace informave::db;
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
     DBMS::Environment env("sqlite:libsqlite");
 

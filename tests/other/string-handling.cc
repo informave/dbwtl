@@ -20,7 +20,7 @@ int test(void)
     //using namespace informave::db::DAL;
 
 
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
 
 

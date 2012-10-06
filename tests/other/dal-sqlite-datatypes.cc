@@ -20,7 +20,7 @@ int test(void)
     
     //typedef Database<DAL::sqlite> DBMS;
 
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
 
     DBMS::Environment env("sqlite:libsqlite");
@@ -33,8 +33,8 @@ int test(void)
     std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
 
 
-    dal::DatatypeList dtlist = dbc.getDatatypes();
-    for(dal::DatatypeList::const_iterator i = dtlist.begin();
+    DatatypeList dtlist = dbc.getDatatypes();
+    for(DatatypeList::const_iterator i = dtlist.begin();
         i != dtlist.end();
         ++i)
     {

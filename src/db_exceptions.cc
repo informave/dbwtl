@@ -50,7 +50,7 @@ DB_NAMESPACE_BEGIN
 
 namespace ex
 {
-    sqlstate_exception::sqlstate_exception(const dal::IDiagnostic& diag_to_clone)
+    sqlstate_exception::sqlstate_exception(const IDiagnostic& diag_to_clone)
             : engine_error(diag_to_clone.str()),
             m_diag()
         
@@ -70,7 +70,7 @@ namespace ex
        sqlstate_exception::~sqlstate_exception(void) throw()
         {}
 
-        const dal::IDiagnostic&
+        const IDiagnostic&
         sqlstate_exception::diag(void) const
         {
             return *this->m_diag.get();
@@ -133,7 +133,7 @@ namespace ex
     //
     //
     /*
-    convert_error::convert_error(const dal::Variant &var)
+    convert_error::convert_error(const Variant &var)
         : exception(),
           m_varname()
     {
@@ -161,7 +161,7 @@ namespace ex
 
     //
     //
-//     convert_error::convert_error(dal::dalstate_t state, const std::wstring &varname)
+//     convert_error::convert_error(dalstate_t state, const std::wstring &varname)
 //         : exception(),
 //           m_varname()
 //     {
@@ -177,7 +177,7 @@ namespace ex
 
     //
     //
-//     convert_error::convert_error(dal::dalstate_t state, const dal::Variant &var)
+//     convert_error::convert_error(dalstate_t state, const Variant &var)
 //         : exception(),
 //           m_varname()
 //     {
@@ -237,7 +237,7 @@ namespace ex
 
     //
     //
-//     null_value::null_value(dal::dalstate_t state, const std::wstring &varname)
+//     null_value::null_value(dalstate_t state, const std::wstring &varname)
 //         : exception(),
 //           m_varname()
 //     {
@@ -256,7 +256,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-//     engine_error::engine_error(dal::dalstate_t state)
+//     engine_error::engine_error(dalstate_t state)
 //         : exception()
 //     {y
 //     	this->setMessage(L"remove dalstate here");
@@ -300,7 +300,7 @@ namespace ex
 
     //
     //
-//     sql_error::sql_error(dal::dalstate_t state, const std::wstring &sql, const std::wstring &what)
+//     sql_error::sql_error(dalstate_t state, const std::wstring &sql, const std::wstring &what)
 //         : engine_error(),
 //           m_sql(sql),
 //           m_what(what)
@@ -335,7 +335,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-//     not_found::not_found(dal::dalstate_t state, const std::wstring &what)
+//     not_found::not_found(dalstate_t state, const std::wstring &what)
 //         : exception()
 //     {
 //         this->setMessage(what);
@@ -371,7 +371,7 @@ namespace ex
     //--------------------------------------------------------------------------
     //
     //
-//     read_only::read_only(dal::dalstate_t state, const std::wstring &resource_name)
+//     read_only::read_only(dalstate_t state, const std::wstring &resource_name)
 //         : exception()
 //     {
 //         this->setMessage(L"The resource \"" + resource_name + L"\" is read only.");
@@ -427,7 +427,7 @@ namespace ex
 
     //
     //
-//     logic_error::logic_error(dal::dalstate_t state)
+//     logic_error::logic_error(dalstate_t state)
 //     {
 //         this->setMessage(L"Needs dalstate impl");
 //     }
@@ -449,7 +449,7 @@ namespace ex
 
     //
     //
-//     busy_error::busy_error(dal::dalstate_t state, const std::wstring &what)
+//     busy_error::busy_error(dalstate_t state, const std::wstring &what)
 //     {
 //         this->setMessage(what);
 //     }

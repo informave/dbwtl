@@ -17,7 +17,7 @@ int test(void)
 //    using namespace informave::i18n;
 
 
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
     //typedef Database<dal::generic> DBMS;
 
     

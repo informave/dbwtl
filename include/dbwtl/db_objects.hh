@@ -57,49 +57,6 @@
 
 #include <iosfwd>
 
-//MANPAGE.001 Informave DBWTL(3)
-//MANPAGE.001 ==================
-//MANPAGE.001 
-//MANPAGE.001 NAME
-//MANPAGE.001 ----
-//MANPAGE.001 dbwtl - C++ Database Wrapper Template Library
-//MANPAGE.001 
-//MANPAGE.001 
-//MANPAGE.005 DESCRIPTION
-//MANPAGE.005 -----------
-//MANPAGE.005 The DBWTL library is a C++ wrapper library for database
-//MANPAGE.005 access.
-//MANPAGE.005 
-//MANPAGE.010 SYNOPIS
-//MANPAGE.010 -------
-//MANPAGE.010 [source,cpp]
-//MANPAGE.010 -------------------------------------------------
-//MANPAGE.010 #include <dbwtl/dbobjects>
-//MANPAGE.010 #include <dbwtl/dal/generic/engine>
-//MANPAGE.010 
-//MANPAGE.010 typedef Database<dal::Generic> DBMS;     // define new database type
-//MANPAGE.010 
-//MANPAGE.010 DBMS::Environment env("sqlite:libsqlite");
-//MANPAGE.010 
-//MANPAGE.010 DBMS::Connection dbc(env);
-//MANPAGE.010 
-//MANPAGE.010 dbc.connect("dummy.db");
-//MANPAGE.010 
-//MANPAGE.010 DBMS::Statement stmt(dbc);
-//MANPAGE.010 
-//MANPAGE.010 stmt.execDirect("SELECT * from test");
-//MANPAGE.010 
-//MANPAGE.010 DBMS::Resultset res(stmt);
-//MANPAGE.010 
-//MANPAGE.010 res.first();    // seek to first record
-//MANPAGE.010 res.next();     // seek to next record
-//MANPAGE.010 res.eof();      // check for end-of-resultset
-//MANPAGE.010 
-//MANPAGE.010 // get a column value
-//MANPAGE.010 res.column("mycolumn");
-//MANPAGE.010
-//MANPAGE.010 -------------------------------------------------
-//MANPAGE.010
 
 
 
@@ -110,8 +67,6 @@ struct default_tag { };
 struct extended_api_tag { };
 
 
-typedef enum dal::IDbc::trx_mode trx_mode;
-typedef enum dal::IDbc::access_mode access_mode;
 
 
 //------------------------------------------------------------------------------
@@ -120,7 +75,7 @@ typedef enum dal::IDbc::access_mode access_mode;
 template<int T, class U = informave::db::ex::sqlstate_exception>
 struct sqlstate : public U
 {
-    sqlstate(const dal::IDiagnostic& diag_to_clone)
+    sqlstate(const IDiagnostic& diag_to_clone)
         : U(diag_to_clone)
     {}
     
@@ -343,6 +298,57 @@ DBWTL_EXPORT inline std::ostream&  operator<<(std::ostream& o, const ifnull<T> &
 
 
 
+
+
+struct basic_datatypes
+{
+    virtual ~basic_datatypes(void)
+    {}
+
+//     typedef signed char           Char; // these two types are covered by String!
+//     typedef unsigned char         UChar;
+
+/*
+    typedef std::wstreambuf*      Memo;
+    typedef std::streambuf*       Blob; // better use Blob with implicit ctor?
+*/
+    typedef db::String            String;
+    typedef db::BlobStream             BlobStream;
+    typedef db::MemoStream             MemoStream;
+    typedef db::Blob		Blob;
+    typedef db::Memo		Memo;
+    typedef TNumeric              Numeric;
+    typedef signed short          Smallint;
+    typedef unsigned short        USmallint;
+    typedef signed int            Integer;
+    typedef unsigned int          UInteger;
+    typedef signed long long      Bigint;
+    typedef unsigned long long    UBigint;
+    typedef float                 Float;
+    // real
+    typedef double                Double;
+    typedef bool                  Boolean;
+    typedef TDate                 Date;
+    typedef TTime                 Time;
+    typedef TTimestamp            Timestamp;
+    typedef TInterval             Interval;
+
+
+    /*
+    typedef TCidr            CIDR;
+    typedef TMacaddr         MACAddr;
+    typedef TInetaddr        INETAddr;
+    typedef TUuid            UUID;
+    typedef TXml             XML;
+    typedef TDatetime        Datetime;
+    */
+
+};
+
+
+
+
+
 //------------------------------------------------------------------------------
 ///
 /// @brief Database traits class
@@ -358,7 +364,7 @@ struct db_traits {};
 ///  @brief Database Environment
 template<typename Engine,
          typename tag,
-         typename EnvInterface = dal::IEnv>
+         typename EnvInterface = IEnv>
 class Environment : public EnvInterface
 {
 private:
@@ -370,12 +376,12 @@ private:
 public:
     Environment(String str)
         : EnvInterface(),
-          m_env( dal::Factory::create<Engine>(str) )
+          m_env( Factory::create<Engine>(str) )
     {}
 /*
     Environment(std::string str) 
         : EnvInterface(),
-          m_env( dal::Factory::create<Engine>(i18n::conv_from(str, "UTF-8") ) )
+          m_env( Factory::create<Engine>(i18n::conv_from(str, "UTF-8") ) )
     {}
    */
 
@@ -396,7 +402,7 @@ public:
 
     virtual dal_env_type*           getImpl(void)           { return this->m_env.get(); }
 
-    virtual dal::dal_engine getEngineType(void) const       { return this->m_env->getEngineType(); }
+    virtual dal_engine getEngineType(void) const       { return this->m_env->getEngineType(); }
 
 protected:
     typename dal_env_type::ptr m_env;
@@ -413,7 +419,7 @@ private:
 //------------------------------------------------------------------------------
 ///
 /// @brief Database Connection
-template<typename Engine, typename tag, typename ConnectionInterface = dal::IDbc>
+template<typename Engine, typename tag, typename ConnectionInterface = IDbc>
 class Connection : public ConnectionInterface
 {
 private:
@@ -439,7 +445,7 @@ public:
     { this->m_dbc->connect(database, user, password); }
 
 
-    virtual void   connect(dal::IDbc::Options& options)
+    virtual void   connect(IDbc::Options& options)
     { this->m_dbc->connect(options); }
 
 
@@ -453,11 +459,11 @@ public:
 
     virtual dal_stmt_type*    newStatement(void)            { return this->m_dbc->newStatement(); }
 
-    virtual dal::IDALDriver*  drv(void) const               { return this->m_dbc->drv(); }
+    virtual IDALDriver*  drv(void) const               { return this->m_dbc->drv(); }
 
     virtual void              commit(void)                  { this->m_dbc->commit(); }
 
-    virtual void              commit(dal::Transaction trx)  { this->m_dbc->commit(trx); }
+    virtual void              commit(Transaction trx)  { this->m_dbc->commit(trx); }
 
     virtual void              savepoint(String name)        { this->m_dbc->savepoint(name); }
 
@@ -467,33 +473,33 @@ public:
 
     virtual void              rollback(String name = String()) { this->m_dbc->rollback(name); }
 
-    virtual void              rollback(dal::Transaction trx){ this->m_dbc->rollback(trx); }
+    virtual void              rollback(Transaction trx){ this->m_dbc->rollback(trx); }
 
-    virtual void              beginTrans(dal::IDbc::trx_mode mode,
-                                         dal::IDbc::access_mode access = dal::IDbc::trx_default,
+    virtual void              beginTrans(trx_mode mode,
+                                         access_mode access = trx_default,
                                          String name = String())
     { this->m_dbc->beginTrans(mode, access, name); }
 
 
-    virtual dal::TableList    getTables(const dal::ITableFilter& filter = dal::EmptyTableFilter())
+    virtual TableList    getTables(const ITableFilter& filter = EmptyTableFilter())
     { return this->m_dbc->getTables(filter); }
 
-    virtual dal::ViewList     getViews(const dal::IViewFilter& filter = dal::EmptyViewFilter())
+    virtual ViewList     getViews(const IViewFilter& filter = EmptyViewFilter())
     { return this->m_dbc->getViews(filter); }
 
-    virtual dal::DatatypeList getDatatypes(const dal::IDatatypeFilter& filter = dal::EmptyDatatypeFilter())
+    virtual DatatypeList getDatatypes(const IDatatypeFilter& filter = EmptyDatatypeFilter())
     { return this->m_dbc->getDatatypes(filter); }
 
-    virtual dal::SchemaList   getSchemas(const dal::ISchemaFilter& filter = dal::EmptySchemaFilter())
+    virtual SchemaList   getSchemas(const ISchemaFilter& filter = EmptySchemaFilter())
     { return this->m_dbc->getSchemas(filter); }
 
-    virtual dal::CatalogList  getCatalogs(const dal::ICatalogFilter& filter = dal::EmptyCatalogFilter())
+    virtual CatalogList  getCatalogs(const ICatalogFilter& filter = EmptyCatalogFilter())
     { return this->m_dbc->getCatalogs(filter); }
 
-    virtual dal::ProcedureList getProcedures(const dal::IProcedureFilter& filter = dal::EmptyProcedureFilter())
+    virtual ProcedureList getProcedures(const IProcedureFilter& filter = EmptyProcedureFilter())
     { return this->m_dbc->getProcedures(filter); }
 
-    virtual dal::IndexList    getIndices(const dal::IIndexFilter& filter = dal::EmptyIndexFilter())
+    virtual IndexList    getIndices(const IIndexFilter& filter = EmptyIndexFilter())
     { return this->m_dbc->getIndices(filter); }
 
 
@@ -536,7 +542,7 @@ private:
 //------------------------------------------------------------------------------
 ///
 /// @brief Database Statement
-template<typename Engine, typename tag, typename StmtInterface = dal::IStmt>
+template<typename Engine, typename tag, typename StmtInterface = IStmt>
 class Statement : public StmtInterface
 {
 private:
@@ -643,11 +649,11 @@ public:
 
 
 
-    virtual dal::rowcount_t  affectedRows(void) const           { return this->m_stmt->affectedRows(); }
+    virtual rowcount_t  affectedRows(void) const           { return this->m_stmt->affectedRows(); }
 
     virtual dal_variant_type lastInsertRowId(void)              { return this->m_stmt->lastInsertRowId(); }
 
-    virtual dal::IDALDriver* drv(void) const                    { return this->m_stmt->drv(); }
+    virtual IDALDriver* drv(void) const                    { return this->m_stmt->drv(); }
 
     // Diagnostic
     virtual bool                   diagAvail(void) const        { return this->m_stmt->diagAvail(); }
@@ -700,7 +706,7 @@ class CachedResult : public ResultInterface
 //------------------------------------------------------------------------------
 ///
 /// @brief Database Resultset
-template<typename Engine, typename tag, typename ResultInterface = dal::IResult>
+template<typename Engine, typename tag, typename ResultInterface = IResult>
 class Result : public ResultInterface
 {
 private:
@@ -749,17 +755,17 @@ public:
 
 
     // row methods
-    virtual dal::rowcount_t     rowCount(void) const            { return this->m_result->rowCount(); }
+    virtual rowcount_t     rowCount(void) const            { return this->m_result->rowCount(); }
 
     virtual size_t              paramCount(void) const          { return this->m_result->paramCount(); }
 
-    virtual dal::rowcount_t     affectedRows(void) const        { return this->m_result->affectedRows(); }
+    virtual rowcount_t     affectedRows(void) const        { return this->m_result->affectedRows(); }
 
     virtual dal_variant_type lastInsertRowId(void)              { return this->m_result->lastInsertRowId(); }
 
-    virtual const value_type&   column(dal::colnum_t num)       { return this->m_result->column(num); }
+    virtual const value_type&   column(colnum_t num)       { return this->m_result->column(num); }
 
-    //virtual variant_type&      field(dal::colnum_t num)      { return this->m_result->field(num); }
+    //virtual variant_type&      field(colnum_t num)      { return this->m_result->field(num); }
 
     virtual const value_type&   column(String name)             { return this->m_result->column(name); }
 
@@ -771,21 +777,21 @@ public:
     // column methods
     virtual size_t                 columnCount(void) const             { return this->m_result->columnCount(); }
 
-    virtual dal::colnum_t          columnID(String name) const         { return this->m_result->columnID(name); }
+    virtual colnum_t          columnID(String name) const         { return this->m_result->columnID(name); }
 
-    virtual String                 columnName(dal::colnum_t num) const { return this->m_result->columnName(num); }
+    virtual String                 columnName(colnum_t num) const { return this->m_result->columnName(num); }
 
 
-    virtual const dal_columndesc_type& describeColumn(dal::colnum_t num) const
+    virtual const dal_columndesc_type& describeColumn(colnum_t num) const
     { return this->m_result->describeColumn(num); }
 
     virtual const dal_columndesc_type& describeColumn(String name) const
     { return this->m_result->describeColumn(name); }
 
 
-    //virtual const dal::ITypeInfo&  datatype(dal::colnum_t num) const   { return this->m_result->datatype(num); }
+    //virtual const ITypeInfo&  datatype(colnum_t num) const   { return this->m_result->datatype(num); }
 
-    virtual dal::IDALDriver*       drv(void) const               { return this->m_result->drv(); }
+    virtual IDALDriver*       drv(void) const               { return this->m_result->drv(); }
 
 
     virtual dal_resultset_type*    getImpl(void)   { return this->m_result; }
@@ -805,650 +811,7 @@ private:
 
 
 
-//MANPAGE.020 DATABASES
-//MANPAGE.020 ---------
-//MANPAGE.020 
-//MANPAGE.020 Before you can start, you have to choose wether you want to work with
-//MANPAGE.020 the generic interface or with a special database system.
-//MANPAGE.020 
-//MANPAGE.020 It is recommended that you define a C++ type, for example:
-//MANPAGE.020 
-//MANPAGE.020     typedef Database<dal::generic> DBMS;
-//MANPAGE.020 
-//MANPAGE.020 for the generic interface, or
-//MANPAGE.020 
-//MANPAGE.020     typedef Database<dal::the-engine-name> DBMS;
-//MANPAGE.020 
-//MANPAGE.020 for a specific system. The engine classes are defined in the
-//MANPAGE.020 dal namespace.
-//MANPAGE.020 
-//MANPAGE.020 
-//MANPAGE.020 The DBWTL library supports the following database systems:
-//MANPAGE.020 
-//MANPAGE.020 Generic interface (generic)
-//MANPAGE.020 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//MANPAGE.020 
-//MANPAGE.020 The generic interface works with all supported engines. The format of
-//MANPAGE.020 the driver is:
-//MANPAGE.020 
-//MANPAGE.020        <engine>:<driver>[:<lib>]
-//MANPAGE.020 
-//MANPAGE.020 
-//MANPAGE.020 
-//MANPAGE.020 SQLite (sqlite)
-//MANPAGE.020 ~~~~~~~~~~~~~~~
-//MANPAGE.020 Available drivers:
-//MANPAGE.020 
-//MANPAGE.020 *libsqlite*::
-//MANPAGE.020   This driver uses the libsqlite.so driver or sqlite3.dll.
-//MANPAGE.020 *odbc*:: 
-//MANPAGE.020   Uses an ODBC connection.
-//MANPAGE.020 
-//MANPAGE.020 PostgreSQL (postgres)
-//MANPAGE.020 ~~~~~~~~~~~~~~~~~~~~~
-//MANPAGE.020 Available drivers:
-//MANPAGE.020 
-//MANPAGE.020 *libpq*::
-//MANPAGE.020   This driver uses the libpq.so driver or libpq.dll.
-//MANPAGE.020 *odbc*:: 
-//MANPAGE.020   Uses an ODBC connection.
-//MANPAGE.020 
 
-
-
-
-
-//GEXAMPLE.001 Introduction with a step by step example
-//GEXAMPLE.001 ----------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 All important declarations are provided by the inclusion of the
-//GEXAMPLE.001 'dbobjects' header file.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 #include <dbwtl/dbobjects>
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 You have to choose at least one engine and include them.
-//GEXAMPLE.001 If you want a generic API instead of a specific engine, you
-//GEXAMPLE.001 can just include the 'generic' engine.
-//GEXAMPLE.001 The generic engine allows the configuration of a
-//GEXAMPLE.001 specific engine at runtime.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 #include <dbwtl/dal/engines/sqlite>
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 The next line is not required, but makes life easier.
-//GEXAMPLE.001 All needed classes are declared inside the 'informave::db' namespace.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 using namespace informave::db;
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 Now we have to declare our own type to tell the dbwtl library
-//GEXAMPLE.001 which database/engine we want to use.
-//GEXAMPLE.001 The 'Database' template members declares the right types for connections,
-//GEXAMPLE.001 resultsets etc. depending on the given engine.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 typedef Database<dal::sqlite> DBMS;
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 The environment is the first thing we have to create. The argument to the
-//GEXAMPLE.001 constructor tells the environment which backend should be used.
-//GEXAMPLE.001 For example, you can connect to a SQLite database via the libsqlite.dll C-Library,
-//GEXAMPLE.001 through ODBC or ADO. 
-//GEXAMPLE.001 
-//GEXAMPLE.001 If you are using the generic engine, the first part of the string is important.
-//GEXAMPLE.001 The generic Environment class instantiates an environment of the given
-//GEXAMPLE.001 engine "in the background". This makes it possible to select
-//GEXAMPLE.001 the used engine at runtime.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 DBMS::Environment env("sqlite:libsqlite");
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 Now we can check if everything is correct and the dbwtl library
-//GEXAMPLE.001 is correctly installed.
-//GEXAMPLE.001 [source,shell]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 gcc -o dbtest dbtest.c -ldbwtl
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 
-//GEXAMPLE.001 Creating a connection
-//GEXAMPLE.001 ~~~~~~~~~~~~~~~~~~~~~
-//GEXAMPLE.001 In the next step, we create a new connection to a SQLite database.
-//GEXAMPLE.001 The 'Connection' constructor takes the environment object as a reference.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 DBMS::Connection dbc(env);
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 Now we can open the database:
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 dbc.connect("sampledb.sqlitedb");
-//GEXAMPLE.001 std::cout << dbc.dbmsName() << std::endl; // using default (UTF-8)
-//GEXAMPLE.001 std::cout << dbc.dbmsName().to("ISO-8859-1") << std::endl;
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 Run a SQL query
-//GEXAMPLE.001 ~~~~~~~~~~~~~~~
-//GEXAMPLE.001 To run a query, we need to create a Statement object.
-//GEXAMPLE.001 The constructor takes the connection object as a reference.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 DBMS::Statement stmt(dbc);
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 
-//GEXAMPLE.001 The direct execution of a SQL statement is possible via 'execDirect()':
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 stmt.execDirect("SELECT * from customers");
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 Iterate over the resultset
-//GEXAMPLE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-//GEXAMPLE.001 After execution of the statement, you can create a new DBMS::Resultset object
-//GEXAMPLE.001 and attach it to the internal statement resultset:
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 DBMS::Resultset rs(stmt);
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 [NOTE]
-//GEXAMPLE.001 If the statement contains no internal resultset, the DBMS::Resultset
-//GEXAMPLE.001 object is marked as 'bad'. This state can only be changed by re-attaching
-//GEXAMPLE.001 the statement via 'rs.attach(stmt)'.
-//GEXAMPLE.001 
-
-
-//GEXAMPLE.001 With the methods 'first()', 'next()' and 'eof()' you can iterate over the
-//GEXAMPLE.001 records.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 for(rs.first(); !rs.eof(); rs.next()) { //for each record }
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//
-//GEXAMPLE.001 Access the record fields
-//GEXAMPLE.001 ^^^^^^^^^^^^^^^^^^^^^^^^
-//GEXAMPLE.001 You can access the fields by name or by position (first field has position 1).
-//GEXAMPLE.001 To determine the number of available fields, use 'columnCount()'.
-//GEXAMPLE.001 The 'column()' method returns a 'const DBMS::Value' reference which provides
-//GEXAMPLE.001 many getter methods like 'asStr()', 'asInt()' or 'asDate()' to get the value.
-//GEXAMPLE.001 To check if a field is null, call isNull() on the value reference.
-
-//GEXAMPLE.001 
-//GEXAMPLE.001 .Print all records and fields
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 for(rs.first(); !rs.eof(); rs.next())
-//GEXAMPLE.001 {
-//GEXAMPLE.001  for(int i = 1; i <= rs.columnCount(); ++i)
-//GEXAMPLE.001      {
-//GEXAMPLE.001      if(rs.column(i).isNull())
-//GEXAMPLE.001          std::cout << "<NULL>";
-//GEXAMPLE.001      else
-//GEXAMPLE.001          std::cout << rs.column(i).asStr();
-//GEXAMPLE.001  }
-//GEXAMPLE.001  std::cout << std::endl;
-//GEXAMPLE.001 }
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//
-//GEXAMPLE.001 Access the column descriptor
-//GEXAMPLE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//GEXAMPLE.001 The 'describeColumn()' method provides a getter for all column descriptors.
-//GEXAMPLE.001 [source,cpp]
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 for(int i = 1; i <= rs.columnCount(); i++)
-//GEXAMPLE.001 {
-//GEXAMPLE.001      const DBMS::ColumnDesc &desc = rs.describeColumn(i);
-//GEXAMPLE.001      std::cout << desc.catalogName() << std::endl;
-//GEXAMPLE.001      std::cout << desc.columnName() << std::endl;
-//GEXAMPLE.001 }
-//GEXAMPLE.001 ------------------------------------------------------------------------------
-//GEXAMPLE.001 A DMBS::ColumnDesc (Interface: 'dal::IColumnDesc') object has
-//GEXAMPLE.001 several getter methods all returning
-//GEXAMPLE.001 a const DBMS::Variant (Interface: 'dal::IVariant') reference.
-
-
-//GSUPPDB.001 
-//GSUPPDB.001 Supported database systems and drivers
-//GSUPPDB.001 --------------------------------------
-//GSUPPDB.001 SQLite
-//GSUPPDB.001 ~~~~~~
-//GSUPPDB.001 libsqlite:: Uses the libsqlite3.so or sqlite3.dll to access
-//GSUPPDB.001 a database file.
-//GSUPPDB.001 odbc:: Uses a installed ODBC driver to connect to a SQLite database.
-//GSUPPDB.001 
-
-
-
-
-//GCORE.001 The Database<> template
-//GCORE.001 -----------------------
-//GCORE.001 
-//GCORE.001 The 'Database<>' template defines all important types required to work
-//GCORE.001 with a database, depending on the selected engine.
-//GCORE.001 The engine is a class name from the 'dal' namespace, e.g. 'dal::sqlite'.
-//GCORE.001 If you want to choose the engine at runtime, you can use 'dal::generic' and
-//GCORE.001 set the engine later.
-//GCORE.001 
-
-
-//GCORE.001 
-//GCORE.001 Handles
-//GCORE.001 ~~~~~~~
-//GCORE.001 There are three handles: Environment, Connection and Statement.
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 Setting options for handles
-//GCORE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//GCORE.001 Each handle provides a 'setOption()' and 'getOption()' method.
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 DBMS::Environment env("sqlite:libsqlite");
-//GCORE.001 
-//GCORE.001 env.setOption("env_library_path", std::string("/path/to/libs"));
-//GCORE.001 
-//GCORE.001 std::string path = ifnull<std::string>(env.getOption("env_library_path"), ".");
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 
-
-
-
-
-//GCORE.001 Environment
-//GCORE.001 ~~~~~~~~~~~
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ---------------------------------------------
-//GCORE.001 Database<dal::engine_name>::Environment
-//GCORE.001 ---------------------------------------------
-//GCORE.001 
-
-
-
-//GCORE.001 
-//GCORE.001 Connection
-//GCORE.001 ~~~~~~~~~~
-//GCORE.001 [source,cpp]
-//GCORE.001 ---------------------------------------------
-//GCORE.001 Database<dal::engine_name>::Connection
-//GCORE.001 ---------------------------------------------
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 Statement
-//GCORE.001 ~~~~~~~~~
-//GCORE.001 [source,cpp]
-//GCORE.001 ---------------------------------------------
-//GCORE.001 Database<dal::engine_name>::Statement
-//GCORE.001 ---------------------------------------------
-//GCORE.001 
-
-
-//GCORE.001 Binding BLOB and MEMO types
-//GCORE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//GCORE.001 
-//GCORE.001 A DBMS::Statement object provides two overloaded bind() methods for
-//GCORE.001 std::streambuf* and std::wstreambuf*.
-//GCORE.001 
-//GCORE.001 Binding std::streambuf*::
-//GCORE.001 The data is threated as binary data.
-//GCORE.001 
-//GCORE.001 Binding std::wstreambuf*::
-//GCORE.001 A character set conversion is performed (from UCS-2 or UCS-4 to connection encoding)
-//GCORE.001 before the data is sent to the database.
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 The following examples shows how stream buffers can be bound to a statement:
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 std::ifstream binFile("photo.jpg", std::ios::binary);
-//GCORE.001 stmt.bind(1, binFile.rdbuf()); // binary data
-//GCORE.001 
-//GCORE.001 std::wifstream textFile("example.txt");
-//GCORE.001 stmt.bind(2, textFile.rdbuf()); // text data
-//GCORE.001 
-//GCORE.001 std::ifstream utf8File("utf8.txt");
-//GCORE.001 std::wstreambuf *wbuf = new std::wbuffer_convert<std::codecvt_utf8>(utf8File.rdbuf());
-//GCORE.001 stmt.bind(3, wbuf); // text data
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 The last one is a special case where a char stream buffer is first converted
-//GCORE.001 to a wide char stream buffer. 
-//GCORE.001 
-
-
-
-
-
-//GCORE.001 
-//GCORE.001 Resultset
-//GCORE.001 ~~~~~~~~~
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ---------------------------------------------
-//GCORE.001 Database<dal::engine_name>::Resultset
-//GCORE.001 ---------------------------------------------
-//GCORE.001 
-
-//GCORE.001 Wokring with BLOB and MEMO types
-//GCORE.001 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//GCORE.001 For receiving BLOB or MEMO fields, the Variant class provides two
-//GCORE.001 methods: 'asBlob()' and 'asMemo()'.
-//GCORE.001
-
-//GCORE.001 asBlob::
-//GCORE.001 Returns a pointer to std::streambuf and performs no charset conversion.
-//GCORE.001 You just get the raw data from the database.
-//GCORE.001 
-//GCORE.001 asMemo::
-//GCORE.001 Returns a pointer to a std::wstreambuf and performs charset conversion (from
-//GCORE.001 connection encoding to UCS-2 or UCS-4 [depends on sizeof(wchar_t]).
-//GCORE.001 If the underlaying column type is of type BLOB (Variant::daltype() == 'DAL_TYPE_BLOB'),
-//GCORE.001 a convert_error exception is raised.
-//GCORE.001 All other types are converted into a std::wstreambuf.
-//GCORE.001 
-//GCORE.001 If you have obtained a buffer pointer with asBlob() or asMemo(), the pointer
-//GCORE.001 is valid (for all rows) until you close the resultset or statement.
-//GCORE.001 Scrolling through the dataset (e.g. next()) only resets the buffer to the new
-//GCORE.001 row data. If the new field is NULL, the buffer is marked as bad (std::ios::bad).
-//GCORE.001 
-
-
-
-//GCORE.001 General supported types
-//GCORE.001 ~~~~~~~~~~~~~~~~~~~~~~~
-//GCORE.001 The 'Database<>' template provides for every selected engine a basic set
-//GCORE.001 of types conforming to the SQL standard. An engine can extend this set
-//GCORE.001 with system specific types supported by the database.
-//GCORE.001 
-//GCORE.001 `--------------------------`----------------------
-//GCORE.001 *SQL:2008 Type*             *DBWTL Type Mapping*
-//GCORE.001 CHARACTER                   DBMS::String
-//GCORE.001 CHARACTER VARING            DBMS::String
-//GCORE.001 CHARACTER LARGE OBJECT      DBMS::Memo
-//GCORE.001 BINARY                      DBMS::Blob
-//GCORE.001 BINARY VARYING              DBMS::Blob
-//GCORE.001 BINARY LARGE OBJECT         DBMS::Blob
-//GCORE.001 NUMERIC                     DBMS::Numeric
-//GCORE.001 DECIMAL                     DBMS::Numeric
-//GCORE.001 SMALLINT                    DBMS::Smallint
-//GCORE.001 INTEGER                     DBMS::Integer
-//GCORE.001 BIGINT                      DBMS::Bigint
-//GCORE.001 FLOAT                       DBMS::Float
-//GCORE.001 REAL                        DBMS::Float
-//GCORE.001 DOUBLE PRECISION            DBMS::Double
-//GCORE.001 BOOLEAN                     DBMS::Boolean
-//GCORE.001 DATE                        DBMS::Date
-//GCORE.001 TIME                        DBMS::Time
-//GCORE.001 TIMESTAMP                   DBMS::Timestamp
-//GCORE.001 INTERVAL                    - (requires implementation)
-//GCORE.001 --------------------------------------------------
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 Values from resultsets are automatically converted to the variable type.
-//GCORE.001 So the following statement ist valid:
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ---------------------------------------------
-//GCORE.001 const DBMS::Numeric val = rs.column(i); // auto conversion
-//GCORE.001 ---------------------------------------------
-//GCORE.001 
-
-
-
-//GCORE.001 Value
-//GCORE.001 ~~~~~
-//GCORE.001 The 'Value' type is for column values returned from the engine. You can't create
-//GCORE.001 new objects of type 'Value', you can only get (mostly const) references
-//GCORE.001 from a 'Resultset' object.
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ---------------------------------------------
-//GCORE.001 const DBMS::Value &val = rs.column(i);
-//GCORE.001 ---------------------------------------------
-//GCORE.001 
-//GCORE.001 It is a requirement that the 'Value' type implements the IVariant interface.
-//GCORE.001 This allows you to pass column values to all methods which  accepts IVariant references,
-//GCORE.001 for example Statement::bind(). For more information about the IVariant/Variant
-//GCORE.001 type, refer to the Variant section.
-//GCORE.001 
-
-
-//GCORE.001 
-//GCORE.001 Variant
-//GCORE.001 ~~~~~~~
-//GCORE.001 The 'Variant' type can be used to create own variant objects.
-//GCORE.001 This type can store all the POD types and pointers to such types.
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ------------------------------------------------------
-//GCORE.001 int myint = 5;
-//GCORE.001 DBMS::Variant var(&myint);
-//GCORE.001 var.setInt(10);
-//GCORE.001 assert(myint == 10); // myint was changed through setInt()
-//GCORE.001 ------------------------------------------------------
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 Deep Copy
-//GCORE.001 ^^^^^^^^^
-//GCORE.001 The copy constructor of Variant creates a new Variant with the same
-//GCORE.001 internal storage as the source object. If the origin storage holds a
-//GCORE.001 pointer (e.g. to an Integer), the new Variant points to this Integer, too.
-//GCORE.001 
-//GCORE.001 If you want a independent Variant, you can use the 'value()' method to get
-//GCORE.001 a Variant object which is created by a deep-copy.
-//GCORE.001 
-//GCORE.001 [CAUTION]
-//GCORE.001 If the source Variant contains a streambuf pointer, a new storage
-//GCORE.001 for a NULL streambuf pointer is created. The data of the stream is not copied
-//GCORE.001 and no now streambuf object will be created.
-//GCORE.001 
-
-//GCORE.001 ColumnDesc
-//GCORE.001 ~~~~~~~~~~
-//GCORE.001 TODO
-//GCORE.001 
-
-
-//GCORE.001 
-//GCORE.001 Blob
-//GCORE.001 ~~~~
-//GCORE.001 TODO
-//GCORE.001 
-
-//GCORE.001 
-//GCORE.001 Memo
-//GCORE.001 ~~~~
-//GCORE.001 TODO
-//GCORE.001 
-//GCORE.001 
-
-//GCORE.001 
-//GCORE.001 Diagnostic and error handling
-//GCORE.001 -----------------------------
-//GCORE.001 
-//GCORE.001 Each handle (Environment, Connection and Statement) logs warnings and errors
-//GCORE.001 as a diagnostic record to an internal buffer. If a buffer reaches DBWTL_DIAG_SIZE,
-//GCORE.001 older records are overriden (it works like a circular buffer).
-//GCORE.001 
-//GCORE.001 With 'diagAvail()' you can check if there are any diagnostic records available and
-//GCORE.001 with 'fetchDiag()' you can fetch them which moves an internal cursor to the next record. 
-//GCORE.001 
-//GCORE.001 If an error occours, the DBWTL performs two steps: all information about
-//GCORE.001 the error are collected and written to a diagnostic record, and second, a SQLSTATE
-//GCORE.001 exception with a copy of the diagnostic record is thrown.
-//GCORE.001 
-//GCORE.001 Hints and warnings are just logged, no exception is raised.
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ------------------------------------------------------
-//GCORE.001 while(dbc.diagAvail())
-//GCORE.001 {
-//GCORE.001     const DBMS::Diag &diag = dbc.fetchDiag();
-//GCORE.001     // print information
-//GCORE.001 }
-//GCORE.001 ------------------------------------------------------
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 Exception handling
-//GCORE.001 ~~~~~~~~~~~~~~~~~~
-//GCORE.001 There are two categories of exceptions implemented in DBWTL.
-//GCORE.001 
-//GCORE.001 Engine exceptions::
-//GCORE.001 	Exceptions inside the DBWTL or DAL code like unknown driver strings,
-//GCORE.001 	reading NULL values and so on.
-//GCORE.001 
-//GCORE.001 SQLSTATE exceptions::
-//GCORE.001 	Exceptions for SQLSTATEs which are classified as errors, for example
-//GCORE.001 	SQL syntax erros, constraint violations or authentification errors.
-//GCORE.001 
-//GCORE.001 There are only a small set of engine errors:
-//GCORE.001 
-//GCORE.001  * 'ex::exception': Base class for exceptions
-//GCORE.001  * 'ex::convert_error': A variant value could not be converted to the requested type.
-//GCORE.001  * 'ex::null_value': A variant value is set to NULL and you have tried to read the value
-//GCORE.001  * 'ex::engine_error': Base class for all exceptions raised in DAL code
-//GCORE.001  * 'ex::sqlstate_exception': Base class for all SQLSATE error conditions
-//GCORE.001  * 'ex::not_found': Raised if you have requested a column or parameter which does not exists
-//GCORE.001  * 'ex::charset_error': The source string could not be converted to the requested charset.
-//GCORE.001  * 'ex::read_only': Raised if you try to write to a read-only variant
-//GCORE.001  * 'ex::missing_function': A required function in the external driver library could not be found
-//GCORE.001  * 'ex::engine_busy': Raised if the engine is busy and your request could not be handled
-//GCORE.001 
-//GCORE.001 The SQLSTATE exceptions are far more complex. The list of SQLSTATE exceptions
-//GCORE.001 you can catch depends on the selected engine. Each engine defines their own
-//GCORE.001 list of supported ISO 9075 SQLSATE exceptions (and maybe engine-dependend custom SQLSTATES).
-//GCORE.001 Only the generic engine defines the full set of ISO SQLSTATE error codes, specific
-//GCORE.001 engines defines only thoose where are supported (plus their own states).
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 DBMS::Statement stmt(dbc);
-//GCORE.001 try
-//GCORE.001 {
-//GCORE.001 	stmt.prepare("INSERT INTO customers VALUES(1, 'Dave Miller');");
-//GCORE.001 	stmt.execute();
-//GCORE.001 }
-//GCORE.001 catch(DBMS::SQLSTATE_23000 &state)
-//GCORE.001 {
-//GCORE.001 	std::cout << "Constraint violation" << std::endl;
-//GCORE.001 }
-//GCORE.001 catch(DBMS::SQLSTATE_22000 &state)
-//GCORE.001 {
-//GCORE.001 	std::cout << "General data exception or other 22xxx state" << std::endl;
-//GCORE.001 }
-//GCORE.001 catch(DBMS::SQLSTATE_42000 &state)
-//GCORE.001 {
-//GCORE.001 	std::cout << "Syntax error or access violation" << std::endl;
-//GCORE.001 }
-//GCORE.001 catch(ex::engine_error &err)
-//GCORE.001 {
-//GCORE.001 	std::cout << "Other errors" << std::endl;
-//GCORE.001 }
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 
-//GCORE.001 A SQLSTATE subclass (last 3 chars) is derived from the SQLSTATE class (first
-//GCORE.001 2 chars) which makes it possible to catch a specific subclass SQLSTATE or all
-//GCORE.001 subclasses by catching the class (e.g. SQLSTATE_22000).
-//GCORE.001 
-//GCORE.001 An engine can define additional SQLSTATES which can be catched by
-//GCORE.001 the same way as regular ISO SQLSTATEs. The only exception is when you are
-//GCORE.001 using the generic engine: only the ISO SQLSTATEs are defined.
-//GCORE.001 If a specific engine defines for example SQLSTATE_XYZ01, you can catch them
-//GCORE.001 only with ex::sqlstate_error which is the base class for all SQLSTATE exceptions.
-//GCORE.001 Inside the exception handler you can fetch the SQLSTATE as a string to make
-//GCORE.001 your decisions:
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 
-//GCORE.001 [source,cpp]
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 DBMS::Statement stmt(dbc);
-//GCORE.001 try
-//GCORE.001 {
-//GCORE.001 	stmt.prepare("INSERT INTO customers VALUES(1, 'Dave Miller');");
-//GCORE.001 	stmt.execute();
-//GCORE.001 }
-//GCORE.001 catch(DBMS::SQLSTATE_42000 &state)
-//GCORE.001 {
-//GCORE.001 	// catched ISO defined SQLSTATE
-//GCORE.001 }
-//GCORE.001 catch(ex::sqlstate_error &state)
-//GCORE.001 {
-//GCORE.001     // catched engine specific SQLSTATE
-//GCORE.001 	std::string s = state.diag().sqlstate().asStr().to("ASCII");
-//GCORE.001 	if(s.compare("XYZ01") == 0)
-//GCORE.001 	{
-//GCORE.001 		// handle XYZ001
-//GCORE.001 	}
-//GCORE.001 	else if(s.compare("ZZZ55") == 0)
-//GCORE.001 	{
-//GCORE.001 		// handle ZZZ55
-//GCORE.001 	}
-//GCORE.001 	else
-//GCORE.001 	{
-//GCORE.001 		// other states
-//GCORE.001 	}
-//GCORE.001 }
-//GCORE.001 ------------------------------------------------------------------------------
-//GCORE.001 
-//GCORE.001 This provides a powerful method if you want to use the generic layer, but also
-//GCORE.001 have to handle engine specific SQLSTATEs.
-//GCORE.001 
-
-
-
-
-
-
-
-struct basic_datatypes
-{
-    virtual ~basic_datatypes(void)
-    {}
-
-//     typedef signed char           Char; // these two types are covered by String!
-//     typedef unsigned char         UChar;
-
-/*
-    typedef std::wstreambuf*      Memo;
-    typedef std::streambuf*       Blob; // better use dal::Blob with implicit ctor?
-*/
-    typedef db::String            String;
-    typedef db::BlobStream             BlobStream;
-    typedef db::MemoStream             MemoStream;
-    typedef db::Blob		Blob;
-    typedef db::Memo		Memo;
-    typedef TNumeric              Numeric;
-    typedef signed short          Smallint;
-    typedef unsigned short        USmallint;
-    typedef signed int            Integer;
-    typedef unsigned int          UInteger;
-    typedef signed long long      Bigint;
-    typedef unsigned long long    UBigint;
-    typedef float                 Float;
-    // real
-    typedef double                Double;
-    typedef bool                  Boolean;
-    typedef TDate                 Date;
-    typedef TTime                 Time;
-    typedef TTimestamp            Timestamp;
-    typedef TInterval             Interval;
-
-
-    /*
-    typedef dal::TCidr            CIDR;
-    typedef dal::TMacaddr         MACAddr;
-    typedef dal::TInetaddr        INETAddr;
-    typedef dal::TUuid            UUID;
-    typedef dal::TXml             XML;
-    typedef dal::TDatetime        Datetime;
-    */
-
-};
 
 
 //------------------------------------------------------------------------------
@@ -1468,35 +831,62 @@ struct Database : public db_traits<Engine, tag>::sqlstate_types,
     typedef typename db_traits<Engine, tag>::dal_diag_type            Diag;
     typedef typename db_traits<Engine, tag>::dal_variant_type         Variant;
 /*
-    typedef dal::Blob                                                 Blob;
-    typedef dal::Memo                                                 Memo;
+    typedef Blob                                                 Blob;
+    typedef Memo                                                 Memo;
 */
 };
-
-//GSUPP.001 
-//GSUPP.001 Supported systems
-//GSUPP.001 -----------------
-//GSUPP.001 
-//GSUPP.001 [format="csv",cols="^1,4*2",separator=";"]
-//GSUPP.001 |===================================================
-//GSUPP.001 DBMS;Version;Status;Write Support;Version introduced
-//GSUPP.001 include::../../doc/dbms_support.csv[]
-//GSUPP.001 |===================================================
-//GSUPP.001 
-//GSUPP.001 Drivers implemented as SDA connector
-//GSUPP.001 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//GSUPP.001 [format="csv",cols="^1,4*2",separator=";"]
-//GSUPP.001 |===================================================
-//GSUPP.001 DBMS;Version;Status;Write Support;Version introduced
-//GSUPP.001 include::../../doc/sda_drivers.csv[]
-//GSUPP.001 |===================================================
-//GSUPP.001 
 
 
 
 DB_NAMESPACE_END
 
 #endif
+
+
+//MANPAGE.001 Informave DBWTL(3)
+//MANPAGE.001 ==================
+//MANPAGE.001 
+//MANPAGE.001 NAME
+//MANPAGE.001 ----
+//MANPAGE.001 dbwtl - C++ Database Wrapper Template Library
+//MANPAGE.001 
+//MANPAGE.001 
+//MANPAGE.005 DESCRIPTION
+//MANPAGE.005 -----------
+//MANPAGE.005 The DBWTL library is a C++ wrapper library for database
+//MANPAGE.005 access.
+//MANPAGE.005 
+//MANPAGE.010 SYNOPIS
+//MANPAGE.010 -------
+//MANPAGE.010 [source,cpp]
+//MANPAGE.010 -------------------------------------------------
+//MANPAGE.010 #include <dbwtl/dbobjects>
+//MANPAGE.010 #include <dbwtl/dal/generic/engine>
+//MANPAGE.010 
+//MANPAGE.010 typedef Database<Generic> DBMS;     // define new database type
+//MANPAGE.010 
+//MANPAGE.010 DBMS::Environment env("sqlite:libsqlite");
+//MANPAGE.010 
+//MANPAGE.010 DBMS::Connection dbc(env);
+//MANPAGE.010 
+//MANPAGE.010 dbc.connect("dummy.db");
+//MANPAGE.010 
+//MANPAGE.010 DBMS::Statement stmt(dbc);
+//MANPAGE.010 
+//MANPAGE.010 stmt.execDirect("SELECT * from test");
+//MANPAGE.010 
+//MANPAGE.010 DBMS::Resultset res(stmt);
+//MANPAGE.010 
+//MANPAGE.010 res.first();    // seek to first record
+//MANPAGE.010 res.next();     // seek to next record
+//MANPAGE.010 res.eof();      // check for end-of-resultset
+//MANPAGE.010 
+//MANPAGE.010 // get a column value
+//MANPAGE.010 res.column("mycolumn");
+//MANPAGE.010
+//MANPAGE.010 -------------------------------------------------
+//MANPAGE.010
+
 
 
 //

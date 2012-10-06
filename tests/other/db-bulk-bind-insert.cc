@@ -21,7 +21,7 @@ const char* names[] =
 int test(void)
 {
     using namespace informave::db;
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
     DBMS::Environment env("sqlite:libsqlite");
     DBMS::Connection dbc(env);
@@ -43,7 +43,7 @@ int test(void)
         " ,CONSTRAINT force_length CHECK(length(name) > 0)"
         " )");
 
-    dbc.beginTrans(DBMS::Connection::trx_read_committed);
+    dbc.beginTrans(trx_read_committed);
 
     String name;
 

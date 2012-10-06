@@ -21,7 +21,7 @@ const char* names[] =
 int test(void)
 {
     using namespace informave::db;
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
     DBMS::Environment env("sqlite:libsqlite");
     DBMS::Connection dbc(env);
@@ -47,7 +47,7 @@ int test(void)
         " CREATE INDEX list_index_idx ON list_index_dummy(id, name)"
         );
 
-    dbc.beginTrans(DBMS::Connection::trx_read_committed);
+    dbc.beginTrans(trx_read_committed);
 
     std::string name;
 
@@ -65,11 +65,11 @@ int test(void)
     dbc.commit();
 
 
-    dal::IndexList list = dbc.getIndices();
+    IndexList list = dbc.getIndices();
 
     return 0;
     
-    for(dal::IndexList::const_iterator i = list.begin();
+    for(IndexList::const_iterator i = list.begin();
         i != list.end();
         ++i)
     {

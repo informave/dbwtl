@@ -64,7 +64,7 @@ DB_NAMESPACE_BEGIN
 
 
 signed int
-sv_accessor<dal::FirebirdData*>::cast(signed int*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(signed int*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_INT)
         return this->get_value()->getLong();
@@ -73,7 +73,7 @@ sv_accessor<dal::FirebirdData*>::cast(signed int*, std::locale loc) const
 }
 
 signed short
-sv_accessor<dal::FirebirdData*>::cast(signed short*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(signed short*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_SMALLINT)
         return this->get_value()->getSmallint();
@@ -82,7 +82,7 @@ sv_accessor<dal::FirebirdData*>::cast(signed short*, std::locale loc) const
 }
 
 signed long long
-sv_accessor<dal::FirebirdData*>::cast(signed long long*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(signed long long*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_BIGINT)
         return this->get_value()->getInt64();
@@ -91,7 +91,7 @@ sv_accessor<dal::FirebirdData*>::cast(signed long long*, std::locale loc) const
 }
 
 float
-sv_accessor<dal::FirebirdData*>::cast(float*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(float*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_FLOAT)
         return this->get_value()->getFloat();
@@ -100,7 +100,7 @@ sv_accessor<dal::FirebirdData*>::cast(float*, std::locale loc) const
 }
 
 double
-sv_accessor<dal::FirebirdData*>::cast(double*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(double*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_DOUBLE)
         return this->get_value()->getDouble();
@@ -110,14 +110,14 @@ sv_accessor<dal::FirebirdData*>::cast(double*, std::locale loc) const
 
 
 bool
-sv_accessor<dal::FirebirdData*>::cast(bool*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(bool*, std::locale loc) const
 {
     return Variant(this->deepcopy()).get<bool>();
 }
 
 
 BlobStream
-sv_accessor<dal::FirebirdData*>::cast(BlobStream*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(BlobStream*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_BLOB || this->get_value()->daltype() == DAL_TYPE_MEMO)
         return BlobStream(this->get_value()->getBlob());
@@ -127,7 +127,7 @@ sv_accessor<dal::FirebirdData*>::cast(BlobStream*, std::locale loc) const
 
 
 MemoStream
-sv_accessor<dal::FirebirdData*>::cast(MemoStream*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(MemoStream*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_MEMO)
         return this->get_value()->getMemo();
@@ -137,7 +137,7 @@ sv_accessor<dal::FirebirdData*>::cast(MemoStream*, std::locale loc) const
 }
 
 TDate
-sv_accessor<dal::FirebirdData*>::cast(TDate*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(TDate*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_DATE)
         return this->get_value()->getDate();
@@ -147,7 +147,7 @@ sv_accessor<dal::FirebirdData*>::cast(TDate*, std::locale loc) const
 }
 
 TTime
-sv_accessor<dal::FirebirdData*>::cast(TTime*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(TTime*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_TIME)
         return this->get_value()->getTime();
@@ -157,7 +157,7 @@ sv_accessor<dal::FirebirdData*>::cast(TTime*, std::locale loc) const
 
 
 TTimestamp
-sv_accessor<dal::FirebirdData*>::cast(TTimestamp*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(TTimestamp*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_TIMESTAMP)
         return this->get_value()->getTimestamp();
@@ -168,7 +168,7 @@ sv_accessor<dal::FirebirdData*>::cast(TTimestamp*, std::locale loc) const
 
 
 TNumeric
-sv_accessor<dal::FirebirdData*>::cast(TNumeric*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(TNumeric*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_NUMERIC)
         return this->get_value()->getNumeric();
@@ -178,7 +178,7 @@ sv_accessor<dal::FirebirdData*>::cast(TNumeric*, std::locale loc) const
 
 
 TVarbinary
-sv_accessor<dal::FirebirdData*>::cast(TVarbinary*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(TVarbinary*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_VARBINARY)
         return this->get_value()->getVarbinary();
@@ -188,7 +188,7 @@ sv_accessor<dal::FirebirdData*>::cast(TVarbinary*, std::locale loc) const
 
 
 String
-sv_accessor<dal::FirebirdData*>::cast(String*, std::locale loc) const
+sv_accessor<FirebirdData*>::cast(String*, std::locale loc) const
 {
     if(this->get_value()->daltype() == DAL_TYPE_STRING)
         return this->get_value()->getText();
@@ -197,13 +197,13 @@ sv_accessor<dal::FirebirdData*>::cast(String*, std::locale loc) const
 }
 
 bool
-sv_accessor<dal::FirebirdData*>::valueNullCheck() const
+sv_accessor<FirebirdData*>::valueNullCheck() const
 {
     return this->get_value()->isnull();
 }
 
 daltype_t
-sv_accessor<dal::FirebirdData*>::datatype() const
+sv_accessor<FirebirdData*>::datatype() const
 {
     return this->get_value()->daltype();
 }

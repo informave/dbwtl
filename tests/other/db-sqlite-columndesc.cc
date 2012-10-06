@@ -20,7 +20,7 @@ int test(void)
     
     //typedef Database<DAL::sqlite> DBMS;
 
-    typedef Database<dal::sqlite> DBMS;
+    typedef Database<sqlite> DBMS;
 
 
     DBMS::Environment env("sqlite:libsqlite");
@@ -45,7 +45,7 @@ int test(void)
     res.attach(stmt);
 
 
-    for(dal::colnum_t i = 0; i <= res.columnCount(); ++i)
+    for(colnum_t i = 0; i <= res.columnCount(); ++i)
     {
     	const DBMS::ColumnDesc &desc = res.describeColumn(i);
         std::cout << "name:      " << (desc.getName().isnull() ? "<null>" :

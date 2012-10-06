@@ -686,23 +686,23 @@ DB_NAMESPACE_BEGIN
 
 
 template<typename tag>
-struct db_traits<dal::generic, tag>
+struct db_traits<generic, tag>
 {
-    typedef Environment<dal::generic, tag>      environment_type;
-    typedef Connection<dal::generic, tag>       connection_type;
-    typedef Statement<dal::generic, tag>        statement_type;
-    typedef Result<dal::generic, tag>           resultset_type;
-    typedef CachedResult<dal::generic, tag>     cached_resultset_type;
-    typedef dal::generic::VALUE                 value_type;
+    typedef Environment<generic, tag>      environment_type;
+    typedef Connection<generic, tag>       connection_type;
+    typedef Statement<generic, tag>        statement_type;
+    typedef Result<generic, tag>           resultset_type;
+    typedef CachedResult<generic, tag>     cached_resultset_type;
+    typedef generic::VALUE                 value_type;
 
-    typedef dal::generic::RESULT                dal_resultset_type;
-    typedef dal::generic::STMT                  dal_stmt_type;
-    typedef dal::generic::ENV                   dal_env_type;
-    typedef dal::generic::DBC                   dal_dbc_type;
-    typedef dal::generic::DIAG                  dal_diag_type;
+    typedef generic::RESULT                dal_resultset_type;
+    typedef generic::STMT                  dal_stmt_type;
+    typedef generic::ENV                   dal_env_type;
+    typedef generic::DBC                   dal_dbc_type;
+    typedef generic::DIAG                  dal_diag_type;
 
-    typedef dal::generic::COLUMNDESC            dal_columndesc_type;
-    typedef dal::generic::STATES                sqlstate_types;
+    typedef generic::COLUMNDESC            dal_columndesc_type;
+    typedef generic::STATES                sqlstate_types;
     typedef basic_datatypes                     datatype_types;
 
     typedef Variant                            dal_variant_type;

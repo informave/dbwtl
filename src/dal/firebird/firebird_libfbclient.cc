@@ -2162,8 +2162,8 @@ FirebirdDbc_libfbclient::currentTrx(void)
 /// @details
 /// 
 Transaction    
-FirebirdDbc_libfbclient::makeTrx(IDbc::trx_mode mode,
-                                    IDbc::access_mode access,
+FirebirdDbc_libfbclient::makeTrx(trx_mode mode,
+                                    access_mode access,
                                     String name)
 {
     ::isc_tr_handle trh = this->makeTrxInternal(mode, access, name);
@@ -2212,8 +2212,8 @@ FirebirdDbc_libfbclient::getDialect(void) const
 /// @details
 /// 
 void
-FirebirdDbc_libfbclient::beginTrans(IDbc::trx_mode mode,
-                                    IDbc::access_mode access,
+FirebirdDbc_libfbclient::beginTrans(trx_mode mode,
+                                    access_mode access,
                                     String name)
 {
     // check if the connection has an active transaction
@@ -2234,8 +2234,8 @@ FirebirdDbc_libfbclient::beginTrans(IDbc::trx_mode mode,
 /// @details
 /// 
 ::isc_tr_handle
-FirebirdDbc_libfbclient::makeTrxInternal(IDbc::trx_mode mode,
-                                         IDbc::access_mode access,
+FirebirdDbc_libfbclient::makeTrxInternal(trx_mode mode,
+                                         access_mode access,
                                          String name)
 {
     ISC_STATUS sv[20];
@@ -2678,7 +2678,7 @@ FirebirdStmt_libfbclient::prepare(String sql)
         trx = this->getDbc().currentTrx();
     else // create local transaction
     {
-        trx = this->getDbc().makeTrx(IDbc::trx_read_committed, IDbc::trx_default);
+        trx = this->getDbc().makeTrx(trx_read_committed, trx_default);
         m_localTrx = trx;
     }
 

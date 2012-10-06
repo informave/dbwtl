@@ -98,7 +98,7 @@ namespace ex
 
         String        m_msg;
         std::string          m_msg_narrow;
-        //dal::dalstate_t      m_state;
+        //dalstate_t      m_state;
     };
 
 
@@ -114,15 +114,15 @@ namespace ex
     public:
 
         /// @note The name of the variant is extracted from the argument
-        //convert_error(const dal::Variant &var);
+        //convert_error(const Variant &var);
 
 
         convert_error(const String &what);
 
-        //convert_error(dal::dalstate_t state, const std::wstring &varname = std::wstring());
+        //convert_error(dalstate_t state, const std::wstring &varname = std::wstring());
 
         /// @note The name of the variant is extracted from the argument
-        //convert_error(dal::dalstate_t state, const dal::Variant &var);
+        //convert_error(dalstate_t state, const Variant &var);
 
 
         convert_error(informave::db::daltype_t, informave::db::DatatypeEnumeration);
@@ -148,7 +148,7 @@ namespace ex
 
         null_value(const Variant &var);
 
-        //null_value(dal::dalstate_t state, const std::wstring &varname = std::wstring());
+        //null_value(dalstate_t state, const std::wstring &varname = std::wstring());
 
         virtual ~null_value(void) throw()
         {}
@@ -166,7 +166,7 @@ namespace ex
     class DBWTL_EXPORT engine_error : public exception
     {
     public:
-        //engine_error(dal::dalstate_t state);
+        //engine_error(dalstate_t state);
 
         engine_error(const String &what);
 
@@ -187,7 +187,7 @@ namespace ex
     public:
         sql_error(const String &sql, const String &what);
 
-        //sql_error(dal::dalstate_t state, const std::wstring &sql, const std::wstring &what);
+        //sql_error(dalstate_t state, const std::wstring &sql, const std::wstring &what);
 
         virtual ~sql_error(void) throw()
         {}
@@ -212,7 +212,7 @@ namespace ex
     class DBWTL_EXPORT sqlstate_exception : public engine_error
     {
     public:
-    	sqlstate_exception(const dal::IDiagnostic& diag_to_clone);
+    	sqlstate_exception(const IDiagnostic& diag_to_clone);
 
 
         sqlstate_exception(const sqlstate_exception& orig);
@@ -221,12 +221,12 @@ namespace ex
         virtual ~sqlstate_exception(void) throw();
 
 
-        virtual const dal::IDiagnostic& diag(void) const;
+        virtual const IDiagnostic& diag(void) const;
 
       
     protected:
-        std::auto_ptr<dal::IDiagnostic> m_diag;
-        //dal::IDiagnostic *m_diag;
+        std::auto_ptr<IDiagnostic> m_diag;
+        //IDiagnostic *m_diag;
     };
 
 
@@ -243,7 +243,7 @@ namespace ex
     class DBWTL_EXPORT not_found : public exception
     {
     public:
-        //not_found(dal::dalstate_t state, const std::wstring &what = std::wstring());
+        //not_found(dalstate_t state, const std::wstring &what = std::wstring());
 
         not_found(const String &what);
 
@@ -279,7 +279,7 @@ namespace ex
     class DBWTL_EXPORT read_only : public exception
     {
     public:
-        //read_only(dal::dalstate_t state, const std::wstring &resource_name);
+        //read_only(dalstate_t state, const std::wstring &resource_name);
 
 
         read_only(const String &resource_name = String(L"<unnamed>"),
@@ -322,7 +322,7 @@ namespace ex
     public:
         logic_error(const String &what);
 
-        //logic_error(dal::dalstate_t state);
+        //logic_error(dalstate_t state);
 
         virtual ~logic_error(void) throw()
         {}
@@ -340,7 +340,7 @@ namespace ex
     public:
         busy_error(const String &what);
 
-        //busy_error(dal::dalstate_t state, const std::wstring &what);
+        //busy_error(dalstate_t state, const std::wstring &what);
 
         virtual ~busy_error(void) throw()
         {}

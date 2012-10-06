@@ -281,9 +281,9 @@ private:
 class DBWTL_EXPORT SqliteTable : public ITable
 {
 public:
-    typedef util::SmartPtr<SqliteTable,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<SqliteTable,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
     
     SqliteTable(String dbname, SqliteResult& src);
     
@@ -314,9 +314,9 @@ protected:
 class DBWTL_EXPORT SqliteIndex : public IIndex
 {
 public:
-    typedef util::SmartPtr<SqliteIndex,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<SqliteIndex,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
     
     SqliteIndex(String dbname, SqliteResult& src);
     
@@ -350,9 +350,9 @@ protected:
 class DBWTL_EXPORT SqliteView : public IView
 {
 public:
-    typedef util::SmartPtr<SqliteView,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<SqliteView,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
     
     SqliteView(String dbname, SqliteResult& src);
     
@@ -384,9 +384,9 @@ protected:
 class DBWTL_EXPORT SqliteCatalog : public ICatalog
 {
 public:
-    typedef util::SmartPtr<SqliteCatalog,
-                           util::RefCounted,
-                           util::AllowConversion> ptr;
+    typedef utils::SmartPtr<SqliteCatalog,
+                           utils::RefCounted,
+                           utils::AllowConversion> ptr;
     
     SqliteCatalog(String dbname);
     
@@ -435,9 +435,9 @@ class DBWTL_EXPORT SqliteDatatype : public DatatypeBase
 public:
     friend class SqliteDbc;
 
-    typedef util::SmartPtr<SqliteDatatype,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<SqliteDatatype,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
 
     SqliteDatatype(void);
 
@@ -532,8 +532,8 @@ public:
     virtual ProcedureList  getProcedures(const IProcedureFilter& = EmptyProcedureFilter());
     virtual IndexList      getIndices(const IIndexFilter& = EmptyIndexFilter());
 
-    virtual void           beginTrans(IDbc::trx_mode mode,
-                                      IDbc::access_mode access,
+    virtual void           beginTrans(trx_mode mode,
+                                      access_mode access = trx_default,
                                       String name = String());
 
     virtual void           commit(void);
@@ -631,22 +631,22 @@ DB_NAMESPACE_BEGIN
 
 
 template<>
-struct value_traits<dal::SqliteData*>
+struct value_traits<SqliteData*>
 {
-    typedef raw_pointer<dal::SqliteData*>  stored_type;
-    typedef dal::SqliteData*    value_type;
-    typedef var_info<dal::SqliteData*>         info_type;
+    typedef raw_pointer<SqliteData*>  stored_type;
+    typedef SqliteData*    value_type;
+    typedef var_info<SqliteData*>         info_type;
 };
 
 
 
 template<>
-struct value_traits<const dal::SqliteData*>
+struct value_traits<const SqliteData*>
 {
 /*
-    typedef raw_pointer<const dal::SqliteData*>  stored_type;
-    typedef const dal::SqliteData*    value_type;
-    typedef var_info<const dal::SqliteData*>         info_type;
+    typedef raw_pointer<const SqliteData*>  stored_type;
+    typedef const SqliteData*    value_type;
+    typedef var_info<const SqliteData*>         info_type;
 */
 };
 
@@ -656,7 +656,7 @@ struct value_traits<const dal::SqliteData*>
 ///
 /// @brief Variant storage accessor for SqliteData 
 template<>
-struct sv_accessor<dal::SqliteData*> : public virtual sa_base<dal::SqliteData*>,
+struct sv_accessor<SqliteData*> : public virtual sa_base<SqliteData*>,
                                        public supports<signed int>,
                                        public supports<bool>,
                                        public supports<BlobStream>,
@@ -685,7 +685,7 @@ struct sv_accessor<dal::SqliteData*> : public virtual sa_base<dal::SqliteData*>,
 
 /*
 template<>
-class read_accessor<dal::sqlite_ext::Text> : public default_accessor<dal::sqlite_ext::Text>
+class read_accessor<sqlite_ext::Text> : public default_accessor<sqlite_ext::Text>
 {
     DAL_VARIANT_ACCESSOR;
 
@@ -727,17 +727,17 @@ struct sqlite_datatypes : public basic_datatypes
     virtual ~sqlite_datatypes(void)
     {}
 */
-	typedef dal::sqlite_ext::Text Text;
+	typedef sqlite_ext::Text Text;
 };
 
 
 template<typename tag>
-class SqliteEnvironment : public Environment<dal::sqlite, tag>
+class SqliteEnvironment : public Environment<sqlite, tag>
 {
 public:
 
     SqliteEnvironment(String str)
-        : Environment<dal::sqlite, tag>(str)
+        : Environment<sqlite, tag>(str)
     {}
 
     virtual ~SqliteEnvironment(void)
@@ -755,30 +755,30 @@ public:
 ///
 /// 
 template<typename tag>
-struct db_traits<dal::sqlite, tag>
+struct db_traits<sqlite, tag>
 {
-    //typedef Environment<dal::sqlite, tag>      environment_type;
+    //typedef Environment<sqlite, tag>      environment_type;
     typedef SqliteEnvironment<tag>             environment_type; /// @todo for tests only
-    typedef Connection<dal::sqlite, tag>       connection_type;
-    typedef Statement<dal::sqlite, tag>        statement_type;
-    typedef Result<dal::sqlite, tag>           resultset_type;
-    typedef CachedResult<dal::sqlite, tag>     cached_resultset_type;
-    typedef dal::sqlite::VALUE                 value_type;
+    typedef Connection<sqlite, tag>       connection_type;
+    typedef Statement<sqlite, tag>        statement_type;
+    typedef Result<sqlite, tag>           resultset_type;
+    typedef CachedResult<sqlite, tag>     cached_resultset_type;
+    typedef sqlite::VALUE                 value_type;
 
-    typedef dal::sqlite::RESULT                dal_resultset_type;
-    typedef dal::sqlite::STMT                  dal_stmt_type;
-    typedef dal::sqlite::ENV                   dal_env_type;
-    typedef dal::sqlite::DBC                   dal_dbc_type;
-    typedef dal::sqlite::DIAG                  dal_diag_type;    
-    typedef dal::sqlite::COLUMNDESC            dal_columndesc_type;
-    typedef dal::sqlite::STATES                sqlstate_types;
+    typedef sqlite::RESULT                dal_resultset_type;
+    typedef sqlite::STMT                  dal_stmt_type;
+    typedef sqlite::ENV                   dal_env_type;
+    typedef sqlite::DBC                   dal_dbc_type;
+    typedef sqlite::DIAG                  dal_diag_type;    
+    typedef sqlite::COLUMNDESC            dal_columndesc_type;
+    typedef sqlite::STATES                sqlstate_types;
 
     typedef sqlite_datatypes                   datatype_types;
 
 
     typedef Variant                            dal_variant_type;
 
-    enum { DB_SYSTEM_ID = dal::DAL_ENGINE_SQLITE };
+    enum { DB_SYSTEM_ID = DAL_ENGINE_SQLITE };
 };
 
 struct sqlite_v4 { };

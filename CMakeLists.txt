@@ -141,7 +141,7 @@ if(MSVC)
 
 elseif(CMAKE_COMPILER_IS_GNUCXX)
 	#add_definitions("-std=c++98 -Wno-non-virtual-dtor")
-	add_definitions("-Wno-non-virtual-dtor")
+	add_definitions("-Wno-non-virtual-dtor -std=c++0x")
   if (DBWTL_ENABLE_WARNINGS)
 	  add_definitions("-Wall -W -Wextra -Wno-unused-parameter
 	  -Wno-old-style-cast

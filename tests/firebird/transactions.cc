@@ -8,7 +8,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, RollbackTransaction)
 {
 	dbc.directCmd("DELETE FROM alltypes");
 	dbc.directCmd("INSERT INTO alltypes(t_smallint) VALUES(5)");
-	Transaction trx = dbc.makeTrx(dal::IDbc::trx_read_committed, dal::IDbc::trx_default);
+	Transaction trx = dbc.makeTrx(trx_read_committed, trx_default);
 	DBMS::Statement stmt(dbc);
 	try
 	{
@@ -41,7 +41,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, RollbackTransaction)
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, RollbackTransaction2)
 {
-	Transaction trx = dbc.makeTrx(dal::IDbc::trx_read_committed, dal::IDbc::trx_default);
+	Transaction trx = dbc.makeTrx(trx_read_committed, trx_default);
 	DBMS::Statement stmt(dbc);
 	stmt.execDirect("SELECT * FROM RDB$DATABASE", trx);
 	stmt.close();
@@ -82,7 +82,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, RollbackTransaction7)
 	DBMS::Statement stmt1(dbc);
 	DBMS::Resultset rs;
 
-	dbc.beginTrans(dal::IDbc::trx_read_committed, dal::IDbc::trx_default);
+	dbc.beginTrans(trx_read_committed, trx_default);
 	stmt1.execDirect("SELECT CURRENT_TRANSACTION FROM RDB$DATABASE");
 	rs.attach(stmt1);
 	rs.first();
@@ -138,7 +138,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, CloseAfterException)
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, SavepointTest)
 {
 	DBMS::Statement stmt(dbc);
-	dbc.beginTrans(dal::IDbc::trx_read_committed);
+	dbc.beginTrans(trx_read_committed);
 	dbc.savepoint("foo");
 	dbc.rollback("foo");
 	dbc.directCmd("SAVEPOINT abc");
@@ -155,7 +155,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, SavepointTest)
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, RollbackTransaction3)
 {
-        Transaction trx = dbc.makeTrx(dal::IDbc::trx_read_committed, dal::IDbc::trx_default);
+        Transaction trx = dbc.makeTrx(trx_read_committed, trx_default);
         DBMS::Statement stmt(dbc);
         stmt.execDirect("SELECT * FROM RDB$DATABASE", trx);
         stmt.close();

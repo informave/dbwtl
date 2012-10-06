@@ -83,7 +83,7 @@
 DAL_NAMESPACE_BEGIN
 
 
-
+/*
 struct delete_object
 {
     template <typename T>
@@ -92,7 +92,7 @@ struct delete_object
     template<typename U, typename V>
     void operator()(std::pair<U, V> val){ delete val.second;}
 };
-
+*/
 
 
 static void delete_resultset(SqliteResult_libsqlite* rs)

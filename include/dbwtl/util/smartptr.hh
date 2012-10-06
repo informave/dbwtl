@@ -9,7 +9,7 @@
 ///
 /// @cond DEV_DOCS
 
-#define NS_BEGIN namespace informave { namespace util {
+#define NS_BEGIN namespace informave { namespace utils {
 
 
 NS_BEGIN
@@ -720,12 +720,12 @@ namespace std
              template <class> class KP,
              template <class> class SP
              >
-    struct less<informave::util::SmartPtr<T, OP, CP, KP, SP> >
-        : public binary_function<informave::util::SmartPtr<T, OP, CP, KP, SP>,
-                                 informave::util::SmartPtr<T, OP, CP, KP, SP>, bool>
+    struct less<informave::utils::SmartPtr<T, OP, CP, KP, SP> >
+        : public binary_function<informave::utils::SmartPtr<T, OP, CP, KP, SP>,
+                                 informave::utils::SmartPtr<T, OP, CP, KP, SP>, bool>
     {
-        bool operator()(const informave::util::SmartPtr<T, OP, CP, KP, SP>& lhs,
-                        const informave::util::SmartPtr<T, OP, CP, KP, SP>& rhs) const
+        bool operator()(const informave::utils::SmartPtr<T, OP, CP, KP, SP>& lhs,
+                        const informave::utils::SmartPtr<T, OP, CP, KP, SP>& rhs) const
             { return less<T*>()(getImpl(lhs), getImpl(rhs)); }
     };
 }

@@ -61,26 +61,26 @@ DB_NAMESPACE_BEGIN
 
 
 signed int
-sv_accessor<dal::SqliteData*>::cast(signed int*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(signed int*, std::locale loc) const
 {
     return this->get_value()->getInt(); 
 }
 
 bool
-sv_accessor<dal::SqliteData*>::cast(bool*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(bool*, std::locale loc) const
 {
     return this->get_value()->getInt() > 0;
 }
 
 
 BlobStream
-sv_accessor<dal::SqliteData*>::cast(BlobStream*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(BlobStream*, std::locale loc) const
 {
     return BlobStream(this->get_value()->getBlob());
 }
 
 TDate
-sv_accessor<dal::SqliteData*>::cast(TDate*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(TDate*, std::locale loc) const
 {
     return TDate(this->get_value()->getString());
 
@@ -100,7 +100,7 @@ sv_accessor<dal::SqliteData*>::cast(TDate*, std::locale loc) const
 }
 
 TTime
-sv_accessor<dal::SqliteData*>::cast(TTime*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(TTime*, std::locale loc) const
 {
     return TTime(this->get_value()->getString());
 /*
@@ -119,7 +119,7 @@ sv_accessor<dal::SqliteData*>::cast(TTime*, std::locale loc) const
 
 
 TTimestamp
-sv_accessor<dal::SqliteData*>::cast(TTimestamp*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(TTimestamp*, std::locale loc) const
 {
     return TTimestamp(this->get_value()->getString());
 /*
@@ -139,7 +139,7 @@ sv_accessor<dal::SqliteData*>::cast(TTimestamp*, std::locale loc) const
 
 
 TNumeric
-sv_accessor<dal::SqliteData*>::cast(TNumeric*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(TNumeric*, std::locale loc) const
 {
     String s = this->get_value()->getString();
     return TNumeric(s);
@@ -149,19 +149,19 @@ sv_accessor<dal::SqliteData*>::cast(TNumeric*, std::locale loc) const
 
 
 String
-sv_accessor<dal::SqliteData*>::cast(String*, std::locale loc) const
+sv_accessor<SqliteData*>::cast(String*, std::locale loc) const
 {
     return this->get_value()->getString();
 }
 
 bool
-sv_accessor<dal::SqliteData*>::valueNullCheck() const
+sv_accessor<SqliteData*>::valueNullCheck() const
 {
     return this->get_value()->isnull();
 }
 
 daltype_t
-sv_accessor<dal::SqliteData*>::datatype() const
+sv_accessor<SqliteData*>::datatype() const
 {
     return this->get_value()->daltype();
 }
@@ -862,10 +862,11 @@ SqliteDbc::getDatatypes(const IDatatypeFilter& filter)
 
 //
 void
-SqliteDbc::beginTrans(IDbc::trx_mode mode,
-                      IDbc::access_mode access,
+SqliteDbc::beginTrans(trx_mode mode,
+                      access_mode access,
                       String name)
 {
+    /// @bug fix trx
     std::string s_cmd("BEGIN TRANSACTION ");
     this->directCmd(s_cmd);
 }

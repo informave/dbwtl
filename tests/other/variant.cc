@@ -13,7 +13,6 @@
 
 
 using namespace informave::db;
-using namespace informave::db::dal;
 using namespace informave::db::ex;
 
 

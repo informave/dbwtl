@@ -7,7 +7,7 @@
 #include <iostream>
 
 using namespace informave::db;
-typedef Database<dal::sqlite> DBMS;
+typedef Database<sqlite> DBMS;
 
 int test(void)
 {
@@ -34,7 +34,7 @@ int test(void)
         tf << "Hello World";
     }
 
-    dbc.beginTrans(DBMS::Connection::trx_read_committed);
+    dbc.beginTrans(trx_read_committed);
 
     DBMS::Statement stmt(dbc);
     stmt.prepare("INSERT INTO streambuf_checks(data) VALUES(?)");

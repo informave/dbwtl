@@ -14,7 +14,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, DatabaseVersion)
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteMemoStream)
 {
-	dbc.beginTrans(dal::IDbc::trx_read_committed);
+	dbc.beginTrans(trx_read_committed);
         dbc.directCmd("DELETE FROM alltypes");
         DBMS::Statement stmt(dbc);
         stmt.prepare("INSERT INTO alltypes(t_text) VALUES(?)");
@@ -29,7 +29,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteMemoStream)
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteMemo)
 {
-        dbc.beginTrans(dal::IDbc::trx_read_committed);
+        dbc.beginTrans(trx_read_committed);
         dbc.directCmd("DELETE FROM alltypes");
         DBMS::Statement stmt(dbc);
         stmt.prepare("INSERT INTO alltypes(t_text) VALUES(?)");
@@ -51,7 +51,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteMemo)
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, ReadMemo)
 {
-        dbc.beginTrans(dal::IDbc::trx_read_committed, dal::IDbc::trx_readonly);
+        dbc.beginTrans(trx_read_committed, trx_readonly);
         DBMS::Statement stmt(dbc);
         stmt.execDirect("SELECT t_text FROM alltypes");
         DBMS::Resultset rs;
@@ -67,7 +67,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, ReadMemo)
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteStringToMemo)
 {
-	dbc.beginTrans(dal::IDbc::trx_read_committed);
+	dbc.beginTrans(trx_read_committed);
 	dbc.directCmd("DELETE FROM alltypes");
 	DBMS::Statement stmt(dbc);
 	stmt.prepare("INSERT INTO alltypes(t_text) VALUES(?)");

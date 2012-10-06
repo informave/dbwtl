@@ -319,9 +319,9 @@ private:
 class DBWTL_EXPORT FirebirdTable : public ITable
 {
 public:
-    typedef util::SmartPtr<FirebirdTable,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<FirebirdTable,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
     
     FirebirdTable(String dbname, FirebirdResult& src);
     
@@ -355,9 +355,9 @@ protected:
 class DBWTL_EXPORT FirebirdIndex : public IIndex
 {
 public:
-    typedef util::SmartPtr<FirebirdIndex,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<FirebirdIndex,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
     
     FirebirdIndex(String dbname, FirebirdResult& src);
     
@@ -393,9 +393,9 @@ protected:
 class DBWTL_EXPORT FirebirdView : public IView
 {
 public:
-    typedef util::SmartPtr<FirebirdView,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<FirebirdView,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
     
     FirebirdView(String dbname, FirebirdResult& src);
     
@@ -429,9 +429,9 @@ protected:
 class DBWTL_EXPORT FirebirdCatalog : public ICatalog
 {
 public:
-    typedef util::SmartPtr<FirebirdCatalog,
-                           util::RefCounted,
-                           util::AllowConversion> ptr;
+    typedef utils::SmartPtr<FirebirdCatalog,
+                           utils::RefCounted,
+                           utils::AllowConversion> ptr;
     
     FirebirdCatalog(String dbname);
     
@@ -484,9 +484,9 @@ class DBWTL_EXPORT FirebirdDatatype : public DatatypeBase
 public:
     friend class FirebirdDbc;
 
-    typedef util::SmartPtr<FirebirdDatatype,
-        util::RefCounted,
-        util::AllowConversion> ptr;
+    typedef utils::SmartPtr<FirebirdDatatype,
+        utils::RefCounted,
+        utils::AllowConversion> ptr;
 
     FirebirdDatatype(void);
 
@@ -601,8 +601,8 @@ public:
     
     // firebird specific
 
-    virtual Transaction    makeTrx(IDbc::trx_mode mode,
-                                   IDbc::access_mode access = IDbc::trx_default,
+    virtual Transaction    makeTrx(trx_mode mode,
+                                   access_mode access = trx_default,
                                    String name = String()) = 0;
 
     virtual bool           hasActiveTrx(void) = 0;
@@ -688,16 +688,16 @@ DAL_NAMESPACE_END
 DB_NAMESPACE_BEGIN
 
 template<>
-struct value_traits<dal::FirebirdData*>
+struct value_traits<FirebirdData*>
 {
-    typedef raw_pointer<dal::FirebirdData*>   stored_type;
-    typedef dal::FirebirdData*                value_type;
-    typedef var_info<dal::FirebirdData*>      info_type;
+    typedef raw_pointer<FirebirdData*>   stored_type;
+    typedef FirebirdData*                value_type;
+    typedef var_info<FirebirdData*>      info_type;
 };
 
 
 template<>
-struct value_traits<const dal::FirebirdData*>
+struct value_traits<const FirebirdData*>
 { /* empty traits to prevent user mistakes */ };
 
 
@@ -708,7 +708,7 @@ struct value_traits<const dal::FirebirdData*>
 /// @since 0.0.1
 /// @brief Variant storage accessor for FirebirdData 
 template<>
-struct sv_accessor<dal::FirebirdData*> : public virtual sa_base<dal::FirebirdData*>,
+struct sv_accessor<FirebirdData*> : public virtual sa_base<FirebirdData*>,
                                          public supports<signed int>,
                                          public supports<signed short>,
                                          public supports<signed long long>,
@@ -766,18 +766,18 @@ struct firebird_datatypes : public basic_datatypes
 
 
 template<typename tag>
-class FirebirdConnection : public Connection<dal::firebird, tag>
+class FirebirdConnection : public Connection<firebird, tag>
 {
 public:
-	FirebirdConnection(typename db_traits<dal::firebird, tag>::environment_type &env)
-		: Connection<dal::firebird, tag>(env)
+	FirebirdConnection(typename db_traits<firebird, tag>::environment_type &env)
+		: Connection<firebird, tag>(env)
 	{}
 
 	virtual ~FirebirdConnection(void)
 	{}
 
-	dal::Transaction makeTrx(dal::IDbc::trx_mode mode,
-                             dal::IDbc::access_mode access = dal::IDbc::trx_default,
+	Transaction makeTrx(trx_mode mode,
+                             access_mode access = trx_default,
                              String name = String())
 	{
 		return this->m_dbc->makeTrx(mode, access, name);
@@ -786,11 +786,11 @@ public:
 
 
 template<typename tag>
-class FirebirdStatement : public Statement<dal::firebird, tag>
+class FirebirdStatement : public Statement<firebird, tag>
 {
 public:
-	FirebirdStatement(typename db_traits<dal::firebird, tag>::connection_type &dbc)
-		: Statement<dal::firebird, tag>(dbc)
+	FirebirdStatement(typename db_traits<firebird, tag>::connection_type &dbc)
+		: Statement<firebird, tag>(dbc)
 	{}
 
 	virtual ~FirebirdStatement(void)
@@ -800,14 +800,14 @@ public:
 	virtual void      prepare(String sql) { this->m_stmt->prepare(sql); }
 
 
-	virtual void      prepare(String sql, dal::Transaction trx)
+	virtual void      prepare(String sql, Transaction trx)
 	{
 		this->m_stmt->prepare(sql, trx);
 	}
 
 	virtual void      execDirect(String sql) { this->m_stmt->execDirect(sql); }
 
-	virtual void      execDirect(String sql, dal::Transaction trx)
+	virtual void      execDirect(String sql, Transaction trx)
 	{
 		this->m_stmt->execDirect(sql, trx);
 	}
@@ -820,29 +820,29 @@ public:
 ///
 /// @since 0.0.1
 template<typename tag>
-struct db_traits<dal::firebird, tag>
+struct db_traits<firebird, tag>
 {
-    typedef Environment<dal::firebird, tag>      environment_type;
+    typedef Environment<firebird, tag>      environment_type;
     typedef FirebirdConnection<tag>              connection_type;
     typedef FirebirdStatement<tag>               statement_type;
-    typedef Result<dal::firebird, tag>           resultset_type;
-    typedef CachedResult<dal::firebird, tag>     cached_resultset_type;
-    typedef dal::firebird::VALUE                 value_type;
+    typedef Result<firebird, tag>           resultset_type;
+    typedef CachedResult<firebird, tag>     cached_resultset_type;
+    typedef firebird::VALUE                 value_type;
 
-    typedef dal::firebird::RESULT                dal_resultset_type;
-    typedef dal::firebird::STMT                  dal_stmt_type;
-    typedef dal::firebird::ENV                   dal_env_type;
-    typedef dal::firebird::DBC                   dal_dbc_type;
-    typedef dal::firebird::DIAG                  dal_diag_type;    
-    typedef dal::firebird::COLUMNDESC            dal_columndesc_type;
-    typedef dal::firebird::STATES                sqlstate_types;
+    typedef firebird::RESULT                dal_resultset_type;
+    typedef firebird::STMT                  dal_stmt_type;
+    typedef firebird::ENV                   dal_env_type;
+    typedef firebird::DBC                   dal_dbc_type;
+    typedef firebird::DIAG                  dal_diag_type;    
+    typedef firebird::COLUMNDESC            dal_columndesc_type;
+    typedef firebird::STATES                sqlstate_types;
 
     typedef firebird_datatypes                   datatype_types;
 
 
     typedef Variant                              dal_variant_type;
 
-    enum { DB_SYSTEM_ID = dal::DAL_ENGINE_FIREBIRD };
+    enum { DB_SYSTEM_ID = DAL_ENGINE_FIREBIRD };
 };
 
 

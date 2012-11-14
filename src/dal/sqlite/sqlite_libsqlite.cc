@@ -600,17 +600,17 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
                 break;
 
             case DAL_TYPE_BLOB:
-                if(var->get<BlobStream>())
+                assert(var->get<BlobStream>().rdbuf()); /// @bug add internal exception
                 {
                     tmp_stream << var->get<BlobStream>().rdbuf();
-                
+                    
                     std::string& tmp_string = tmp_strings[param->first];
                     tmp_string = tmp_stream.str();
                     err = this->drv()->sqlite3_bind_blob(this->getHandle(), param->first, tmp_string.c_str(),
                                                          tmp_string.size(), NULL);
                 }
                 break;
-                
+
             default:
                 // all other types are passed as string
                 err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,

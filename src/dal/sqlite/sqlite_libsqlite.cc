@@ -43,7 +43,7 @@
 
 #include "sqlite_libsqlite.hh"
 #include "dbwtl/variant.hh"
-#include "dbwtl/db_exceptions.hh"
+//#include "dbwtl/db_exceptions.hh"
 #include "dbwtl/stdext/functional"
 #include "../dal_debug.hh"
 #include "../sqlutils.hh"

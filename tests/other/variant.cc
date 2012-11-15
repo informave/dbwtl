@@ -151,7 +151,7 @@ CXXC_TEST(PointerStorage)
     CXXC_CHECK( v1.get<int>() == 30 );
     CXXC_CHECK( v3.get<int>() == 10 );
     
-    CXXC_CHECK_THROW( read_only, v2.set<int>(40) );
+    CXXC_CHECK_THROW( ReadonlyException, v2.set<int>(40) );
 }
 
 

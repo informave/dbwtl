@@ -55,7 +55,7 @@
 #include "dbwtl/ustreambuf.hh"
 #include "dbwtl/util/smartptr.hh"
 
-#include "dbwtl/db_exceptions.hh"
+#include "dbwtl/exceptions.hh"
 
 
 #ifdef DAL_DEV_INCLUDE_DEVUTILS

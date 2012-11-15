@@ -79,17 +79,17 @@ namespace informave
                 switch(errcode)
                 {
                 case U_BUFFER_OVERFLOW_ERROR:
-                    throw ex::charset_error("Buffer overflow", String(from), String(to));
+                    throw CharconvException("Buffer overflow", String(from), String(to));
 
                 case U_TRUNCATED_CHAR_FOUND:
-                    throw ex::charset_error("Truncated character sequence", String(from), String(to));
+                    throw CharconvException("Truncated character sequence", String(from), String(to));
 
                 case U_ILLEGAL_CHAR_FOUND:
                 case U_INVALID_CHAR_FOUND:
-                    throw ex::charset_error("Illegal character found", String(from), String(to));
+                    throw CharconvException("Illegal character found", String(from), String(to));
 
                 default:
-                    throw ex::charset_error("Unknown ICU conversion error", String(from), String(to));
+                    throw CharconvException("Unknown ICU conversion error", String(from), String(to));
                 }
             }
             return c;

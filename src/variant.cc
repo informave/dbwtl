@@ -41,8 +41,8 @@
 /// @since 0.0.1
 
 
-#include "dbwtl/dal/dal_interface.hh"
-#include "dbwtl/db_exceptions.hh"
+#include "dbwtl/dal/dal_fwd.hh"
+#include "dbwtl/exceptions.hh"
 #include "dal/dal_debug.hh"
 
 #include "dbwtl/dal/active_engines.hh"
@@ -388,7 +388,7 @@ std::ostream& operator<<(std::ostream& o,  const Variant &var)
 
 void throw_read_only(void)
 {
-    throw ex::read_only(); /// @todo include variant name for more information
+    throw ReadonlyException(); /// @todo include variant name for more information
 }
 
 

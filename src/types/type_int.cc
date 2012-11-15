@@ -44,7 +44,6 @@
 #include "dbwtl/dal/dal_interface.hh"
 #include "dbwtl/variant.hh"
 #include "dbwtl/types.hh"
-#include "dbwtl/db_exceptions.hh"
 #include "../dal/dal_debug.hh"
 
 #include <ctime>

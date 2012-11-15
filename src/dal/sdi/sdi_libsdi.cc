@@ -43,7 +43,6 @@
 
 #include "sdi_libsdi.hh"
 #include "dbwtl/variant.hh"
-#include "dbwtl/db_exceptions.hh"
 #include "dbwtl/stdext/functional"
 #include "../dal_debug.hh"
 #include "../sqlutils.hh"

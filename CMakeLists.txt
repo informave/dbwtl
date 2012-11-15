@@ -288,7 +288,7 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_libsdi.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
-	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
+	${DBWTL_MAIN_SRC_DIR}/exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc
 	${DBWTL_MAIN_SRC_DIR}/variant_expr.cc
 	${DBWTL_MAIN_SRC_DIR}/ustring.cc

@@ -51,14 +51,14 @@ CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteVariantConversion)
 	CXXC_CHECK( ! rs.column(1).isnull() );
 	CXXC_CHECK( rs.column(1).get<TDate>() == TDate("now") );
 	CXXC_CHECK( rs.column(2).get<TDate>() == TDate("now") );
-	CXXC_CHECK_THROW( null_value, rs.column(3).get<TDate>() );
+	CXXC_CHECK_THROW( NullException, rs.column(3).get<TDate>() );
 
 	stmt.close();
 	stmt.execDirect("SELECT time('now'), datetime('now'), NULL");
 	rs.attach(stmt);
 	rs.first();
 	TTime y = rs.column(1).get<TTime>();
-	CXXC_CHECK_THROW( null_value, rs.column(3).get<TTime>() );
+	CXXC_CHECK_THROW( NullException, rs.column(3).get<TTime>() );
 }
 
 
@@ -226,7 +226,7 @@ CXXC_TEST(PointerStorage)
     CXXC_CHECK( v1.get<int>() == 30 );
     CXXC_CHECK( v3.get<int>() == 10 );
     
-    CXXC_CHECK_THROW( read_only, v2.set<int>(40) );
+    CXXC_CHECK_THROW( ReadonlyException, v2.set<int>(40) );
 }
 
 

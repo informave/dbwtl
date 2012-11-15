@@ -59,10 +59,18 @@
 #define US(str) U##str
 #endif
 
+
+
+#define DBWTL_BUGCHECK2(cond) { if(! (cond) ) utils::raise_bugcheck_exception(#cond, "", __LINE__, __FILE__, __PRETTY_FUNCTION__); }
+
+
+
 DB_NAMESPACE_BEGIN
 
 namespace utils
 {
+    void raise_bugcheck_exception(const char *cond, const char *what, int line, const char *file, const char *function);
+
 
     template<typename T>
     inline std::vector<T> split(const T& str, const typename T::value_type del)

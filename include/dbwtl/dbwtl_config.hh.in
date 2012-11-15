@@ -14,7 +14,7 @@
 
 #cmakedefine DBWTL_WITH_FIREBIRD
 
-#cmakedefine DBWTL_WITH_POSTGRES
+#cmakedefine DBWTL_WITH_SDI
 
 #cmakedefine DBWTL_ON_WIN32
 
@@ -29,6 +29,8 @@
 #cmakedefine DBWTL_DEFAULT_CHARSET "@DBWTL_DEFAULT_CHARSET@"
 
 #cmakedefine DBWTL_INTERNAL_CHARTYPE @DBWTL_INTERNAL_CHARTYPE@
+
+
 
 #if defined (DBWTL_ON_WIN32) 
   #if defined(dbwtl_EXPORTS)

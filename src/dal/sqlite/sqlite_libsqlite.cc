@@ -528,7 +528,7 @@ SqliteResult_libsqlite::prepare(String sql)
         const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
         String u_msg(msg, "UTF-8");
         DAL_SQLITE_LIBSQLITE_DIAG_ERROR(this,
-                                        "Can not prepare query",
+                                        String("Can not prepare query: ") + sql,
                                         u_msg,
                                         this->drv()->sqlite3_errcode(this->m_stmt.getDbc().getHandle()),
                                         this->drv()->sqlite3_extended_errcode(this->m_stmt.getDbc().getHandle()));

@@ -88,7 +88,8 @@ typedef enum dal_engines_enum
 {
     DAL_ENGINE_GENERIC=0,
     DAL_ENGINE_SQLITE=50,
-    DAL_ENGINE_FIREBIRD=51
+    DAL_ENGINE_SDI=51,
+    DAL_ENGINE_FIREBIRD=52
 } dal_engine;
 
 ///
@@ -224,6 +225,24 @@ void inline setValue(const T& src, U& dest)
     ss << src;
     dest = ss.str();
 }
+
+
+struct DBWTL_EXPORT ObjectName
+{
+	ObjectName(String table, String schema, String catalog) : m_table(table),
+		m_schema(schema), m_catalog(catalog)
+		{}
+
+    ObjectName(void) : m_table(), m_schema(), m_catalog()
+    {}
+
+	inline const String& table(void) const { return m_table; }
+	inline const String& schema(void) const { return m_schema; }
+	inline const String& catalog(void) const { return m_catalog; }
+
+	String m_table, m_schema, m_catalog;
+};
+
 
 
 
@@ -982,26 +1001,23 @@ protected:
 
 
 
-
-
 //------------------------------------------------------------------------------
 ///
-/// @brief DAL Interface for resultsets
-class DBWTL_EXPORT IResult : public IDALObject
+/// @brief DAL Interface for datasets
+class DBWTL_EXPORT IDataset : public IDALObject
 {
 public:
     //typedef std::auto_ptr<IResult> ptr;
-    typedef utils::SmartPtr<IResult, utils::RefCounted, utils::AllowConversion> ptr;
+    typedef utils::SmartPtr<IDataset, utils::RefCounted, utils::AllowConversion> ptr;
     typedef size_t                      bookmark_type;
     typedef Variant                     value_type;
     /// @todo check if row_type is required
     typedef std::vector<value_type*>    row_type;
 
 
-    virtual ~IResult(void);
+    virtual ~IDataset(void) {}
 
 
-    virtual bool   isPrepared(void) const = 0;
     virtual bool   isBad(void) const = 0;
 
     virtual void   first(void) = 0;
@@ -1010,22 +1026,15 @@ public:
     virtual bool   isOpen(void) const = 0;
     virtual void   close(void) = 0;
 
-    // row methods
     virtual rowcount_t       rowCount(void) const = 0;
-    virtual size_t           paramCount(void) const = 0;
-    virtual rowcount_t       affectedRows(void) const = 0;
-
-    virtual Variant          lastInsertRowId(void) = 0;
 
     virtual const value_type&      column(colnum_t num) = 0;
     virtual const value_type&      column(String name) = 0;
-    //virtual value_type&          field(colnum_t num) = 0;
-    //virtual variant_type&        field(std::wstring name) = 0;
 
     // column methods
     virtual size_t           columnCount(void) const = 0;
     virtual colnum_t         columnID(String name) const = 0;
-    virtual String     columnName(colnum_t num) const = 0;
+    virtual String           columnName(colnum_t num) const = 0;
     //virtual const ITypeInfo& datatype(colnum_t num) const = 0;
 
     /// @brief Returns the column descriptor for the given column number
@@ -1035,11 +1044,46 @@ public:
     virtual const IColumnDesc& describeColumn(String name) const = 0;
 
 
-    virtual IDALDriver* drv(void) const = 0;
+    //virtual IDALDriver* drv(void) const = 0;
 };
 
 
 
+
+class DBWTL_EXPORT IDataProvider : public IDataset
+{
+public:
+	virtual ~IDataProvider(void) {}
+
+    typedef enum { MODE_READ } open_mode;
+
+    virtual void open(open_mode mode, 
+                      const String &table,
+                      const String &schema = String(),
+	              const String &database = String()) = 0;
+
+	//virtual void post(void) = 0;
+    virtual IDALDriver* drv(void) const = 0;
+ };
+ 
+ 
+class DBWTL_EXPORT IResult : public IDataset
+{
+public:
+	virtual ~IResult(void);
+	typedef utils::SmartPtr<IResult, utils::RefCounted, utils::AllowConversion> ptr;
+
+	virtual bool   isPrepared(void) const = 0;
+	virtual bool   isBad(void) const = 0;
+	virtual size_t paramCount(void) const = 0;
+
+	virtual Variant          lastInsertRowId(void) = 0;
+
+	virtual rowcount_t       affectedRows(void) const = 0;
+
+
+	virtual IDALDriver* drv(void) const = 0;
+};
 
 
 //------------------------------------------------------------------------------
@@ -1067,6 +1111,8 @@ public:
 
     virtual IResult&        resultset(void) = 0;
     virtual const IResult&  resultset(void) const = 0;
+
+    virtual IDataProvider*  newProvider(void) = 0;
 
     //virtual void      setResultsetMode(ResultsetMode mode) = 0;
 
@@ -1176,6 +1222,8 @@ public:
     virtual bool      isPrepared(void) const;
 
     virtual bool      isBad(void) const;
+
+    virtual IDataProvider*  newProvider(void);
 
     //virtual void      setResultsetMode(ResultsetMode mode);
 
@@ -1288,17 +1336,17 @@ class DBWTL_EXPORT ColumnDescBase : public IColumnDesc
 {
 public:
     virtual const IColumnDesc::value_type& getName(void) const;
-    virtual const value_type& getCatalogName(void) const;
-    virtual const value_type& getSchemaName(void) const;
-    virtual const value_type& getBaseColumnName(void) const;
-    virtual const value_type& getTypeName(void) const;
-    virtual const value_type& getBaseTableName(void) const;
-    virtual const value_type& getSize(void) const;
-    virtual const value_type& getComment(void) const;
-    virtual const value_type& getIsNullable(void) const;
-    virtual const value_type& getPrecision(void) const;
-    virtual const value_type& getScale(void) const;
-    virtual const value_type& getIsSearchable(void) const;
+    virtual const IColumnDesc::value_type& getCatalogName(void) const;
+    virtual const IColumnDesc::value_type& getSchemaName(void) const;
+    virtual const IColumnDesc::value_type& getBaseColumnName(void) const;
+    virtual const IColumnDesc::value_type& getTypeName(void) const;
+    virtual const IColumnDesc::value_type& getBaseTableName(void) const;
+    virtual const IColumnDesc::value_type& getSize(void) const;
+    virtual const IColumnDesc::value_type& getComment(void) const;
+    virtual const IColumnDesc::value_type& getIsNullable(void) const;
+    virtual const IColumnDesc::value_type& getPrecision(void) const;
+    virtual const IColumnDesc::value_type& getScale(void) const;
+    virtual const IColumnDesc::value_type& getIsSearchable(void) const;
 
 
     virtual daltype_t getDatatype(void) const;

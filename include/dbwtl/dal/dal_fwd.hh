@@ -79,6 +79,8 @@ class IView;
 class IEnv;
 class IDbc;
 class IResult;
+class IDataset;
+class IDataProvider;
 class IStmt;
 class Factory;
 

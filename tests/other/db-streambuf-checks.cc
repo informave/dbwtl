@@ -41,6 +41,7 @@ int test(void)
 
     stmt.execute();
 
+
     std::ifstream in("streambuf_checks_dummy.txt", std::ios::binary);
     stmt.bind(1, in.rdbuf());
     stmt.execute();
@@ -53,20 +54,25 @@ int test(void)
 
     dbc.commit();
 
+
     stmt.prepare("SELECT * from streambuf_checks WHERE data IS NOT NULL");
     stmt.execute();
     DBMS::Resultset rs(stmt);
     rs.first();
 
+    assert(!rs.eof());
 
     const DBMS::Value &data = rs.column("data");    
 
+
+
     DBMS::BlobStream blob(data);
-	
+
 
     //blob.exceptions ( DBMS::Blob::eofbit | DBMS::Blob::failbit | DBMS::Blob::badbit );
     std::stringstream ss;
     ss << "Data: " << data.asBlob().rdbuf();
+
 
 
     assert(ss.str() == std::string("Data: Hello World"));

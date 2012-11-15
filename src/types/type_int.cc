@@ -135,6 +135,41 @@ sv_accessor<signed int>::cast(String*, std::locale loc) const
 
 
 
+String               
+sv_accessor<unsigned int>::cast(String*, std::locale loc) const
+{
+	std::wstringstream ss;
+	ss.imbue(loc);
+	ss << this->get_value();
+	return ss.str();
+}
+
+
+
+String               
+sv_accessor<signed char>::cast(String*, std::locale loc) const
+{
+	std::wstringstream ss;
+	ss.imbue(loc);
+	ss << this->get_value();
+	return ss.str();
+}
+
+
+String               
+sv_accessor<unsigned char>::cast(String*, std::locale loc) const
+{
+	std::wstringstream ss;
+	ss.imbue(loc);
+	ss << this->get_value();
+	return ss.str();
+}
+
+
+
+
+
+
 TTimestamp           
 sv_accessor<signed int>::cast(TTimestamp*, std::locale loc) const
 {

@@ -762,6 +762,14 @@ StmtBase::isBad(void) const
 }
 
 
+///
+///
+IDataProvider*
+StmtBase::newProvider(void)
+{
+	throw ex::engine_error("Unsupported method: newProvider()");
+}
+
 
 //--------------------------------------------------------------------------
 ///

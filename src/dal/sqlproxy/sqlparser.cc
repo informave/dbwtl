@@ -1,8 +1,8 @@
 //
-// generic_engine.cc - Generic Engine (definition)
+// sqlparser.cc - SQL Parser
 //
 // Copyright (C)         informave.org
-//   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
+//   2012,               Daniel Vogelbacher <daniel@vogelbacher.name>
 //
 // BSD License
 //
@@ -35,79 +35,73 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+///
+/// @cond DEV_DOCS
 /// @file
-/// @brief Generic Engine (definition)
+/// @brief SQL Parser
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
 
-#include "dbwtl/dal/dal_fwd.hh"
-#include "dbwtl/dal/engines/generic_engine.hh"
-#include "dbwtl/dal/active_engines.hh"
-#include "../dal_debug.hh"
-#include "../../utils.hh"
+#include "sqlparser.hh"
+#include "dbwtl/dal/dal_interface.hh"
 
-#include <sstream>
+#include <cassert>
 
+SQLPROXY_NAMESPACE_BEGIN
 
 
-DAL_NAMESPACE_BEGIN
-
-
-std::map<std::string, String::Internal> parse_driver(const String::Internal &str)
+/// @details
+/// 
+ParseTree*
+SqlParser::parse(String s)
 {
-    std::map<std::string, String::Internal> data;
-    std::wstring::size_type i = 0, j = 0;
 
-    j = str.find(US(":"), i);
-    if(j != String::Internal::npos)
-    {
-        data["engine"] = str.substr(i, j++);
-        i = j;
-    }
+    std::wstringstream ss;
+    ss << s;
 
-    j = str.find(US(":"), i);
-    if(j != String::Internal::npos)
-    {
-        data["driver"] = str.substr(i, j++ - i);
-        i = j;
-        data["lib"] = str.substr(i);
-    }
-    else
-    {
-        data["driver"] = str.substr(i);
-    }
+    return load(ss, "SQLINPUT");
 
-    return data;
+
+}
+
+/// @details
+/// 
+ParseTree*
+SqlParser::load(std::istreambuf_iterator<wchar_t> in, String sourcename)
+{
+    Token t;
+    Parser p;
+    Tokenizer<wchar_t> tz(in);
+    tz.setSourceName(sourcename);
+
+    ParseTree *m_tree = new ParseTree();
+
+
+
+    //p.trace(stdout, "[LEMON] ");
+    do
+    {
+        t = tz.next();
+        //std::cout << "found token: " << t.getSourceInfo() << std::endl;
+        if(t.id() != 0)
+        {
+            assert(! t.data().empty());
+            assert(t.getSourceInfo().linenum() > 0);
+            
+            Token *tp = m_tree->newToken(t);
+
+            p.parse(t.id(), tp, m_tree);
+        }
+        else
+            p.parse(0, NULL, m_tree);
+    }
+    while(t != Token::eof());
+
+    return m_tree;
 }
 
 
+SQLPROXY_NAMESPACE_END
 
 
-generic::ENV*
-generic::createEnv(String driver)
-{
-    String engine = parse_driver(driver)["engine"];
-
-    if(! engine.length())
-        goto err;
-
-#if defined(DBWTL_WITH_SQLITE)
-    else if(engine.compare(String("sqlite")) == 0)
-        return sqlite::createEnv(driver);
-#endif
-
-    else if(engine.compare(String("sdi")) == 0)
-        return sdi::createEnv(driver);
-
-/*
-    else if(engine.compare(L"postgres") == 0)
-        return Postgres::createEnv(driver);
-*/
-
-err:
-    throw ex::engine_error(format("Env: Unknown driver: %s") % driver);
-}
-
-
-DAL_NAMESPACE_END

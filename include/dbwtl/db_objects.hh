@@ -588,6 +588,8 @@ public:
 		this->m_bind_strings.clear();
     }
 
+    virtual IDataProvider*  newProvider(void)                   { return this->m_stmt->newProvider(); }
+
     virtual dal_resultset_type&        resultset(void)          { return this->m_stmt->resultset(); }
 
     virtual const dal_resultset_type&  resultset(void) const    { return this->m_stmt->resultset(); }

@@ -189,6 +189,26 @@ sv_accessor<Blob>::cast(BlobStream*, std::locale loc) const
 }
 
 
+String
+sv_accessor<BlobStream>::cast(String*, std::locale loc) const
+{
+    std::stringstream ss;
+
+    ss << this->get_value().rdbuf();
+
+    return ss.str();
+}
+
+
+String
+sv_accessor<Blob>::cast(String*, std::locale loc) const
+{
+    std::stringstream ss;
+
+    ss << this->get_value().rdbuf();
+
+    return ss.str();
+}
 
 
 DB_NAMESPACE_END

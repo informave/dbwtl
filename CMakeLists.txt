@@ -12,6 +12,8 @@ set(${PROJECT_NAME}_MAJOR_VERSION 0)
 set(${PROJECT_NAME}_MINOR_VERSION 1)
 set(${PROJECT_NAME}_PATCH_LEVEL 0)
 
+SET(CMAKE_COLOR_MAKEFILE ON)
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 
@@ -75,6 +77,10 @@ option(DBWTL_WITH_SQLITE
 
 option(DBWTL_WITH_FIREBIRD
 	"Compile with Firebird support" ON)
+
+
+option(DBWTL_WITH_SDI
+	"Compile with SDI support" ON)
 
 #select plattform
 if(WIN32)
@@ -141,13 +147,14 @@ if(MSVC)
 
 elseif(CMAKE_COMPILER_IS_GNUCXX)
 	#add_definitions("-std=c++98 -Wno-non-virtual-dtor")
-	add_definitions("-Wno-non-virtual-dtor -std=c++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-non-virtual-dtor -std=c++0x")
+	#add_definitions("-Wno-non-virtual-dtor -std=c++0x")
   if (DBWTL_ENABLE_WARNINGS)
 	  add_definitions("-Wall -W -Wextra -Wno-unused-parameter
-	  -Wno-old-style-cast
     -Wwrite-strings  -Wno-unused -Wno-switch-enum")
     if(DBWTL_ENABLE_PEDANTIC)
-      add_definitions("-pedantic -Wno-long-long -Weffc++ -Wno-non-virtual-dtor")
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wno-long-long -Weffc++ -Wno-non-virtual-dtor")
+      #add_definitions("-pedantic -Wno-long-long -Weffc++ -Wno-non-virtual-dtor")
     endif(DBWTL_ENABLE_PEDANTIC)
   endif(DBWTL_ENABLE_WARNINGS)
   if(DBWTL_ENABLE_WERROR)
@@ -240,9 +247,29 @@ endif()
 
 
 
+# Lemon parser
+add_executable(lemon ${CMAKE_CURRENT_SOURCE_DIR}/lemon/lemon.c)
+
+
+add_custom_command(
+        OUTPUT ${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/parser.cc
+        COMMAND lemon -p -s T=${CMAKE_CURRENT_SOURCE_DIR}/lemon/lempar.c ${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/parser.y
+        DEPENDS lemon ${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/parser.y
+        ${CMAKE_CURRENT_SOURCE_DIR}/lemon/lempar.c
+        ${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/ast.hh # depend workaround cmake
+)
+
+
+
 # Source files
 set(dbwtl_srcs
+	${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/parser.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/sqlparser.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/token.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/ast.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/sqlcursor.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/dal_interface.cc
+	${DBWTL_MAIN_SRC_DIR}/utils.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bigint.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bool.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_blob.cc
@@ -258,9 +285,12 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/types/type_numeric.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_interval.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_varbinary.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_engine.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_libsdi.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/db_exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc
+	${DBWTL_MAIN_SRC_DIR}/variant_expr.cc
 	${DBWTL_MAIN_SRC_DIR}/ustring.cc
 	${DBWTL_MAIN_SRC_DIR}/debug.cc
 	${DBWTL_MAIN_SRC_DIR}/dal/sqlutils.cc

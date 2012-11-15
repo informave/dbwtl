@@ -1,8 +1,8 @@
 //
-// generic_engine.cc - Generic Engine (definition)
+// sqlproxy_fwd.hh - SQL Proxy forward declarations
 //
 // Copyright (C)         informave.org
-//   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
+//   2012,               Daniel Vogelbacher <daniel@vogelbacher.name>
 //
 // BSD License
 //
@@ -35,79 +35,29 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
+///
+/// @cond DEV_DOCS
 /// @file
-/// @brief Generic Engine (definition)
+/// @brief SQL Proxy forward declarations
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
 
+#ifndef INFORMAVE_DB_SQLPROXY_SQLPROXY_FWD_HH
+#define INFORMAVE_DB_SQLPROXY_SQLPROXY_FWD_HH
+
+#include "dbwtl/db_fwd.hh"
 #include "dbwtl/dal/dal_fwd.hh"
-#include "dbwtl/dal/engines/generic_engine.hh"
-#include "dbwtl/dal/active_engines.hh"
-#include "../dal_debug.hh"
-#include "../../utils.hh"
+#include "dbwtl/ustring.hh"
 
-#include <sstream>
+#define SQLPROXY_NAMESPACE_BEGIN namespace informave { namespace db { namespace sqlproxy {
+#define SQLPROXY_NAMESPACE_END }}}
 
+SQLPROXY_NAMESPACE_BEGIN
 
+class ParseTree;
+class Token;
 
-DAL_NAMESPACE_BEGIN
+SQLPROXY_NAMESPACE_END
 
-
-std::map<std::string, String::Internal> parse_driver(const String::Internal &str)
-{
-    std::map<std::string, String::Internal> data;
-    std::wstring::size_type i = 0, j = 0;
-
-    j = str.find(US(":"), i);
-    if(j != String::Internal::npos)
-    {
-        data["engine"] = str.substr(i, j++);
-        i = j;
-    }
-
-    j = str.find(US(":"), i);
-    if(j != String::Internal::npos)
-    {
-        data["driver"] = str.substr(i, j++ - i);
-        i = j;
-        data["lib"] = str.substr(i);
-    }
-    else
-    {
-        data["driver"] = str.substr(i);
-    }
-
-    return data;
-}
-
-
-
-
-generic::ENV*
-generic::createEnv(String driver)
-{
-    String engine = parse_driver(driver)["engine"];
-
-    if(! engine.length())
-        goto err;
-
-#if defined(DBWTL_WITH_SQLITE)
-    else if(engine.compare(String("sqlite")) == 0)
-        return sqlite::createEnv(driver);
 #endif
-
-    else if(engine.compare(String("sdi")) == 0)
-        return sdi::createEnv(driver);
-
-/*
-    else if(engine.compare(L"postgres") == 0)
-        return Postgres::createEnv(driver);
-*/
-
-err:
-    throw ex::engine_error(format("Env: Unknown driver: %s") % driver);
-}
-
-
-DAL_NAMESPACE_END

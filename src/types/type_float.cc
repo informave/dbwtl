@@ -58,5 +58,26 @@ DB_NAMESPACE_BEGIN
 
 
 
+String
+sv_accessor<float>::cast(String*, std::locale loc) const
+{
+    std::wstringstream ss;
+    ss.imbue(loc);
+    ss << this->get_value();
+    return ss.str();
+}
+
+
+
+String
+sv_accessor<double>::cast(String*, std::locale loc) const
+{
+    std::wstringstream ss;
+    ss.imbue(loc);
+    ss << this->get_value();
+    return ss.str();
+}
+
+
 
 DB_NAMESPACE_END

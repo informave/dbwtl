@@ -712,9 +712,11 @@ struct var_info<TVarbinary>
 
 template<>
 struct sv_accessor<Blob> : public virtual sa_base<Blob>,
-                           public supports<BlobStream>
+                           public supports<BlobStream>,
+                           public supports<String>
 {
 	SV_CAST_METHOD(BlobStream);
+    SV_CAST_METHOD(String);
 };
 
 template<>
@@ -728,8 +730,11 @@ struct sv_accessor<Memo> : public virtual sa_base<Memo>,
 
 
 template<>
-struct sv_accessor<BlobStream> : public virtual sa_base<BlobStream>
-{};
+struct sv_accessor<BlobStream> : public virtual sa_base<BlobStream>,
+                                 public supports<String>
+{
+    SV_CAST_METHOD(String);
+};
 
 template<>
 struct sv_accessor<MemoStream> : public virtual sa_base<MemoStream>,
@@ -779,7 +784,7 @@ struct sv_accessor<signed int> : public virtual sa_base<signed int>,
 
 
 template<>
-struct sv_accessor<unsigned int> : public virtual sa_base<unsigned int>
+struct sv_accessor<unsigned int> : public virtual sa_base<unsigned int>,
                                    // public supports_cast<signed int, bool>,
                                    // public supports_cast<signed int, signed char>,
                                    // public supports_cast<signed int, signed short>,
@@ -795,11 +800,13 @@ struct sv_accessor<unsigned int> : public virtual sa_base<unsigned int>
                                    // public supports<TTimestamp>,
                                    // public supports<Blob>,
                                    // public supports<Memo>,
-                                   // public supports<String>
-{};
+                                   public supports<String>
+{
+    SV_CAST_METHOD(String);
+};
 
 template<>
-struct sv_accessor<signed char> : public virtual sa_base<signed char>
+struct sv_accessor<signed char> : public virtual sa_base<signed char>,
                                    // public supports_cast<signed int, bool>,
                                    // public supports_cast<signed int, signed char>,
                                    // public supports_cast<signed int, signed short>,
@@ -815,12 +822,14 @@ struct sv_accessor<signed char> : public virtual sa_base<signed char>
                                    // public supports<TTimestamp>,
                                    // public supports<Blob>,
                                    // public supports<Memo>,
-                                   // public supports<String>
-{};
+                                   public supports<String>
+{
+    SV_CAST_METHOD(String);
+};
 
 
 template<>
-struct sv_accessor<unsigned char> : public virtual sa_base<unsigned char>
+struct sv_accessor<unsigned char> : public virtual sa_base<unsigned char>,
                                    // public supports_cast<signed int, bool>,
                                    // public supports_cast<signed int, signed char>,
                                    // public supports_cast<signed int, signed short>,
@@ -836,8 +845,10 @@ struct sv_accessor<unsigned char> : public virtual sa_base<unsigned char>
                                    // public supports<TTimestamp>,
                                    // public supports<Blob>,
                                    // public supports<Memo>,
-                                   // public supports<String>
-{};
+                                   public supports<String>
+{
+    SV_CAST_METHOD(String);
+};
 
 template<>
 struct sv_accessor<bool> : public virtual sa_base<bool>,
@@ -991,7 +1002,7 @@ struct sv_accessor<TNumeric> : public virtual sa_base<TNumeric>,
 
 template<>
 struct sv_accessor<double> : public virtual sa_base<double>,
-                             public supports_cast<double, float>
+                             public supports_cast<double, float>,
 
                                   // public supports_cast<signed int, bool>,
                                    // public supports_cast<signed int, signed char>,
@@ -1008,14 +1019,17 @@ struct sv_accessor<double> : public virtual sa_base<double>,
                                    // public supports<TTimestamp>,
                                    // public supports<Blob>,
                                    // public supports<Memo>,
-                                   // public supports<String>
+                                   public supports<String>
 {
+    SV_CAST_METHOD(String);
 };
 
 template<>
 struct sv_accessor<float> : public virtual sa_base<float>,
-                            public supports_cast<float, double>
+                            public supports_cast<float, double>,
+                            public supports<String>
 {
+    SV_CAST_METHOD(String);
 };
 
 

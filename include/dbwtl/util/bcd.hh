@@ -244,6 +244,8 @@ public:
             m_scale = m_nibbles.size() - dot;
         else
             m_scale = 0;
+
+        this->normalize();
     }
 
 

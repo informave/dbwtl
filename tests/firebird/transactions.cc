@@ -263,7 +263,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, StmtReuse)
 	stmt.execute();
 	rs.attach(stmt);
 	//rs.first();
-	CXXC_CHECK( rs.eof() );
+	CXXC_CHECK_THROW( DBMS::SQLSTATE_24000, rs.eof() );
 }
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, DoubleResultset)

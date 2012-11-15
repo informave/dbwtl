@@ -678,6 +678,25 @@ bool Converter<T>::can_convert(const Variant &v)
 
 
 
+struct binary_operator
+{
+        virtual Variant add(const Variant &a, const Variant &b) = 0;
+};
+
+
+std::shared_ptr<binary_operator> handle(daltype_t a, daltype_t b);
+
+
+
+
+struct VariantExprHelper
+{
+    static Variant binaryAdd(const Variant &a, const Variant &b);
+    static Variant unaryPositive(const Variant &a);
+};
+
+
+
 
 
 
@@ -689,6 +708,8 @@ public:
         : std::runtime_error(String("Formatting exception: ") + what + " format() string: " + fmt)
     {}
 };
+
+
 
 
 

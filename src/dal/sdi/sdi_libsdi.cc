@@ -750,8 +750,10 @@ SDIDataProvider_libsdi::eof(void) const
 void   
 SDIDataProvider_libsdi::close(void)
 {
+/*
     if(this->isBad())
         throw ex::engine_error("Resultset is in bad state.");
+*/
 
     if(this->m_handle)
     {

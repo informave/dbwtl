@@ -66,8 +66,40 @@ template<typename T> struct value_traits;
 
 
 
-//struct const_variant {};
-struct noconv
+
+
+struct BinaryOperatorVariant
+{
+    virtual Variant binary_xor           (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_or            (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_and           (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_mod           (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_mul           (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_div           (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_add           (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_concat        (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_sub           (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_less          (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_less_equal    (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_equal         (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_not_equal     (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_greater       (const Variant &v0, const Variant &v1) const = 0;
+    virtual Variant binary_greater_equal (const Variant &v0, const Variant &v1) const = 0;
+
+
+    typedef Variant (BinaryOperatorVariant::*memfun_type) (const Variant &, const Variant &) const;
+};
+
+
+
+
+Variant apply_binary_method(const Variant &op0, const Variant &op1, BinaryOperatorVariant::memfun_type method);
+
+
+
+
+//struct const_variant {}; 
+struct noconv /// @bug what the hell?
 {
     noconv(int, int) {}
 };

@@ -764,9 +764,11 @@ public:
 
 
         WhereNode *where = find_node<WhereNode>(node);
-        adaptor.registerWhereNode(where);
-        foreach_node(where->getChilds(), IdMappingVisitor(adaptor), -1);
-        
+	if(where)
+	{
+        	adaptor.registerWhereNode(where);
+        	foreach_node(where->getChilds(), IdMappingVisitor(adaptor), -1);
+	}
 
         std::cout << "END SQL" << std::endl;
     }
@@ -949,7 +951,7 @@ SqlCursor::eof(void) const
   "until calling eof()."))
   .raiseException();
 */
-        assert(0 == 1);
+        //assert(0 == 1); /// @bug fixme
     }
 
     return this->m_cursorstate & DAL_CURSOR_EOF;

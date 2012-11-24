@@ -291,6 +291,7 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc
 	${DBWTL_MAIN_SRC_DIR}/variant_expr.cc
+	${DBWTL_MAIN_SRC_DIR}/variant_binary.cc
 	${DBWTL_MAIN_SRC_DIR}/ustring.cc
 	${DBWTL_MAIN_SRC_DIR}/debug.cc
 	${DBWTL_MAIN_SRC_DIR}/dal/sqlutils.cc

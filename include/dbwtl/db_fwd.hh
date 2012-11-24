@@ -87,7 +87,7 @@ class TCustomType;
 /// @brief DAL datatypes
 enum DatatypeEnumeration
 {
-    DAL_TYPE_CUSTOM = 1,
+    DAL_TYPE_CUSTOM = 0,
     DAL_TYPE_UNKNOWN,
     DAL_TYPE_INT,
     DAL_TYPE_UINT,
@@ -99,8 +99,6 @@ enum DatatypeEnumeration
     DAL_TYPE_USMALLINT,
     DAL_TYPE_BIGINT,
     DAL_TYPE_UBIGINT,
-    //DAL_TYPE_BIT,g
-    //DAL_TYPE_VARBIT,
     DAL_TYPE_BLOB,
     DAL_TYPE_MEMO,
     DAL_TYPE_NUMERIC,
@@ -112,6 +110,8 @@ enum DatatypeEnumeration
     DAL_TYPE_TIME,
     DAL_TYPE_TIMESTAMP,
     DAL_TYPE_INTERVAL
+    //DAL_TYPE_BIT,g
+    //DAL_TYPE_VARBIT,
 };
 
 typedef enum DatatypeEnumeration daltype_t;

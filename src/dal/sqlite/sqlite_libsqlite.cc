@@ -766,8 +766,10 @@ SqliteResult_libsqlite::eof(void) const
 void   
 SqliteResult_libsqlite::close(void)
 {
+/*
     if(this->isBad())
         throw ex::engine_error("Resultset is in bad state.");
+*/
 
     if(this->m_handle)
     {

@@ -1360,8 +1360,10 @@ FirebirdResult_libfbclient::eof(void) const
 void   
 FirebirdResult_libfbclient::close(void)
 {
+/*
     if(this->isBad())
         throw ex::engine_error("Resultset is in bad state.");
+*/
 
     if(this->m_handle)
     {

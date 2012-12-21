@@ -97,6 +97,11 @@ generic::createEnv(String driver)
         return sqlite::createEnv(driver);
 #endif
 
+#if defined(DBWTL_WITH_FIREBIRD)
+    else if(engine.compare(String("firebird")) == 0)
+        return firebird::createEnv(driver);
+#endif
+
     else if(engine.compare(String("sdi")) == 0)
         return sdi::createEnv(driver);
 

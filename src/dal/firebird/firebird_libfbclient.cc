@@ -1095,11 +1095,12 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
             }
             else
             {
-                // error
+                DBWTL_BUG();
             }
 
             std::vector<char> vec(DAL_FIREBIRD_BLOBBUF_SIZE);
         
+            assert(buf);
             while(std::streamsize i = buf->sgetn(vec.data(), vec.size()))
             {
                 this->drv()->isc_put_segment(sv, &blobh, i, vec.data());
@@ -1126,6 +1127,7 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
             }
             else
             {
+                DBWTL_BUG();
                 // error
             }
 

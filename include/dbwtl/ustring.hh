@@ -364,10 +364,22 @@ public:
     /// Append ustring
     string_type& append(const string_type& s)
     {
+        /*
     	Internal tmp = this->readStr();
         tmp.append(s.readStr());
         this->writeStr(tmp);
         return *this;
+        */
+        this->readStr();
+        const Internal &tmp = s.readStr();
+        this->m_str.append(tmp);
+        this->writeStr();
+        return *this;
+    }
+
+    string_type& operator+=(const string_type& s)
+    {
+        return this->append(s);
     }
 
 
@@ -375,9 +387,9 @@ public:
     template<class A, class B, class C>
     string_type& append(const std::basic_string<A, B, C>& s)
     {
-    	Internal tmp = this->readStr();
-        tmp.append(String(s));
-        this->writeStr(tmp);
+        this->readStr();
+        this->m_str.append(s);
+        this->writeStr();
         return *this;
     }
 
@@ -387,6 +399,17 @@ public:
     {
         return this->readStr().length();
     }
+
+    size_t capacity(void) const
+    {
+        return this->readStr().capacity();
+    }
+
+    void reserve(size_t res_arg = 0)
+    {
+        this->m_str.reserve(res_arg);
+    }
+
     
     /// Compare with another ustring
     int compare(const string_type& s) const
@@ -429,23 +452,28 @@ public:
     }
 
 private:
-    const Internal& readStr(void) const
+    inline const Internal& readStr(void) const
     {
     	if(m_strptr) this->m_str = m_strptr->get();
         return m_str;
     }
 
-    Internal& readStr(void)
+    inline Internal& readStr(void)
     {
 		if(m_strptr) this->m_str = m_strptr->get();
 		return m_str;
 	}
 
 
-    void writeStr(const Internal &str)
+    inline void writeStr(void)
+    {
+    	if(m_strptr) m_strptr->set(this->m_str);
+    }
+
+    inline void writeStr(const Internal &str)
     {
     	this->m_str = str;
-    	if(m_strptr) m_strptr->set(str);
+    	if(m_strptr) m_strptr->set(this->m_str);
     }
 
     mutable Internal               m_str;

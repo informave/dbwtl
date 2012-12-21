@@ -126,5 +126,20 @@ sv_accessor<TVarbinary>::cast(String*, std::locale loc) const
 
 
 
+/// @details
+/// 
+Blob
+sv_accessor<TVarbinary>::cast(Blob*, std::locale loc) const
+{
+	return this->get_value().toBlob();
+}
+
+
+Blob
+TVarbinary::toBlob(void) const
+{
+	return Blob(this->m_data.data(), this->m_data.size());
+}
+
 
 DB_NAMESPACE_END

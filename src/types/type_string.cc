@@ -143,6 +143,26 @@ sv_accessor<String>::cast(double*, std::locale loc) const
     else return v;
 }
 
+
+TDate
+sv_accessor<String>::cast(TDate*, std::locale loc) const
+{
+    return TDate(this->get_value());
+}
+
+TTime
+sv_accessor<String>::cast(TTime*, std::locale loc) const
+{
+    return TTime(this->get_value());
+}
+
+TTimestamp
+sv_accessor<String>::cast(TTimestamp*, std::locale loc) const
+{
+    return TTimestamp(this->get_value());
+}
+
+
 Memo
 sv_accessor<String>::cast(Memo*, std::locale loc) const
 {

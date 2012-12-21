@@ -132,6 +132,7 @@ class Blob
 public:
 	Blob(void);
 	Blob(ByteStreamBuf *buf);
+	Blob(const void *ptr, size_t size);
 
 	virtual ~Blob(void);
 
@@ -196,6 +197,8 @@ public:
     {
     	return m_data[i];
     }
+
+    Blob toBlob(void) const;
 
 /*
 	template<typename T>
@@ -747,8 +750,10 @@ struct sv_accessor<MemoStream> : public virtual sa_base<MemoStream>,
 
 template<>
 struct sv_accessor<TVarbinary> : public virtual sa_base<TVarbinary>,
+                                 public supports<Blob>,
                                  public supports<String>
 {
+    SV_CAST_METHOD(Blob);
     SV_CAST_METHOD(String);
 };
 
@@ -1149,6 +1154,9 @@ struct sv_accessor<String> : public virtual sa_base<String>,
                              public supports<unsigned long long>,
                              public supports<float>,
                              public supports<double>,
+                             public supports<TDate>,
+                             public supports<TTime>,
+                             public supports<TTimestamp>,
                              public supports<Memo>
 
                                   // public supports_cast<signed int, bool>,
@@ -1177,6 +1185,9 @@ struct sv_accessor<String> : public virtual sa_base<String>,
     virtual unsigned long long cast(unsigned long long*, std::locale loc) const;
     virtual float cast(float*, std::locale loc) const;
     virtual double cast(double*, std::locale loc) const;
+    virtual TDate cast(TDate*, std::locale loc) const;
+    virtual TTime cast(TTime*, std::locale loc) const;
+    virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
     virtual Memo cast(Memo*, std::locale loc) const;
 };
 

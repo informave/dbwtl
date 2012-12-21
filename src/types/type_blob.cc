@@ -64,12 +64,19 @@ Blob::Blob(const Blob& blob) : m_data()
 }
 
 
+Blob::Blob(const void *ptr, size_t size) : m_data()
+{
+	assert(ptr);
+	this->m_data.rdbuf()->sputn(static_cast<const char*>(ptr), size);
+}
+
 
 //
 //
 Blob& Blob::operator=(const Blob& blob)
 {
     this->m_data.clear();
+    assert(blob.rdbuf());
     this->m_data << blob.rdbuf();
     return *this;
 }
@@ -79,7 +86,8 @@ Blob& Blob::operator=(const Blob& blob)
 //
 //
 Blob::Blob(void) : m_data()
-{}
+{
+}
 
 
 
@@ -107,6 +115,7 @@ Blob::~Blob(void)
 std::streambuf*
 Blob::rdbuf(void) const
 {
+	
     return this->m_data.rdbuf();
 }
 

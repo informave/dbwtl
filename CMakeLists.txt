@@ -270,6 +270,9 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/dal/sqlproxy/sqlcursor.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/dal_interface.cc
 	${DBWTL_MAIN_SRC_DIR}/utils.cc
+	${DBWTL_MAIN_SRC_DIR}/recordset.cc
+	${DBWTL_MAIN_SRC_DIR}/shrrecord.cc
+	${DBWTL_MAIN_SRC_DIR}/cachedresult.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bigint.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bool.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_blob.cc

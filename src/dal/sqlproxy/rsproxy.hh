@@ -111,6 +111,11 @@ public:
         return this->getImpl().isOpen();
     }
 
+    virtual bool    isPositioned(void) const
+    {
+        return this->getImpl().isPositioned();
+    }
+
     virtual void   close(void)
     {
         this->getImpl().close();

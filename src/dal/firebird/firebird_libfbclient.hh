@@ -166,7 +166,7 @@ public:
     virtual daltype_t daltype(void) const;
 
 protected:
-    mutable FirebirdResult_libfbclient& m_resultset;
+    FirebirdResult_libfbclient& m_resultset;
 
     colnum_t   m_colnum;
     mutable std::auto_ptr<FirebirdBlob_libfbclient> m_blobbuf;

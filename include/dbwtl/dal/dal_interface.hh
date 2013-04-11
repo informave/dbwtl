@@ -1024,6 +1024,7 @@ public:
     virtual bool   next(void) = 0;
     virtual bool   eof(void) const = 0;
     virtual bool   isOpen(void) const = 0;
+    virtual bool   isPositioned(void) const = 0;
     virtual void   close(void) = 0;
 
     virtual rowcount_t       rowCount(void) const = 0;
@@ -1266,6 +1267,7 @@ public:
     virtual bool      isPrepared(void) const;
     virtual bool      isBad(void) const;
     virtual bool      isOpen(void) const;
+    virtual bool      isPositioned(void) const;
 
     virtual ~ResultBase(void)
     {}
@@ -1329,6 +1331,25 @@ protected:
 
 
 
+
+enum columndesc_entry_enum
+{
+	DBWTL_COLUMNDESC_NAME,
+	DBWTL_COLUMNDESC_CATALOG_NAME,
+	DBWTL_COLUMNDESC_SCHEMA_NAME,
+	DBWTL_COLUMNDESC_BASE_COLUMN_NAME,
+	DBWTL_COLUMNDESC_TYPE_NAME,
+	DBWTL_COLUMNDESC_BASE_TABLE_NAME,
+	DBWTL_COLUMNDESC_SIZE,
+	DBWTL_COLUMNDESC_COMMENT,
+	DBWTL_COLUMNDESC_IS_NULLABLE,
+	DBWTL_COLUMNDESC_PRECISION,
+	DBWTL_COLUMNDESC_SCALE,
+	DBWTL_COLUMNDESC_IS_SEARCHABLE
+};
+
+typedef enum columndesc_entry_enum ColumnDescEntry;
+
 //------------------------------------------------------------------------------
 ///
 ///
@@ -1347,7 +1368,6 @@ public:
     virtual const IColumnDesc::value_type& getPrecision(void) const;
     virtual const IColumnDesc::value_type& getScale(void) const;
     virtual const IColumnDesc::value_type& getIsSearchable(void) const;
-
 
     virtual daltype_t getDatatype(void) const;
 
@@ -1375,6 +1395,17 @@ protected:
 };
 
 
+class DBWTL_EXPORT ColumnDesc : public ColumnDescBase
+{
+public:
+	ColumnDesc(void);
+	ColumnDesc(const IColumnDesc &orig);
+	virtual ~ColumnDesc(void)
+	{}
+
+	virtual void changeEntry(ColumnDescEntry entry, const IColumnDesc::value_type &v);
+	virtual void changeType(daltype_t daltype);
+};
 
 
 //------------------------------------------------------------------------------

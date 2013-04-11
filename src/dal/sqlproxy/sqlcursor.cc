@@ -307,7 +307,7 @@ public:
     
 
     std::wstring m_indent;
-    mutable std::wostream &m_stream;
+    std::wostream &m_stream;
            
     virtual void fallback_action(Node *node)
     {

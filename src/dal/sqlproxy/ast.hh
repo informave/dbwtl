@@ -882,9 +882,9 @@ public:
 
     PrintTreeVisitor(const PrintTreeVisitor& pt);
 
-    mutable Processor &m_proc;
+    Processor &m_proc;
     String m_indent;
-    mutable std::wostream &m_stream;
+    std::wostream &m_stream;
     
     void next(Node *node);
        

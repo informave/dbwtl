@@ -684,23 +684,406 @@ private:
 
 
 
+class Bookmark
+{
+public:
+    Bookmark(void) : x(0)
+    {}
+
+    Bookmark(int a) : x(a)
+    {}
+
+    bool operator<(const Bookmark &bm) const
+    {
+        return x < bm.x;
+
+    }
+    int x;
+};
+
+
+//..............................................................................
+////////////////////////////////////////////////////////////////////// ShrRecord
+///
+/// @since 0.0.1
+/// @brief ShrRecord class
+/// A ShrRecord object stores all column data into an internal buffer.
+/// This buffer may be shared between other ShrRecord objects.
+/// If you want a full independent copy of a ShrRecord, use the clone() method.
+///
+/// Implementation notes:
+/// A ShrRecord object has no Bookmark information.
+/// Managing bookmarks is part of a dataset implementation or database engine.
+/// A single record object could not provide any useful with a Bookmark.
+class ShrRecord
+{
+public:
+    typedef std::vector<Variant>     ColumnBuffer;
+
+    /// @brief Construct empty Record
+    ShrRecord(void);
+    
+    /// @brief Construct Record with ncol columns
+    ShrRecord(size_t ncol);
+
+    /// @brief Create a duplicate of the origin record.
+    /// @note Both ShrRecord objects shares the same column buffer!
+    ShrRecord(const ShrRecord& orig);
+
+    /// @brief Construct Record from a list of Variant values (C++0x)
+    ShrRecord(const std::initializer_list<Variant> &values);
+
+    /// @brief Construct Record from a column buffer
+    /// @note The buffer data is copied into the record.
+    ShrRecord(const ColumnBuffer &buf);
+
+    /// @brief Clones a Record including the whole column buffer
+    ShrRecord clone(void) const;
+
+    /// @brief Returns a reference to the column data
+    Variant&       operator[](size_t index);
+
+    /// @brief Returns a const reference to the column data
+    const Variant& operator[](size_t index) const;
+
+    /// @brief Copy the raw data from rec
+    ShrRecord& operator=(const ShrRecord& rec);
+    
+    /// @brief Allocate space for ncol columns
+    inline void allocate(size_t ncol)
+    {
+    	this->m_data->resize(ncol);
+    }
+
+    /// @brief Returns the number of columns allocated
+    inline size_t size(void) const
+    {
+    	return this->m_data->size();
+    }
+
+    /// @brief Clear data buffer, release allocated column space
+    inline void clear(void)
+    {
+        this->m_data->clear();
+    }
+
+    /// @brief Returns the internal column buffer
+    inline ColumnBuffer& getbuf(void)
+    {
+        return *this->m_data;
+    }
+
+    /// @brief  Returns the internal column buffer
+    inline const ColumnBuffer& getbuf(void) const
+    {
+        return *this->m_data;
+    }
+
+protected:
+    std::shared_ptr<ColumnBuffer>          m_data;
+};
+
+
+
+class ScrollableDataset : public IDataset
+{
+public:
+	virtual ~ScrollableDataset(void)
+	{}
+
+    virtual bool   last(void) = 0;
+    virtual bool   setpos(rowcount_t row) = 0; /// @bug rename rownum_t
+    virtual bool   prev(void) = 0;
+    
+	virtual rowcount_t fetchMore(void) = 0;
+	virtual bool moreAvail(void) = 0;
+
+    // already declared by base class:
+/*
+    virtual void   first(void) = 0;
+    virtual bool   next(void) = 0;
+    virtual bool   eof(void) const = 0;
+*/
+};
+
+
+//..............................................................................
+////////////////////////////////////////////////////////////////////// RecordSet
+///
+/// @since 0.0.1
+/// @brief RecordSet class
+/// A RecordSet holds multiple ShrRecord objects. There are two typical
+/// usecases:
+///  * Create a new RecordSet and insert/update/delete records.
+///    This is useful for independent Datasets like Metadata information
+///    returned by a database engine implementation.
+///  * Using a CachedResult for fetching records from a database.
+///    Every fetched row gets stored by an internal RecordSet. After reading
+///    all data, you can disconnect from the database. See CachedResult for
+///    more information.
+///
+/// A standalone RecordSet object can be used to store values as a dataset.
+/// This is sometime called a in-memory or temporary dataset.
+class RecordSet : public ScrollableDataset
+{
+public:
+    RecordSet(void);
+    virtual ~RecordSet(void);
+
+    virtual bool   isBad(void) const;
+
+    virtual void   open(void);
+    virtual void   first(void);
+    virtual bool   next(void);
+    virtual bool   eof(void) const;
+    virtual bool   isOpen(void) const;
+    virtual bool   isPositioned(void) const;
+    virtual void   close(void);
+
+    // ScrollableDataset methods:
+    virtual bool   last(void);
+    virtual bool   setpos(rowcount_t row); /// @bug rename rowcount_t to rownum_t
+    virtual bool   prev(void);
+    virtual rowcount_t fetchMore(void) { return 0; }
+    virtual bool moreAvail(void) { return false; }
+
+    virtual rowcount_t       rowCount(void) const;
+
+    virtual const value_type&      column(colnum_t num);
+    virtual const value_type&      column(String name);
+
+    // column methods
+    virtual size_t           columnCount(void) const;
+    virtual colnum_t         columnID(String name) const;
+    virtual String           columnName(colnum_t num) const;
+    //virtual const ITypeInfo& datatype(colnum_t num) const;
+
+    /// @brief Returns the column descriptor for the given column number
+    virtual const IColumnDesc& describeColumn(colnum_t num) const;
+
+    /// @brief Returns the column descriptor for the given column name
+    virtual const IColumnDesc& describeColumn(String name) const;
+
+
+    typedef std::vector<ShrRecord>                   storage_type;
+    typedef typename storage_type::iterator          iterator;
+    typedef typename storage_type::const_iterator    const_iterator;
+
+
+    typedef std::map<Bookmark, ShrRecord>            bookmark_map_type;
+
+    storage_type        m_records;
+    bookmark_map_type   m_bm_records;
+
+
+    size_t m_count;
+
+    cursorstate_t m_cursorstate;
+
+    void clear(void);
+    void reset(void);
+
+    void setColumnCount(size_t num)
+    {
+        m_count = num;
+	this->updateDescriptors();
+    }
+
+    void modifyColumnDesc(colnum_t num, ColumnDescEntry entry, const IColumnDesc::value_type &v);
+    void setDatatype(colnum_t num, daltype_t daltype);
+
+
+
+    //Record& allocRecord(const Bookmark &bm);
+
+    iterator begin(void)
+    {
+    	return this->m_records.begin();
+    }
+
+    iterator end(void)
+    {
+    	return this->m_records.end();
+    }
+
+    const_iterator begin(void) const
+    {
+    	return this->m_records.begin();
+    }
+
+    const_iterator end(void) const
+    {
+    	return this->m_records.end();
+    }
+
+
+    void insert(const ShrRecord &rec);
+
+protected:
+    RecordSet::iterator m_cursor;
+   
+    std::vector<ColumnDesc>	m_column_descriptors;
+
+    inline ColumnDesc& findDescriptor(colnum_t num)
+    {
+    	assert(num > 0);
+	return this->m_column_descriptors.at(num-1);
+    }
+
+
+    inline const ColumnDesc& findDescriptor(colnum_t num) const
+    {
+    	assert(num > 0);
+	return this->m_column_descriptors.at(num-1);
+    }
+
+    void updateDescriptors(void);
+
+
+    inline storage_type& rows(void)
+    {
+        return m_records;
+    }
+
+    inline const storage_type& rows(void) const
+    {
+        return m_records;
+    }
+};
+
+
+template<typename T>
+struct ColumnSortByNumber
+{
+    ColumnSortByNumber(size_t num)
+        : m_num(num)
+    {
+    	assert(num > 0);
+    }
+
+    bool operator()(const ShrRecord &a, const ShrRecord &b)
+    {
+        return a[m_num-1].get<T>() < b[m_num-1].get<T>();
+    }
+
+    const size_t m_num;
+};
+
+
+
+
+
+class CachedResultBase : public ScrollableDataset
+{
+
+private:
+    typedef IStmt      statement_type;
+    typedef  IResult  dal_resultset_type;
+//    typedef typename db_traits<generic>::dal_columndesc_type dal_columndesc_type;
+//    typedef typename db_traits<generic>::value_type          value_type;
+//    typedef typename db_traits<generic>::dal_variant_type    dal_variant_type;
+
+
+public:
+    typedef int iterator;
+    typedef int const_iterator;
+
+    void begin();
+    void end();
+
+
+    CachedResultBase(void);
+    virtual ~CachedResultBase(void);
+
+
+    //Result(Statement &stmt);
+
+    CachedResultBase(IStmt *result);
+
+
+    //void attach(Statement &statement);//  { this->m_result = &statement.resultset(); }
+
+    void attach(IStmt &statement);
+    //{ this->m_source = &statement.resultset(); }
+
+    bool sourceAvail(void) const;
+
+
+
+    virtual bool   isBad(void) const;
+
+    virtual void   open(void);
+    virtual void   first(void);
+    virtual bool   next(void);
+    virtual bool   eof(void) const;
+    virtual bool   isOpen(void) const;
+    virtual bool   isPositioned(void) const;
+    virtual void   close(void);
+
+    // ScrollableDataset methods:
+    virtual bool   last(void);
+    virtual bool   setpos(rowcount_t row); /// @bug rename rowcount_t to rownum_t
+    virtual bool   prev(void);
+    virtual rowcount_t   fetchMore(void);
+    virtual bool moreAvail(void);
+
+    virtual rowcount_t       rowCount(void) const;
+
+    virtual const value_type&      column(colnum_t num);
+    virtual const value_type&      column(String name);
+
+    // column methods
+    virtual size_t           columnCount(void) const;
+    virtual colnum_t         columnID(String name) const;
+    virtual String           columnName(colnum_t num) const;
+    //virtual const ITypeInfo& datatype(colnum_t num) const;
+
+    /// @brief Returns the column descriptor for the given column number
+    virtual const IColumnDesc& describeColumn(colnum_t num) const;
+
+    /// @brief Returns the column descriptor for the given column name
+    virtual const IColumnDesc& describeColumn(String name) const;
+
+
+
+
+    virtual dal_resultset_type*    getSource(void)   { return this->m_source; }
+
+    void fetchAll(void);
+    void detach(void);
+
+
+protected:
+    dal_resultset_type *m_source;
+    RecordSet m_rscache;
+
+    rowcount_t m_current_row; // 1-base // 1-basedd
+
+    void resetInternal(void);
+    void copyMetadata(void);
+    void copyRecord(void);
+
+private:
+    CachedResultBase(const CachedResultBase&);
+    CachedResultBase& operator=(const CachedResultBase&);
+
+
+};
+
+
 
 
 //------------------------------------------------------------------------------
 ///
 /// @brief Cached resultset
 ///
-/// NOT IMPLEMENTED
 template<typename ResultInterface, typename ResultSource = ResultInterface>
-class CachedResult : public ResultInterface
+class CachedResult : public CachedResultBase
 {
-    typedef int iterator;
-    typedef int const_iterator;
-
-    void begin();
-    void end();
+public:
+    virtual ~CachedResult(void)
+    {}
 };
-
 
 
 
@@ -752,6 +1135,8 @@ public:
     virtual bool   eof(void) const         { return this->m_result->eof(); }
 
     virtual bool   isOpen(void) const      { return this->m_result->isOpen(); }
+
+    virtual bool   isPositioned(void) const      { return this->m_result->isPositioned(); }
 
     virtual void   close(void)             { this->m_result->close(); }
 

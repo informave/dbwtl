@@ -3313,7 +3313,7 @@ static firebird_sqlstates::engine_states_t gdscode2sqlstate(ISC_STATUS code)
     case isc_expec_short:                 return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_expec_long:                  return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_expec_ushort:                return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
-    case isc_like_escape_invalid:         return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
+//    case isc_like_escape_invalid:         return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_svcnoexe:                    return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_net_lookup_err:              return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_service_unknown:             return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
@@ -3522,7 +3522,7 @@ static firebird_sqlstates::engine_states_t gdscode2sqlstate(ISC_STATUS code)
     case isc_gfix_recon_fail:       return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_gfix_trn_unknown:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_gfix_mode_req:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
-    case isc_gfix_opt_SQL_dialect:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
+//    case isc_gfix_opt_SQL_dialect:      return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_gfix_pzval_req:        return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_dsql_dbkey_from_non_table:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;
     case isc_dsql_transitional_numeric:     return firebird_sqlstates::DAL_FIREBIRD_SQLSTATE_HY000;

@@ -162,7 +162,7 @@ public:
     virtual daltype_t daltype(void) const;
 
 protected:
-    mutable SqliteResult_libsqlite& m_resultset;
+    SqliteResult_libsqlite& m_resultset;
 
     colnum_t   m_colnum;
     mutable std::auto_ptr<SqliteBlob_libsqlite> m_blobbuf;

@@ -193,7 +193,7 @@ public:
     colnum_t colnum(void) const;
 
 protected:
-    mutable SDIDataProvider_libsdi& m_resultset;
+    SDIDataProvider_libsdi& m_resultset;
 
     colnum_t   m_colnum;
     mutable std::auto_ptr<SDIBlob_libsdi> m_blobbuf;
@@ -282,6 +282,7 @@ public:
 
     virtual bool   isBad(void) const;
 		virtual bool isOpen(void) const;
+    virtual bool      isPositioned(void) const;
 
 
 protected:

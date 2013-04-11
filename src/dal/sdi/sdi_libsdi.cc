@@ -1376,6 +1376,13 @@ SDIDataProvider_libsdi::isOpen(void) const
 }
 
 
+bool
+SDIDataProvider_libsdi::isPositioned(void) const
+{
+    return (this->m_current_tuple != DAL_TYPE_ROWID_NPOS);
+}
+
+
 
 void
 SDIDataProvider_libsdi::openObjects(void)

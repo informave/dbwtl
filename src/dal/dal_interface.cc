@@ -242,6 +242,13 @@ ColumnDescBase::ColumnDescBase(void)
       m_daltype           (DAL_TYPE_UNKNOWN)
 {}
 
+/*
+ColumnDesc::ColumnDesc(const IColumnDesc &orig)
+{
+	assert(!"fixme");
+}
+*/
+
 
 //
 //
@@ -269,7 +276,48 @@ daltype_t ColumnDescBase::getDatatype(void) const { return this->m_daltype; }
 
 
 
+ColumnDesc::ColumnDesc(const IColumnDesc &orig)
+	: ColumnDescBase()
+{
+	assert(!"fixme");
+}
 
+ColumnDesc::ColumnDesc(void)
+	: ColumnDescBase()
+{
+}
+
+
+void
+ColumnDesc::changeType(daltype_t daltype)
+{
+	this->m_daltype = daltype;
+}
+
+
+void
+ColumnDesc::changeEntry(ColumnDescEntry entry, const IColumnDesc::value_type &v)
+{
+	switch(entry)
+	{
+        case DBWTL_COLUMNDESC_NAME:
+		this->m_name = v;
+		break;
+/*
+        case DBWTL_COLUMNDESC_CATALOG_NAME:
+        case DBWTL_COLUMNDESC_SCHEMA_NAME:
+        case DBWTL_COLUMNDESC_BASE_COLUMN_NAME:
+        case DBWTL_COLUMNDESC_TYPE_NAME:
+        case DBWTL_COLUMNDESC_BASE_TABLE_NAME:
+        case DBWTL_COLUMNDESC_SIZE:
+        case DBWTL_COLUMNDESC_COMMENT:
+        case DBWTL_COLUMNDESC_IS_NULLABLE:
+        case DBWTL_COLUMNDESC_PRECISION:
+        case DBWTL_COLUMNDESC_SCALE:
+        case DBWTL_COLUMNDESC_IS_SEARCHABLE:
+*/
+	};
+}
 
 
 
@@ -796,6 +844,14 @@ bool
 ResultBase::isOpen(void) const
 {
     return this->m_cursorstate & DAL_CURSOR_OPEN;
+}
+
+///
+///
+bool
+ResultBase::isPositioned(void) const
+{
+    return this->m_cursorstate & DAL_CURSOR_POSITIONED;
 }
 
 

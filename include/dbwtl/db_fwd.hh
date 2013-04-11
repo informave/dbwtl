@@ -53,7 +53,7 @@
 
 DB_NAMESPACE_BEGIN
 
-
+class RecordSet;
 
 class Variant;
 

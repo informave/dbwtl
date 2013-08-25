@@ -360,7 +360,18 @@ public:
     {
         return this->readStr().empty();
     }
-            
+    
+    string_type upper(void) const
+    {
+    	std::wstring s = *this;
+	std::transform(
+	  s.begin(), s.end(),
+	    s.begin(),
+	      ::towupper);
+	return s;
+    }
+
+
     /// Append ustring
     string_type& append(const string_type& s)
     {

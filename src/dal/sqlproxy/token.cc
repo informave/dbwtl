@@ -40,7 +40,9 @@
 /// @author Daniel Vogelbacher
 /// @since 0.1
 
+#include "tokenizer.hh"
 #include "token.hh"
+//#include "tokenizer.hh"
 
 #include <sstream>
 #include <cassert>
@@ -48,6 +50,16 @@
 
 
 SQLPROXY_NAMESPACE_BEGIN
+
+
+InvalidToken::InvalidToken(wchar_t ch, const SourceInfo &si)
+	: EngineException()
+{
+	std::wstringstream ss;
+	ss << L"Invalid Token >" << ch << L"<, at ";
+	ss << si.str();
+	this->setMessage(ss.str());
+}
 
 //..............................................................................
 ///////////////////////////////////////////////////////////////////// SourceInfo

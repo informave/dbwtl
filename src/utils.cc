@@ -6,6 +6,7 @@
 #include <string>
 #include <stdexcept>
 
+#include "dbwtl/exceptions.hh"
 
 DB_NAMESPACE_BEGIN
 
@@ -18,7 +19,7 @@ namespace utils
 
 	ss << ">>>INTERNAL BUGCHECK<<< Condition failed: " << cond << " at " << file << ":" << line << " {" << function << "}";
 
- 	throw std::runtime_error(ss.str());
+ 	throw Exception(ss.str());
  }
 
 

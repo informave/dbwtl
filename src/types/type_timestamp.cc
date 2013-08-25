@@ -335,7 +335,7 @@ TTimestamp::operator>(const TTimestamp &ts) const
 String
 TTimestamp::str(void) const
 {
-    return (format("%04hd-%02hd-%02hd %02hd:%02hd:%02hd.%03hd", std::locale("C")) 
+    return (format("%04hd-%02hd-%02hd %02hd:%02hd:%02hd.%03ld", std::locale("C")) 
     	 % year() % month() % day() % hour() % minute() % second() % fraction());
 }
 

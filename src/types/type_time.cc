@@ -139,7 +139,7 @@ TTime::TTime(const String &str)
     m_hour = Variant(String(parts[0])).asInt();
     m_minute = Variant(String(parts[1])).asInt();
     if(parts.size() == 3)
-        m_second = Variant(String(parts[2])).asInt();
+        m_second = Variant(String(parts[2].substr(0, 2))).asInt();
 
     if(! (utils::between(m_hour, 0, 23) && utils::between(m_minute, 0, 59) && utils::between(m_second, 0, 61)))
         throw ex::convert_error(format("Invalid time format: %s") % str);

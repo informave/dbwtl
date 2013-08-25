@@ -600,7 +600,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
                 break;
 
             case DAL_TYPE_BLOB:
-                assert(var->get<BlobStream>().rdbuf()); /// @bug add internal exception
+	    	DBWTL_BUGCHECK(var->get<BlobStream>().rdbuf());
                 {
                     tmp_stream << var->get<BlobStream>().rdbuf();
                     

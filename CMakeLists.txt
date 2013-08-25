@@ -82,6 +82,10 @@ option(DBWTL_WITH_FIREBIRD
 option(DBWTL_WITH_SDI
 	"Compile with SDI support" ON)
 
+option(DBWTL_WITH_ODBC
+	"Compile with ODBC support" ON)
+
+
 #select plattform
 if(WIN32)
   if(CYGWIN)
@@ -272,6 +276,8 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/utils.cc
 	${DBWTL_MAIN_SRC_DIR}/recordset.cc
 	${DBWTL_MAIN_SRC_DIR}/shrrecord.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_libodbc.cc
+	${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/cachedresult.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bigint.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bool.cc

@@ -85,8 +85,24 @@ bool
 sv_accessor<String>::cast(bool*, std::locale loc) const
 {
     bool v;
-    if(!convertValue(this->get_value(), v)) DAL_THROW_INVALID_CAST();
-    else return v;
+    std::string data = this->get_value().utf8();
+    std::transform(data.begin(), data.end(), data.begin(), ::tolower);
+    if(data == "true" ||
+       data == "t" ||
+       data == "1" ||
+       data == "yes" ||
+       data == "y")
+        return true;
+    else if(data == "false" ||
+       data == "f" ||
+       data == "0" ||
+       data == "no" ||
+       data == "n")
+        return false;
+    else
+    {
+        DAL_THROW_INVALID_CAST();
+    }
 }
 
 

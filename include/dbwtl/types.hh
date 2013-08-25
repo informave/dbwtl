@@ -138,6 +138,8 @@ public:
 
 	std::streambuf* rdbuf(void) const;
 
+    TVarbinary toVarbinary(void);
+
 
     Blob(const Blob&);
     Blob& operator=(const Blob&);
@@ -183,9 +185,12 @@ protected:
 class DBWTL_EXPORT TVarbinary
 {
 public:
-	TVarbinary(void);
+	TVarbinary(void) : m_data() 
+	{}
 
     TVarbinary(const void* buf, size_t n);
+
+    TVarbinary(const std::initializer_list<unsigned char> &values);
 
     String str(void) const;
 
@@ -198,17 +203,27 @@ public:
     	return m_data[i];
     }
 
+    uint8_t* data(void) { return &m_data[0]; }
+
+    inline void resize(size_t s)
+    {
+        this->m_data.resize(s);
+    }
+
     Blob toBlob(void) const;
 
 /*
 	template<typename T>
 	Varbinary(T beginIterator, T endIterator);
 */
-	
+
+    inline bool operator==(const TVarbinary &other) { return m_data == other.m_data; }
 
 protected:
 	std::vector<uint8_t> m_data;
 };
+
+
 
 
 //..............................................................................
@@ -790,7 +805,8 @@ struct sv_accessor<signed int> : public virtual sa_base<signed int>,
 
 template<>
 struct sv_accessor<unsigned int> : public virtual sa_base<unsigned int>,
-                                   // public supports_cast<signed int, bool>,
+					supports<signed int>,
+                                    //public supports_cast<signed int, bool>,
                                    // public supports_cast<signed int, signed char>,
                                    // public supports_cast<signed int, signed short>,
                                    // public supports_cast<signed int, signed int>,
@@ -807,6 +823,7 @@ struct sv_accessor<unsigned int> : public virtual sa_base<unsigned int>,
                                    // public supports<Memo>,
                                    public supports<String>
 {
+    SV_CAST_METHOD(signed int);
     SV_CAST_METHOD(String);
 };
 

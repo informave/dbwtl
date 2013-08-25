@@ -89,7 +89,8 @@ typedef enum dal_engines_enum
     DAL_ENGINE_GENERIC=0,
     DAL_ENGINE_SQLITE=50,
     DAL_ENGINE_SDI=51,
-    DAL_ENGINE_FIREBIRD=52
+    DAL_ENGINE_FIREBIRD=52,
+    DAL_ENGINE_ODBC=53
 } dal_engine;
 
 ///
@@ -100,6 +101,8 @@ typedef signed long long        rowid_t;
 #define DAL_TYPE_ROWID_NPOS        0      /// not positioned
 
 typedef signed long long        rowcount_t;
+
+typedef signed long long	rownum_t;
 
 ///
 /// @brief Type for column numbers
@@ -502,6 +505,68 @@ public:
 };
 
 
+
+struct DatasetFilter
+{
+    virtual ~DatasetFilter()
+    {}
+
+    virtual bool operator()(IDataset &ds) const = 0;
+};
+
+struct MetadataFilter : public DatasetFilter
+{
+};
+
+struct NoFilter : public DatasetFilter
+{
+    virtual bool operator()(IDataset &ds) const
+    {
+        return true;
+    }
+};
+
+struct TableFilter : public MetadataFilter
+{
+    TableFilter(const String &table) : MetadataFilter(),
+                                       m_table(table)
+    {}
+
+    virtual bool operator()(IDataset &ds) const;
+
+    const String m_table;
+};
+
+struct ViewFilter : public MetadataFilter
+{
+};
+
+struct ProcedureFilter : public MetadataFilter
+{
+};
+
+struct ColumnFilter : public MetadataFilter
+{
+};
+
+
+class DBWTL_EXPORT IMetadata : IDALObject
+{
+public:
+    typedef enum
+    {
+        METADATA_FILTER_INPUT,
+        METADATA_FILTER_OUTPUT
+    } FilterDirection;
+
+
+	virtual ~IMetadata(void) {}
+
+	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
+                                const FilterDirection fd = METADATA_FILTER_OUTPUT) = 0;
+
+
+};
 
 
 //------------------------------------------------------------------------------
@@ -983,7 +1048,7 @@ public:
     virtual void           directCmd(String cmd) = 0;
     virtual std::string    getDbcEncoding(void) const = 0;
 
-
+    virtual IMetadata*     newMetadata(void) = 0;
 
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter()) = 0;
     virtual DatatypeList   getDatatypes(const IDatatypeFilter& = EmptyDatatypeFilter()) = 0;
@@ -1316,6 +1381,8 @@ public:
 
     virtual void             setOption(std::string name, const Variant &data);
     virtual const Variant&   getOption(std::string name) const;
+
+    virtual IMetadata*     newMetadata(void) { throw std::runtime_error("not implemented"); }
 
     virtual ~DbcBase(void)
     {}

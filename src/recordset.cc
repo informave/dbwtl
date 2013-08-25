@@ -133,7 +133,7 @@ RecordSet::next(void)
     }
     else
     {
-        return false; /// @bug throw exeception?
+        return false;
     }
 }
 
@@ -148,7 +148,7 @@ RecordSet::last(void)
 
 
 bool
-RecordSet::setpos(rowcount_t row)
+RecordSet::setpos(rownum_t row)
 {
     if(row > rowCount() || row < 1)
         return false;
@@ -233,8 +233,8 @@ RecordSet::column(colnum_t num)
     if(this->eof())
         throw ex::engine_error("Resultset is eof.");
 
-
-    assert(num > 0); /// @bug bookmark support?
+    if(num < 1)
+    	throw EngineException("RecordSet has no support for bookmark columns");
 
     assert(this->m_cursor != this->rows().end());
     return (*m_cursor)[num-1];
@@ -373,12 +373,14 @@ void
 RecordSet::insert(const ShrRecord &rec)
 {
     if(!this->isOpen())
-        throw ex::engine_error("Insert not possible because RecordSet is not open"); /// @bug change engine_error
+        throw EngineException("Insert not possible because RecordSet is not open"); 
 
 
 	if(!this->m_records.empty() || (this->m_records.empty() && this->m_count > 0))
 	{
-		/// @bug check field count
+		if(this->m_count != rec.size())
+			throw EngineException(FORMAT2("insert() failed, field count mismatch: %d vs. %d",
+				this->m_count, rec.size()));
 		assert(this->m_count == rec.size());
 	        this->m_records.push_back(rec.clone());
 	}
@@ -394,7 +396,8 @@ RecordSet::insert(const ShrRecord &rec)
 void
 RecordSet::modifyColumnDesc(colnum_t num, ColumnDescEntry entry, const IColumnDesc::value_type &v)
 {
-	assert(num > 0); /// @bug fixme
+	if(num <= 0)
+		throw EngineException(FORMAT1("Column number out of range: %d", num));
 	assert(num <= this->m_column_descriptors.size());
 	this->m_column_descriptors[num-1].changeEntry(entry, v);
 }
@@ -402,7 +405,8 @@ RecordSet::modifyColumnDesc(colnum_t num, ColumnDescEntry entry, const IColumnDe
 void
 RecordSet::setDatatype(colnum_t num, daltype_t daltype)
 {
-	assert(num > 0); /// @bug fixme
+	if(num <= 0)
+		throw EngineException(FORMAT1("Column number out of range: %d", num));
 	assert(num <= this->m_column_descriptors.size());
 	this->m_column_descriptors[num-1].changeType(daltype);
 }

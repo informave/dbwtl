@@ -229,7 +229,7 @@ Visitor::fallback_action(Node *node)
         std::string  s(std::string("Visitor for ") +typeid(*node).name()+ " is not implemented in <");
         s.append(typeid(*this).name());
         s.append(">");
-        throw std::runtime_error(s);
+        throw EngineException(s);
     }
 }
 

@@ -62,6 +62,106 @@
 DAL_NAMESPACE_BEGIN
 
 
+/*
+struct DebugValue2Str
+{
+	virtual String operator()(void) const = 0;
+};
+*/
+
+template<typename T>
+struct DebugValue2Str
+{
+	String operator()(const T& var) const
+	{
+		std::stringstream ss;
+		ss << var;
+		return String(ss.str(), "utf-8");
+	}
+};
+
+
+template<> struct DebugValue2Str<String> { String operator()(const String& var) const { return String("\"") + var + String("\""); } };
+
+
+template<typename T>
+inline String debugWrapper(const T &var)
+{
+	DebugValue2Str<T> dvs;
+	return dvs(var);
+}
+
+struct DebugTraceGuard
+{
+	DebugTraceGuard(const char *fun, int line, const char *file)
+	: data(String("[ENTER] ") +  String(fun) + String("()")), fun(fun)
+	{
+		writeData();
+	}
+
+	DebugTraceGuard(const char *fun, int line, const char *file, const char *an, const String &a)
+	: data(String("[ENTER] ") +  String(fun) + String("()")), fun(fun)
+	{
+		data += String(", [");
+		data += String(an) + String("=") + a;
+		data += "]";
+		writeData();
+	}
+
+        DebugTraceGuard(const char *fun, int line, const char *file, const char *an, const String &a,
+	const char *bn, const String &b)
+        : data(String("[ENTER] ") +  String(fun) + String("()")), fun(fun)
+        {
+                data += String(", [");
+                data += String(an) + String("=") + a;
+		data += String(", ") + String(bn) + String("=") + b;
+                data += "]";
+		writeData();
+        }
+
+
+	~DebugTraceGuard(void)
+	{
+		std::cerr << "[LEAVE] " << fun << "()" << std::endl;
+	}
+
+	void writeData(void) const
+	{
+		std::cerr << data << std::endl;
+	}
+
+	String data;
+	String fun;
+};
+
+template<typename T>
+void trace_value_helper(const char *name, const T& value)
+{
+	std::cerr << "[VALUE] " << name << ": " << debugWrapper(value) << std::endl;
+}
+
+
+#ifdef DBWTL_TRACE_ENABLE
+#define DBWTL_TRACE0() DebugTraceGuard _foobar(__FUNCTION__, __LINE__, __FILE__)
+
+
+#define DBWTL_TRACE_VALUE(value) trace_value_helper(#value, value)
+
+#define DBWTL_TRACE1(arg1) DebugTraceGuard _foobar(__FUNCTION__, __LINE__, __FILE__, #arg1, debugWrapper(arg1))
+
+#define DBWTL_TRACE2(a, b) DebugTraceGuard _foobar(__FUNCTION__, __LINE__, __FILE__, \
+	#a, debugWrapper(a), \
+	#b, debugWrapper(b) )
+
+
+#define DBWTL_TRACE3(a, b, c)
+
+#else
+#define DBWTL_TRACE0()
+#define DBWTL_TRACE1(a)
+#define DBWTL_TRACE2(a, b)
+#define DBWTL_TRACE_VALUE(a)
+#endif
 
 std::string string_format(const std::string &fmt, ...);
 

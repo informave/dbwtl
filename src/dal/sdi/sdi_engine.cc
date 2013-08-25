@@ -1081,7 +1081,7 @@ sdi::sqlstate2string(STATES::engine_states_t id)
 
         //DAL_NAMEOF_STATE(XY000);
     }
-    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    throw EngineException("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
 }
 #undef DAL_NAMEOF_STATE
 
@@ -1137,7 +1137,7 @@ SDIDiag::raiseException(void) const
 
         //DAL_THROW_STATE(XY000);
     }
-    throw ex::engine_error("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
+    throw EngineException("Found BUG: Unhandled internal SQLSTATE. Please report this bug!");
 }
 
 #undef DAL_THROW_STATE

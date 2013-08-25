@@ -763,6 +763,7 @@ struct db_traits<sqlite, tag>
     typedef Statement<sqlite, tag>        statement_type;
     typedef Result<sqlite, tag>           resultset_type;
     typedef CachedResult<sqlite, tag>     cached_resultset_type;
+    typedef Metadata<sqlite, tag>	metadata_type;
     typedef sqlite::VALUE                 value_type;
 
     typedef sqlite::RESULT                dal_resultset_type;
@@ -772,6 +773,8 @@ struct db_traits<sqlite, tag>
     typedef sqlite::DIAG                  dal_diag_type;    
     typedef sqlite::COLUMNDESC            dal_columndesc_type;
     typedef sqlite::STATES                sqlstate_types;
+
+    typedef IMetadata			dal_metadata_type; /// @bug
 
     typedef sqlite_datatypes                   datatype_types;
 

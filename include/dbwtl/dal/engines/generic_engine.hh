@@ -693,6 +693,7 @@ struct db_traits<generic, tag>
     typedef Statement<generic, tag>        statement_type;
     typedef Result<generic, tag>           resultset_type;
     typedef CachedResult<generic, tag>     cached_resultset_type;
+    typedef Metadata<generic, tag>	metadata_type;
     typedef generic::VALUE                 value_type;
 
     typedef generic::RESULT                dal_resultset_type;
@@ -704,6 +705,7 @@ struct db_traits<generic, tag>
     typedef generic::COLUMNDESC            dal_columndesc_type;
     typedef generic::STATES                sqlstate_types;
     typedef basic_datatypes                     datatype_types;
+    typedef IMetadata                   dal_metadata_type; /// @bug
 
     typedef Variant                            dal_variant_type;
 

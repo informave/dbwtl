@@ -16,6 +16,8 @@
 
 #cmakedefine DBWTL_WITH_SDI
 
+#cmakedefine DBWTL_WITH_ODBC
+
 #cmakedefine DBWTL_ON_WIN32
 
 #cmakedefine DBWTL_ON_UNIX

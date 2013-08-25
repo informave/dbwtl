@@ -97,15 +97,6 @@ Variant apply_binary_method(const Variant &op0, const Variant &op1, BinaryOperat
 
 
 
-
-//struct const_variant {}; 
-struct noconv /// @bug what the hell?
-{
-    noconv(int, int) {}
-};
-
-
-
 void DBWTL_EXPORT throw_read_only(void);
 
 void DBWTL_EXPORT throw_convert_error(daltype_t src, daltype_t dest);
@@ -518,6 +509,15 @@ struct Converter
 class DBWTL_EXPORT Variant
 {
 public:
+
+/////// WORKAROUND
+/// @bug fix this, there is no variant for long int
+
+    Variant(const signed long int &value);
+
+    Variant(const unsigned long int &value);
+
+/////// WORKAROUND END
 
     ///
     template<typename T>

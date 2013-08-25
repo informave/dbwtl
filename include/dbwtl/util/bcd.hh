@@ -100,6 +100,13 @@ public:
 
     template<typename T>             friend basic_bcd<T> std::abs(const basic_bcd<T> &v);
 
+
+    static bcd_type tolerance;
+    static bcd_type inverse_mfactor;
+
+
+
+
     signed long long asLongLong(void) const
     {
         std::stringstream ss;
@@ -187,6 +194,15 @@ public:
         return this->m_sign;
     }
 
+    template<typename T>
+    T convert(void) const
+    {
+ 	std::stringstream ss;
+	ss << str();
+	T x;
+	ss >> x;
+	return x;
+    }
 
 
     /// @brief Set value as long
@@ -451,10 +467,19 @@ public:
         return *this;
     }
 
+    bcd_type operator%(const bcd_type &b) const
+    {
+    	if(*this == b) return 0;
+	if(b > *this) return *this;
+
+    	//bcd_type a = b;
+	bcd_type a = divi(*this, b) - 2;
+	a = a * b;
+	while(a+b <= *this) a = a+b;
+	return (*this)-a;
+    }
 
 
-
-protected:
 
     /// @brief Addition routine
     /// @details
@@ -592,43 +617,55 @@ protected:
 
 
 
+
+    bcd_type getInverse(void) const
+    {
+    	bcd_type d = *this;
+	int scale = d.m_scale;
+	d.m_scale = d.precision();
+	d.nibbles().push_front(0);
+    	bcd_type x0 = inverse_mfactor - bcd_type(2) * d;
+	//bcd_type tolerance("0.0000000000000000000000000001");
+	bcd_type diff;
+	bcd_type value = x0;
+	do
+	{
+		//x_{n + 1} = x_n * (2 - a * x_n)
+		bcd_type prev = value;
+		value = value * (bcd_type(2) - d * value);
+		value.rescale(50);
+		diff = value - prev;
+		//std::cout << value.str() << std::endl;
+	}
+	while(std::abs(diff) >= tolerance);
+	value = value.shift_right(this->precision() - this->scale());
+	value.normalize();
+	value.rescale(tolerance.scale()/2);
+	return value;
+    }
+
+
     /// @brief Division routine
     /// @details
     /// Division is done by Newon-Raphson division method.
     void div(const bcd_type &divisor)
     {
-        bcd_type factorA, factorB;
-        scale_zero(*this, divisor, factorA, factorB);
-        
-        bcd_type d = factorB;
-        d.m_scale = d.precision();
-        d.nibbles().push_front(0); 
-
-        bcd_type x =  bcd_type("2.914") - bcd_type(2) * d;
-        bcd_type next;
-
-        bcd_type tolerance("0.0000000000000000001");
-        //bcd_type tolerance = bcd_type(1).shift_right(sc << 7); /// @todo fixthis
-
-        next = x;
-        bcd_type diff;
-        do
-        {
-            x = next;
-            next = x * (bcd_type(2) - d * x);
-            next.rescale(50);
-            diff = next - x;
-        }
-        while(std::abs(diff) >= tolerance || std::abs(diff) == tolerance);
-
-
-        bcd_type result = *this * next;
-        result = result.shift_right(1);
+    	if(*this == divisor)
+	{
+		this->assign(1);
+		this->normalize();
+		return;
+	}
+	else
+	{
+        bcd_type result = *this * divisor.getInverse();
+        //result = result.shift_right(1);
 
         this->assign(result);
-        this->normalize();
+        this->normalize();	
+	return;
+	}
     }
-
 
 
 
@@ -638,6 +675,12 @@ protected:
         this->m_sign = true;
     }
 
+    inline void make_negative(void)
+    {
+    	this->m_sign = false;
+    }
+
+protected:
 
     /// @brief Shift decimal point
     bcd_type shift_left(size_t c) const
@@ -703,6 +746,11 @@ protected:
     }
 
 
+public:
+    void zeroscale(void)
+    {
+    	this->assign(this->shift_left(this->scale()));
+    }
 
     /// @brief 
     void rescale(size_t sc)
@@ -720,18 +768,24 @@ protected:
             y++;
         }
 
-        if(this->scale() > 0 && v >= 5)
+        if(/* this->scale() >= 0 && */ v >= 5) // round
         {
             bcd_type a = bcd_type(1).shift_right(this->scale());
             this->add(a);
         }
+	if(this->scale() < sc && this->precision() >= sc)
+	{
+		//std::cout << this->precision() << " / " << sc << std::endl;
+		this->m_scale = sc;
+	}
 
         assert(! this->nibbles().empty());
         assert(this->precision() != 0);
-        assert(this->precision() > this->scale());   
+        assert(this->precision() >= this->scale());   
     }
 
 
+protected:
     /// @brief 
     void normalize(void)
     {
@@ -829,7 +883,18 @@ template<typename T, typename U>
 basic_bcd<T> operator/(const U &a, const basic_bcd<T> &b) { return basic_bcd<T>(a) / b; }
 
 
+template<typename T, typename U>
+basic_bcd<T> divi(const U &a, const basic_bcd<T> &b) { basic_bcd<T> x = basic_bcd<T>(a) / b; x.rescale(0); return x; }
+
 typedef informave::utils::basic_bcd<std::deque<uint8_t> > bcd;
+
+
+template<typename StorageContainer>
+basic_bcd<StorageContainer> basic_bcd<StorageContainer>::tolerance("0.0000000000000000000000000001");
+
+template<typename StorageContainer>
+basic_bcd<StorageContainer> basic_bcd<StorageContainer>::inverse_mfactor("2.914");
+
 
 INFORMAVE_BCD_NS_END
 

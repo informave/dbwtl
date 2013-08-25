@@ -153,6 +153,15 @@ Transaction::rollback(void)
 }
 
 
+
+bool
+TableFilter::operator()(IDataset &ds) const
+{
+    return ds.column("TABLE_NAME").get<String>() == m_table;
+}
+
+
+
 //--------------------------------------------------------------------------
 //
 /// If the type is unknown, we must return a NULL pointer.

@@ -56,6 +56,21 @@
 DB_NAMESPACE_BEGIN
 
 
+signed int
+sv_accessor<unsigned int>::cast(signed int*, std::locale loc) const
+{
+    const unsigned int &v = this->get_value();
+/*
+    if(v < 0)
+        throw ex::convert_error(format("Negative number can't converted to unsigned int: %d") % this->get_value());
+    else
+*/
+        return this->get_value();
+
+
+}
+
+
 unsigned int         
 sv_accessor<signed int>::cast(unsigned int*, std::locale loc) const
 {

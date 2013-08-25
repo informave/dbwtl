@@ -398,6 +398,25 @@ void throw_convert_error(daltype_t src, daltype_t dest)
 }
 
 
+Variant::Variant(const signed long int &value)
+        : m_storage(),
+                m_name(),
+                m_type_ifnull(DAL_TYPE_UNKNOWN)
+        {
+                this->m_storage.reset(new typename value_traits<signed int>::stored_type(value));
+        }
+
+
+Variant::Variant(const unsigned long int &value)
+        : m_storage(),
+                m_name(),
+                m_type_ifnull(DAL_TYPE_UNKNOWN)
+        {
+                this->m_storage.reset(new typename value_traits<unsigned int>::stored_type(value));
+        }
+
+
+
 DB_NAMESPACE_END
 
 

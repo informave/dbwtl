@@ -179,6 +179,17 @@ protected:
 };
 
 
+class DBWTL_EXPORT FeatureUnsuppException : public EngineException
+{
+public:
+	FeatureUnsuppException(const String &what);
+
+	virtual ~FeatureUnsuppException(void) throw()
+	{}
+};
+
+
+
 // BEFORE DELELTE THIS, IMPLEMENT SQL STRING INFORMATION IN SQLSTATE EXCEPTION!!!
 //--------------------------------------------------------------------------
 /// This exception class is thrown if a SQL query fails.

@@ -82,6 +82,7 @@ class IResult;
 class IDataset;
 class IDataProvider;
 class IStmt;
+class IMetadata;
 class Factory;
 
 

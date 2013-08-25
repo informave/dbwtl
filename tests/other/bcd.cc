@@ -7,7 +7,15 @@
 using informave::utils::bcd;
 
 
-
+CXXC_TEST(Inverse)
+{
+	CXXC_ECHO( bcd(5).getInverse().str() );
+	CXXC_ECHO( bcd(10).getInverse().str() );
+	CXXC_ECHO( bcd(867).getInverse().str() );
+	CXXC_ECHO( bcd(256).getInverse().str() );
+	CXXC_ECHO( bcd("0.000045").getInverse().str() );
+	CXXC_ECHO( bcd("93017800.0001").getInverse().str() );
+}
 
 
 
@@ -142,6 +150,21 @@ CXXC_TEST(Compare)
 	CXXC_CHECK( bcd(39) > bcd("-0.39") );
 }
 
+CXXC_TEST(Convert)
+{
+	CXXC_CHECK( bcd(5).convert<int>() == int(5) );
+	CXXC_CHECK( bcd(8493).convert<unsigned int>() == (unsigned int)(8493) );
+
+	CXXC_ECHO( (bcd(256) / bcd(256)).str() );
+	CXXC_CHECK( bcd(256) / bcd(256) == bcd(1) );
+
+	CXXC_ECHO( (bcd(5963776) / bcd(65536)).str() );
+
+	CXXC_ECHO( divi(bcd(5963776), bcd(65536)) );
+
+	CXXC_CHECK( divi(bcd(5963776), bcd(65536)) == 91 );
+
+}
 
 
 int main(void)

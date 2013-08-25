@@ -69,6 +69,12 @@ TVarbinary::TVarbinary(const void *buf, size_t n)
 }
 
 
+TVarbinary::TVarbinary(const std::initializer_list<unsigned char> &values)
+    : m_data(values)
+{
+}
+
+
 /// @details
 /// 
 String

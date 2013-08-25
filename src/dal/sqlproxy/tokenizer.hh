@@ -46,9 +46,10 @@
 #ifndef INFORMAVE_DB_SQLPROXY_TOKENIZER_HH
 #define INFORMAVE_DB_SQLPROXY_TOKENIZER_HH
 
-
+#include "parser.h"
 #include "sqlproxy_fwd.hh"
 #include "token.hh"
+#include "dbwtl/exceptions.hh"
 
 #include <iterator>
 #include <vector>
@@ -61,6 +62,15 @@
 
 
 SQLPROXY_NAMESPACE_BEGIN
+
+
+class InvalidToken : public EngineException
+{
+public:
+	InvalidToken(wchar_t ch, const SourceInfo &i);
+	virtual ~InvalidToken() throw()  {}
+};
+
 
 template<class T>
 bool isnumber(const std::basic_string<T> &s)
@@ -244,12 +254,11 @@ public:
 	    }
 	    else
 	    {
-	    	throw std::runtime_error("invalid character");
-		break; /// @bug fixme
+	    	throw InvalidToken(m_char, si);
 	    }
         case '|':
             consume();
-            assert(m_char == '|'); /// @bug mixme
+	    if(m_char != '|') throw InvalidToken(m_char, si);
             consume();
             return Token(DBWTL_TOK_CONCAT, si, "||");
         case '?':
@@ -303,7 +312,7 @@ public:
         default:
             return this->readMulti(start, len, line);
         };
-	throw std::runtime_error("invalid character2"); /// @bug fixme
+	throw InvalidToken(m_char, si);
     }
 
 

@@ -1,8 +1,8 @@
 //
-// utils.hh - Internal utils, DO NOT INCLUDE THIS FILE IN NON-DBWTL CODE
+// shrrecord.cc - ShrRecord (definition)
 //
 // Copyright (C)         informave.org
-//   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
+//   2013,               Daniel Vogelbacher <daniel@vogelbacher.name>
 //
 // BSD License
 //
@@ -36,91 +36,107 @@
 //
 
 /// @file
-/// @brief Internal utils
+/// @brief ShrRecord (definitions)
 /// @author Daniel Vogelbacher
 /// @since 0.0.1
 
-#ifndef INFORMAVE_DB_UTILS_HH
-#define INFORMAVE_DB_UTILS_HH
 
+#include "dbwtl/dal/dal_fwd.hh"
+#include "dbwtl/db_objects.hh"
+#include "dbwtl/exceptions.hh"
+#include "dal/dal_debug.hh"
+#include "utils.hh"
 
-#include "dbwtl/db_fwd.hh"
+#include <ctime>
+ #include <iostream>
+#include <algorithm>
+#include <sstream>
+#include <typeinfo>
+#include <locale>
 
-#include <vector>
-
-
-#if DBWTL_INTERNAL_CHARTYPE == 1
-#define US(str) str
-#elif DBWTL_INTERNAL_CHARTYPE == 2
-#define US(str) L##str
-#elif DBWTL_INTERNAL_CHARTYPE == 3
-#define US(str) u##str
-#elif DBWTL_INTERNAL_CHARTYPE == 4
-#define US(str) U##str
-#endif
-
-
-#define FORMAT1(str, a1) (format(str) % a1)
-#define FORMAT2(str, a1, a2) (format(str) % a1 % a2)
-#define FORMAT3(str, a1, a2, a3) (format(str) % a1 % a2)
-
-
-#define DBWTL_TRACE (void*)(0)
-
-
-
-
-#define DBWTL_BUGCHECK2(cond) { if(! (cond) ) utils::raise_bugcheck_exception(#cond, "", __LINE__, __FILE__, __PRETTY_FUNCTION__); }
-
-
+#define IS_UNIMPL() assert(!"unimpl"); throw 1
 
 DB_NAMESPACE_BEGIN
 
-namespace utils
+
+ShrRecord::ShrRecord(void)
+    : m_data(new ShrRecord::ColumnBuffer())
 {
-    void raise_bugcheck_exception(const char *cond, const char *what, int line, const char *file, const char *function);
+}
+    
+ShrRecord::ShrRecord(size_t columns)
+    : m_data(new ShrRecord::ColumnBuffer(columns))
+{
+}
 
 
-    template<typename T>
-    inline std::vector<T> split(const T& str, const typename T::value_type del)
+ShrRecord::ShrRecord(const ShrRecord& orig)
+    : m_data(orig.m_data)
+{}
+
+ShrRecord::ShrRecord(const std::initializer_list<Variant> &values)
+	: m_data(new ShrRecord::ColumnBuffer(values))
+{
+}
+
+ShrRecord::ShrRecord(const ShrRecord::ColumnBuffer &buf)
+    : m_data(new ShrRecord::ColumnBuffer(buf))
+{
+}
+
+const Variant&
+ShrRecord::operator[](size_t index) const
+{
+    return this->m_data->at(index);
+}
+ 
+Variant&
+ShrRecord::operator[](size_t index)
+{
+    return this->m_data->at(index);
+}
+
+/*
+const Variant&
+Record::operator[](size_t num) const
+{
+	assert(num > 0);
+    return this->m_data->at(num);
+}
+ 
+Variant&
+Record::operator[](size_t num)
+{
+	assert(num > 0);
+    return this->m_data->at(num);
+}
+*/
+
+ShrRecord&
+ShrRecord::operator=(const ShrRecord& rec)
+{
+    if(this == &rec) return *this;
+
+	if(this->m_data->size() == 0 || this->m_data->size() == rec.m_data->size())
     {
-        std::vector<T> v;
-
-        typename T::const_iterator i(str.begin());
-        typename T::const_iterator end(str.end());
-
-        T tmp;
-        while(i != end)
-        {
-            if(*i != del) tmp.push_back(*i);
-            else
-            {
-                v.push_back(tmp);
-                tmp.clear();
-            }
-            ++i;
-        }
-        if(!tmp.empty()) v.push_back(tmp);
-
-        return v;
+		this->m_data = rec.m_data;
+        return *this;
     }
+	else
+		throw EngineException(FORMAT2("ShrRecord assignment failed, field count mismatch: %d vs. %d",
+			this->m_data->size(), rec.m_data->size()));
+}
 
 
-
-    template<typename T, typename U>
-    inline bool between(const T &v, const U &min, const U &max)
-    {
-        return (v >= min) && (v <= max);
-    }
-
-
+ShrRecord
+ShrRecord::clone(void) const
+{
+    return ShrRecord(this->getbuf());
 }
 
 
 DB_NAMESPACE_END
 
-
-#endif
 
 //
 // Local Variables:

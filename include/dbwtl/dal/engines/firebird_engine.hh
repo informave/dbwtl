@@ -837,6 +837,7 @@ struct db_traits<firebird, tag>
     typedef FirebirdStatement<tag>               statement_type;
     typedef Result<firebird, tag>           resultset_type;
     typedef CachedResult<firebird, tag>     cached_resultset_type;
+    typedef Metadata<firebird, tag>	metadata_type;
     typedef firebird::VALUE                 value_type;
 
     typedef firebird::RESULT                dal_resultset_type;
@@ -846,6 +847,7 @@ struct db_traits<firebird, tag>
     typedef firebird::DIAG                  dal_diag_type;    
     typedef firebird::COLUMNDESC            dal_columndesc_type;
     typedef firebird::STATES                sqlstate_types;
+    typedef IMetadata                   dal_metadata_type; /// @bug
 
     typedef firebird_datatypes                   datatype_types;
 

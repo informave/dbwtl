@@ -90,6 +90,13 @@ Blob::Blob(void) : m_data()
 }
 
 
+TVarbinary
+Blob::toVarbinary(void)
+{
+    std::string s(this->m_data.str());
+    return TVarbinary(s.data(), s.size());
+}
+
 
 //
 //

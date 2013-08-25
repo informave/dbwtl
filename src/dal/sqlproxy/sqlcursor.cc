@@ -367,6 +367,7 @@ public:
     virtual void visit(ExprNode *node)
     {
         Variant op1, op2;
+	TNumeric tmp;
 
         switch(node->data())
         {
@@ -468,8 +469,7 @@ public:
             assert(node->getChilds().size() == 2);
             apply_visitor(node->getChilds()[0], ExprEvalVisitor(m_cursor, op1));
             apply_visitor(node->getChilds()[1], ExprEvalVisitor(m_cursor, op2));
-            //m_value = op1.get<TNumeric>() % op2.get<TNumeric>();
-            throw std::runtime_error("BUG"); /// @bug here
+            m_value = op1.get<TNumeric>() % op2.get<TNumeric>(); /// @todo check if modulus op works
             return;
         case ExprNode::not_expr:
             assert(node->getChilds().size() == 1);
@@ -479,17 +479,20 @@ public:
         case ExprNode::plus_op:
             assert(node->getChilds().size() == 1);
             apply_visitor(node->getChilds()[0], ExprEvalVisitor(m_cursor, op1));
-            m_value = + op1.get<int>(); /// @bug type int
+	    m_value = op1.get<TNumeric>();
             return;
         case ExprNode::minus_op:
             assert(node->getChilds().size() == 1);
             apply_visitor(node->getChilds()[0], ExprEvalVisitor(m_cursor, op1));
-            m_value = - op1.get<int>(); /// @bug
+	    tmp = op1.get<TNumeric>();
+	    if(tmp.sign())
+	    	tmp.make_negative();
+	    else
+	    	tmp.make_positive();
+            m_value = tmp;
             return;
         }
-
-        std::cout << "EXPR" << std::endl;
-        m_value = Variant(1);
+	throw EngineException("Unhandled ExprNode type in evaluation");
     }
 
 protected:
@@ -629,7 +632,7 @@ public:
     virtual void fallback_action(Node *node)
     {
         //std::cout << "AttrList" << std::endl;
-        throw std::runtime_error("expressions not supported");
+	throw EngineException("Expressions are not supported"); /// @todo Implement Expressions for SQLProxy
     }
 
     ParserAdaptor &adaptor;
@@ -951,7 +954,6 @@ SqlCursor::eof(void) const
   "until calling eof()."))
   .raiseException();
 */
-        //assert(0 == 1); /// @bug fixme
     }
 
     return this->m_cursorstate & DAL_CURSOR_EOF;

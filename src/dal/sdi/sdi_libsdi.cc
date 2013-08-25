@@ -517,7 +517,7 @@ SDIData_libsdi::getString(void) const
             tmp.resize(ind+1);
             sdi_code e = m_resultset.drv()->SDIGetData(m_resultset.getHandle(), colnum(), &tmp[0], ind+1, &ind);
             tmp.resize(ind);
-            return String(tmp, "ISO-8859-1");
+            return String(tmp, "ISO-8859-1"); /// @bug check encoding
         }
         else
             return "";
@@ -579,9 +579,10 @@ SDIData_libsdi::sdi_type(void) const
     size_t size;
     const char *name = 0;
     sditype_t type;
-    this->m_resultset.drv()->SDIDescribeCol(this->m_resultset.getHandle(), this->m_colnum, &size, &name, &type);
+    sdi_code e = this->m_resultset.drv()->SDIDescribeCol(this->m_resultset.getHandle(), this->m_colnum, &size, &name, &type);
+    if(e != SDI_SUCCESS)
+   	DBWTL_BUG(); 
     return type;
-    /// @bug check return type
 }
 
 
@@ -1523,7 +1524,6 @@ SDIStmt_libsdi::~SDIStmt_libsdi(void)
 SDIDataProvider_libsdi*
 SDIStmt_libsdi::newProvider(void)
 {
-    /// @bug switch to better method
     this->m_providers.push_back(new SDIDataProvider_libsdi(*this));
     return this->m_providers.at(this->m_providers.size()-1);
 }

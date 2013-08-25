@@ -182,7 +182,7 @@ public:
 
     static T clone(const T&)
         {
-            throw std::runtime_error("NoCopy Smartptr");
+            throw std::runtime_error("clone(): NoCopy policy");
         }
     
     static bool release(const T&)

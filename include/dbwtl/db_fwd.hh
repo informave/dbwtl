@@ -67,6 +67,7 @@ class TType;
 class TDate;
 class TTime;
 class TInterval;
+class TVarbinary;
 //class TNumeric;
 typedef informave::utils::bcd TNumeric;
 //typedef informave::utils::bcd TDecimal;
@@ -75,7 +76,9 @@ class TTimestamp;
 class TCustomType;
 //class TDatetime;
 
-
+class DatasetFilter;
+class MetadataFilter;
+class NoFilter;
 
 
 

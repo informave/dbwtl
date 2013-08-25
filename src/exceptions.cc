@@ -279,6 +279,15 @@ EngineException::EngineException(void)
     this->setMessage("No engine error description was given.");
 }
 
+FeatureUnsuppException::FeatureUnsuppException(const String &what)
+	: EngineException()
+{
+	this->setMessage(String("Feature unsupported: ") + what);
+}
+
+
+
+
 
 /*
 

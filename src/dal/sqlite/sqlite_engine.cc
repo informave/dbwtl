@@ -866,8 +866,14 @@ SqliteDbc::beginTrans(trx_mode mode,
                       access_mode access,
                       String name)
 {
-    /// @bug fix trx
-    std::string s_cmd("BEGIN TRANSACTION ");
+    if(mode == trx_read_uncommitted)
+    {
+    	this->directCmd("PRGAMA read_uncommitted=true;");
+    }
+    else
+    	this->directCmd("PRGAMA read_uncommitted=false;");
+
+    std::string s_cmd("BEGIN TRANSACTION;");
     this->directCmd(s_cmd);
 }
 

@@ -44,7 +44,6 @@
 %extra_argument { informave::db::sqlproxy::ParseTree *tree }
 
 %syntax_error { 
-	//throw std::runtime_error("syntax error");
 	tree->raiseSyntaxError();
 }
 

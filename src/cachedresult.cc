@@ -208,7 +208,7 @@ CachedResultBase::last(void)
 }
 
 bool
-CachedResultBase::setpos(rowcount_t row)
+CachedResultBase::setpos(rownum_t row)
 {
 	if(this->sourceAvail())
 	{
@@ -330,7 +330,7 @@ void
 CachedResultBase::fetchAll(void)
 {
 	if(!this->sourceAvail())
-		throw std::runtime_error("fetchall failed: source not avail");
+		throw EngineException("fetchAll() failed: source is not available");
 	while(!this->m_source->eof())
 	{
 		this->copyRecord();
@@ -352,7 +352,7 @@ CachedResultBase::copyMetadata(void)
 	assert(this->m_source);
 
 	if(!this->m_source->isPositioned())
-		throw std::runtime_error("not positioned");
+		throw EngineException("Dataset is not positioned.");
 	
 	assert(this->m_source->columnCount() > 0);
 	this->m_rscache.setColumnCount(this->m_source->columnCount());

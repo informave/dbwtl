@@ -425,6 +425,7 @@ class Connection : public ConnectionInterface
 private:
     typedef typename db_traits<Engine, tag>::dal_dbc_type      dal_dbc_type;
     typedef typename db_traits<Engine, tag>::dal_stmt_type     dal_stmt_type;
+    typedef typename db_traits<Engine, tag>::dal_metadata_type     dal_metadata_type;
     typedef typename db_traits<Engine, tag>::dal_diag_type     dal_diag_type;
     typedef typename db_traits<Engine, tag>::dal_variant_type  dal_variant_type;
 
@@ -480,6 +481,8 @@ public:
                                          String name = String())
     { this->m_dbc->beginTrans(mode, access, name); }
 
+
+    virtual dal_metadata_type* newMetadata(void) { return this->m_dbc->newMetadata(); }
 
     virtual TableList    getTables(const ITableFilter& filter = EmptyTableFilter())
     { return this->m_dbc->getTables(filter); }
@@ -792,7 +795,7 @@ public:
 	{}
 
     virtual bool   last(void) = 0;
-    virtual bool   setpos(rowcount_t row) = 0; /// @bug rename rownum_t
+    virtual bool   setpos(rownum_t row) = 0;
     virtual bool   prev(void) = 0;
     
 	virtual rowcount_t fetchMore(void) = 0;
@@ -842,7 +845,7 @@ public:
 
     // ScrollableDataset methods:
     virtual bool   last(void);
-    virtual bool   setpos(rowcount_t row); /// @bug rename rowcount_t to rownum_t
+    virtual bool   setpos(rownum_t row);
     virtual bool   prev(void);
     virtual rowcount_t fetchMore(void) { return 0; }
     virtual bool moreAvail(void) { return false; }
@@ -1022,7 +1025,7 @@ public:
 
     // ScrollableDataset methods:
     virtual bool   last(void);
-    virtual bool   setpos(rowcount_t row); /// @bug rename rowcount_t to rownum_t
+    virtual bool   setpos(rownum_t row);
     virtual bool   prev(void);
     virtual rowcount_t   fetchMore(void);
     virtual bool moreAvail(void);
@@ -1200,6 +1203,46 @@ private:
 
 
 
+template<typename Engine, typename tag, typename MetadataInterface = IMetadata>
+class Metadata : public MetadataInterface
+{
+private:
+    //typedef typename db_traits<Engine, tag>::dal_resultset_type  dal_resultset_type;
+    //typedef typename db_traits<Engine, tag>::dal_stmt_type       dal_stmt_type;
+    //typedef typename db_traits<Engine, tag>::dal_diag_type       dal_diag_type;
+    //typedef typename db_traits<Engine, tag>::dal_variant_type    dal_variant_type;
+
+    typedef typename db_traits<Engine, tag>::dal_metadata_type    dal_metadata_type;
+
+    typedef typename dal_metadata_type::FilterDirection         FilterDirection;
+
+public:
+    Metadata( typename db_traits<Engine, tag>::connection_type &dbc )
+        : MetadataInterface(),
+          m_metadata( dbc.newMetadata() )
+    {}
+
+    virtual ~Metadata(void)
+    {
+    }
+
+    RecordSet getTables(const DatasetFilter &filter = NoFilter(),
+                        const FilterDirection fd = FilterDirection::METADATA_FILTER_OUTPUT)
+    { return getImpl()->getTables(filter); }
+
+
+    virtual dal_metadata_type*          getImpl(void)               { return this->m_metadata.get(); }
+
+protected:
+    typename dal_metadata_type::ptr m_metadata;
+	
+private:
+    Metadata(const Metadata&);
+    Metadata& operator=(const Metadata&);
+
+};
+
+
 
 //------------------------------------------------------------------------------
 ///
@@ -1212,6 +1255,7 @@ struct Database : public db_traits<Engine, tag>::sqlstate_types,
     typedef typename db_traits<Engine, tag>::connection_type          Connection;
     typedef typename db_traits<Engine, tag>::statement_type           Statement;
     typedef typename db_traits<Engine, tag>::resultset_type           Resultset;
+    typedef typename db_traits<Engine, tag>::metadata_type            Metadata;
     typedef typename db_traits<Engine, tag>::cached_resultset_type    CachedResultset;
     typedef typename db_traits<Engine, tag>::value_type               Value;
     typedef typename db_traits<Engine, tag>::dal_columndesc_type      ColumnDesc;

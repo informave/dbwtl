@@ -288,6 +288,9 @@ namespace cxxc
 #define CXXC_CHECK(expr) if(expr) {} else { throw cxxc::Failure(cxxc::TestDetails("CHECK() test", __FILE__, __LINE__, \
                                                                                   "Failed expression: (" #expr ")")); }
 
+#define CXXC_CMP_DOUBLE(v1, v2, tolerance) if(std::abs(v1 - v2) <= tolerance) {} else { throw cxxc::Failure(cxxc::TestDetails("CHECK() test", __FILE__, __LINE__, \
+								"Failed expression: (" #v1 ")")); }
+
 
 /// EVAL(expr) Macro
 ///

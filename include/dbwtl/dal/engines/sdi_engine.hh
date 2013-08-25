@@ -809,6 +809,7 @@ struct db_traits<sdi, tag>
     typedef Statement<sdi, tag>        statement_type;
     typedef Result<sdi, tag>           resultset_type;
     typedef CachedResult<sdi, tag>     cached_resultset_type;
+    typedef Metadata<sdi, tag>		metadata_type;
     typedef sdi::VALUE                 value_type;
 
     typedef sdi::RESULT                dal_resultset_type;
@@ -818,6 +819,7 @@ struct db_traits<sdi, tag>
     typedef sdi::DIAG                  dal_diag_type;    
     typedef sdi::COLUMNDESC            dal_columndesc_type;
     typedef sdi::STATES                sqlstate_types;
+    typedef IMetadata                   dal_metadata_type; /// @bug
 
     typedef sdi_datatypes                   datatype_types;
 

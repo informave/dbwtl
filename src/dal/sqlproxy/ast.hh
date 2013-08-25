@@ -49,6 +49,7 @@
 
 #include "sqlproxy_fwd.hh"
 #include "token.hh"
+#include "dbwtl/exceptions.hh"
 
 #include <list>
 
@@ -822,14 +823,13 @@ T* node_cast(Node *node)
     T* tmp = dynamic_cast<T*>(node);
     if(!tmp)
 	{
-        //throw std::runtime_error("invalid node cast");
         String s = "Type error: expecting `";
 		s.append(T::name());
 		s.append("` but got `");
         s.append(node->nodetype());
 		s.append("` at position ");
 		s.append(node->getSourceInfo().str());
-		throw std::runtime_error(s);
+		throw EngineException(s);
 	}
     return tmp;
 }

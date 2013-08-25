@@ -54,6 +54,332 @@
 DB_NAMESPACE_BEGIN
 
 
+	SqliteMetadata*
+SqliteDbc::newMetadata(void)
+{
+	return new SqliteMetadata(*this); /// @bug
+}
+
+
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+
+
+static MetadataColumnDescriptor catalogsDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+#define METADATA_DESC_COUNT(descs) (sizeof(descs)/sizeof(MetadataColumnDescriptor))
+
+RecordSet
+SqliteMetadata::getCatalogs(const DatasetFilter &filter)
+{	
+	RecordSet rs;
+	rs.setColumnCount(2);
+
+	assert(sizeof(catalogsDescs) / sizeof(MetadataColumnDescriptor) == 2);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(catalogsDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(catalogsDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(catalogsDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(catalogsDescs[i-1].nullable));
+		rs.setDatatype(i, catalogsDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+
+
+    SqliteStmt::ptr dblist(this->m_dbc.newStatement());
+    dblist->prepare("PRAGMA database_list");
+    dblist->execute();
+    
+    for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
+    {
+        std::cout << "read cat data" << std::endl;
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        ShrRecord rec(2);
+        rec[0] = dblist->resultset().column("name");
+        //rec[1] = rawRes.column("");
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+	}
+	return rs;
+}
+
+
+
+static MetadataColumnDescriptor schemaDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+
+RecordSet
+SqliteMetadata::getSchemas(const DatasetFilter &filter, const String &catalog)
+{	
+	RecordSet rs;
+	rs.setColumnCount(3);
+
+	assert(sizeof(schemaDescs) / sizeof(MetadataColumnDescriptor) == 3);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(schemaDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(schemaDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(schemaDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(schemaDescs[i-1].nullable));
+		rs.setDatatype(i, schemaDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+	
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+	//std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcSchemas(catalog));
+	//IResult &rawRes = rawStmt->resultset();
+
+
+
+        ShrRecord rec(3);
+        rec[0] = this->m_dbc.getCurrentCatalog();
+        rec[1] = String("DEFAULT");
+        //rec[2] = rawRes.column("REMARKS");
+		tmp.open();
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+
+	return rs;
+}
+
+
+
+static MetadataColumnDescriptor tableDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "TABLE_NAME",		DAL_TYPE_STRING, 0, false },
+	{ "TABLE_TYPE",     DAL_TYPE_STRING, 0, false },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+
+
+RecordSet
+SqliteMetadata::getTables(const DatasetFilter &filter,
+		const String &catalog, 
+		const String &schema,
+		const String &type)
+{	
+	RecordSet rs;
+	rs.setColumnCount(5);
+
+	assert(sizeof(tableDescs) / sizeof(MetadataColumnDescriptor) == 5);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(tableDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(tableDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(tableDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(tableDescs[i-1].nullable));
+		rs.setDatatype(i, tableDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+
+
+
+
+    TableList list;
+    SqliteStmt::ptr dblist(this->m_dbc.newStatement());
+    dblist->prepare("PRAGMA database_list");
+    dblist->execute();
+    
+    for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
+    {
+        String::Internal dbname = dblist->resultset().column("name").asStr();
+        
+        String::Internal sql_column_query =
+            US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+            US(" FROM ")+dbname+US(".sqlite_master WHERE type = 'table'")
+            US(" UNION")
+            US(" SELECT 'sqlite_master', NULL, 1")
+            US(" UNION")
+            US(" SELECT 'sqlite_temp_master', NULL, 1");
+
+
+        //std::cout << i18n::conv_to(sql_column_query, "UTF-8") << std::endl;
+
+        SqliteStmt::ptr tables(this->m_dbc.newStatement());
+        try
+        {
+            tables->prepare(sql_column_query);
+            tables->execute();
+        }
+        catch(sqlite::STATES::SQLSTATE_42000 &)
+        {
+            continue;
+        }
+        
+        for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
+        {
+		std::cerr << "FOUND OBDC TABLE" << std::endl;
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+		ShrRecord rec(5);
+		rec[0] = String(dbname);
+		//rec[1] = NULL;
+		rec[2] = tables->resultset().column("name");
+		rec[3] = String("TABLE");
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+		}
+    }
+
+    // load temp tables
+    String::Internal sql_column_query =
+        US(" SELECT name, sql, CASE WHEN name IN ('sqlite_stat1', 'sqlite_sequence') THEN 1 ELSE 0 END AS sys")
+        US(" FROM sqlite_temp_master")
+        US(" WHERE type = 'table';");
+    
+    SqliteStmt::ptr tables(this->m_dbc.newStatement());        
+    tables->prepare(sql_column_query);
+    tables->execute();
+    
+        for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
+        {
+		std::cerr << "FOUND OBDC TABLE" << std::endl;
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+		ShrRecord rec(5);
+		rec[0] = String("temp");
+		//rec[1] = NULL;
+		rec[2] = tables->resultset().column("name");
+		rec[3] = String("TABLE");
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+		}
+    
+	return rs;
+}
+
+
+
+static MetadataColumnDescriptor columnDescs[] = {
+	{ "CATALOG_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "SCHEMA_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "TABLE_NAME",		  DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_TYPE",      DAL_TYPE_INT,     0, true  },
+	{ "TYPE_NAME",        DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_SIZE",      DAL_TYPE_INT,     0, true  },
+	{ "NULLABLE",         DAL_TYPE_BOOL,    0, true  },
+	{ "ORDINAL_POSITION", DAL_TYPE_INT,     0, true  },
+	{ "COMMENT",		  DAL_TYPE_STRING,  0, true  }
+};
+
+
+RecordSet
+SqliteMetadata::getColumns(const DatasetFilter &filter,
+		const String &catalog,
+		const String &schema,
+		const String &table)
+{	
+	RecordSet rs;
+	rs.setColumnCount(10);
+
+	assert(sizeof(columnDescs) / sizeof(MetadataColumnDescriptor) == 10);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(columnDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(columnDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(columnDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(columnDescs[i-1].nullable));
+		rs.setDatatype(i, columnDescs[i-1].daltype);
+	}
+
+   RecordSet tmp(rs);
+   assert(tmp.columnCount() == rs.columnCount());
+   rs.open();
+
+   RecordSet tables = this->getTables();
+   for(tables.first(); !tables.eof(); tables.next())
+   {
+		if(!table.empty())
+		{
+			std::cerr << "TABFILTER: \"" << tables.column("TABLE_NAME").asStr().utf8() << "\"/\"" << table.utf8() << "\"" << std::endl;
+			if(std::wstring(tables.column("TABLE_NAME").asStr()) != std::wstring(table))
+				continue;
+			else
+				std::cerr << "match" << std::endl;
+		}
+
+
+    SqliteStmt::ptr columns(this->m_dbc.newStatement());        
+    columns->prepare(String("PRAGMA table_info(") + tables.column("TABLE_NAME").asStr() + ")");
+    columns->execute();
+	IResult &rawRes = columns->resultset();
+
+
+	for(rawRes.first(); !rawRes.eof(); rawRes.next())
+	{
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        ShrRecord rec(10);
+		rec[0] = this->m_dbc.getCurrentCatalog();
+        rec[1] = String("DEFAULT");
+        rec[2] = tables.column("TABLE_NAME");
+        rec[3] = rawRes.column("name");
+        //rec[4] = rawRes.column("COLUMN_TYPE");
+        rec[5] = rawRes.column("type");
+        //rec[6] = rawRes.column("COLUMN_SIZE");
+        //rec[7] = rawRes.column("NULLABLE");
+        //rec[8] = rawRes.column("ORDINAL_POSITION");
+        //rec[9] = rawRes.column("REMARKS");
+        //tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+		
+			rs.insert(*tmp.begin());
+			skipit:;
+        }
+	}
+   }
+	return rs;
+}
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -191,27 +517,27 @@ SqliteData::do_deepcopy(const IVariantValue *owner) const
 
     switch(tmp.datatype())
     {
-    case DAL_TYPE_CUSTOM:     return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_UNKNOWN:    return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_INT:        return new typename value_traits<signed int>::stored_type(tmp.get<signed int>());       
-    case DAL_TYPE_UINT:       return new typename value_traits<unsigned int>::stored_type(tmp.get<unsigned int>());
-    case DAL_TYPE_CHAR:       return new typename value_traits<signed char>::stored_type(tmp.get<signed char>());
-    case DAL_TYPE_UCHAR:      return new typename value_traits<unsigned char>::stored_type(tmp.get<unsigned char>());
-    case DAL_TYPE_STRING:     return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_BOOL:       return new typename value_traits<bool>::stored_type(tmp.get<bool>());
-    case DAL_TYPE_SMALLINT:   return new typename value_traits<signed short>::stored_type(tmp.get<signed short>());
-    case DAL_TYPE_USMALLINT:  return new typename value_traits<unsigned short>::stored_type(tmp.get<unsigned short>());
-    case DAL_TYPE_BIGINT:     return new typename value_traits<signed long long>::stored_type(tmp.get<signed long long>());
-    case DAL_TYPE_UBIGINT:    return new typename value_traits<unsigned long long>::stored_type(tmp.get<unsigned long long>());
-    case DAL_TYPE_DATE:       return new typename value_traits<TDate>::stored_type(tmp.get<TDate>());
-    case DAL_TYPE_TIME:       return new typename value_traits<TTime>::stored_type(tmp.get<TTime>());
-    case DAL_TYPE_TIMESTAMP:  return new typename value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
-    case DAL_TYPE_NUMERIC:    return new typename value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
-    case DAL_TYPE_BLOB:       return new typename value_traits<BlobStream>::stored_type(tmp.get<BlobStream>());
-    case DAL_TYPE_MEMO:       return new typename value_traits<MemoStream>::stored_type(tmp.get<MemoStream>());
-    case DAL_TYPE_FLOAT:      return new typename value_traits<float>::stored_type(tmp.get<float>());
-    case DAL_TYPE_DOUBLE:     return new typename value_traits<double>::stored_type(tmp.get<double>());
-    case DAL_TYPE_INTERVAL:   return new typename value_traits<TInterval>::stored_type(tmp.get<TInterval>());
+    case DAL_TYPE_CUSTOM:     return new value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_UNKNOWN:    return new value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_INT:        return new value_traits<signed int>::stored_type(tmp.get<signed int>());       
+    case DAL_TYPE_UINT:       return new value_traits<unsigned int>::stored_type(tmp.get<unsigned int>());
+    case DAL_TYPE_CHAR:       return new value_traits<signed char>::stored_type(tmp.get<signed char>());
+    case DAL_TYPE_UCHAR:      return new value_traits<unsigned char>::stored_type(tmp.get<unsigned char>());
+    case DAL_TYPE_STRING:     return new value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_BOOL:       return new value_traits<bool>::stored_type(tmp.get<bool>());
+    case DAL_TYPE_SMALLINT:   return new value_traits<signed short>::stored_type(tmp.get<signed short>());
+    case DAL_TYPE_USMALLINT:  return new value_traits<unsigned short>::stored_type(tmp.get<unsigned short>());
+    case DAL_TYPE_BIGINT:     return new value_traits<signed long long>::stored_type(tmp.get<signed long long>());
+    case DAL_TYPE_UBIGINT:    return new value_traits<unsigned long long>::stored_type(tmp.get<unsigned long long>());
+    case DAL_TYPE_DATE:       return new value_traits<TDate>::stored_type(tmp.get<TDate>());
+    case DAL_TYPE_TIME:       return new value_traits<TTime>::stored_type(tmp.get<TTime>());
+    case DAL_TYPE_TIMESTAMP:  return new value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
+    case DAL_TYPE_NUMERIC:    return new value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
+    case DAL_TYPE_BLOB:       return new value_traits<BlobStream>::stored_type(tmp.get<BlobStream>());
+    case DAL_TYPE_MEMO:       return new value_traits<MemoStream>::stored_type(tmp.get<MemoStream>());
+    case DAL_TYPE_FLOAT:      return new value_traits<float>::stored_type(tmp.get<float>());
+    case DAL_TYPE_DOUBLE:     return new value_traits<double>::stored_type(tmp.get<double>());
+    case DAL_TYPE_INTERVAL:   return new value_traits<TInterval>::stored_type(tmp.get<TInterval>());
 /*
     default:
         throw ex::exception(format("Unhandled datatype(%d) at %s") % int(this->daltype()) % DBWTL_MACRO_SRCPOS);

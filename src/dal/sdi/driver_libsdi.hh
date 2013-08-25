@@ -59,43 +59,45 @@ DAL_NAMESPACE_BEGIN
 class SDIDrv : public DynamicLibrary
 {
 
-    typedef    const char* (*sdiapi_SDIDiagText)(void *handle, sdi_handle_type type);
+    typedef    const char* (SDI_API *sdiapi_SDIDiagText)(void *handle, sdi_handle_type type);
 
-    typedef    sdi_code (*sdiapi_SDIAllocEnv)(SDIENV *env);
+    typedef    sdi_code (SDI_API *sdiapi_SDIAllocEnv)(SDIENV *env);
 
-    typedef     sdi_code (*sdiapi_SDIDeallocEnv)(SDIENV *env);
+    typedef     sdi_code (SDI_API *sdiapi_SDIDeallocEnv)(SDIENV *env);
 
-    typedef     const char* (*sdiapi_SDICharset)(SDIENV env);
+    typedef     const char* (SDI_API *sdiapi_SDICharset)(SDIENV env);
 
-typedef sdi_code (*sdiapi_SDIAllocDbc)(SDIENV env, SDIDBC *dbc);
+typedef sdi_code (SDI_API *sdiapi_SDIAllocDbc)(SDIENV env, SDIDBC *dbc);
 
-    typedef sdi_code (*sdiapi_SDIDeallocDbc)(SDIDBC *dbc);
+    typedef sdi_code (SDI_API *sdiapi_SDIDeallocDbc)(SDIDBC *dbc);
 
-typedef sdi_code (*sdiapi_SDIConnect)(SDIDBC dbc, const char *string);
+	typedef sdi_code (SDI_API *sdiapi_SDISetDbcOption)(SDIDBC dbc, const char *option, const char *value, int sizeOrInd);
+
+typedef sdi_code (SDI_API *sdiapi_SDIConnect)(SDIDBC dbc, const char *string);
     
-typedef sdi_code (*sdiapi_SDIDisconnect)(SDIDBC dbc);
+typedef sdi_code (SDI_API *sdiapi_SDIDisconnect)(SDIDBC dbc);
 
-typedef const char* (*sdiapi_SDIGetInfo)(SDIDBC dbc, const char *infoname);
+typedef const char* (SDI_API *sdiapi_SDIGetInfo)(SDIDBC dbc, const char *infoname);
 
-typedef sdi_code (*sdiapi_SDIOpen)(SDIDBC dbc, SDISTMT *stmt, const char *object, const char *schema);
+typedef sdi_code (SDI_API *sdiapi_SDIOpen)(SDIDBC dbc, SDISTMT *stmt, const char *object, const char *schema);
 
-typedef sdi_code (*sdiapi_SDIObjects)(SDIDBC dbc, SDISTMT *stmt);
+typedef sdi_code (SDI_API *sdiapi_SDIObjects)(SDIDBC dbc, SDISTMT *stmt);
 
-typedef sdi_code (*sdiapi_SDIColumns)(SDIDBC dbc, SDISTMT *stmt, const char *database, const char *schema, const char *object);
+typedef sdi_code (SDI_API *sdiapi_SDIColumns)(SDIDBC dbc, SDISTMT *stmt, const char *database, const char *schema, const char *object);
 
-typedef sdi_code (*sdiapi_SDIClose)(SDISTMT *stmt);
+typedef sdi_code (SDI_API *sdiapi_SDIClose)(SDISTMT *stmt);
 
-typedef sdi_code (*sdiapi_SDIFetch)(SDISTMT stmt);
+typedef sdi_code (SDI_API *sdiapi_SDIFetch)(SDISTMT stmt);
 
-typedef sdi_code (*sdiapi_SDIGetData)(SDISTMT stmt, int colnum, void *buf, size_t bufsize, int *ind);
+typedef sdi_code (SDI_API *sdiapi_SDIGetData)(SDISTMT stmt, int colnum, void *buf, size_t bufsize, int *ind);
 
-typedef sdi_code (*sdiapi_SDIGetLargeObject)(SDISTMT stmt, int colnum, void **buf, size_t *size, int *ind);
+typedef sdi_code (SDI_API *sdiapi_SDIGetLargeObject)(SDISTMT stmt, int colnum, void **buf, size_t *size, int *ind);
 
-    typedef sdi_code (*sdiapi_SDIFree)(void **ptr);
+    typedef sdi_code (SDI_API *sdiapi_SDIFree)(void **ptr);
 
-typedef int (*sdiapi_SDINumCols)(SDISTMT stmt);
+typedef int (SDI_API *sdiapi_SDINumCols)(SDISTMT stmt);
 
-typedef sdi_code (*sdiapi_SDIDescribeCol)(SDISTMT stmt, int colnum, size_t *size, const char **name, sditype_t *type);
+typedef sdi_code (SDI_API *sdiapi_SDIDescribeCol)(SDISTMT stmt, int colnum, size_t *size, const char **name, sditype_t *type);
 
 
 
@@ -106,6 +108,7 @@ protected:
     sdiapi_SDICharset                       m_func_SDICharset;
     sdiapi_SDIAllocDbc                      m_func_SDIAllocDbc;
     sdiapi_SDIDeallocDbc                     m_func_SDIDeallocDbc;
+	sdiapi_SDISetDbcOption					m_func_SDISetDbcOption;
     sdiapi_SDIConnect                       m_func_SDIConnect;
     sdiapi_SDIDisconnect                    m_func_SDIDisconnect;
     sdiapi_SDIGetInfo                       m_func_SDIGetInfo;
@@ -123,13 +126,14 @@ protected:
 
 public:
     SDIDrv(String path)
-        : DynamicLibrary(path.length() ? path.toSystemEncoding() : "/home/cytrinox/informave/topspeed/build/libsdi_tps.so"),
+        : DynamicLibrary(path.utf8()),
           m_func_SDIDiagText(0),
           m_func_SDIAllocEnv(0),
           m_func_SDIDeallocEnv(0),
           m_func_SDICharset(0),
           m_func_SDIAllocDbc(0),
           m_func_SDIDeallocDbc(0),
+		  m_func_SDISetDbcOption(0),
           m_func_SDIConnect(0),
           m_func_SDIDisconnect(0),
           m_func_SDIGetInfo(0),
@@ -150,6 +154,7 @@ public:
         this->getproc(this->m_func_SDICharset, "SDICharset");
         this->getproc(this->m_func_SDIAllocDbc, "SDIAllocDbc");
         this->getproc(this->m_func_SDIDeallocDbc, "SDIDeallocDbc");
+		this->getproc(this->m_func_SDISetDbcOption, "SDISetDbcOption");
         this->getproc(this->m_func_SDIConnect, "SDIConnect");
         this->getproc(this->m_func_SDIDisconnect, "SDIDisconnect");
         this->getproc(this->m_func_SDIGetInfo, "SDIGetInfo");
@@ -168,7 +173,13 @@ public:
 
     virtual ~SDIDrv(void) { }
 
-
+inline sdi_code SDISetDbcOption(SDIDBC dbc, const char *option, const char *value, int sizeOrInd)
+{
+	        if(this->m_func_SDISetDbcOption)
+            return this->m_func_SDISetDbcOption(dbc, option, value, sizeOrInd);
+        else
+            throw ex::missing_function(__FUNCTION__);
+}
 
   inline   const char* SDIDiagText(void *handle, sdi_handle_type type)
     {

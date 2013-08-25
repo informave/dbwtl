@@ -41,5 +41,6 @@
     #define  DBWTL_EXPORT // __declspec(dllimport)
   #endif /* DBWTL_EXPORTS */
 #else /* defined (DBWTL_ON_WIN32) */
+ #define DBWTL_WITH_INIT_LISTS_CPP0X
  #define DBWTL_EXPORT
 #endif

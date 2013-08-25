@@ -70,6 +70,7 @@ class SqliteTable;
 class SqliteDiag;
 class SqliteDatatype;
 class SqliteColumnDesc;
+class SqliteMetadata;
 
 
 struct sqlite;
@@ -426,6 +427,34 @@ public:
 };
 
 
+class DBWTL_EXPORT SqliteMetadata : public IMetadata
+{
+public:
+	typedef utils::SmartPtr<SqliteMetadata,
+	                        utils::RefCounted,
+				utils::AllowConversion> ptr;
+
+	SqliteMetadata(SqliteDbc &dbc) : IMetadata(), m_dbc(dbc)
+	{}
+
+	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter());
+	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String());
+	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(), 
+		const String &schema = String(),
+		const String &type = String());
+	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(),
+		const String &schema = String(),
+		const String &table = String());
+
+	virtual ~SqliteMetadata(void)
+	{}
+
+	SqliteDbc &m_dbc;
+};
+
 
 //------------------------------------------------------------------------------
 ///
@@ -550,6 +579,7 @@ public:
     virtual bool                 diagAvail(void) const;
     virtual const SqliteDiag&    fetchDiag(void);
 
+	virtual SqliteMetadata* newMetadata(void);
 
 protected:
     SqliteDiagController m_diag;
@@ -603,6 +633,7 @@ struct sqlite
     typedef sqlite_sqlstates   STATES;
     typedef SqliteTable        TABLE;
     typedef SqliteColumnDesc   COLUMNDESC;
+	typedef SqliteMetadata     METADATA;
 
 
 
@@ -774,7 +805,7 @@ struct db_traits<sqlite, tag>
     typedef sqlite::COLUMNDESC            dal_columndesc_type;
     typedef sqlite::STATES                sqlstate_types;
 
-    typedef IMetadata			dal_metadata_type; /// @bug
+    typedef sqlite::METADATA		dal_metadata_type;
 
     typedef sqlite_datatypes                   datatype_types;
 

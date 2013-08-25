@@ -53,7 +53,7 @@
 #include <deque>
 #include <cassert>
 #include <sstream>
-//#include <cstdint>
+#include <cstdint>
 //#include <cstdlib>
 
 
@@ -235,7 +235,7 @@ public:
 
         std::back_insert_iterator<StorageContainer> d = std::back_inserter(m_nibbles);
 
-        int dot = 0;
+        size_t dot = 0;
 
         if(s[0] == '+' || s[0] == '-')
         {

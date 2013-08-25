@@ -51,9 +51,9 @@
 #include "dbwtl/dbwtl_config.hh"
 
 #ifdef DBWTL_ON_WIN32
-#include "../../targetver.h"
-#define NOMINMAX
-#include <windows.h>
+//#include "../../targetver.h"
+//#define NOMINMAX
+//#include <windows.h>
 #endif
 
 #include "../ustring.hh"

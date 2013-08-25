@@ -17,5 +17,7 @@
 #include "engines/firebird_engine.hh"
 #endif
 
+#include "engines/odbc_engine.hh"
+
 #endif
 

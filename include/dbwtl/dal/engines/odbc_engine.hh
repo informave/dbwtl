@@ -922,8 +922,17 @@ public:
 	OdbcMetadata(OdbcDbc &dbc) : IMetadata(), m_dbc(dbc)
 	{}
 
+	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter());
+	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String());
 	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
-                                const FilterDirection fd = METADATA_FILTER_OUTPUT);
+		const String &catalog = String(), 
+		const String &schema = String(),
+		const String &type = String());
+	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(),
+		const String &schema = String(),
+		const String &table = String());
 
 	virtual ~OdbcMetadata(void)
 	{}
@@ -1031,7 +1040,12 @@ public:
 
     virtual OdbcMetadata* newMetadata(void);
 
-    virtual OdbcStmt*      getOdbcTables(void) = 0;
+    virtual OdbcStmt*      getOdbcCatalogs(void) = 0;
+    virtual OdbcStmt*      getOdbcSchemas(const String &catalog) = 0;
+    virtual OdbcStmt*      getOdbcTables(const String &catalog, const String &schema, const String &type) = 0;
+    virtual OdbcStmt*      getOdbcColumns(const String &catalog, const String &schema, const String &table) = 0;
+
+    virtual String         getCurrentCatalog(void) = 0;
 
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter());
     virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter());

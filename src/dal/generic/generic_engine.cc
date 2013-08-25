@@ -105,6 +105,9 @@ generic::createEnv(String driver)
     else if(engine.compare(String("sdi")) == 0)
         return sdi::createEnv(driver);
 
+    else if(engine.compare(String("odbc")) == 0)
+        return odbc::createEnv(driver);
+
 /*
     else if(engine.compare(L"postgres") == 0)
         return Postgres::createEnv(driver);

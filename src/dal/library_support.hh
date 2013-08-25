@@ -55,6 +55,12 @@
 #include <sqlite3.h>
 
 
+#ifdef DBWTL_ON_WIN32
+#include "../include/targetver.h"
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 DAL_NAMESPACE_BEGIN
 
 
@@ -149,7 +155,21 @@ public:
 #else
 			this->m_handle = LoadLibrary(name);
             if (!this->m_handle) {
-                std::cerr << "Cannot load library: " << "ERR" << '\n';
+				  LPVOID lpMsgBuf;
+    LPVOID lpDisplayBuf;
+    DWORD dw = GetLastError(); 
+				    FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        dw,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPTSTR) &lpMsgBuf,
+        0, NULL );
+
+
+                std::cerr << "Cannot load library: \"" << name << "\", " << (const char*)lpMsgBuf << '\n';
             }
 #endif
         }

@@ -879,7 +879,7 @@ SqlCursor::internalNext(void)
     // Start with the last source and iterate to the first source
     // until we found a source which is not EOF after next().
     // If the first source is EOF, all data is retrieved.
-    for(typename object_vector_type::reverse_iterator p = this->m_objects_vector.rbegin();
+    for(object_vector_type::reverse_iterator p = this->m_objects_vector.rbegin();
         p != this->m_objects_vector.rend();
         ++p)
     {
@@ -1153,11 +1153,11 @@ SqlCursor::first(void)
 */
     std::for_each(this->m_objects_vector.begin(),
                   this->m_objects_vector.end(),
-                  [](typename object_vector_type::value_type i)
+                  [](object_vector_type::value_type i)
                   {
                       i->prov->first();
                   });
-    typename object_vector_type::iterator i = this->m_objects_vector.begin();
+    object_vector_type::iterator i = this->m_objects_vector.begin();
     
     DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
 
@@ -1398,7 +1398,7 @@ ParserAdaptor::addAllColumns(void)
 
     std::for_each(cursor().m_objects_vector.begin(),
                   cursor().m_objects_vector.end(),
-                  [this](typename SqlCursor::object_vector_type::value_type p)
+                  [this](SqlCursor::object_vector_type::value_type p)
                   {
                       IDataProvider *prov = p->prov;
                       assert(prov);
@@ -1441,7 +1441,7 @@ ParserAdaptor::createProviders(void)
 {
     std::for_each(this->cursor().m_objects_vector.begin(),
                   this->cursor().m_objects_vector.end(),
-                  [&](typename SqlCursor::object_vector_type::value_type elem)
+                  [&](SqlCursor::object_vector_type::value_type elem)
                   {
                       IDataProvider *prov = this->cursor().m_stmt.newProvider();
                       prov->open(IDataProvider::MODE_READ,

@@ -71,6 +71,7 @@ class SDITable;
 class SDIDiag;
 class SDIDatatype;
 class SDIColumnDesc;
+class SDIMetadata;
 
 
 struct sdi;
@@ -455,6 +456,33 @@ public:
 };
 
 
+class DBWTL_EXPORT SDIMetadata : public IMetadata
+{
+public:
+	typedef utils::SmartPtr<SDIMetadata,
+	                        utils::RefCounted,
+				utils::AllowConversion> ptr;
+
+	SDIMetadata(SDIDbc &dbc) : IMetadata(), m_dbc(dbc)
+	{}
+
+	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter());
+	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String());
+	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(), 
+		const String &schema = String(),
+		const String &type = String());
+	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(),
+		const String &schema = String(),
+		const String &table = String());
+
+	virtual ~SDIMetadata(void)
+	{}
+
+	SDIDbc &m_dbc;
+};
 
 //------------------------------------------------------------------------------
 ///
@@ -495,6 +523,11 @@ public:
     SDIDataProvider(SDIDiagController &dc) : IDataProvider(),
         m_diag(dc)
         {}
+
+
+	virtual void openObjects(void) = 0;
+	virtual void openColumns(const String &catalog, const String &schema, const String &table) = 0;
+
 
     virtual const value_type&     column(colnum_t num) = 0;
     virtual const value_type&     column(String name) = 0;
@@ -613,6 +646,13 @@ public:
     virtual bool             diagAvail(void) const;
     virtual const SDIDiag&   fetchDiag(void);
 
+	virtual SDIMetadata* newMetadata(void);
+
+	virtual SDIStmt* getSDICatalogs(void) = 0;
+	virtual SDIStmt* getSDISchemas(void) = 0;
+	virtual SDIStmt* getSDITables(void) = 0;
+	virtual SDIStmt* getSDIColumns(void) = 0;
+
 protected:
     SDIDiagController m_diag;
 };
@@ -665,6 +705,7 @@ struct sdi
     typedef sdi_sqlstates   STATES;
     typedef SDITable        TABLE;
     typedef IColumnDesc     COLUMNDESC;
+	typedef SDIMetadata     METADATA;
 
 
 
@@ -819,7 +860,7 @@ struct db_traits<sdi, tag>
     typedef sdi::DIAG                  dal_diag_type;    
     typedef sdi::COLUMNDESC            dal_columndesc_type;
     typedef sdi::STATES                sqlstate_types;
-    typedef IMetadata                   dal_metadata_type; /// @bug
+    typedef sdi::METADATA		dal_metadata_type;
 
     typedef sdi_datatypes                   datatype_types;
 

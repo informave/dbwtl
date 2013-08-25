@@ -70,6 +70,7 @@ class FirebirdTable;
 class FirebirdDiag;
 class FirebirdDatatype;
 class FirebirdColumnDesc;
+class FirebirdMetadata;
 
 
 struct firebird;
@@ -483,6 +484,33 @@ public:
 };
 
 
+class DBWTL_EXPORT FirebirdMetadata : public IMetadata
+{
+public:
+	typedef utils::SmartPtr<FirebirdMetadata,
+	                        utils::RefCounted,
+				utils::AllowConversion> ptr;
+
+	FirebirdMetadata(FirebirdDbc &dbc) : IMetadata(), m_dbc(dbc)
+	{}
+
+	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter());
+	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String());
+	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(), 
+		const String &schema = String(),
+		const String &type = String());
+	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(),
+		const String &schema = String(),
+		const String &table = String());
+
+	virtual ~FirebirdMetadata(void)
+	{}
+
+	FirebirdDbc &m_dbc;
+};
 
 //..............................................................................
 /////////////////////////////////////////////////////////////// FirebirdDatatype
@@ -619,6 +647,8 @@ public:
     virtual void           commit(Transaction trx) = 0;
     virtual void           rollback(Transaction trx) = 0;
 
+	virtual FirebirdMetadata* newMetadata(void);
+
 protected:
     mutable FirebirdDiagController m_diag;
 };
@@ -671,6 +701,7 @@ struct firebird
     typedef firebird_sqlstates   STATES;
     typedef FirebirdTable        TABLE;
     typedef FirebirdColumnDesc   COLUMNDESC;
+	typedef FirebirdMetadata     METADATA;
 
 
     DBWTL_EXPORT static const char* sqlstate2string(STATES::engine_states_t id);
@@ -847,7 +878,7 @@ struct db_traits<firebird, tag>
     typedef firebird::DIAG                  dal_diag_type;    
     typedef firebird::COLUMNDESC            dal_columndesc_type;
     typedef firebird::STATES                sqlstate_types;
-    typedef IMetadata                   dal_metadata_type; /// @bug
+    typedef firebird::METADATA		dal_metadata_type;
 
     typedef firebird_datatypes                   datatype_types;
 

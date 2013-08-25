@@ -67,20 +67,20 @@ DAL_NAMESPACE_BEGIN
 class FBClientDrv : public DynamicLibrary
 {
 
-    typedef ISC_STATUS (*api__isc_attach_database)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_attach_database)(ISC_STATUS*,
                                                    short,
                                                    const ISC_SCHAR*,
                                                    isc_db_handle*,
                                                    short,
                                                    const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_array_gen_sdl)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_array_gen_sdl)(ISC_STATUS*,
                                                  const ISC_ARRAY_DESC*,
                                                  ISC_SHORT*,
                                                  ISC_UCHAR*,
                                                  ISC_SHORT*);
 
-    typedef ISC_STATUS (*api__isc_array_get_slice)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_array_get_slice)(ISC_STATUS*,
                                                    isc_db_handle*,
                                                    isc_tr_handle*,
                                                    ISC_QUAD*,
@@ -88,21 +88,21 @@ class FBClientDrv : public DynamicLibrary
                                                    void*,
                                                    ISC_LONG*);
 
-    typedef ISC_STATUS (*api__isc_array_lookup_bounds)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_array_lookup_bounds)(ISC_STATUS*,
                                                        isc_db_handle*,
                                                        isc_tr_handle*,
                                                        const ISC_SCHAR*,
                                                        const ISC_SCHAR*,
                                                        ISC_ARRAY_DESC*);
 
-    typedef ISC_STATUS (*api__isc_array_lookup_desc)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_array_lookup_desc)(ISC_STATUS*,
                                                      isc_db_handle*,
                                                      isc_tr_handle*,
                                                      const ISC_SCHAR*,
                                                      const ISC_SCHAR*,
                                                      ISC_ARRAY_DESC*);
 
-    typedef ISC_STATUS (*api__isc_array_set_desc)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_array_set_desc)(ISC_STATUS*,
                                                   const ISC_SCHAR*,
                                                   const ISC_SCHAR*,
                                                   const short*,
@@ -110,7 +110,7 @@ class FBClientDrv : public DynamicLibrary
                                                   const short*,
                                                   ISC_ARRAY_DESC*);
 
-    typedef ISC_STATUS (*api__isc_array_put_slice)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_array_put_slice)(ISC_STATUS*,
                                                    isc_db_handle*,
                                                    isc_tr_handle*,
                                                    ISC_QUAD*,
@@ -118,26 +118,26 @@ class FBClientDrv : public DynamicLibrary
                                                    void*,
                                                    ISC_LONG *);
 
-    typedef void (*api__isc_blob_default_desc)(ISC_BLOB_DESC*,
+    typedef void (ISC_EXPORT *api__isc_blob_default_desc)(ISC_BLOB_DESC*,
                                                const ISC_UCHAR*,
                                                const ISC_UCHAR*);
 
 
-    typedef ISC_STATUS (*api__isc_blob_gen_bpb)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_blob_gen_bpb)(ISC_STATUS*,
                                                 const ISC_BLOB_DESC*,
                                                 const ISC_BLOB_DESC*,
                                                 unsigned short,
                                                 ISC_UCHAR*,
                                                 unsigned short*);
 
-    typedef ISC_STATUS (*api__isc_blob_info)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_blob_info)(ISC_STATUS*,
                                              isc_blob_handle*,
                                              short,
                                              const ISC_SCHAR*,
                                              short,
                                              ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_blob_lookup_desc)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_blob_lookup_desc)(ISC_STATUS*,
                                                     isc_db_handle*,
                                                     isc_tr_handle*,
                                                     const ISC_UCHAR*,
@@ -145,7 +145,7 @@ class FBClientDrv : public DynamicLibrary
                                                     ISC_BLOB_DESC*,
                                                     ISC_UCHAR*);
 
-    typedef ISC_STATUS (*api__isc_blob_set_desc)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_blob_set_desc)(ISC_STATUS*,
                                                  const ISC_UCHAR*,
                                                  const ISC_UCHAR*,
                                                  short,
@@ -153,29 +153,29 @@ class FBClientDrv : public DynamicLibrary
                                                  short,
                                                  ISC_BLOB_DESC*);
 
-    typedef ISC_STATUS (*api__isc_cancel_blob)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_cancel_blob)(ISC_STATUS *,
                                                isc_blob_handle *);
 
-    typedef ISC_STATUS (*api__isc_cancel_events)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_cancel_events)(ISC_STATUS *,
                                                  isc_db_handle *,
                                                  ISC_LONG *);
 
-    typedef ISC_STATUS (*api__isc_close_blob)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_close_blob)(ISC_STATUS *,
                                               isc_blob_handle *);
 
-    typedef ISC_STATUS (*api__isc_commit_retaining)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_commit_retaining)(ISC_STATUS *,
                                                     isc_tr_handle *);
 
-    typedef ISC_STATUS (*api__isc_commit_transaction)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_commit_transaction)(ISC_STATUS *,
                                                       isc_tr_handle *);
 
-    typedef ISC_STATUS (*api__isc_create_blob)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_create_blob)(ISC_STATUS*,
                                                isc_db_handle*,
                                                isc_tr_handle*,
                                                isc_blob_handle*,
                                                ISC_QUAD*);
 
-    typedef ISC_STATUS (*api__isc_create_blob2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_create_blob2)(ISC_STATUS*,
                                                 isc_db_handle*,
                                                 isc_tr_handle*,
                                                 isc_blob_handle*,
@@ -183,7 +183,7 @@ class FBClientDrv : public DynamicLibrary
                                                 short,
                                                 const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_create_database)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_create_database)(ISC_STATUS*,
                                                    short,
                                                    const ISC_SCHAR*,
                                                    isc_db_handle*,
@@ -191,50 +191,50 @@ class FBClientDrv : public DynamicLibrary
                                                    const ISC_SCHAR*,
                                                    short);
 
-    typedef ISC_STATUS (*api__isc_database_info)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_database_info)(ISC_STATUS*,
                                                  isc_db_handle*,
                                                  short,
                                                  const ISC_SCHAR*,
                                                  short,
                                                  ISC_SCHAR*);
 
-    typedef void (*api__isc_decode_date)(const ISC_QUAD*,
+    typedef void (ISC_EXPORT *api__isc_decode_date)(const ISC_QUAD*,
                                          void*);
 
-    typedef void (*api__isc_decode_sql_date)(const ISC_DATE*,
+    typedef void (ISC_EXPORT *api__isc_decode_sql_date)(const ISC_DATE*,
                                              void*);
 
-    typedef void (*api__isc_decode_sql_time)(const ISC_TIME*,
+    typedef void (ISC_EXPORT *api__isc_decode_sql_time)(const ISC_TIME*,
                                              void*);
 
-    typedef void (*api__isc_decode_timestamp)(const ISC_TIMESTAMP*,
+    typedef void (ISC_EXPORT *api__isc_decode_timestamp)(const ISC_TIMESTAMP*,
                                               void*);
 
-    typedef ISC_STATUS (*api__isc_detach_database)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_detach_database)(ISC_STATUS *,
                                                    isc_db_handle *);
 
-    typedef ISC_STATUS (*api__isc_drop_database)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_drop_database)(ISC_STATUS *,
                                                  isc_db_handle *);
 
-    typedef ISC_STATUS (*api__isc_dsql_allocate_statement)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_allocate_statement)(ISC_STATUS *,
                                                            isc_db_handle *,
                                                            isc_stmt_handle *);
 
-    typedef ISC_STATUS (*api__isc_dsql_alloc_statement2)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_alloc_statement2)(ISC_STATUS *,
                                                          isc_db_handle *,
                                                          isc_stmt_handle *);
 
-    typedef ISC_STATUS (*api__isc_dsql_describe)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_describe)(ISC_STATUS *,
                                                  isc_stmt_handle *,
                                                  unsigned short,
                                                  XSQLDA *);
 
-    typedef ISC_STATUS (*api__isc_dsql_describe_bind)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_describe_bind)(ISC_STATUS *,
                                                       isc_stmt_handle *,
                                                       unsigned short,
                                                       XSQLDA *);
 
-    typedef ISC_STATUS (*api__isc_dsql_exec_immed2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_exec_immed2)(ISC_STATUS*,
                                                     isc_db_handle*,
                                                     isc_tr_handle*,
                                                     unsigned short,
@@ -243,20 +243,20 @@ class FBClientDrv : public DynamicLibrary
                                                     XSQLDA*,
                                                     XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_dsql_execute)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_execute)(ISC_STATUS*,
                                                 isc_tr_handle*,
                                                 isc_stmt_handle*,
                                                 unsigned short,
                                                 XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_dsql_execute2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_execute2)(ISC_STATUS*,
                                                  isc_tr_handle*,
                                                  isc_stmt_handle*,
                                                  unsigned short,
                                                  XSQLDA*,
                                                  XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_dsql_execute_immediate)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_execute_immediate)(ISC_STATUS*,
                                                           isc_db_handle*,
                                                           isc_tr_handle*,
                                                           unsigned short,
@@ -264,23 +264,23 @@ class FBClientDrv : public DynamicLibrary
                                                           unsigned short,
                                                           XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_dsql_fetch)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_fetch)(ISC_STATUS *,
                                               isc_stmt_handle *,
                                               unsigned short,
                                               XSQLDA *);
 
-    typedef ISC_STATUS (*api__isc_dsql_finish)(isc_db_handle *);
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_finish)(isc_db_handle *);
 
-    typedef ISC_STATUS (*api__isc_dsql_free_statement)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_free_statement)(ISC_STATUS *,
                                                        isc_stmt_handle *,
                                                        unsigned short);
 
-    typedef ISC_STATUS (*api__isc_dsql_insert)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_insert)(ISC_STATUS*,
                                                isc_stmt_handle*,
                                                unsigned short,
                                                XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_dsql_prepare)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_prepare)(ISC_STATUS*,
                                                 isc_tr_handle*,
                                                 isc_stmt_handle*,
                                                 unsigned short,
@@ -288,56 +288,56 @@ class FBClientDrv : public DynamicLibrary
                                                 unsigned short,
                                                 XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_dsql_set_cursor_name)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_set_cursor_name)(ISC_STATUS*,
                                                         isc_stmt_handle*,
                                                         const ISC_SCHAR*,
                                                         unsigned short);
 
-    typedef ISC_STATUS (*api__isc_dsql_sql_info)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_sql_info)(ISC_STATUS*,
                                                  isc_stmt_handle*,
                                                  short,
                                                  const ISC_SCHAR*,
                                                  short,
                                                  ISC_SCHAR*);
 
-    typedef void (*api__isc_encode_date)(const void*,
+    typedef void (ISC_EXPORT *api__isc_encode_date)(const void*,
                                          ISC_QUAD*);
 
-    typedef void (*api__isc_encode_sql_date)(const void*,
+    typedef void (ISC_EXPORT *api__isc_encode_sql_date)(const void*,
                                              ISC_DATE*);
 
-    typedef void (*api__isc_encode_sql_time)(const void*,
+    typedef void (ISC_EXPORT *api__isc_encode_sql_time)(const void*,
                                              ISC_TIME*);
 
-    typedef void (*api__isc_encode_timestamp)(const void*,
+    typedef void (ISC_EXPORT *api__isc_encode_timestamp)(const void*,
                                               ISC_TIMESTAMP*);
 
-    typedef ISC_LONG ISC_EXPORT_VARARG (*api__isc_event_block)(ISC_UCHAR**,
+    typedef ISC_LONG  (ISC_EXPORT *api__isc_event_block)(ISC_UCHAR**,
                                                                ISC_UCHAR**,
                                                                unsigned short, ...);
 
-    typedef void (*api__isc_event_counts)(ISC_ULONG*,
+    typedef void (ISC_EXPORT *api__isc_event_counts)(ISC_ULONG*,
                                           short,
                                           ISC_UCHAR*,
                                           const ISC_UCHAR *);
 
 
 
-    typedef int (*api__isc_modify_dpb)(ISC_SCHAR**,
+    typedef int (ISC_EXPORT *api__isc_modify_dpb)(ISC_SCHAR**,
                                        short*,
                                        unsigned short,
                                        const ISC_SCHAR*,
                                        short);
 
-    typedef ISC_LONG (*api__isc_free)(ISC_SCHAR *);
+    typedef ISC_LONG (ISC_EXPORT *api__isc_free)(ISC_SCHAR *);
 
-    typedef ISC_STATUS (*api__isc_get_segment)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_get_segment)(ISC_STATUS *,
                                                isc_blob_handle *,
                                                unsigned short *,
                                                unsigned short,
                                                ISC_SCHAR *);
 
-    typedef ISC_STATUS (*api__isc_get_slice)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_get_slice)(ISC_STATUS*,
                                              isc_db_handle*,
                                              isc_tr_handle*,
                                              ISC_QUAD*,
@@ -351,22 +351,22 @@ class FBClientDrv : public DynamicLibrary
 
 
 /* CVC: This non-const signature is needed for compatibility, see gds.cpp. */
-    typedef ISC_LONG (*api__isc_interprete)(ISC_SCHAR*,
+    typedef ISC_LONG (ISC_EXPORT *api__isc_interprete)(ISC_SCHAR*,
                                             ISC_STATUS**);
 
 
 /* This const params version used in the engine and other places. */
-    typedef ISC_LONG (*api__fb_interpret)(ISC_SCHAR*,
+    typedef ISC_LONG (ISC_EXPORT *api__fb_interpret)(ISC_SCHAR*,
                                           unsigned int,
                                           const ISC_STATUS**);
 
-    typedef ISC_STATUS (*api__isc_open_blob)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_open_blob)(ISC_STATUS*,
                                              isc_db_handle*,
                                              isc_tr_handle*,
                                              isc_blob_handle*,
                                              ISC_QUAD*);
 
-    typedef ISC_STATUS (*api__isc_open_blob2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_open_blob2)(ISC_STATUS*,
                                               isc_db_handle*,
                                               isc_tr_handle*,
                                               isc_blob_handle*,
@@ -374,22 +374,22 @@ class FBClientDrv : public DynamicLibrary
                                               ISC_USHORT,
                                               const ISC_UCHAR*);
 
-    typedef ISC_STATUS (*api__isc_prepare_transaction2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_prepare_transaction2)(ISC_STATUS*,
                                                         isc_tr_handle*,
                                                         ISC_USHORT,
                                                         const ISC_UCHAR*);
 
-    typedef void (*api__isc_print_sqlerror)(ISC_SHORT,
+    typedef void (ISC_EXPORT *api__isc_print_sqlerror)(ISC_SHORT,
                                             const ISC_STATUS*);
 
-    typedef ISC_STATUS (*api__isc_print_status)(const ISC_STATUS*);
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_print_status)(const ISC_STATUS*);
 
-    typedef ISC_STATUS (*api__isc_put_segment)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_put_segment)(ISC_STATUS*,
                                                isc_blob_handle*,
                                                unsigned short,
                                                const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_put_slice)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_put_slice)(ISC_STATUS*,
                                              isc_db_handle*,
                                              isc_tr_handle*,
                                              ISC_QUAD*,
@@ -400,7 +400,7 @@ class FBClientDrv : public DynamicLibrary
                                              ISC_LONG,
                                              void*);
 
-    typedef ISC_STATUS (*api__isc_que_events)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_que_events)(ISC_STATUS*,
                                               isc_db_handle*,
                                               ISC_LONG*,
                                               short,
@@ -408,35 +408,35 @@ class FBClientDrv : public DynamicLibrary
                                               ISC_EVENT_CALLBACK,
                                               void*);
 
-    typedef ISC_STATUS (*api__isc_rollback_retaining)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_rollback_retaining)(ISC_STATUS *,
                                                       isc_tr_handle *);
 
-    typedef ISC_STATUS (*api__isc_rollback_transaction)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_rollback_transaction)(ISC_STATUS *,
                                                         isc_tr_handle *);
 
-    typedef ISC_STATUS (*api__isc_start_multiple)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_start_multiple)(ISC_STATUS *,
                                                   isc_tr_handle *,
                                                   short,
                                                   void *);
 
-    typedef ISC_STATUS ISC_EXPORT_VARARG (*api__isc_start_transaction)(ISC_STATUS *,
+    typedef ISC_STATUS  (ISC_EXPORT *api__isc_start_transaction)(ISC_STATUS *,
                                                                        isc_tr_handle *,
                                                                        short, ...);
 
-    typedef ISC_LONG (*api__isc_sqlcode)(const ISC_STATUS*);
+    typedef ISC_LONG (ISC_EXPORT *api__isc_sqlcode)(const ISC_STATUS*);
 
-    typedef void (*api__isc_sql_interprete)(short,
+    typedef void (ISC_EXPORT *api__isc_sql_interprete)(short,
                                             ISC_SCHAR *,
                                             short);
 
-    typedef ISC_STATUS (*api__isc_transaction_info)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_transaction_info)(ISC_STATUS*,
                                                     isc_tr_handle*,
                                                     short,
                                                     const ISC_SCHAR*,
                                                     short,
                                                     ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_transact_request)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_transact_request)(ISC_STATUS*,
                                                     isc_db_handle*,
                                                     isc_tr_handle*,
                                                     unsigned short,
@@ -446,60 +446,60 @@ class FBClientDrv : public DynamicLibrary
                                                     unsigned short,
                                                     ISC_SCHAR*);
 
-    typedef ISC_LONG (*api__isc_vax_integer)(const ISC_SCHAR*,
+    typedef ISC_LONG (ISC_EXPORT *api__isc_vax_integer)(const ISC_SCHAR*,
                                              short);
 
-    typedef ISC_INT64 (*api__isc_portable_integer)(const ISC_UCHAR*,
+    typedef ISC_INT64 (ISC_EXPORT *api__isc_portable_integer)(const ISC_UCHAR*,
                                                    short);
 
 
-    typedef ISC_STATUS (*api__isc_add_user)(ISC_STATUS*, const USER_SEC_DATA*);
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_add_user)(ISC_STATUS*, const USER_SEC_DATA*);
 
-    typedef ISC_STATUS (*api__isc_delete_user)(ISC_STATUS*, const USER_SEC_DATA*);
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_delete_user)(ISC_STATUS*, const USER_SEC_DATA*);
 
-    typedef ISC_STATUS (*api__isc_modify_user)(ISC_STATUS*, const USER_SEC_DATA*);
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_modify_user)(ISC_STATUS*, const USER_SEC_DATA*);
 
 
 
-    typedef ISC_STATUS (*api__isc_compile_request)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_compile_request)(ISC_STATUS*,
                                                    isc_db_handle*,
                                                    isc_req_handle*,
                                                    short,
                                                    const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_compile_request2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_compile_request2)(ISC_STATUS*,
                                                     isc_db_handle*,
                                                     isc_req_handle*,
                                                     short,
                                                     const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_ddl)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_ddl)(ISC_STATUS*,
                                        isc_db_handle*,
                                        isc_tr_handle*,
                                        short,
                                        const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_prepare_transaction)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_prepare_transaction)(ISC_STATUS*,
                                                        isc_tr_handle*);
 
 
-    typedef ISC_STATUS (*api__isc_receive)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_receive)(ISC_STATUS*,
                                            isc_req_handle*,
                                            short,
                                            short,
                                            void*,
                                            short);
 
-    typedef ISC_STATUS (*api__isc_reconnect_transaction)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_reconnect_transaction)(ISC_STATUS*,
                                                          isc_db_handle*,
                                                          isc_tr_handle*,
                                                          short,
                                                          const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_release_request)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_release_request)(ISC_STATUS*,
                                                    isc_req_handle*);
 
-    typedef ISC_STATUS (*api__isc_request_info)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_request_info)(ISC_STATUS*,
                                                 isc_req_handle*,
                                                 short,
                                                 short,
@@ -507,20 +507,20 @@ class FBClientDrv : public DynamicLibrary
                                                 short,
                                                 ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_seek_blob)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_seek_blob)(ISC_STATUS*,
                                              isc_blob_handle*,
                                              short,
                                              ISC_LONG,
                                              ISC_LONG*);
 
-    typedef ISC_STATUS (*api__isc_send)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_send)(ISC_STATUS*,
                                         isc_req_handle*,
                                         short,
                                         short,
                                         const void*,
                                         short);
 
-    typedef ISC_STATUS (*api__isc_start_and_send)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_start_and_send)(ISC_STATUS*,
                                                   isc_req_handle*,
                                                   isc_tr_handle*,
                                                   short,
@@ -528,16 +528,16 @@ class FBClientDrv : public DynamicLibrary
                                                   const void*,
                                                   short);
 
-    typedef ISC_STATUS (*api__isc_start_request)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_start_request)(ISC_STATUS *,
                                                  isc_req_handle *,
                                                  isc_tr_handle *,
                                                  short);
 
-    typedef ISC_STATUS (*api__isc_unwind_request)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_unwind_request)(ISC_STATUS *,
                                                   isc_tr_handle *,
                                                   short);
 
-    typedef ISC_STATUS (*api__isc_wait_for_event)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_wait_for_event)(ISC_STATUS*,
                                                   isc_db_handle*,
                                                   short,
                                                   const ISC_UCHAR*,
@@ -545,42 +545,42 @@ class FBClientDrv : public DynamicLibrary
 
 
 
-    typedef ISC_STATUS (*api__isc_close)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_close)(ISC_STATUS*,
                                          const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_declare)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_declare)(ISC_STATUS*,
                                            const ISC_SCHAR*,
                                            const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_describe)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_describe)(ISC_STATUS*,
                                             const ISC_SCHAR*,
                                             XSQLDA *);
 
-    typedef ISC_STATUS (*api__isc_describe_bind)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_describe_bind)(ISC_STATUS*,
                                                  const ISC_SCHAR*,
                                                  XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_execute)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_execute)(ISC_STATUS*,
                                            isc_tr_handle*,
                                            const ISC_SCHAR*,
                                            XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_execute_immediate)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_execute_immediate)(ISC_STATUS*,
                                                      isc_db_handle*,
                                                      isc_tr_handle*,
                                                      short*,
                                                      const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_fetch)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_fetch)(ISC_STATUS*,
                                          const ISC_SCHAR*,
                                          XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_open)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_open)(ISC_STATUS*,
                                         isc_tr_handle*,
                                         const ISC_SCHAR*,
                                         XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_prepare)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_prepare)(ISC_STATUS*,
                                            isc_db_handle*,
                                            isc_tr_handle*,
                                            const ISC_SCHAR*,
@@ -590,7 +590,7 @@ class FBClientDrv : public DynamicLibrary
 
 
 
-    typedef ISC_STATUS (*api__isc_dsql_execute_m)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_execute_m)(ISC_STATUS*,
                                                   isc_tr_handle*,
                                                   isc_stmt_handle*,
                                                   unsigned short,
@@ -599,7 +599,7 @@ class FBClientDrv : public DynamicLibrary
                                                   unsigned short,
                                                   ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_dsql_execute2_m)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_execute2_m)(ISC_STATUS*,
                                                    isc_tr_handle*,
                                                    isc_stmt_handle*,
                                                    unsigned short,
@@ -613,7 +613,7 @@ class FBClientDrv : public DynamicLibrary
                                                    unsigned short,
                                                    ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_dsql_execute_immediate_m)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_execute_immediate_m)(ISC_STATUS*,
                                                             isc_db_handle*,
                                                             isc_tr_handle*,
                                                             unsigned short,
@@ -625,7 +625,7 @@ class FBClientDrv : public DynamicLibrary
                                                             unsigned short,
                                                             ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_dsql_exec_immed3_m)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_exec_immed3_m)(ISC_STATUS*,
                                                       isc_db_handle*,
                                                       isc_tr_handle*,
                                                       unsigned short,
@@ -642,7 +642,7 @@ class FBClientDrv : public DynamicLibrary
                                                       unsigned short,
                                                       ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_dsql_fetch_m)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_fetch_m)(ISC_STATUS*,
                                                 isc_stmt_handle*,
                                                 unsigned short,
                                                 const ISC_SCHAR*,
@@ -650,7 +650,7 @@ class FBClientDrv : public DynamicLibrary
                                                 unsigned short,
                                                 ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_dsql_insert_m)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_insert_m)(ISC_STATUS*,
                                                  isc_stmt_handle*,
                                                  unsigned short,
                                                  const ISC_SCHAR*,
@@ -658,7 +658,7 @@ class FBClientDrv : public DynamicLibrary
                                                  unsigned short,
                                                  const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_dsql_prepare_m)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_prepare_m)(ISC_STATUS*,
                                                   isc_tr_handle*,
                                                   isc_stmt_handle*,
                                                   unsigned short,
@@ -669,40 +669,40 @@ class FBClientDrv : public DynamicLibrary
                                                   unsigned short,
                                                   ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_dsql_release)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_dsql_release)(ISC_STATUS*,
                                                 const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_close)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_close)(ISC_STATUS*,
                                                     const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_declare)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_declare)(ISC_STATUS*,
                                                       const ISC_SCHAR*,
                                                       const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_describe)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_describe)(ISC_STATUS*,
                                                        const ISC_SCHAR*,
                                                        unsigned short,
                                                        XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_describe_bind)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_describe_bind)(ISC_STATUS*,
                                                             const ISC_SCHAR*,
                                                             unsigned short,
                                                             XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_execute)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_execute)(ISC_STATUS*,
                                                       isc_tr_handle*,
                                                       const ISC_SCHAR*,
                                                       unsigned short,
                                                       XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_execute2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_execute2)(ISC_STATUS*,
                                                        isc_tr_handle*,
                                                        const ISC_SCHAR*,
                                                        unsigned short,
                                                        XSQLDA*,
                                                        XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_execute_immed)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_execute_immed)(ISC_STATUS*,
                                                             isc_db_handle*,
                                                             isc_tr_handle*,
                                                             unsigned short,
@@ -710,30 +710,30 @@ class FBClientDrv : public DynamicLibrary
                                                             unsigned short,
                                                             XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_fetch)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_fetch)(ISC_STATUS*,
                                                     const ISC_SCHAR*,
                                                     unsigned short,
                                                     XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_open)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_open)(ISC_STATUS*,
                                                    isc_tr_handle*,
                                                    const ISC_SCHAR*,
                                                    unsigned short,
                                                    XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_open2)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_open2)(ISC_STATUS*,
                                                     isc_tr_handle*,
                                                     const ISC_SCHAR*,
                                                     unsigned short,
                                                     XSQLDA*,
                                                     XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_insert)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_insert)(ISC_STATUS*,
                                                      const ISC_SCHAR*,
                                                      unsigned short,
                                                      XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_prepare)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_prepare)(ISC_STATUS*,
                                                       isc_db_handle*,
                                                       isc_tr_handle*,
                                                       const ISC_SCHAR*,
@@ -742,102 +742,102 @@ class FBClientDrv : public DynamicLibrary
                                                       unsigned short,
                                                       XSQLDA*);
 
-    typedef ISC_STATUS (*api__isc_embed_dsql_release)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_embed_dsql_release)(ISC_STATUS*,
                                                       const ISC_SCHAR*);
 
 
-    typedef BSTREAM* (*api__BLOB_open)(isc_blob_handle,
+    typedef BSTREAM* (ISC_EXPORT *api__BLOB_open)(isc_blob_handle,
                                        ISC_SCHAR*,
                                        int);
 
-    typedef int (*api__BLOB_put)(ISC_SCHAR,
+    typedef int (ISC_EXPORT *api__BLOB_put)(ISC_SCHAR,
                                  BSTREAM*);
 
-    typedef int (*api__BLOB_close)(BSTREAM*);
+    typedef int (ISC_EXPORT *api__BLOB_close)(BSTREAM*);
 
-    typedef int (*api__BLOB_get)(BSTREAM*);
+    typedef int (ISC_EXPORT *api__BLOB_get)(BSTREAM*);
 
-    typedef int (*api__BLOB_display)(ISC_QUAD*,
+    typedef int (ISC_EXPORT *api__BLOB_display)(ISC_QUAD*,
                                      isc_db_handle,
                                      isc_tr_handle,
                                      const ISC_SCHAR*);
 
-    typedef int (*api__BLOB_dump)(ISC_QUAD*,
+    typedef int (ISC_EXPORT *api__BLOB_dump)(ISC_QUAD*,
                                   isc_db_handle,
                                   isc_tr_handle,
                                   const ISC_SCHAR*);
 
-    typedef int (*api__BLOB_edit)(ISC_QUAD*,
+    typedef int (ISC_EXPORT *api__BLOB_edit)(ISC_QUAD*,
                                   isc_db_handle,
                                   isc_tr_handle,
                                   const ISC_SCHAR*);
 
-    typedef int (*api__BLOB_load)(ISC_QUAD*,
+    typedef int (ISC_EXPORT *api__BLOB_load)(ISC_QUAD*,
                                   isc_db_handle,
                                   isc_tr_handle,
                                   const ISC_SCHAR*);
 
-    typedef int (*api__BLOB_text_dump)(ISC_QUAD*,
+    typedef int (ISC_EXPORT *api__BLOB_text_dump)(ISC_QUAD*,
                                        isc_db_handle,
                                        isc_tr_handle,
                                        const ISC_SCHAR*);
 
-    typedef int (*api__BLOB_text_load)(ISC_QUAD*,
+    typedef int (ISC_EXPORT *api__BLOB_text_load)(ISC_QUAD*,
                                        isc_db_handle,
                                        isc_tr_handle,
                                        const ISC_SCHAR*);
 
-    typedef BSTREAM* (*api__Bopen)(ISC_QUAD*,
+    typedef BSTREAM* (ISC_EXPORT *api__Bopen)(ISC_QUAD*,
                                    isc_db_handle,
                                    isc_tr_handle,
                                    const ISC_SCHAR*);
 
 
 
-    typedef ISC_LONG (*api__isc_ftof)(const ISC_SCHAR*,
+    typedef ISC_LONG (ISC_EXPORT *api__isc_ftof)(const ISC_SCHAR*,
                                       const unsigned short,
                                       ISC_SCHAR*,
                                       const unsigned short);
 
-    typedef ISC_STATUS (*api__isc_print_blr)(const ISC_SCHAR*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_print_blr)(const ISC_SCHAR*,
                                              ISC_PRINT_CALLBACK,
                                              void*,
                                              short);
 
-    typedef void (*api__isc_set_debug)(int);
+    typedef void (ISC_EXPORT *api__isc_set_debug)(int);
 
-    typedef void (*api__isc_qtoq)(const ISC_QUAD*,
+    typedef void (ISC_EXPORT *api__isc_qtoq)(const ISC_QUAD*,
                                   ISC_QUAD*);
 
-    typedef void (*api__isc_vtof)(const ISC_SCHAR*,
+    typedef void (ISC_EXPORT *api__isc_vtof)(const ISC_SCHAR*,
                                   ISC_SCHAR*,
                                   unsigned short);
 
-    typedef void (*api__isc_vtov)(const ISC_SCHAR*,
+    typedef void (ISC_EXPORT *api__isc_vtov)(const ISC_SCHAR*,
                                   ISC_SCHAR*,
                                   short);
 
-    typedef int (*api__isc_version)(isc_db_handle*,
+    typedef int (ISC_EXPORT *api__isc_version)(isc_db_handle*,
                                     ISC_VERSION_CALLBACK,
                                     void*);
 
-    typedef ISC_LONG (*api__isc_reset_fpe)(ISC_USHORT);
+    typedef ISC_LONG (ISC_EXPORT *api__isc_reset_fpe)(ISC_USHORT);
 
 
 
 
 
-    typedef ISC_STATUS (*api__isc_service_attach)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_service_attach)(ISC_STATUS*,
                                                   unsigned short,
                                                   const ISC_SCHAR*,
                                                   isc_svc_handle*,
                                                   unsigned short,
                                                   const ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_service_detach)(ISC_STATUS *,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_service_detach)(ISC_STATUS *,
                                                   isc_svc_handle *);
 
-    typedef ISC_STATUS (*api__isc_service_query)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_service_query)(ISC_STATUS*,
                                                  isc_svc_handle*,
                                                  isc_resv_handle*,
                                                  unsigned short,
@@ -847,7 +847,7 @@ class FBClientDrv : public DynamicLibrary
                                                  unsigned short,
                                                  ISC_SCHAR*);
 
-    typedef ISC_STATUS (*api__isc_service_start)(ISC_STATUS*,
+    typedef ISC_STATUS (ISC_EXPORT *api__isc_service_start)(ISC_STATUS*,
                                                  isc_svc_handle*,
                                                  isc_resv_handle*,
                                                  unsigned short,
@@ -855,9 +855,9 @@ class FBClientDrv : public DynamicLibrary
 
 
 
-    typedef void (*api__isc_get_client_version)( ISC_SCHAR  *);
-    typedef int (*api__isc_get_client_major_version)();
-    typedef int (*api__isc_get_client_minor_version)();
+    typedef void (ISC_EXPORT *api__isc_get_client_version)( ISC_SCHAR  *);
+    typedef int (ISC_EXPORT *api__isc_get_client_major_version)();
+    typedef int (ISC_EXPORT *api__isc_get_client_minor_version)();
 
 
 

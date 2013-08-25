@@ -199,6 +199,11 @@ struct basic_odbcstr<1>
         return this->m_string.size();
     }
 
+	bool empty(void) const
+	{
+		return this->m_string.empty();
+	}
+
     size_t max_size(void) const
     {
         return this->m_string.max_size();
@@ -261,6 +266,11 @@ struct basic_odbcstr<2>
 		return this->m_string.size();
 	}
 
+	bool empty(void) const
+	{
+		return this->m_string.empty();
+	}
+
     size_t max_size(void) const
     {
         return this->m_string.max_size();
@@ -291,7 +301,11 @@ struct basic_odbcstr<2>
 	}
 
 protected:
+#ifdef _WIN32
+	mutable std::basic_string<wchar_t> m_string;
+#else
 	mutable std::basic_string<unsigned short> m_string;
+#endif
 };
 
 
@@ -591,7 +605,10 @@ public:
     virtual SQLHSTMT getHandle(void) const;
 
 	// exttensions
-	virtual void openOdbcTables(void);
+	virtual void openOdbcCatalogs(void);
+	virtual void openOdbcSchemas(const String &catalog);
+	virtual void openOdbcTables(const String &catalog, const String &schema, const String &type);
+	virtual void openOdbcColumns(const String &catalog, const String &schema, const String &table);
 protected:
     OdbcResult_libodbc* newResultset(void);
 
@@ -624,6 +641,8 @@ public:
 
     virtual OdbcStmt_libodbc*    newStatement(void);
 
+	virtual IEnv& getEnv(void);
+
     virtual void           connect(String database,
                                    String user = String(),
                                    String password = String());
@@ -653,7 +672,12 @@ public:
 
     virtual const OdbcEnv_libodbc& getEnv(void) const { return this->m_env; }
 
-    virtual OdbcStmt*      getOdbcTables(void);
+    virtual OdbcStmt*      getOdbcCatalogs(void);
+    virtual OdbcStmt*      getOdbcSchemas(const String &catalog);
+    virtual OdbcStmt*      getOdbcTables(const String &catalog, const String &schema, const String &type);
+    virtual OdbcStmt*      getOdbcColumns(const String &catalog, const String &schema, const String &table);
+
+    virtual String         getCurrentCatalog(void);
 
 protected:
     virtual void           setDbcEncoding(std::string encoding);

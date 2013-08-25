@@ -238,6 +238,7 @@ public:
 
 
     virtual void openObjects(void);
+	virtual void openColumns(const String &catalog, const String &schema, const String &table);
 
 
 
@@ -386,6 +387,11 @@ public:
 
     virtual SDIDbc_libsdi& getDbc(void) const; // interface
 
+	virtual void openSDICatalogs(void);
+	virtual void openSDISchemas(void);
+	virtual void openSDITables(void);
+	virtual void openSDIColumns(void);
+
 protected:
     SDIResult_libsdi* newResultset(void);
 
@@ -453,6 +459,8 @@ public:
 
     virtual SDIStmt_libsdi*    newStatement(void);
 
+	virtual IEnv &getEnv(void);
+
     virtual void           connect(String database,
                                    String user = String(),
                                    String password = String());
@@ -468,6 +476,12 @@ public:
     virtual SDIDrv*    drv(void) const;
 
 TableList getTables(const ITableFilter& = EmptyTableFilter());
+
+	virtual SDIStmt* getSDICatalogs(void);
+	virtual SDIStmt* getSDISchemas(void);
+	virtual SDIStmt* getSDITables(void);
+	virtual SDIStmt* getSDIColumns(void);
+
 
 
 protected:

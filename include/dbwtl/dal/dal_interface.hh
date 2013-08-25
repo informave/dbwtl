@@ -106,7 +106,7 @@ typedef signed long long	rownum_t;
 
 ///
 /// @brief Type for column numbers
-typedef size_t             colnum_t;
+typedef uint16_t             colnum_t;
 
 #define DAL_TYPE_COLNUM_FIRST_COLUMN  1  /// Columns start at 1
 #define DAL_TYPE_COLNUM_BOOKMARK      0  /// Bookmark columns
@@ -506,28 +506,46 @@ public:
 
 
 
-struct DatasetFilter
+
+class DBWTL_EXPORT DatasetFilter
 {
+public:
     virtual ~DatasetFilter()
     {}
 
     virtual bool operator()(IDataset &ds) const = 0;
 };
 
-struct MetadataFilter : public DatasetFilter
+template<typename T>
+class DBWTL_EXPORT ColumnMatchFilter : public DatasetFilter
+{
+public:
+    ColumnMatchFilter(const String &column, const Variant &value) : DatasetFilter(),
+                                       m_column(column),
+									   m_value(value)
+    {}
+    virtual bool operator()(IDataset &ds) const;
+protected:
+	String m_column;
+	Variant m_value;
+};
+
+class DBWTL_EXPORT MetadataFilter : public DatasetFilter
 {
 };
 
-struct NoFilter : public DatasetFilter
+class DBWTL_EXPORT NoFilter : public DatasetFilter
 {
+public:
     virtual bool operator()(IDataset &ds) const
     {
         return true;
     }
 };
 
-struct TableFilter : public MetadataFilter
+class DBWTL_EXPORT TableFilter : public MetadataFilter
 {
+public:
     TableFilter(const String &table) : MetadataFilter(),
                                        m_table(table)
     {}
@@ -537,15 +555,15 @@ struct TableFilter : public MetadataFilter
     const String m_table;
 };
 
-struct ViewFilter : public MetadataFilter
+class DBWTL_EXPORT ViewFilter : public MetadataFilter
 {
 };
 
-struct ProcedureFilter : public MetadataFilter
+class DBWTL_EXPORT ProcedureFilter : public MetadataFilter
 {
 };
 
-struct ColumnFilter : public MetadataFilter
+class DBWTL_EXPORT ColumnFilter : public MetadataFilter
 {
 };
 
@@ -553,18 +571,28 @@ struct ColumnFilter : public MetadataFilter
 class DBWTL_EXPORT IMetadata : IDALObject
 {
 public:
+    /*
     typedef enum
     {
         METADATA_FILTER_INPUT,
         METADATA_FILTER_OUTPUT
     } FilterDirection;
-
+    */
+	typedef utils::SmartPtr<IMetadata, utils::RefCounted, utils::AllowConversion> ptr;
 
 	virtual ~IMetadata(void) {}
 
+	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter()) = 0;
+	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String()) = 0;
 	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
-                                const FilterDirection fd = METADATA_FILTER_OUTPUT) = 0;
-
+		const String &catalog = String(), 
+		const String &schema = String(),
+		const String &type = String()) = 0;
+	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
+		const String &catalog = String(),
+		const String &schema = String(),
+		const String &table = String()) = 0;
 
 };
 
@@ -1011,6 +1039,8 @@ public:
 
     virtual ~IDbc(void);
 
+	virtual IEnv& getEnv(void) = 0;
+
     ///
     /// @brief Connect to a database by name, user and password
     ///
@@ -1025,6 +1055,7 @@ public:
     ///
     /// @brief Connect to a database by options
     virtual void     connect(IDbc::Options& options) = 0;
+
 
 
     virtual bool           isConnected(void) const = 0;
@@ -1059,6 +1090,7 @@ public:
     virtual IndexList      getIndices(const IIndexFilter& = EmptyIndexFilter()) = 0;
     //virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
 
+    virtual String         getCurrentCatalog(void) { return "DBNAME-FIXME"; } /// @bug implement for all
 
 protected:
     virtual void           setDbcEncoding(std::string encoding) = 0;
@@ -1096,6 +1128,10 @@ public:
 
     virtual const value_type&      column(colnum_t num) = 0;
     virtual const value_type&      column(String name) = 0;
+
+    // alternate methods when overloaded methods are problematic
+    const value_type& columnByNumber(colnum_t num);
+    const value_type& columnByName(const String &name);
 
     // column methods
     virtual size_t           columnCount(void) const = 0;
@@ -1503,6 +1539,23 @@ protected:
 };
 
 
+struct MetadataColumnDescriptor /// @todo transfer changes to other engines!
+{
+	std::string name;
+	daltype_t daltype;
+    int size;
+    bool nullable;
+};
+
+
+template<typename T>
+bool ColumnMatchFilter<T>::operator()(IDataset &ds) const
+{
+	if(m_value.isnull() || ds.column(this->m_column).isnull())
+			return false;
+	throw 1;
+	//return m_value.get<T>() == ds.column(this->m_column).get<T>();
+}
 
 
 DAL_NAMESPACE_END

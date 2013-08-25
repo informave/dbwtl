@@ -50,6 +50,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <cstdio>
 #include <algorithm>
 #include <cstdlib>
 #include <sstream>
@@ -82,6 +83,55 @@ struct delete_object
 };
 */
 
+
+	 SDIStmt* 
+	 SDIDbc_libsdi::getSDICatalogs(void)
+{
+		SDIStmt_libsdi *stmt = newStatement();
+	stmt->openSDICatalogs();
+	return stmt;
+}
+
+	 SDIStmt*
+		 SDIDbc_libsdi::getSDISchemas(void)
+	 {
+		 	SDIStmt_libsdi *stmt = newStatement();
+	stmt->openSDISchemas();
+	return stmt;
+	 }
+
+	 SDIStmt*
+		 SDIDbc_libsdi::getSDITables(void)
+	 {
+		 	SDIStmt_libsdi *stmt = newStatement();
+	stmt->openSDITables();
+	return stmt;
+	 }
+
+	 SDIStmt*
+		 SDIDbc_libsdi::getSDIColumns(void)
+	 {
+		     /// @todo possible leak on exception
+	SDIStmt_libsdi *stmt = newStatement();
+	stmt->openSDIColumns();
+	return stmt;
+	 }
+
+
+
+	 void SDIStmt_libsdi::openSDICatalogs(void)
+	 {
+		 assert(!"fixme"); /// @bug
+	 }
+	 void SDIStmt_libsdi::openSDISchemas(void)
+	 {
+	 }
+	 void SDIStmt_libsdi::openSDITables(void)
+	 {
+	 }
+	 void SDIStmt_libsdi::openSDIColumns(void)
+	 {
+	 }
 
 static void delete_resultset(SDIDataProvider_libsdi* rs)
 {
@@ -467,7 +517,11 @@ std::string conv_numeric(sdi_numeric_t num)
     for(i = 0; i < num.len; ++i) buf[i] = num.digits[i] + 48;
 
     char tmp[64+1+1];
+    #ifdef DBWTL_ON_WIN32
+    int c = _snprintf(tmp, 64+1+1, "%s%.*s.%.*s", num.sign > 0 ? "+" : "-", num.len - num.frac, buf, num.frac,buf+(num.len-num.frac));
+    #else
     int c = snprintf(tmp, 64+1+1, "%s%.*s.%.*s", num.sign > 0 ? "+" : "-", num.len - num.frac, buf, num.frac,buf+(num.len-num.frac));
+    #endif
 
     return tmp;
 }
@@ -479,6 +533,10 @@ TNumeric
 SDIData_libsdi::getNumeric(void) const
 {
     DALTRACE_VISIT;
+    if(this->sdi_type() != SDI_TYPE_NUMERIC)
+    {
+    	std::cout << "INVALID TYPE: " << this->sdi_type() << std::endl;
+    }
     DBWTL_BUGCHECK(this->sdi_type() == SDI_TYPE_NUMERIC);
     assert(this->m_colnum > 0);
 
@@ -517,7 +575,8 @@ SDIData_libsdi::getString(void) const
             tmp.resize(ind+1);
             sdi_code e = m_resultset.drv()->SDIGetData(m_resultset.getHandle(), colnum(), &tmp[0], ind+1, &ind);
             tmp.resize(ind);
-            return String(tmp, "ISO-8859-1"); /// @bug check encoding
+			const char *charset = m_resultset.drv()->SDICharset(NULL); /// @bug pass env handle,better: getdata encoding!
+            return String(tmp, charset); /// @bug check encoding
         }
         else
             return "";
@@ -581,7 +640,8 @@ SDIData_libsdi::sdi_type(void) const
     sditype_t type;
     sdi_code e = this->m_resultset.drv()->SDIDescribeCol(this->m_resultset.getHandle(), this->m_colnum, &size, &name, &type);
     if(e != SDI_SUCCESS)
-   	DBWTL_BUG(); 
+   	DBWTL_BUG();
+    //std::cout << "last column: " << name << std::endl;
     return type;
 }
 
@@ -632,7 +692,11 @@ SDIData_libsdi::refresh(void)
 daltype_t
 SDIData_libsdi::daltype(void) const
 {
-    return this->m_resultset.describeColumn(this->m_colnum).getDatatype();
+	/// @bug describeColumn is static, but at different records, columns
+	/// may change their type.
+    //return this->m_resultset.describeColumn(this->m_colnum).getDatatype();
+    
+    return sdi2daltype(this->sdi_type());
 }
 
 
@@ -965,7 +1029,8 @@ SDIColumnDesc_libsdi::SDIColumnDesc_libsdi(colnum_t i, SDIDataProvider_libsdi &r
         //printf("Name: %s\tSize: %d\n", name, size);
 
         // set name
-        this->m_name.set(String(name ? name : "", "UTF-8"));
+		const char *charset = result.drv()->SDICharset(NULL); /// @bug pass env handle
+        this->m_name.set(String(name ? name : "", charset));
 
         this->m_type_name.set(daltype2sqlname(sdi2daltype(type)));
         this->m_daltype = sdi2daltype(type);
@@ -1040,6 +1105,11 @@ SDIEnv_libsdi::SDIEnv_libsdi(String lib)
       m_env(0),
       m_lib()
 {
+    if(lib.empty())
+    {
+    	throw EngineException("Library path empty: you must specify a valid environment string, "
+			"for example \"sdi:libsdi:/path/to/your/driver.so");
+    }
     this->m_lib.reset(new SDIDrv(lib));
     drv()->SDIAllocEnv(&this->m_env);
 }
@@ -1091,6 +1161,11 @@ SDIDbc_libsdi::SDIDbc_libsdi(SDIEnv_libsdi& env)
 { }
 
 
+IEnv&
+	SDIDbc_libsdi::getEnv(void)
+{
+	return this->m_env;
+}
 
 //
 SDIDbc_libsdi::~SDIDbc_libsdi(void)
@@ -1259,6 +1334,7 @@ SDIDbc_libsdi::connect(IDbc::Options& options)
     DALTRACE_ENTER;
 
     std::string dbc_db(options[ "database" ].to("UTF-8"));
+	std::string searchpath(options[ "searchpath" ].to("UTF-8"));
     assert(m_dbh == 0);
 
     sdi_code err = drv()->SDIAllocDbc(this->m_env.getHandle(), &this->m_dbh);
@@ -1266,6 +1342,8 @@ SDIDbc_libsdi::connect(IDbc::Options& options)
     {
         DAL_SDI_LIBSDI_DIAG_ERROR(this, "SDIAllocDbc error", "Allocation error", err);
     }
+
+	err = drv()->SDISetDbcOption(this->m_dbh, "searchpath", searchpath.c_str(), SDI_NTS);
 
     err = drv()->SDIConnect(this->m_dbh, dbc_db.c_str());
     if(err == SDI_SUCCESS)
@@ -1383,6 +1461,59 @@ SDIDataProvider_libsdi::isPositioned(void) const
     return (this->m_current_tuple != DAL_TYPE_ROWID_NPOS);
 }
 
+
+
+void SDIDataProvider_libsdi::openColumns(const String &catalog, const String &schema, const String &table) 
+{
+DALTRACE_ENTER;
+
+    if(this->isBad())
+        throw ex::engine_error("Resultset is in bad state.");
+
+    if(! this->m_stmt.getDbc().isConnected())
+        throw ex::engine_error("not connected");
+
+    // if anything is currently open, we need to close.
+    // This removes all binded vars, too.
+    if(this->isOpen())
+        this->close();
+
+
+    sdi_code err = this->drv()->SDIColumns(this->m_stmt.getDbc().getHandle(), &this->m_handle,
+			catalog.utf8(), schema.utf8(), table.utf8()); /// @bug use encoding
+
+    switch(err)
+    {
+    case SDI_SUCCESS:
+        this->m_isprepared = true;
+        this->m_isopen = true;
+        break;
+    default:
+        const char *msg = "";//this->drv()->sdi3_errmsg(this->m_stmt.getDbc().getHandle());
+        String u_msg(msg, "UTF-8");
+        DAL_SDI_LIBSDI_DIAG_ERROR(this,
+                                  "Can not prepare query",
+                                  u_msg,
+                                  err);
+        break;
+    };
+
+    std::map<int, std::string> tmp_strings;
+
+    if(this->isBad())
+        throw ex::engine_error("Resultset is in bad state.");
+
+
+    this->m_last_row_status = this->drv()->SDIFetch(this->m_handle);
+
+
+    this->m_current_tuple = 1;
+    this->m_isopen = true;
+    this->refreshMetadata();
+
+
+    DALTRACE_LEAVE;
+}
 
 
 void

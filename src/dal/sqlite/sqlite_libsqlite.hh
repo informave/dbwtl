@@ -361,6 +361,8 @@ public:
 
     virtual SqliteStmt_libsqlite*    newStatement(void);
 
+	virtual IEnv &getEnv(void);
+
     virtual void           connect(String database,
                                    String user = String(),
                                    String password = String());
@@ -383,6 +385,7 @@ protected:
 
     SQLite3Drv           *m_lib; /* lib is stored in ENV */
     mutable ::sqlite3    *m_dbh;
+	SqliteEnv_libsqlite  &m_env;
 
 
 private:

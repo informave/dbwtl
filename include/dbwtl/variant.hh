@@ -68,7 +68,7 @@ template<typename T> struct value_traits;
 
 
 
-struct BinaryOperatorVariant
+struct DBWTL_EXPORT BinaryOperatorVariant
 {
     virtual Variant binary_xor           (const Variant &v0, const Variant &v1) const = 0;
     virtual Variant binary_or            (const Variant &v0, const Variant &v1) const = 0;
@@ -93,7 +93,7 @@ struct BinaryOperatorVariant
 
 
 
-Variant apply_binary_method(const Variant &op0, const Variant &op1, BinaryOperatorVariant::memfun_type method);
+Variant DBWTL_EXPORT apply_binary_method(const Variant &op0, const Variant &op1, BinaryOperatorVariant::memfun_type method);
 
 
 
@@ -105,7 +105,7 @@ void DBWTL_EXPORT throw_convert_error(daltype_t src, daltype_t dest);
 //--------------------------------------------------------------------------
 /// @brief Get the DAL type for a specific type
 template<typename T>
-struct type_id
+struct DBWTL_EXPORT type_id
 {
     static inline daltype_t value(void) { return DAL_TYPE_UNKNOWN; }
 };
@@ -262,11 +262,52 @@ template<typename T> daltype_t sa_base<T>::datatype(void) const { return value_t
 /// @brief Interface for a supported implicit type cast from a value store
 /// 
 template<typename U, typename T>
-struct supports_cast : public virtual sa_base<U>,
+struct supports_cast : public virtual sa_base<U>, /// @bug rename to supports_implicit_cast
                        public supports<T>
 {
-    virtual T cast(T*, std::locale) const { return (T)this->get_value(); }
+    virtual T cast(T*, std::locale) const
+    {    	
+    	return (T)this->get_value();
+    }
 };
+
+
+void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, const String &str);
+
+
+template<typename U, typename T>
+struct supports_integral_type_cast : public virtual sa_base<U>,
+                                     public supports<T>
+{
+    virtual T cast(T*, std::locale) const
+    {
+	U tmp = this->get_value();
+	return tmp;
+/*
+	if(std::numeric_limits<U>::is_signed && 
+	   !std::numeric_limits<T>::is_signed &&
+	   tmp < 0)
+	   internal_helper__throw_ConvertException(DAL_TYPE_INT, DAL_TYPE_INT, String("negative signed value can not converted into unsigned value"));
+
+	   
+
+	if(tmp >= std::numeric_limits<T>::min() &&
+	   tmp <= std::numeric_limits<T>::max())
+	   return tmp;
+	else
+	{
+	   std::wstringstream ss;
+	   ss << L"The integral value " << tmp << L" is incompatible to the "
+	      << L"numeric limits of the destination type ("
+	      << std::numeric_limits<T>::min() << L" - " << std::numeric_limits<T>::max()
+	      << L")";
+	   internal_helper__throw_ConvertException(DAL_TYPE_INT, DAL_TYPE_INT, String(ss.str()));
+	}
+	*/
+    }
+};
+
+
 
 
 //..............................................................................

@@ -430,6 +430,7 @@ private:
     typedef typename db_traits<Engine, tag>::dal_variant_type  dal_variant_type;
 
 
+
 public:
     Connection( typename db_traits<Engine, tag>::environment_type &env )
         : ConnectionInterface(),
@@ -438,6 +439,13 @@ public:
 
     virtual ~Connection(void)
     {}
+
+    typedef IDbc::Options     Options;
+
+	virtual IEnv& getEnv(void)
+	{
+		return this->m_dbc->getEnv();
+	}
 
 
     virtual void   connect(String database,
@@ -518,6 +526,8 @@ public:
 
 
     virtual dal_dbc_type*           getImpl(void)   { return this->m_dbc.get(); }
+
+	virtual String         getCurrentCatalog(void) { return this->m_dbc->getCurrentCatalog(); }
 
 protected:
     virtual void           setDbcEncoding(std::string encoding)
@@ -705,6 +715,24 @@ public:
 };
 
 
+
+    template<typename T>
+    class ValueFunctor
+    {
+    public:
+        ValueFunctor(T p)
+        {
+        }
+    };
+
+
+   template<typename T>
+   ValueFunctor<T> make_functor(T p)
+   {
+	return ValueFunctor<T>(p);
+   }
+
+
 //..............................................................................
 ////////////////////////////////////////////////////////////////////// ShrRecord
 ///
@@ -718,7 +746,7 @@ public:
 /// A ShrRecord object has no Bookmark information.
 /// Managing bookmarks is part of a dataset implementation or database engine.
 /// A single record object could not provide any useful with a Bookmark.
-class ShrRecord
+class DBWTL_EXPORT ShrRecord
 {
 public:
     typedef std::vector<Variant>     ColumnBuffer;
@@ -734,7 +762,22 @@ public:
     ShrRecord(const ShrRecord& orig);
 
     /// @brief Construct Record from a list of Variant values (C++0x)
+    #ifdef DBWTL_WITH_INIT_LISTS_CPP0X
     ShrRecord(const std::initializer_list<Variant> &values);
+    #endif
+
+    template<typename T, typename U>
+    ShrRecord(T &obj, U fun, colnum_t lastColnum, colnum_t firstColnum = 1)
+    	: m_data(new ShrRecord::ColumnBuffer())
+    {
+    	this->allocate(lastColnum);
+    	for(colnum_t n = firstColnum; n <= lastColnum; ++n)
+	{
+		assert(n > 0); /// @bug throw exception
+		(*this)[n-1] = fun(obj, n);
+		//(*this)[n] = r(obj);
+	}
+    }
 
     /// @brief Construct Record from a column buffer
     /// @note The buffer data is copied into the record.
@@ -788,7 +831,7 @@ protected:
 
 
 
-class ScrollableDataset : public IDataset
+class DBWTL_EXPORT ScrollableDataset : public IDataset
 {
 public:
 	virtual ~ScrollableDataset(void)
@@ -827,7 +870,7 @@ public:
 ///
 /// A standalone RecordSet object can be used to store values as a dataset.
 /// This is sometime called a in-memory or temporary dataset.
-class RecordSet : public ScrollableDataset
+class DBWTL_EXPORT RecordSet : public ScrollableDataset
 {
 public:
     RecordSet(void);
@@ -869,8 +912,8 @@ public:
 
 
     typedef std::vector<ShrRecord>                   storage_type;
-    typedef typename storage_type::iterator          iterator;
-    typedef typename storage_type::const_iterator    const_iterator;
+    typedef storage_type::iterator          iterator;
+    typedef storage_type::const_iterator    const_iterator;
 
 
     typedef std::map<Bookmark, ShrRecord>            bookmark_map_type;
@@ -956,7 +999,7 @@ protected:
 
 
 template<typename T>
-struct ColumnSortByNumber
+struct DBWTL_EXPORT ColumnSortByNumber
 {
     ColumnSortByNumber(size_t num)
         : m_num(num)
@@ -976,7 +1019,7 @@ struct ColumnSortByNumber
 
 
 
-class CachedResultBase : public ScrollableDataset
+class DBWTL_EXPORT CachedResultBase : public ScrollableDataset
 {
 
 private:
@@ -1214,7 +1257,7 @@ private:
 
     typedef typename db_traits<Engine, tag>::dal_metadata_type    dal_metadata_type;
 
-    typedef typename dal_metadata_type::FilterDirection         FilterDirection;
+    //typedef typename dal_metadata_type::FilterDirection         FilterDirection;
 
 public:
     Metadata( typename db_traits<Engine, tag>::connection_type &dbc )
@@ -1226,9 +1269,11 @@ public:
     {
     }
 
-    RecordSet getTables(const DatasetFilter &filter = NoFilter(),
-                        const FilterDirection fd = FilterDirection::METADATA_FILTER_OUTPUT)
-    { return getImpl()->getTables(filter); }
+
+    virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter()) { return getImpl()->getCatalogs(filter); }
+    virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(), const String &catalog = String()) { return getImpl()->getSchemas(filter, catalog); }
+    virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(), const String &catalog = String(), const String &schema = String(), const String &type = String()) { return getImpl()->getTables(filter, catalog, schema, type); }
+    virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(), const String &catalog = String(), const String &schema = String(), const String &table = String()) { return getImpl()->getColumns(filter, catalog, schema, table); }
 
 
     virtual dal_metadata_type*          getImpl(void)               { return this->m_metadata.get(); }
@@ -1242,6 +1287,35 @@ private:
 
 };
 
+
+
+class cfmt_header
+{
+public:
+    cfmt_header(IDataset &ds);
+
+    void write(std::ostream &os) const;
+protected:
+    IDataset &m_ds;
+};
+
+class cfmt
+{
+public:
+    cfmt(IDataset &ds, colnum_t colnum);
+    cfmt(IDataset &ds, const String &name);
+
+    void write(std::ostream &os) const;
+protected:
+    IDataset &m_ds;
+    colnum_t m_cn;
+    const String m_cs;
+    bool m_byname;
+};
+
+
+std::ostream& operator<<(std::ostream &os, const cfmt &cf);
+std::ostream& operator<<(std::ostream &os, const cfmt_header &cf);
 
 
 //------------------------------------------------------------------------------

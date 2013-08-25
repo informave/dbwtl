@@ -113,6 +113,9 @@ RecordSet::first(void)
     DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
 
     this->m_cursor = this->rows().begin();
+    
+    if(this->m_cursor == this->rows().end())
+    	DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_EOF);
 }
 
 bool   

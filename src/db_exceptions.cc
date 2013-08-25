@@ -190,7 +190,7 @@ namespace ex
 //     }
 
 
-    convert_error::convert_error(informave::db::daltype_t src, informave::db::DatatypeEnumeration dest)
+    convert_error::convert_error(informave::db::daltype_t src, informave::db::DatatypeEnumeration dest, const Variant &var)
         : exception(),
           m_varname()
     {

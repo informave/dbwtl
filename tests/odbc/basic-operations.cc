@@ -280,7 +280,9 @@ CXXC_FIXTURE_TEST(OdbcTestbaseFixture, AllTypesBinding)
 	CXXC_CHECK( rs.column(15).get<TDate>() == TDate(2013, 3, 31) );
 	CXXC_CHECK( rs.column(16).get<TTime>() == TTime(18, 59, 34) );
 	CXXC_CHECK( rs.column(17).get<TTimestamp>() == TTimestamp(2013, 3, 30, 17, 58, 33, 5000000) );
+	#ifdef DBWTL_WITH_INIT_LISTS_CPP0X
 	CXXC_CHECK( rs.column(18).get<TVarbinary>() == TVarbinary({0x03, 0x00, 0xf3, 0x85}) );
+	#endif
 
 	// date, time, timestamp
 }

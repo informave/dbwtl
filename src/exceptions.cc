@@ -47,6 +47,11 @@
 
 DB_NAMESPACE_BEGIN
 
+void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, const String &str)
+{
+	throw ConvertException(src, dest, str);
+}
+
 
 SqlstateException::SqlstateException(const IDiagnostic& diag_to_clone)
     : Exception(diag_to_clone.str()),
@@ -188,13 +193,14 @@ ConvertException::ConvertException(const String &what)
 //     }
 
 
-ConvertException::ConvertException(informave::db::daltype_t src, informave::db::DatatypeEnumeration dest)
+ConvertException::ConvertException(informave::db::daltype_t src, informave::db::DatatypeEnumeration dest, const String &desc)
     : Exception(),
       m_varname()
 {
     String msg;
     msg = US("Conversion error: Can't convert type ") + String::Internal(daltype2string(src)) + US(" to ")
-        + String::Internal(daltype2string(dest)) + US(".");
+        + String::Internal(daltype2string(dest)) + US(". ");
+    if(!desc.empty()) msg += desc;
     this->setMessage(msg);
 }
 

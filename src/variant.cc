@@ -403,7 +403,7 @@ Variant::Variant(const signed long int &value)
                 m_name(),
                 m_type_ifnull(DAL_TYPE_UNKNOWN)
         {
-                this->m_storage.reset(new typename value_traits<signed int>::stored_type(value));
+                this->m_storage.reset(new value_traits<signed int>::stored_type(value));
         }
 
 
@@ -412,7 +412,7 @@ Variant::Variant(const unsigned long int &value)
                 m_name(),
                 m_type_ifnull(DAL_TYPE_UNKNOWN)
         {
-                this->m_storage.reset(new typename value_traits<unsigned int>::stored_type(value));
+                this->m_storage.reset(new value_traits<unsigned int>::stored_type(value));
         }
 
 

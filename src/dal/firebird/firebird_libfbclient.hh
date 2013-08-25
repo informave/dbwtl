@@ -395,6 +395,8 @@ public:
 
     virtual FirebirdStmt_libfbclient*    newStatement(void);
 
+	virtual IEnv& getEnv(void);
+
     virtual void           connect(String database,
                                    String user = String(),
                                    String password = String());
@@ -445,6 +447,7 @@ protected:
     trx_map_type               m_trx_map;
     trxid_t                    m_trx_counter;
     unsigned char              m_dialect;
+	FirebirdEnv_libfbclient   &m_env;
 
 
 private:

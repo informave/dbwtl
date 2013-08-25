@@ -57,6 +57,232 @@
 DB_NAMESPACE_BEGIN
 
 
+	FirebirdMetadata*
+FirebirdDbc::newMetadata(void)
+{
+	return new FirebirdMetadata(*this); /// @bug
+}
+
+
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+
+
+
+
+
+MetadataColumnDescriptor catalogsDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+#define METADATA_DESC_COUNT(descs) (sizeof(descs)/sizeof(MetadataColumnDescriptor))
+
+RecordSet
+FirebirdMetadata::getCatalogs(const DatasetFilter &filter)
+{	
+	RecordSet rs;
+	rs.setColumnCount(2);
+
+	assert(sizeof(catalogsDescs) / sizeof(MetadataColumnDescriptor) == 2);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(catalogsDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(catalogsDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(catalogsDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(catalogsDescs[i-1].nullable));
+		rs.setDatatype(i, catalogsDescs[i-1].daltype);
+	}
+
+
+    rs.open();
+
+        ShrRecord rec(2);
+        rec[0] = this->m_dbc.getCurrentCatalog();
+        //rec[1] = rawRes.column("");
+        rs.insert(rec);
+	
+	return rs;
+}
+
+
+
+MetadataColumnDescriptor schemaDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+
+RecordSet
+FirebirdMetadata::getSchemas(const DatasetFilter &filter, const String &catalog)
+{	
+	RecordSet rs;
+	rs.setColumnCount(3);
+
+	assert(sizeof(schemaDescs) / sizeof(MetadataColumnDescriptor) == 3);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(schemaDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(schemaDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(schemaDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(schemaDescs[i-1].nullable));
+		rs.setDatatype(i, schemaDescs[i-1].daltype);
+	}
+
+
+    rs.open();
+
+        ShrRecord rec(3);
+        rec[0] = this->m_dbc.getCurrentCatalog();
+        rec[1] = String("DEFAULT"); /// @bug set to null
+        //rec[2] = rawRes.column("REMARKS");
+        rs.insert(rec);
+
+	return rs;
+}
+
+
+
+MetadataColumnDescriptor tableDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "TABLE_NAME",		DAL_TYPE_STRING, 0, false },
+	{ "TABLE_TYPE",     DAL_TYPE_STRING, 0, false },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+
+
+RecordSet
+FirebirdMetadata::getTables(const DatasetFilter &filter,
+		const String &catalog, 
+		const String &schema,
+		const String &type)
+{	
+	RecordSet rs;
+	rs.setColumnCount(5);
+
+	assert(sizeof(tableDescs) / sizeof(MetadataColumnDescriptor) == 5);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(tableDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(tableDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(tableDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(tableDescs[i-1].nullable));
+		rs.setDatatype(i, tableDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+	std::shared_ptr<FirebirdStmt> rawStmt(this->m_dbc.newStatement());
+	rawStmt->execDirect("SELECT 'DBNAME-FIXME', 'DEFAULT', RDB$RELATION_NAME, 'TABLE', NULL FROM RDB$RELATIONS WHERE (rdb$system_flag is null or rdb$system_flag = 0)");
+
+	IResult &rawRes = rawStmt->resultset();
+
+	const int columnsToCopy = 5;
+
+	for(rawRes.first(); !rawRes.eof(); rawRes.next())
+	{
+		std::cerr << "FOUND FIREBIRD TABLE" << std::endl;
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+	}
+	std::cerr << "RETURN OBDC TABLE" << std::endl;
+	return rs;
+}
+
+
+
+MetadataColumnDescriptor columnDescs[] = {
+	{ "CATALOG_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "SCHEMA_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "TABLE_NAME",		  DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_TYPE",      DAL_TYPE_INT,     0, true  },
+	{ "TYPE_NAME",        DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_SIZE",      DAL_TYPE_INT,     0, true  },
+	{ "NULLABLE",         DAL_TYPE_BOOL,    0, true  },
+	{ "ORDINAL_POSITION", DAL_TYPE_INT,     0, true  },
+	{ "COMMENT",		  DAL_TYPE_STRING,  0, true  }
+};
+
+
+RecordSet
+FirebirdMetadata::getColumns(const DatasetFilter &filter,
+		const String &catalog,
+		const String &schema,
+		const String &table)
+{	
+	RecordSet rs;
+	rs.setColumnCount(10);
+
+	assert(sizeof(columnDescs) / sizeof(MetadataColumnDescriptor) == 10);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(columnDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(columnDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(columnDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(columnDescs[i-1].nullable));
+		rs.setDatatype(i, columnDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+	std::shared_ptr<FirebirdStmt> rawStmt(this->m_dbc.newStatement());
+	if(!table.empty())
+	{
+		rawStmt->prepare("SELECT RDB$FIELD_NAME, RDB$RELATION_NAME FROM RDB$RELATION_FIELDS WHERE RDB$RELATION_NAME = ?");
+		rawStmt->bind(1, Variant(table));
+		rawStmt->execute();
+	}
+	else
+		rawStmt->execDirect("SELECT RDB$FIELD_NAME, RDB$RELATION_NAME FROM RDB$RELATION_FIELDS");
+
+	IResult &rawRes = rawStmt->resultset();
+
+
+	for(rawRes.first(); !rawRes.eof(); rawRes.next())
+	{
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        ShrRecord rec(10);
+		rec[0] = this->m_dbc.getCurrentCatalog();
+        rec[1] = String("DEFAULT");
+        rec[2] = rawRes.column("RDB$RELATION_NAME");
+        rec[3] = rawRes.column("RDB$FIELD_NAME");
+        //rec[4] = rawRes.column("COLUMN_TYPE");
+        //rec[5] = rawRes.column("TYPE_NAME");
+        //rec[6] = rawRes.column("COLUMN_SIZE");
+        //rec[7] = rawRes.column("NULLABLE");
+        //rec[8] = rawRes.column("ORDINAL_POSITION");
+        //rec[9] = rawRes.column("REMARKS");
+        //tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+	}
+	return rs;
+}
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

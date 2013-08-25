@@ -69,8 +69,13 @@ static inline ISC_SCHAR* allocspace(size_t len);
 static firebird_sqlstates::engine_states_t gdscode2sqlstate(ISC_STATUS code);
 
 
+
+
+
 //..............................................................................
 ///////////////////////////////////////////////////////////// Diagnostic helpers
+
+
 
 
 /// @details
@@ -283,36 +288,36 @@ FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
     // Numeric columns need special handling
     if(this->daltype() == DAL_TYPE_NUMERIC)
     {
-        return new typename value_traits<TNumeric>::stored_type(this->getNumeric());
+        return new value_traits<TNumeric>::stored_type(this->getNumeric());
     }
 
     if(this->daltype() == DAL_TYPE_BLOB)
     {
-        return new typename value_traits<Blob>::stored_type(this->getBlob());
+        return new value_traits<Blob>::stored_type(this->getBlob());
     }
 
     if(this->daltype() == DAL_TYPE_MEMO)
     {
-        return new typename value_traits<Memo>::stored_type(this->getMemo());
+        return new value_traits<Memo>::stored_type(this->getMemo());
     }
 
     if(this->daltype() == DAL_TYPE_VARBINARY)
     {
-        return new typename value_traits<TVarbinary>::stored_type(this->getVarbinary());
+        return new value_traits<TVarbinary>::stored_type(this->getVarbinary());
     }
 
     switch(this->m_sqlvar->sqltype & ~1)
     {
     case SQL_TEXT:
-    case SQL_VARYING:      return new typename value_traits<String>::stored_type(this->getText());
-    case SQL_TYPE_DATE:    return new typename value_traits<TDate>::stored_type(this->getDate());
-    case SQL_SHORT:        return new typename value_traits<signed short>::stored_type(this->getSmallint());
-    case SQL_LONG:         return new typename value_traits<signed int>::stored_type(this->getLong());
-    case SQL_DOUBLE:       return new typename value_traits<double>::stored_type(this->getDouble());
-    case SQL_INT64:        return new typename value_traits<signed long long>::stored_type(this->getInt64());
-    case SQL_FLOAT:        return new typename value_traits<float>::stored_type(this->getFloat());
-    case SQL_TYPE_TIME:    return new typename value_traits<TTime>::stored_type(this->getTime());
-    case SQL_TIMESTAMP:    return new typename value_traits<TTimestamp>::stored_type(this->getTimestamp());
+    case SQL_VARYING:      return new value_traits<String>::stored_type(this->getText());
+    case SQL_TYPE_DATE:    return new value_traits<TDate>::stored_type(this->getDate());
+    case SQL_SHORT:        return new value_traits<signed short>::stored_type(this->getSmallint());
+    case SQL_LONG:         return new value_traits<signed int>::stored_type(this->getLong());
+    case SQL_DOUBLE:       return new value_traits<double>::stored_type(this->getDouble());
+    case SQL_INT64:        return new value_traits<signed long long>::stored_type(this->getInt64());
+    case SQL_FLOAT:        return new value_traits<float>::stored_type(this->getFloat());
+    case SQL_TYPE_TIME:    return new value_traits<TTime>::stored_type(this->getTime());
+    case SQL_TIMESTAMP:    return new value_traits<TTimestamp>::stored_type(this->getTimestamp());
     case SQL_BLOB:         DBWTL_BUG_EX("SQL_BLOB is alread handled");
     case SQL_ARRAY:
         DBWTL_NOTIMPL(); /// @todo Implement array type
@@ -1917,7 +1922,8 @@ FirebirdDbc_libfbclient::FirebirdDbc_libfbclient(FirebirdEnv_libfbclient& env)
       m_dbc_trx(),
       m_trx_map(),
       m_trx_counter(0),
-      m_dialect(SQL_DIALECT_V6)
+      m_dialect(SQL_DIALECT_V6),
+	  m_env(env)
 {
     // create internal trx handle
     ::isc_tr_handle trh = 0;
@@ -1925,6 +1931,11 @@ FirebirdDbc_libfbclient::FirebirdDbc_libfbclient(FirebirdEnv_libfbclient& env)
     this->m_dbc_trx = Transaction(this, m_trx_counter);
 }
 
+IEnv&
+	FirebirdDbc_libfbclient::getEnv(void)
+{
+	return this->m_env;
+}
 
 /// @details
 /// If there is an active transaction, we roll back it.
@@ -1934,7 +1945,7 @@ FirebirdDbc_libfbclient::~FirebirdDbc_libfbclient(void)
         this->currentTrx().rollback();
 
     std::for_each(this->m_trx_map.begin(), this->m_trx_map.end(),
-                  [this](typename trx_map_type::value_type &p)
+                  [this](trx_map_type::value_type &p)
                   {
                       Transaction(this, p.first).rollback();
                   });

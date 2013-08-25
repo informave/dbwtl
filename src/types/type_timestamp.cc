@@ -176,7 +176,7 @@ TTimestamp::TTimestamp(const String &str)
     if(i < s.end())
     {
         std::string::const_iterator j = i;
-        while(j != s.end() && std::isdigit(*j)) ++j;
+        while(j != s.end() && std::isdigit(*j, std::locale())) ++j;
         m_fraction = toInt(i, j);
         i = j;
     }

@@ -91,7 +91,7 @@ CachedResultBase::attach(IStmt &statement)
 bool
 CachedResultBase::sourceAvail(void) const
 {
-	return this->m_source;
+	return this->m_source != 0;
 }
 
 
@@ -161,6 +161,12 @@ CachedResultBase::copyRecord(void)
     ShrRecord rec(this->m_source->columnCount());
     for(colnum_t i = 1; i <= this->m_source->columnCount(); ++i)
     {
+	if(this->m_source->column(i).isnull())
+	{
+		rec[i-1] = Variant();
+		continue;
+	}
+
         if(this->m_source->describeColumn(i).getDatatype() == DAL_TYPE_MEMO)
         {
             rec[i-1] = String("MEMO-UNSUPP");
@@ -177,7 +183,7 @@ CachedResultBase::copyRecord(void)
         }
         catch(...)
         {
-            std::cout << "catch error in copyRecord()" << std::endl;
+            std::cout << "catch error X in copyRecord()" << std::endl;
             throw;
         }
     }

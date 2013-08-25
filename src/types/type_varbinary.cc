@@ -68,11 +68,12 @@ TVarbinary::TVarbinary(const void *buf, size_t n)
         this->m_data.clear();
 }
 
-
+#ifdef DBWTL_WITH_INIT_LISTS_CPP0X
 TVarbinary::TVarbinary(const std::initializer_list<unsigned char> &values)
     : m_data(values)
 {
 }
+#endif
 
 
 /// @details

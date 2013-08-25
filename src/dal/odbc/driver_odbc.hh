@@ -25,6 +25,7 @@
 #include <odbcinst.h>
 
 
+
 DAL_NAMESPACE_BEGIN
 
 /*
@@ -33,11 +34,11 @@ DAL_NAMESPACE_BEGIN
 class ODBC30Drv : public DynamicLibrary
 {
 
-    typedef SQLRETURN (*odbcapi__SQLAllocHandle)(SQLSMALLINT HandleType,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLAllocHandle)(SQLSMALLINT HandleType,
                                                  SQLHANDLE InputHandle, SQLHANDLE *OutputHandle);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLBindCol)(SQLHSTMT StatementHandle, 
+    typedef SQLRETURN (SQL_API *odbcapi__SQLBindCol)(SQLHSTMT StatementHandle, 
                                              SQLUSMALLINT ColumnNumber,
                                              SQLSMALLINT TargetType, 
                                              SQLPOINTER TargetValue,
@@ -45,7 +46,7 @@ class ODBC30Drv : public DynamicLibrary
                                              SQLLEN *StrLen_or_Ind);
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLBindParameter)(SQLHSTMT hstmt,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLBindParameter)(SQLHSTMT hstmt,
                                                    SQLUSMALLINT      ipar,
                                                    SQLSMALLINT        fParamType,
                                                    SQLSMALLINT        fCType,
@@ -83,12 +84,12 @@ class ODBC30Drv : public DynamicLibrary
 */
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLCancel)(SQLHSTMT StatementHandle);
+    typedef SQLRETURN (SQL_API *odbcapi__SQLCancel)(SQLHSTMT StatementHandle);
 
 
 // Core
 
-    typedef SQLRETURN (*odbcapi__SQLCloseCursor)(SQLHSTMT StatementHandle);
+    typedef SQLRETURN (SQL_API *odbcapi__SQLCloseCursor)(SQLHSTMT StatementHandle);
 
 
 //extern "C"
@@ -100,7 +101,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLColAttributeA)(
+    typedef SQLRETURN (SQL_API *odbcapi__SQLColAttributeA)(
         SQLHSTMT     StatementHandle,
         SQLUSMALLINT     ColumnNumber,
         SQLUSMALLINT     FieldIdentifier,
@@ -109,7 +110,7 @@ class ODBC30Drv : public DynamicLibrary
         SQLSMALLINT *     StringLengthPtr,
         SQLPOINTER     NumericAttributePtr);
 
-    typedef SQLRETURN (*odbcapi__SQLColAttributeW)(
+    typedef SQLRETURN (SQL_API *odbcapi__SQLColAttributeW)(
         SQLHSTMT     StatementHandle,
         SQLUSMALLINT     ColumnNumber,
         SQLUSMALLINT     FieldIdentifier,
@@ -138,7 +139,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLColumnsA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLColumnsA)(SQLHSTMT     StatementHandle,
                                               SQLCHAR *     CatalogName,
                                               SQLSMALLINT     NameLength1,
                                               SQLCHAR *     SchemaName,
@@ -148,7 +149,7 @@ class ODBC30Drv : public DynamicLibrary
                                               SQLCHAR *     ColumnName,
                                               SQLSMALLINT     NameLength4);
 
-    typedef SQLRETURN (*odbcapi__SQLColumnsW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLColumnsW)(SQLHSTMT     StatementHandle,
                                               SQLWCHAR *     CatalogName,
                                               SQLSMALLINT     NameLength1,
                                               SQLWCHAR *     SchemaName,
@@ -160,7 +161,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLConnectA)(SQLHDBC     ConnectionHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLConnectA)(SQLHDBC     ConnectionHandle,
                                               SQLCHAR *     ServerName,
                                               SQLSMALLINT     NameLength1,
                                               SQLCHAR *     UserName,
@@ -169,7 +170,7 @@ class ODBC30Drv : public DynamicLibrary
                                               SQLSMALLINT     NameLength3);
 
 
-    typedef SQLRETURN (*odbcapi__SQLConnectW)(SQLHDBC     ConnectionHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLConnectW)(SQLHDBC     ConnectionHandle,
                                               SQLWCHAR *     ServerName,
                                               SQLSMALLINT     NameLength1,
                                               SQLWCHAR *     UserName,
@@ -179,11 +180,11 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLCopyDesc)(SQLHDESC     SourceDescHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLCopyDesc)(SQLHDESC     SourceDescHandle,
                                               SQLHDESC     TargetDescHandle);
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLDescribeColA)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLDescribeColA)(SQLHSTMT StatementHandle,
                                                   SQLUSMALLINT ColumnNumber,
                                                   SQLCHAR *ColumnName,
                                                   SQLSMALLINT BufferLength,
@@ -194,7 +195,7 @@ class ODBC30Drv : public DynamicLibrary
                                                   SQLSMALLINT *Nullable);
 
 
-    typedef SQLRETURN (*odbcapi__SQLDescribeColW)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLDescribeColW)(SQLHSTMT StatementHandle,
                                                   SQLUSMALLINT ColumnNumber,
                                                   SQLWCHAR *ColumnName,
                                                   SQLSMALLINT BufferLength,
@@ -207,7 +208,7 @@ class ODBC30Drv : public DynamicLibrary
 
 // Level 2
 
-    typedef  SQLRETURN (*odbcapi__SQLDescribeParam)(SQLHSTMT           hstmt,
+    typedef  SQLRETURN (SQL_API *odbcapi__SQLDescribeParam)(SQLHSTMT           hstmt,
                                                     SQLUSMALLINT       ipar,
                                                     SQLSMALLINT 	  *pfSqlType,
                                                     SQLULEN      	  *pcbParamDef,
@@ -216,11 +217,11 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLDisconnect)(SQLHDBC ConnectionHandle);
+    typedef SQLRETURN (SQL_API *odbcapi__SQLDisconnect)(SQLHDBC ConnectionHandle);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLDriverConnectA)(SQLHDBC     ConnectionHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLDriverConnectA)(SQLHDBC     ConnectionHandle,
                                                     SQLHWND     WindowHandle,
                                                     SQLCHAR *     InConnectionString,
                                                     SQLSMALLINT     StringLength1,
@@ -230,7 +231,7 @@ class ODBC30Drv : public DynamicLibrary
                                                     SQLUSMALLINT     DriverCompletion);
 
 
-    typedef SQLRETURN (*odbcapi__SQLDriverConnectW)(SQLHDBC     ConnectionHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLDriverConnectW)(SQLHDBC     ConnectionHandle,
                                                     SQLHWND     WindowHandle,
                                                     SQLWCHAR *     InConnectionString,
                                                     SQLSMALLINT     StringLength1,
@@ -241,28 +242,28 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLEndTran)(SQLSMALLINT HandleType,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLEndTran)(SQLSMALLINT HandleType,
                                              SQLHANDLE Handle,
                                              SQLSMALLINT CompletionType);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLExecDirectA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLExecDirectA)(SQLHSTMT     StatementHandle,
                                                  SQLCHAR *     StatementText,
                                                  SQLINTEGER     TextLength);
 
-    typedef SQLRETURN (*odbcapi__SQLExecDirectW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLExecDirectW)(SQLHSTMT     StatementHandle,
                                                  SQLWCHAR *     StatementText,
                                                  SQLINTEGER     TextLength);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLExecute)(SQLHSTMT StatementHandle);
+    typedef SQLRETURN (SQL_API *odbcapi__SQLExecute)(SQLHSTMT StatementHandle);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLFetch)(SQLHSTMT StatementHandle);
+    typedef SQLRETURN (SQL_API *odbcapi__SQLFetch)(SQLHSTMT StatementHandle);
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLFetchScroll)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLFetchScroll)(SQLHSTMT StatementHandle,
                                                  SQLSMALLINT FetchOrientation,
                                                  SQLLEN FetchOffset);
 // Level 2
@@ -288,22 +289,22 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLFreeHandle)(SQLSMALLINT HandleType,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLFreeHandle)(SQLSMALLINT HandleType,
                                                 SQLHANDLE Handle);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLFreeStmt)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLFreeStmt)(SQLHSTMT     StatementHandle,
                                               SQLUSMALLINT     Option);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetConnectAttrA)(SQLHDBC            hdbc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetConnectAttrA)(SQLHDBC            hdbc,
                                                      SQLINTEGER         fAttribute,
                                                      SQLPOINTER         rgbValue,
                                                      SQLINTEGER         cbValueMax,
                                                      SQLINTEGER     *pcbValue);
 
 
-    typedef SQLRETURN (*odbcapi__SQLGetConnectAttrW)(SQLHDBC            hdbc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetConnectAttrW)(SQLHDBC            hdbc,
                                                      SQLINTEGER         fAttribute,
                                                      SQLPOINTER         rgbValue,
                                                      SQLINTEGER         cbValueMax,
@@ -311,20 +312,20 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetCursorNameA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetCursorNameA)(SQLHSTMT     StatementHandle,
                                                     SQLCHAR *     CursorName,
                                                     SQLSMALLINT     BufferLength,
                                                     SQLSMALLINT *     NameLengthPtr);
 
 
-    typedef SQLRETURN (*odbcapi__SQLGetCursorNameW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetCursorNameW)(SQLHSTMT     StatementHandle,
                                                     SQLWCHAR *     CursorName,
                                                     SQLSMALLINT     BufferLength,
                                                     SQLSMALLINT *     NameLengthPtr);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetData)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetData)(SQLHSTMT StatementHandle,
                                              SQLUSMALLINT ColumnNumber,
                                              SQLSMALLINT TargetType,
                                              SQLPOINTER TargetValue,
@@ -333,14 +334,14 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetDescFieldA)(SQLHDESC           hdesc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDescFieldA)(SQLHDESC           hdesc,
                                                    SQLSMALLINT        iRecord,
                                                    SQLSMALLINT        iField,
                                                    SQLPOINTER         rgbValue,
                                                    SQLINTEGER		   cbValueMax,
                                                    SQLINTEGER     *pcbValue);
 
-    typedef SQLRETURN (*odbcapi__SQLGetDescFieldW)(SQLHDESC           hdesc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDescFieldW)(SQLHDESC           hdesc,
                                                    SQLSMALLINT        iRecord,
                                                    SQLSMALLINT        iField,
                                                    SQLPOINTER         rgbValue,
@@ -348,7 +349,7 @@ class ODBC30Drv : public DynamicLibrary
                                                    SQLINTEGER     *pcbValue);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetDescRecA)(SQLHDESC     DescriptorHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDescRecA)(SQLHDESC     DescriptorHandle,
                                                  SQLSMALLINT     RecNumber,
                                                  SQLCHAR *     Name,
                                                  SQLSMALLINT     BufferLength,
@@ -360,7 +361,7 @@ class ODBC30Drv : public DynamicLibrary
                                                  SQLSMALLINT *     ScalePtr,
                                                  SQLSMALLINT *     NullablePtr);
 
-    typedef SQLRETURN (*odbcapi__SQLGetDescRecW)(SQLHDESC     DescriptorHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDescRecW)(SQLHDESC     DescriptorHandle,
                                                  SQLSMALLINT     RecNumber,
                                                  SQLWCHAR *     Name,
                                                  SQLSMALLINT     BufferLength,
@@ -374,7 +375,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetDiagFieldA)(SQLSMALLINT        fHandleType,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDiagFieldA)(SQLSMALLINT        fHandleType,
                                                    SQLHANDLE          handle,
                                                    SQLSMALLINT        iRecord,
                                                    SQLSMALLINT        fDiagField,
@@ -382,7 +383,7 @@ class ODBC30Drv : public DynamicLibrary
                                                    SQLSMALLINT        cbDiagInfoMax,
                                                    SQLSMALLINT    *pcbDiagInfo);
 
-    typedef SQLRETURN (*odbcapi__SQLGetDiagFieldW)(SQLSMALLINT        fHandleType,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDiagFieldW)(SQLSMALLINT        fHandleType,
                                                    SQLHANDLE          handle,
                                                    SQLSMALLINT        iRecord,
                                                    SQLSMALLINT        fDiagField,
@@ -392,7 +393,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetDiagRecA)(SQLSMALLINT     HandleType,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDiagRecA)(SQLSMALLINT     HandleType,
                                                  SQLHANDLE     handle_,
                                                  SQLSMALLINT     RecNumber,
                                                  SQLCHAR *     SQLState,
@@ -401,7 +402,7 @@ class ODBC30Drv : public DynamicLibrary
                                                  SQLSMALLINT     BufferLength,
                                                  SQLSMALLINT *     TextLengthPtr);
 
-    typedef SQLRETURN (*odbcapi__SQLGetDiagRecW)(SQLSMALLINT     HandleType,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetDiagRecW)(SQLSMALLINT     HandleType,
                                                  SQLHANDLE     handle_,
                                                  SQLSMALLINT     RecNumber,
                                                  SQLWCHAR *     SQLState,
@@ -411,38 +412,38 @@ class ODBC30Drv : public DynamicLibrary
                                                  SQLSMALLINT *     TextLengthPtr);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetEnvAttr)(SQLHENV EnvironmentHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetEnvAttr)(SQLHENV EnvironmentHandle,
                                                 SQLINTEGER Attribute, SQLPOINTER Value,
                                                 SQLINTEGER BufferLength, SQLINTEGER *StringLength);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetFunctions)(SQLHDBC ConnectionHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetFunctions)(SQLHDBC ConnectionHandle,
                                                   SQLUSMALLINT FunctionId, SQLUSMALLINT *Supported);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetInfoA)(SQLHDBC            hdbc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetInfoA)(SQLHDBC            hdbc,
                                               SQLUSMALLINT       fInfoType,
                                               SQLPOINTER         rgbInfoValue,
                                               SQLSMALLINT        cbInfoValueMax,
                                               SQLSMALLINT    *pcbInfoValue);
 
-    typedef SQLRETURN (*odbcapi__SQLGetInfoW)(SQLHDBC            hdbc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetInfoW)(SQLHDBC            hdbc,
                                               SQLUSMALLINT       fInfoType,
                                               SQLPOINTER         rgbInfoValue,
                                               SQLSMALLINT        cbInfoValueMax,
                                               SQLSMALLINT    *pcbInfoValue);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetStmtAttrA)(SQLHSTMT           hstmt,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetStmtAttrA)(SQLHSTMT           hstmt,
                                                   SQLINTEGER         fAttribute,
                                                   SQLPOINTER         rgbValue,
                                                   SQLINTEGER         cbValueMax,
                                                   SQLINTEGER     *pcbValue);
 
 
-    typedef SQLRETURN (*odbcapi__SQLGetStmtAttrW)(SQLHSTMT           hstmt,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetStmtAttrW)(SQLHSTMT           hstmt,
                                                   SQLINTEGER         fAttribute,
                                                   SQLPOINTER         rgbValue,
                                                   SQLINTEGER         cbValueMax,
@@ -450,12 +451,12 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLGetTypeInfo)(SQLHSTMT			StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLGetTypeInfo)(SQLHSTMT			StatementHandle,
                                                  SQLSMALLINT			DataType);
 
 
 // Level 1
-    typedef SQLRETURN (*odbcapi__SQLMoreResults)(SQLHSTMT           hstmt);
+    typedef SQLRETURN (SQL_API *odbcapi__SQLMoreResults)(SQLHSTMT           hstmt);
 
 
 // Core
@@ -476,32 +477,32 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLNumParams)(SQLHSTMT           hstmt,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLNumParams)(SQLHSTMT           hstmt,
                                                SQLSMALLINT 	  *pcpar);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLNumResultCols)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLNumResultCols)(SQLHSTMT StatementHandle,
                                                    SQLSMALLINT *ColumnCount);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLParamData)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLParamData)(SQLHSTMT StatementHandle,
                                                SQLPOINTER *Value);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLPrepareA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLPrepareA)(SQLHSTMT     StatementHandle,
                                               SQLCHAR *     StatementText,
                                               SQLINTEGER     TextLength);
 
-    typedef SQLRETURN (*odbcapi__SQLPrepareW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLPrepareW)(SQLHSTMT     StatementHandle,
                                               SQLWCHAR *     StatementText,
                                               SQLINTEGER     TextLength);
 
 
 // Level 1
 
-    typedef SQLRETURN (*odbcapi__SQLPrimaryKeysA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLPrimaryKeysA)(SQLHSTMT     StatementHandle,
                                                   SQLCHAR *     CatalogName,
                                                   SQLSMALLINT     NameLength1,
                                                   SQLCHAR *     SchemaName,
@@ -509,7 +510,7 @@ class ODBC30Drv : public DynamicLibrary
                                                   SQLCHAR *     TableName,
                                                   SQLSMALLINT     NameLength3);
 
-    typedef SQLRETURN (*odbcapi__SQLPrimaryKeysW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLPrimaryKeysW)(SQLHSTMT     StatementHandle,
                                                   SQLWCHAR *     CatalogName,
                                                   SQLSMALLINT     NameLength1,
                                                   SQLWCHAR *     SchemaName,
@@ -520,7 +521,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Level 1
-    typedef SQLRETURN (*odbcapi__SQLProcedureColumnsA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLProcedureColumnsA)(SQLHSTMT     StatementHandle,
                                                        SQLCHAR *     CatalogName,
                                                        SQLSMALLINT     NameLength1,
                                                        SQLCHAR *     SchemaName,
@@ -530,7 +531,7 @@ class ODBC30Drv : public DynamicLibrary
                                                        SQLCHAR *     ColumnName,
                                                        SQLSMALLINT     NameLength4);
 
-    typedef SQLRETURN (*odbcapi__SQLProcedureColumnsW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLProcedureColumnsW)(SQLHSTMT     StatementHandle,
                                                        SQLWCHAR *     CatalogName,
                                                        SQLSMALLINT     NameLength1,
                                                        SQLWCHAR *     SchemaName,
@@ -542,7 +543,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Level 1
-    typedef SQLRETURN (*odbcapi__SQLProceduresA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLProceduresA)(SQLHSTMT     StatementHandle,
                                                  SQLCHAR *     CatalogName,
                                                  SQLSMALLINT     NameLength1,
                                                  SQLCHAR *     SchemaName,
@@ -550,7 +551,7 @@ class ODBC30Drv : public DynamicLibrary
                                                  SQLCHAR *     ProcName,
                                                  SQLSMALLINT     NameLength3);
 
-    typedef SQLRETURN (*odbcapi__SQLProceduresW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLProceduresW)(SQLHSTMT     StatementHandle,
                                                  SQLWCHAR *     CatalogName,
                                                  SQLSMALLINT     NameLength1,
                                                  SQLWCHAR *     SchemaName,
@@ -560,44 +561,44 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLPutData)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLPutData)(SQLHSTMT StatementHandle,
                                              SQLPOINTER Data,
                                              SQLLEN StrLen_or_Ind);
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLRowCount)(SQLHSTMT StatementHandle, 
+    typedef SQLRETURN (SQL_API *odbcapi__SQLRowCount)(SQLHSTMT StatementHandle, 
                                               SQLLEN* RowCount);
 
 
 // Core[2]
-    typedef SQLRETURN (*odbcapi__SQLSetConnectAttrA)(SQLHDBC            hdbc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetConnectAttrA)(SQLHDBC            hdbc,
                                                      SQLINTEGER         fAttribute,
                                                      SQLPOINTER         rgbValue,
                                                      SQLINTEGER         cbValue);
 
-    typedef SQLRETURN (*odbcapi__SQLSetConnectAttrW)(SQLHDBC            hdbc,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetConnectAttrW)(SQLHDBC            hdbc,
                                                      SQLINTEGER         fAttribute,
                                                      SQLPOINTER         rgbValue,
                                                      SQLINTEGER         cbValue);
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLSetCursorNameA)(SQLHSTMT      StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetCursorNameA)(SQLHSTMT      StatementHandle,
                                                     SQLCHAR *     CursorName,
                                                     SQLSMALLINT     NameLength);
 
-    typedef SQLRETURN (*odbcapi__SQLSetCursorNameW)(SQLHSTMT      StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetCursorNameW)(SQLHSTMT      StatementHandle,
                                                     SQLWCHAR *     CursorName,
                                                     SQLSMALLINT     NameLength);
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLSetDescFieldA)(SQLHDESC DescriptorHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetDescFieldA)(SQLHDESC DescriptorHandle,
                                                    SQLSMALLINT RecNumber, 
                                                    SQLSMALLINT FieldIdentifier,
                                                    SQLPOINTER Value, 
                                                    SQLINTEGER BufferLength);
 
-    typedef SQLRETURN (*odbcapi__SQLSetDescFieldW)(SQLHDESC DescriptorHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetDescFieldW)(SQLHDESC DescriptorHandle,
                                                    SQLSMALLINT RecNumber, 
                                                    SQLSMALLINT FieldIdentifier,
                                                    SQLPOINTER Value, 
@@ -605,7 +606,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLSetDescRec)(SQLHDESC DescriptorHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetDescRec)(SQLHDESC DescriptorHandle,
                                                 SQLSMALLINT RecNumber,
                                                 SQLSMALLINT Type,
                                                 SQLSMALLINT SubType,
@@ -617,7 +618,7 @@ class ODBC30Drv : public DynamicLibrary
                                                 SQLLEN *Indicator);
 
 // Core[2]
-    typedef SQLRETURN (*odbcapi__SQLSetEnvAttr)(SQLHENV EnvironmentHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetEnvAttr)(SQLHENV EnvironmentHandle,
                                                 SQLINTEGER Attribute, SQLPOINTER Value,
                                                 SQLINTEGER StringLength);
 
@@ -635,27 +636,27 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core[2]
-    typedef SQLRETURN (*odbcapi__SQLSetStmtAttrA)(SQLHSTMT           hstmt,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetStmtAttrA)(SQLHSTMT           hstmt,
                                                   SQLINTEGER         fAttribute,
                                                   SQLPOINTER         rgbValue,
                                                   SQLINTEGER         cbValueMax);
 
 
-    typedef SQLRETURN (*odbcapi__SQLSetStmtAttrW)(SQLHSTMT           hstmt,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSetStmtAttrW)(SQLHSTMT           hstmt,
                                                   SQLINTEGER         fAttribute,
                                                   SQLPOINTER         rgbValue,
                                                   SQLINTEGER         cbValueMax);
 
 
 // Core[1]
-    typedef SQLRETURN (*odbcapi__SQLSpecialColumnsA)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSpecialColumnsA)(SQLHSTMT StatementHandle,
                                                      SQLUSMALLINT IdentifierType, SQLCHAR *CatalogName,
                                                      SQLSMALLINT NameLength1, SQLCHAR *SchemaName,
                                                      SQLSMALLINT NameLength2, SQLCHAR *TableName,
                                                      SQLSMALLINT NameLength3, SQLUSMALLINT Scope,
                                                      SQLUSMALLINT Nullable);
 
-    typedef SQLRETURN (*odbcapi__SQLSpecialColumnsW)(SQLHSTMT StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLSpecialColumnsW)(SQLHSTMT StatementHandle,
                                                      SQLUSMALLINT IdentifierType, SQLWCHAR *CatalogName,
                                                      SQLSMALLINT NameLength1, SQLWCHAR *SchemaName,
                                                      SQLSMALLINT NameLength2, SQLWCHAR *TableName,
@@ -664,7 +665,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLStatisticsA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLStatisticsA)(SQLHSTMT     StatementHandle,
                                                  SQLCHAR *     CatalogName,
                                                  SQLSMALLINT     NameLength1,
                                                  SQLCHAR *     SchemaName,
@@ -674,7 +675,7 @@ class ODBC30Drv : public DynamicLibrary
                                                  SQLUSMALLINT     Unique,
                                                  SQLUSMALLINT     Reserved);
 
-    typedef SQLRETURN (*odbcapi__SQLStatisticsW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLStatisticsW)(SQLHSTMT     StatementHandle,
                                                  SQLWCHAR *     CatalogName,
                                                  SQLSMALLINT     NameLength1,
                                                  SQLWCHAR *     SchemaName,
@@ -705,7 +706,7 @@ class ODBC30Drv : public DynamicLibrary
 
 
 // Core
-    typedef SQLRETURN (*odbcapi__SQLTablesA)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLTablesA)(SQLHSTMT     StatementHandle,
                                              SQLCHAR *     CatalogName,
                                              SQLSMALLINT     NameLength1,
                                              SQLCHAR *     SchemaName,
@@ -716,7 +717,7 @@ class ODBC30Drv : public DynamicLibrary
                                              SQLSMALLINT     NameLength4);
 
 
-    typedef SQLRETURN (*odbcapi__SQLTablesW)(SQLHSTMT     StatementHandle,
+    typedef SQLRETURN (SQL_API *odbcapi__SQLTablesW)(SQLHSTMT     StatementHandle,
                                              SQLWCHAR *     CatalogName,
                                              SQLSMALLINT     NameLength1,
                                              SQLWCHAR *     SchemaName,
@@ -807,8 +808,11 @@ protected:
     odbcapi__SQLTablesW 		  m_func_SQLTablesW;
 
 
-
+#ifdef DBWTL_ON_WIN32
+#define DBWTL_ODBC_DEFAULT_LIB "odbc32.dll"
+#else
 #define DBWTL_ODBC_DEFAULT_LIB "/usr/lib/libodbc.so"
+#endif
 
 public:
     ODBC30Drv(String path) : DynamicLibrary(path.length() ? path.toSystemEncoding() : DBWTL_ODBC_DEFAULT_LIB),
@@ -959,6 +963,9 @@ public:
 	this->getproc(this->m_func_SQLTablesA, "SQLTablesA");
 	this->getproc(this->m_func_SQLTablesW, "SQLTablesW");
 
+	this->getproc(this->m_func_SQLColumnsA, "SQLColumnsA");
+	this->getproc(this->m_func_SQLColumnsW, "SQLColumnsW");
+
 /*
   this->getproc(this->m_func_sqlite3_step, "sqlite3_step");
   this->getproc(this->m_func_sqlite3_libversion, "sqlite3_libversion");
@@ -1037,6 +1044,9 @@ public:
     inline SQLRETURN SQLAllocHandle(SQLSMALLINT HandleType,
                                     SQLHANDLE InputHandle, SQLHANDLE *OutputHandle)
         {
+	
+
+
             if(this->m_func_SQLAllocHandle)
                 return this->m_func_SQLAllocHandle(HandleType, InputHandle, OutputHandle);
             else
@@ -1662,6 +1672,41 @@ inline SQLRETURN SQLEndTran(SQLSMALLINT HandleType,
         }
 
 
+    inline SQLRETURN SQLColumnsA(SQLHSTMT     StatementHandle,
+                                              SQLCHAR *     CatalogName,
+                                              SQLSMALLINT     NameLength1,
+                                              SQLCHAR *     SchemaName,
+                                              SQLSMALLINT     NameLength2,
+                                              SQLCHAR *     TableName,
+                                              SQLSMALLINT     NameLength3,
+                                              SQLCHAR *     ColumnName,
+                                              SQLSMALLINT     NameLength4)
+    {
+            if(this->m_func_SQLColumnsA)
+                return this->m_func_SQLColumnsA(StatementHandle, CatalogName, NameLength1,
+                                               SchemaName, NameLength2, TableName,
+                                               NameLength3, ColumnName, NameLength4);
+            else
+                throw ex::missing_function(__FUNCTION__);
+    }
+
+    inline SQLRETURN SQLColumnsW(SQLHSTMT     StatementHandle,
+                                              SQLWCHAR *     CatalogName,
+                                              SQLSMALLINT     NameLength1,
+                                              SQLWCHAR *     SchemaName,
+                                              SQLSMALLINT     NameLength2,
+                                              SQLWCHAR *     TableName,
+                                              SQLSMALLINT     NameLength3,
+                                              SQLWCHAR *     ColumnName,
+                                              SQLSMALLINT     NameLength4)
+    {
+            if(this->m_func_SQLColumnsW)
+                return this->m_func_SQLColumnsW(StatementHandle, CatalogName, NameLength1,
+                                               SchemaName, NameLength2, TableName,
+                                               NameLength3, ColumnName, NameLength4);
+            else
+                throw ex::missing_function(__FUNCTION__);
+    }
 
 
 /*

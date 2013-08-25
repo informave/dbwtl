@@ -89,6 +89,8 @@ typedef enum
 	SDI_INVAL_SIZE
 } sdi_code;
 
+#define SDI_NTS		-1
+#define SDI_IS_INTEGER	-2
 
 
 typedef void* SDISTMT;
@@ -156,6 +158,9 @@ sdi_code SDI_API SDIDeallocDbc(SDIDBC *dbc);
 
 
 sdi_code SDI_API SDITraceCallback(SDIDBC dbc, void(*trace)(int level, const char *msg, void *arg), void *arg);
+
+
+sdi_code SDI_API SDISetDbcOption(SDIDBC dbc, const char *option, const char *value, int sizeOrInd);
 
 sdi_code SDI_API SDIConnect(SDIDBC dbc, const char *string);
 sdi_code SDI_API SDIDisconnect(SDIDBC dbc);

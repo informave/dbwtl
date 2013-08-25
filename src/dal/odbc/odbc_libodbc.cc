@@ -2634,13 +2634,6 @@ OdbcResult_libodbc::eof(void) const
     if(! (this->m_cursorstate & DAL_CURSOR_POSITIONED))
     {
         throw ex::engine_error("Dataset is not positioned.");
-/*
-  this->appendDiagRec(CREATE_DIAG(DAL_STATE_ERROR, 24000,
-  String("Dataset is not positioned."),
-  "Hint: Use the first() method to position the cursor "
-  "until calling eof()."))
-  .raiseException();
-*/
     }
 
     return this->m_cursorstate & DAL_CURSOR_EOF;
@@ -2921,9 +2914,9 @@ OdbcColumnDesc_libodbc::OdbcColumnDesc_libodbc(colnum_t i, OdbcResult_libodbc &r
     SQLSMALLINT namelen = 0;
     SQLSMALLINT digits = 0;
     SQLSMALLINT nullable = SQL_NULLABLE_UNKNOWN;
-	SQLSMALLINT is_unsigned = SQL_FALSE;
-    SQLSMALLINT scale = 0;
-    SQLSMALLINT precision = 0;
+	SQLLEN is_unsigned = SQL_FALSE;
+    SQLLEN scale = 0;
+    SQLLEN precision = 0;
 	SQLULEN size = 0;
 	
     if(i == 0)
@@ -2949,6 +2942,7 @@ OdbcColumnDesc_libodbc::OdbcColumnDesc_libodbc(colnum_t i, OdbcResult_libodbc &r
             THROW_ODBC_DIAG_ERROR(result.getStmt().getDbc(), result.getStmt(), result.getHandle(),
                                   SQL_HANDLE_STMT, "DescribeCol failed");
         }
+
 
         // we do not ask for char data, so ANSI API should be fine
         ret = result.drv()->SQLColAttributeA(result.getHandle(), i, SQL_DESC_UNSIGNED,
@@ -3215,7 +3209,11 @@ OdbcDbc_libodbc::OdbcDbc_libodbc(OdbcEnv_libodbc& env)
 	assert(ret == SQL_SUCCESS);
 }
 
-
+IEnv&
+	OdbcDbc_libodbc::getEnv(void)
+{
+	return this->m_env;
+}
 
 //
 OdbcDbc_libodbc::~OdbcDbc_libodbc(void)
@@ -3627,16 +3625,42 @@ OdbcDbc_libodbc::drv(void) const
 
 
 OdbcStmt*
-OdbcDbc_libodbc::getOdbcTables(void)
+OdbcDbc_libodbc::getOdbcCatalogs(void)
 {
 	OdbcStmt_libodbc *stmt = newStatement();
-	stmt->openOdbcTables();
+	stmt->openOdbcCatalogs();
+	return stmt;
+}
+
+OdbcStmt*
+OdbcDbc_libodbc::getOdbcSchemas(const String &catalog)
+{
+	OdbcStmt_libodbc *stmt = newStatement();
+	stmt->openOdbcSchemas(catalog);
+	return stmt;
+}
+
+OdbcStmt*
+OdbcDbc_libodbc::getOdbcTables(const String &catalog, const String &schema, const String &type)
+{
+	OdbcStmt_libodbc *stmt = newStatement();
+	stmt->openOdbcTables(catalog, schema, type);
+	return stmt;
+}
+
+
+OdbcStmt*
+OdbcDbc_libodbc::getOdbcColumns(const String &catalog, const String &schema, const String &table)
+{
+    /// @todo possible leak on exception
+	OdbcStmt_libodbc *stmt = newStatement();
+	stmt->openOdbcColumns(catalog, schema, table);
 	return stmt;
 }
 
 
 void
-OdbcStmt_libodbc::openOdbcTables(void)
+OdbcStmt_libodbc::openOdbcTables(const String &catalog, const String &schema, const String &type)
 {
     SQLRETURN ret;
 
@@ -3644,10 +3668,68 @@ OdbcStmt_libodbc::openOdbcTables(void)
 
     if(this->getDbc().usingUnicode())
     {
-        OdbcStrW catalog;
+        OdbcStrW str_catalog = catalog;
+        OdbcStrW str_schema = schema;
+        OdbcStrW str_type = type;
+		
+        //ret = this->drv()->SQLTablesW(this->getHandle(),
+        //                              catalog.ptr(), 0,
+        //                              schema.ptr(), 0,
+        //                              table.ptr(), 0,
+        //                              type.ptr(), 0);
+        ret = this->drv()->SQLTablesW(this->getHandle(),
+                                      str_catalog.empty() ? 0 : str_catalog.ptr(),
+									  str_catalog.size(),
+                                      str_schema.empty() ? 0 : str_schema.ptr(),
+									  str_schema.size(),
+                                      NULL, 0,									  
+                                      str_type.empty() ? 0 : str_type.ptr(),
+									  str_type.size());
+    }
+    else
+    {
+        OdbcStrA str_catalog;
+        OdbcStrA str_schema;
+        OdbcStrA str_table;
+        OdbcStrA type(String("TABLE, SYSTEM TABLE"), "ASCII");
+        //ret = this->drv()->SQLTablesA(this->getHandle(),
+        //                              catalog.ptr(), SQL_NTS,
+        //                              schema.ptr(), SQL_NTS,
+        //                              table.ptr(), SQL_NTS,
+        //                              type.ptr(), SQL_NTS);
+        ret = this->drv()->SQLTablesA(this->getHandle(),
+                                      NULL, 0,
+                                      NULL, 0,
+                                      NULL, 0,
+                                      type.ptr(), SQL_NTS);
+    }
+
+
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->getDbc(), *this, this->getHandle(), SQL_HANDLE_STMT,
+                              "SQLTables() failed");
+
+    DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_OPEN);
+
+    DAL_SET_CURSORSTATE(rs->m_cursorstate, DAL_CURSOR_OPEN);
+
+    rs->refreshMetadata();
+}
+
+
+void
+OdbcStmt_libodbc::openOdbcCatalogs(void)
+{
+    SQLRETURN ret;
+
+    OdbcResult_libodbc* rs = this->newResultset();
+
+    if(this->getDbc().usingUnicode())
+    {
+        OdbcStrW catalog(SQL_ALL_CATALOGS);
         OdbcStrW schema;
         OdbcStrW table;
-        OdbcStrW type = String("TABLE, SYSTEM TABLE");
+        OdbcStrW type;
         ret = this->drv()->SQLTablesW(this->getHandle(),
                                       catalog.ptr(), SQL_NTS,
                                       schema.ptr(), SQL_NTS,
@@ -3656,10 +3738,10 @@ OdbcStmt_libodbc::openOdbcTables(void)
     }
     else
     {
-        OdbcStrA catalog;
+        OdbcStrA catalog(SQL_ALL_CATALOGS, "ASCII");
         OdbcStrA schema;
         OdbcStrA table;
-        OdbcStrA type(String("TABLE, SYSTEM TABLE"), "ASCII");
+        OdbcStrA type;
         ret = this->drv()->SQLTablesA(this->getHandle(),
                                       catalog.ptr(), SQL_NTS,
                                       schema.ptr(), SQL_NTS,
@@ -3678,6 +3760,107 @@ OdbcStmt_libodbc::openOdbcTables(void)
 
     rs->refreshMetadata();
 }
+
+
+
+void
+OdbcStmt_libodbc::openOdbcSchemas(const String &catalog)
+{
+    SQLRETURN ret;
+
+    OdbcResult_libodbc* rs = this->newResultset();
+	/// @bug catalog is ignored, because only the current catalog is used
+    if(this->getDbc().usingUnicode())
+    {
+        OdbcStrW str_catalog;
+        OdbcStrW str_schema(SQL_ALL_SCHEMAS);
+        OdbcStrW str_table;
+        OdbcStrW str_type;
+        ret = this->drv()->SQLTablesW(this->getHandle(),
+                                      str_catalog.ptr(), 0,
+                                      str_schema.ptr(), SQL_NTS,
+                                      str_table.ptr(), 0,
+                                      NULL, 0);
+    }
+    else
+    {
+        OdbcStrA str_catalog;
+        OdbcStrA str_schema(SQL_ALL_SCHEMAS, "ASCII");
+        OdbcStrA str_table;
+        OdbcStrA str_type;
+        ret = this->drv()->SQLTablesA(this->getHandle(),
+                                      str_catalog.ptr(), 0,
+                                      str_schema.ptr(), SQL_NTS,
+                                      str_table.ptr(), 0,
+                                      NULL, 0);
+    }
+
+
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->getDbc(), *this, this->getHandle(), SQL_HANDLE_STMT,
+                              "SQLTables() failed");
+
+    DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_OPEN);
+
+    DAL_SET_CURSORSTATE(rs->m_cursorstate, DAL_CURSOR_OPEN);
+
+    rs->refreshMetadata();
+}
+
+
+
+void
+OdbcStmt_libodbc::openOdbcColumns(const String &catalog, const String &schema, const String &table)
+{
+    SQLRETURN ret;
+
+    OdbcResult_libodbc* rs = this->newResultset();
+
+    if(this->getDbc().usingUnicode())
+    {
+        OdbcStrW str_catalog = catalog;
+        OdbcStrW str_schema = schema;
+        OdbcStrW str_table = table;
+        //OdbcStrW str_colname
+        //ret = this->drv()->SQLColumnsW(this->getHandle(),
+        //                              catalog.ptr(), SQL_NTS,
+        //                              schema.ptr(), SQL_NTS,
+        //                              table.ptr(), SQL_NTS,
+        //                              colname.ptr(), SQL_NTS);
+        ret = this->drv()->SQLColumnsW(this->getHandle(),
+                                      str_catalog.empty() ? 0 : str_catalog.ptr(),
+									  str_catalog.size(),
+                                      str_schema.empty() ? 0 : str_schema.ptr(),
+									  str_schema.size(),
+                                      str_table.empty() ? 0 : str_table.ptr(),
+									  str_table.size(),
+                                      0, 0);
+    }
+    else
+    {
+        OdbcStrA str_catalog;
+        OdbcStrA str_schema;
+        OdbcStrA str_table;
+        OdbcStrA str_colname;
+        ret = this->drv()->SQLColumnsA(this->getHandle(),
+                                      str_catalog.ptr(), SQL_NTS,
+                                      str_schema.ptr(), SQL_NTS,
+                                      str_table.ptr(), SQL_NTS,
+                                      str_colname.ptr(), SQL_NTS);
+    }
+
+
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->getDbc(), *this, this->getHandle(), SQL_HANDLE_STMT,
+                              "SQLColumns() failed");
+
+    DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_OPEN);
+
+    DAL_SET_CURSORSTATE(rs->m_cursorstate, DAL_CURSOR_OPEN);
+
+    rs->refreshMetadata();
+}
+
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -3901,7 +4084,11 @@ OdbcDbc_libodbc::usingUnicode(void) const
 
 
 
-
+String
+OdbcDbc_libodbc::getCurrentCatalog(void)
+{
+	return sqlgetinfo<String>(*this, SQL_DATABASE_NAME);
+}
 
 
 DAL_NAMESPACE_END

@@ -1107,10 +1107,15 @@ SqliteEnv_libsqlite::drv() const
 SqliteDbc_libsqlite::SqliteDbc_libsqlite(SqliteEnv_libsqlite& env)
     : SqliteDbc(),
       m_lib(env.drv()),
-      m_dbh(0)
+      m_dbh(0),
+	  m_env(env)
 { }
 
-
+IEnv&
+	SqliteDbc_libsqlite::getEnv(void)
+{
+	return this->m_env;
+}
 
 //
 SqliteDbc_libsqlite::~SqliteDbc_libsqlite(void)

@@ -615,28 +615,28 @@ OdbcData::do_deepcopy(const IVariantValue *owner) const
 
     switch(tmp.datatype())
     {
-    case DAL_TYPE_CUSTOM:     return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_UNKNOWN:    return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_INT:        return new typename value_traits<signed int>::stored_type(tmp.get<signed int>());       
-    case DAL_TYPE_UINT:       return new typename value_traits<unsigned int>::stored_type(tmp.get<unsigned int>());
-    case DAL_TYPE_CHAR:       return new typename value_traits<signed char>::stored_type(tmp.get<signed char>());
-    case DAL_TYPE_UCHAR:      return new typename value_traits<unsigned char>::stored_type(tmp.get<unsigned char>());
-    case DAL_TYPE_STRING:     return new typename value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_BOOL:       return new typename value_traits<bool>::stored_type(tmp.get<bool>());
-    case DAL_TYPE_SMALLINT:   return new typename value_traits<signed short>::stored_type(tmp.get<signed short>());
-    case DAL_TYPE_USMALLINT:  return new typename value_traits<unsigned short>::stored_type(tmp.get<unsigned short>());
-    case DAL_TYPE_BIGINT:     return new typename value_traits<signed long long>::stored_type(tmp.get<signed long long>());
-    case DAL_TYPE_UBIGINT:    return new typename value_traits<unsigned long long>::stored_type(tmp.get<unsigned long long>());
-    case DAL_TYPE_DATE:       return new typename value_traits<TDate>::stored_type(tmp.get<TDate>());
-    case DAL_TYPE_TIME:       return new typename value_traits<TTime>::stored_type(tmp.get<TTime>());
-    case DAL_TYPE_TIMESTAMP:  return new typename value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
-    case DAL_TYPE_NUMERIC:    return new typename value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
-    case DAL_TYPE_BLOB:       return new typename value_traits<BlobStream>::stored_type(tmp.get<BlobStream>());
-    case DAL_TYPE_MEMO:       return new typename value_traits<MemoStream>::stored_type(tmp.get<MemoStream>());
-    case DAL_TYPE_FLOAT:      return new typename value_traits<float>::stored_type(tmp.get<float>());
-    case DAL_TYPE_DOUBLE:     return new typename value_traits<double>::stored_type(tmp.get<double>());
-    case DAL_TYPE_INTERVAL:   return new typename value_traits<TInterval>::stored_type(tmp.get<TInterval>());
-    case DAL_TYPE_VARBINARY:  return new typename value_traits<TVarbinary>::stored_type(tmp.get<TVarbinary>());
+    case DAL_TYPE_CUSTOM:     return new value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_UNKNOWN:    return new value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_INT:        return new value_traits<signed int>::stored_type(tmp.get<signed int>());       
+    case DAL_TYPE_UINT:       return new value_traits<unsigned int>::stored_type(tmp.get<unsigned int>());
+    case DAL_TYPE_CHAR:       return new value_traits<signed char>::stored_type(tmp.get<signed char>());
+    case DAL_TYPE_UCHAR:      return new value_traits<unsigned char>::stored_type(tmp.get<unsigned char>());
+    case DAL_TYPE_STRING:     return new value_traits<String>::stored_type(tmp.get<String>());
+    case DAL_TYPE_BOOL:       return new value_traits<bool>::stored_type(tmp.get<bool>());
+    case DAL_TYPE_SMALLINT:   return new value_traits<signed short>::stored_type(tmp.get<signed short>());
+    case DAL_TYPE_USMALLINT:  return new value_traits<unsigned short>::stored_type(tmp.get<unsigned short>());
+    case DAL_TYPE_BIGINT:     return new value_traits<signed long long>::stored_type(tmp.get<signed long long>());
+    case DAL_TYPE_UBIGINT:    return new value_traits<unsigned long long>::stored_type(tmp.get<unsigned long long>());
+    case DAL_TYPE_DATE:       return new value_traits<TDate>::stored_type(tmp.get<TDate>());
+    case DAL_TYPE_TIME:       return new value_traits<TTime>::stored_type(tmp.get<TTime>());
+    case DAL_TYPE_TIMESTAMP:  return new value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
+    case DAL_TYPE_NUMERIC:    return new value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
+    case DAL_TYPE_BLOB:       return new value_traits<BlobStream>::stored_type(tmp.get<BlobStream>());
+    case DAL_TYPE_MEMO:       return new value_traits<MemoStream>::stored_type(tmp.get<MemoStream>());
+    case DAL_TYPE_FLOAT:      return new value_traits<float>::stored_type(tmp.get<float>());
+    case DAL_TYPE_DOUBLE:     return new value_traits<double>::stored_type(tmp.get<double>());
+    case DAL_TYPE_INTERVAL:   return new value_traits<TInterval>::stored_type(tmp.get<TInterval>());
+    case DAL_TYPE_VARBINARY:  return new value_traits<TVarbinary>::stored_type(tmp.get<TVarbinary>());
 /*
   default:
   throw ex::exception(format("Unhandled datatype(%d) at %s") % int(this->daltype()) % DBWTL_MACRO_SRCPOS);
@@ -1017,25 +1017,127 @@ OdbcDbc::newMetadata(void)
 }
 
 
-struct MetadataColumnDescriptor
-{
-	std::string name;
-	daltype_t daltype;
-};
 
 
-MetadataColumnDescriptor tableDescs[] = {
-	{ "CATALOG_NAME",	DAL_TYPE_STRING },
-	{ "SCHEMA_NAME",	DAL_TYPE_STRING },
-	{ "TABLE_NAME",		DAL_TYPE_STRING },
-	{ "TABLE_TYPE",     DAL_TYPE_STRING },
-	{ "COMMENT",		DAL_TYPE_STRING }
+static MetadataColumnDescriptor catalogsDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
 };
 
 #define METADATA_DESC_COUNT(descs) (sizeof(descs)/sizeof(MetadataColumnDescriptor))
 
 RecordSet
-OdbcMetadata::getTables(const DatasetFilter &filter, const FilterDirection fd)
+OdbcMetadata::getCatalogs(const DatasetFilter &filter)
+{	
+	RecordSet rs;
+	rs.setColumnCount(2);
+
+	assert(sizeof(catalogsDescs) / sizeof(MetadataColumnDescriptor) == 2);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(catalogsDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(catalogsDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(catalogsDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(catalogsDescs[i-1].nullable));
+		rs.setDatatype(i, catalogsDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcCatalogs());
+	IResult &rawRes = rawStmt->resultset();
+
+
+	for(rawRes.first(); !rawRes.eof(); rawRes.next())
+	{
+        std::cout << "read cat data" << std::endl;
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        ShrRecord rec(2);
+        rec[0] = rawRes.column("TABLE_CAT");
+        //rec[1] = rawRes.column("");
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+	}
+	return rs;
+}
+
+
+
+static MetadataColumnDescriptor schemaDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+
+RecordSet
+OdbcMetadata::getSchemas(const DatasetFilter &filter, const String &catalog)
+{	
+	RecordSet rs;
+	rs.setColumnCount(3);
+
+	assert(sizeof(schemaDescs) / sizeof(MetadataColumnDescriptor) == 3);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(schemaDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(schemaDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(schemaDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(schemaDescs[i-1].nullable));
+		rs.setDatatype(i, schemaDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcSchemas(catalog));
+	IResult &rawRes = rawStmt->resultset();
+
+
+	for(rawRes.first(); !rawRes.eof(); rawRes.next())
+	{
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        ShrRecord rec(3);
+        rec[0] = this->m_dbc.getCurrentCatalog();
+        rec[1] = rawRes.column("TABLE_SCHEM");
+        rec[2] = rawRes.column("REMARKS");
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+	}
+	return rs;
+}
+
+
+
+static MetadataColumnDescriptor tableDescs[] = {
+	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
+	{ "TABLE_NAME",		DAL_TYPE_STRING, 0, false },
+	{ "TABLE_TYPE",     DAL_TYPE_STRING, 0, false },
+	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+};
+
+
+
+RecordSet
+OdbcMetadata::getTables(const DatasetFilter &filter,
+		const String &catalog, 
+		const String &schema,
+		const String &type)
 {	
 	RecordSet rs;
 	rs.setColumnCount(5);
@@ -1045,56 +1147,107 @@ OdbcMetadata::getTables(const DatasetFilter &filter, const FilterDirection fd)
 	for(size_t i = 1; i <= METADATA_DESC_COUNT(tableDescs); ++i)
 	{
 		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(tableDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(tableDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(tableDescs[i-1].nullable));
 		rs.setDatatype(i, tableDescs[i-1].daltype);
 	}
 
     RecordSet tmp(rs);
-
     assert(tmp.columnCount() == rs.columnCount());
-
     rs.open();
 
-	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcTables());
+	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcTables(catalog, schema, type));
+	IResult &rawRes = rawStmt->resultset();
+
+	const int columnsToCopy = 5;
+
+	for(rawRes.first(); !rawRes.eof(); rawRes.next())
+	{
+		std::cerr << "FOUND OBDC TABLE" << std::endl;
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
+	    tmp.first();
+        if(filter(tmp))
+        {
+            rs.insert(*tmp.begin());
+        }
+	}
+	std::cerr << "RETURN OBDC TABLE" << std::endl;
+	return rs;
+}
+
+
+
+static MetadataColumnDescriptor columnDescs[] = {
+	{ "CATALOG_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "SCHEMA_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "TABLE_NAME",		  DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_NAME",	  DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_TYPE",      DAL_TYPE_INT,     0, true  },
+	{ "TYPE_NAME",        DAL_TYPE_STRING,  0, true  },
+	{ "COLUMN_SIZE",      DAL_TYPE_INT,     0, true  },
+	{ "NULLABLE",         DAL_TYPE_BOOL,    0, true  },
+	{ "ORDINAL_POSITION", DAL_TYPE_INT,     0, true  },
+	{ "COMMENT",		  DAL_TYPE_STRING,  0, true  }
+};
+
+
+RecordSet
+OdbcMetadata::getColumns(const DatasetFilter &filter,
+		const String &catalog,
+		const String &schema,
+		const String &table)
+{	
+	RecordSet rs;
+	rs.setColumnCount(10);
+
+	assert(sizeof(columnDescs) / sizeof(MetadataColumnDescriptor) == 10);
+
+	for(size_t i = 1; i <= METADATA_DESC_COUNT(columnDescs); ++i)
+	{
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(columnDescs[i-1].name));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(columnDescs[i-1].size));
+		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(columnDescs[i-1].nullable));
+		rs.setDatatype(i, columnDescs[i-1].daltype);
+	}
+
+    RecordSet tmp(rs);
+    assert(tmp.columnCount() == rs.columnCount());
+    rs.open();
+
+	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcColumns(catalog, schema, table));
 	IResult &rawRes = rawStmt->resultset();
 
 
 	for(rawRes.first(); !rawRes.eof(); rawRes.next())
 	{
-        if(fd == METADATA_FILTER_INPUT && filter(rawRes))
-            rs.insert(ShrRecord({rawRes.column(1),
-                            rawRes.column(2), 
-                            rawRes.column(3), 
-                            rawRes.column(4), 
-                            rawRes.column(5)}));
-        else if(fd == METADATA_FILTER_OUTPUT)
+        tmp.close();
+        tmp.clear();
+        tmp.open();
+        ShrRecord rec(10);
+        rec[0] = rawRes.column("TABLE_CAT");
+        rec[1] = rawRes.column("TABLE_SCHEM");
+        rec[2] = rawRes.column("TABLE_NAME");
+        rec[3] = rawRes.column("COLUMN_NAME");
+        //rec[4] = rawRes.column("COLUMN_TYPE");
+        rec[5] = rawRes.column("TYPE_NAME");
+        rec[6] = rawRes.column("COLUMN_SIZE");
+        rec[7] = rawRes.column("NULLABLE");
+        rec[8] = rawRes.column("ORDINAL_POSITION");
+        rec[9] = rawRes.column("REMARKS");
+        //tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
+        tmp.insert(rec);
+	    tmp.first();
+        if(filter(tmp))
         {
-            tmp.close();
-            tmp.clear();
-            tmp.open();
-            tmp.insert(ShrRecord({rawRes.column(1),
-                            rawRes.column(2), 
-                            rawRes.column(3), 
-                            rawRes.column(4), 
-                            rawRes.column(5)}));
-            tmp.first();
-            if(filter(tmp))
-            {
-                rs.insert(*tmp.begin());
-            }
+            rs.insert(*tmp.begin());
         }
 	}
-	
-	
-
-
-/*
-	if(validateFilter(tmp, filter))
-	{
-		std::copy(tmp.begin(), tmp.end(), std::back_inserter(rs));
-	}
-*/
 	return rs;
 }
+
 
 
 //

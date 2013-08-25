@@ -56,6 +56,8 @@
 DB_NAMESPACE_BEGIN
 
 
+void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, const String &str);
+
 //..............................................................................
 ////////////////////////////////////////////////////////////////////// Exception
 ///
@@ -124,7 +126,7 @@ public:
     //convert_error(dalstate_t state, const Variant &var);
 
 
-    ConvertException(informave::db::daltype_t, informave::db::DatatypeEnumeration);
+    ConvertException(informave::db::daltype_t, informave::db::DatatypeEnumeration, const String &desc = String() /*, const Variant &var */);
 
     virtual ~ConvertException(void) throw()
     {}

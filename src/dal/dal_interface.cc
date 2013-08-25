@@ -52,6 +52,7 @@
 #include <sstream>
 #include <typeinfo>
 #include <locale>
+#include <iomanip>
 
 DAL_NAMESPACE_BEGIN
 
@@ -83,6 +84,20 @@ Add the -ldbwtl option to g++
 
 
 #define DAL_THROW_INVALID_CAST() throw std::runtime_error(__FUNCTION__)
+
+
+
+const IDataset::value_type&
+IDataset::columnByNumber(colnum_t num)
+{
+	return this->column(num);
+}
+
+const IDataset::value_type&
+IDataset::columnByName(const String &name)
+{
+	return this->column(name);
+}
 
 
 
@@ -971,6 +986,92 @@ dal_debug(const char* func, const char* file, unsigned int line, const char* s)
 #endif
 }
 
+
+
+
+cfmt_header::cfmt_header(IDataset &ds)
+    : m_ds(ds)
+{
+}
+
+
+void
+cfmt_header::write(std::ostream &os) const
+{
+    for(colnum_t i = 1; i <= m_ds.columnCount(); ++i)
+    {
+        os << std::setw(ifnull<int>(m_ds.describeColumn(i).getSize(), 30))
+           << std::left
+           << ifnull<String>(m_ds.describeColumn(i).getName(), String("<NULL>"))
+           << (i == m_ds.columnCount() ? "" : "|");   
+    }
+}
+
+
+cfmt::cfmt(IDataset &ds, colnum_t colnum)
+    : m_ds(ds),
+      m_cn(colnum),
+      m_cs(),
+      m_byname(false)
+{
+}
+
+
+cfmt::cfmt(IDataset &ds, const String &name)
+    : m_ds(ds),
+      m_cn(0),
+      m_cs(name),
+      m_byname(true)
+{
+}
+
+void
+cfmt::write(std::ostream &os) const
+{
+    const Variant *v = 0;
+    const IColumnDesc *desc = 0;
+    if(m_byname)
+    {
+        v = &this->m_ds.column(m_cs);
+        desc = &this->m_ds.describeColumn(m_cs);
+    }
+    else
+    {
+        v = &this->m_ds.column(m_cn);
+        desc = &this->m_ds.describeColumn(m_cn);
+    }
+
+    size_t width = desc->getSize().isnull() || desc->getSize().get<int>() <= 0 ? 30 : desc->getSize().get<int>();
+    if(width < desc->getName().get<String>().length())
+        width = desc->getName().get<String>().length();
+    if(ifnull<bool>(desc->getIsNullable(), true))
+    {
+        if(width < strlen("<NULL>"))
+            width = strlen("<NULL>");
+    }
+
+    os << std::setw(width);
+    if(desc->getDatatype() == DAL_TYPE_STRING)
+        os << std::left;
+    if(!v->isnull())
+        os << *v;
+    else
+        os << "<NULL>";
+
+}
+
+
+std::ostream& operator<<(std::ostream &os, const cfmt &cf)
+{
+    cf.write(os);
+    return os;
+}
+
+std::ostream& operator<<(std::ostream &os, const cfmt_header &cf)
+{
+    cf.write(os);
+    return os;
+}
 
 
 

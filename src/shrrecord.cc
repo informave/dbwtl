@@ -74,10 +74,12 @@ ShrRecord::ShrRecord(const ShrRecord& orig)
     : m_data(orig.m_data)
 {}
 
+#ifdef DBWTL_WITH_INIT_LISTS_CPP0X
 ShrRecord::ShrRecord(const std::initializer_list<Variant> &values)
 	: m_data(new ShrRecord::ColumnBuffer(values))
 {
 }
+#endif
 
 ShrRecord::ShrRecord(const ShrRecord::ColumnBuffer &buf)
     : m_data(new ShrRecord::ColumnBuffer(buf))
@@ -87,12 +89,14 @@ ShrRecord::ShrRecord(const ShrRecord::ColumnBuffer &buf)
 const Variant&
 ShrRecord::operator[](size_t index) const
 {
+	assert(this->m_data);
     return this->m_data->at(index);
 }
  
 Variant&
 ShrRecord::operator[](size_t index)
 {
+	assert(this->m_data);
     return this->m_data->at(index);
 }
 
@@ -115,6 +119,8 @@ Record::operator[](size_t num)
 ShrRecord&
 ShrRecord::operator=(const ShrRecord& rec)
 {
+	assert(this->m_data);
+	assert(rec.m_data);
     if(this == &rec) return *this;
 
 	if(this->m_data->size() == 0 || this->m_data->size() == rec.m_data->size())

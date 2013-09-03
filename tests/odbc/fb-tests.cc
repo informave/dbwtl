@@ -40,7 +40,7 @@ CXXC_FIXTURE_TEST(OdbcTestbaseFixture, Meta)
 {
 	DBMS::Metadata md(dbc);
 
-	RecordSet rs = md.getTables(TableFilter("RDB$DATABASE"));
+	RecordSet rs = md.getTables(Variant(), Variant(), Variant(), IMetadata::META_OBJECT_CLASS_ALL, TableFilter("RDB$DATABASE"));
 	rs.first();
 	while( !rs.eof() )
 	{

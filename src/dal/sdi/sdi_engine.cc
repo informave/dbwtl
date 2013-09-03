@@ -56,10 +56,10 @@
 DB_NAMESPACE_BEGIN
 
 
-	SDIMetadata*
+SDIMetadata*
 SDIDbc::newMetadata(void)
 {
-	return new SDIMetadata(*this); /// @bug
+    return new SDIMetadata(*this); /// @bug
 }
 
 
@@ -72,191 +72,199 @@ SDIDbc::newMetadata(void)
 
 
 static MetadataColumnDescriptor catalogsDescs[] = {
-	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+    { "CATALOG_NAME",   DAL_TYPE_STRING, 0, true },
+    { "COMMENT",        DAL_TYPE_STRING, 0, true }
 };
 
 #define METADATA_DESC_COUNT(descs) (sizeof(descs)/sizeof(MetadataColumnDescriptor))
 
 RecordSet
-SDIMetadata::getCatalogs(const DatasetFilter &filter)
-{	
-	RecordSet rs;
-	rs.setColumnCount(2);
+SDIMetadata::getCatalogs(const Variant &catalog,
+                         const ObjectClass system,
+                         const DatasetFilter &filter)
+{   
+    RecordSet rs;
+    rs.setColumnCount(2);
 
-	assert(sizeof(catalogsDescs) / sizeof(MetadataColumnDescriptor) == 2);
+    assert(sizeof(catalogsDescs) / sizeof(MetadataColumnDescriptor) == 2);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(catalogsDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(catalogsDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(catalogsDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(catalogsDescs[i-1].nullable));
-		rs.setDatatype(i, catalogsDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(catalogsDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(catalogsDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(catalogsDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(catalogsDescs[i-1].nullable));
+        rs.setDatatype(i, catalogsDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
 
-        ShrRecord rec(2);
-        rec[0] = this->m_dbc.getCurrentCatalog();
-        //rec[1] = String("DEFAULT");
-        //rec[2] = rawRes.column("REMARKS");
-		tmp.open();
-        tmp.insert(rec);
-	    tmp.first();
-        if(filter(tmp))
-        {
-            rs.insert(*tmp.begin());
-        }
+    ShrRecord rec(2);
+    rec[0] = this->m_dbc.getCurrentCatalog();
+    //rec[1] = String("DEFAULT");
+    //rec[2] = rawRes.column("REMARKS");
+    tmp.open();
+    tmp.insert(rec);
+    tmp.first();
+    if(filter(tmp))
+    {
+        rs.insert(*tmp.begin());
+    }
 
-	return rs;
+    return rs;
 }
 
 
 
 static MetadataColumnDescriptor schemaDescs[] = {
-	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+    { "CATALOG_NAME",   DAL_TYPE_STRING, 0, true },
+    { "SCHEMA_NAME",    DAL_TYPE_STRING, 0, true },
+    { "COMMENT",        DAL_TYPE_STRING, 0, true }
 };
 
 
 RecordSet
-SDIMetadata::getSchemas(const DatasetFilter &filter, const String &catalog)
-{	
-	RecordSet rs;
-	rs.setColumnCount(3);
+SDIMetadata::getSchemas(const Variant &catalog,
+                        const Variant &schema,
+                        const ObjectClass system,
+                        const DatasetFilter &filter)
+{   
+    RecordSet rs;
+    rs.setColumnCount(3);
 
-	assert(sizeof(schemaDescs) / sizeof(MetadataColumnDescriptor) == 3);
+    assert(sizeof(schemaDescs) / sizeof(MetadataColumnDescriptor) == 3);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(schemaDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(schemaDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(schemaDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(schemaDescs[i-1].nullable));
-		rs.setDatatype(i, schemaDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(schemaDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(schemaDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(schemaDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(schemaDescs[i-1].nullable));
+        rs.setDatatype(i, schemaDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-        ShrRecord rec(3);
-        rec[0] = this->m_dbc.getCurrentCatalog();
-        rec[1] = String("DEFAULT");
-        //rec[2] = rawRes.column("REMARKS");
-		tmp.open();
-        tmp.insert(rec);
-	    tmp.first();
-        if(filter(tmp))
-        {
-            rs.insert(*tmp.begin());
-        }
+    ShrRecord rec(3);
+    rec[0] = this->m_dbc.getCurrentCatalog();
+    rec[1] = String("DEFAULT");
+    //rec[2] = rawRes.column("REMARKS");
+    tmp.open();
+    tmp.insert(rec);
+    tmp.first();
+    if(filter(tmp))
+    {
+        rs.insert(*tmp.begin());
+    }
 
-	return rs;
+    return rs;
 }
 
 
 
 static MetadataColumnDescriptor tableDescs[] = {
-	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "TABLE_NAME",		DAL_TYPE_STRING, 0, false },
-	{ "TABLE_TYPE",     DAL_TYPE_STRING, 0, false },
-	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+    { "CATALOG_NAME",   DAL_TYPE_STRING, 0, true },
+    { "SCHEMA_NAME",    DAL_TYPE_STRING, 0, true },
+    { "TABLE_NAME",     DAL_TYPE_STRING, 0, false },
+    { "TABLE_TYPE",     DAL_TYPE_STRING, 0, false },
+    { "COMMENT",        DAL_TYPE_STRING, 0, true }
 };
 
 
 
 RecordSet
-SDIMetadata::getTables(const DatasetFilter &filter,
-		const String &catalog, 
-		const String &schema,
-		const String &type)
-{	
-	RecordSet rs;
-	rs.setColumnCount(5);
+SDIMetadata::getTables(const Variant &schema,
+                       const Variant &catalog,
+                       const Variant &table,
+                       const ObjectClass system,
+                       const DatasetFilter &filter)
+{   
+    RecordSet rs;
+    rs.setColumnCount(5);
 
-	assert(sizeof(tableDescs) / sizeof(MetadataColumnDescriptor) == 5);
+    assert(sizeof(tableDescs) / sizeof(MetadataColumnDescriptor) == 5);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(tableDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(tableDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(tableDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(tableDescs[i-1].nullable));
-		rs.setDatatype(i, tableDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(tableDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(tableDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(tableDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(tableDescs[i-1].nullable));
+        rs.setDatatype(i, tableDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-	std::shared_ptr<SDIStmt> rawStmt(this->m_dbc.newStatement());
+    std::shared_ptr<SDIStmt> rawStmt(this->m_dbc.newStatement());
     SDIDataProvider* dp = rawStmt->newProvider();
     dp->openObjects();
     assert(dp->isOpen());
-	IDataset &rawRes = *dp;
+    IDataset &rawRes = *dp;
 
-	const int columnsToCopy = 5;
+    const int columnsToCopy = 5;
 
-	for(rawRes.first(); !rawRes.eof(); rawRes.next())
-	{
-		std::cerr << "FOUND SDI TABLE" << std::endl;
+    for(rawRes.first(); !rawRes.eof(); rawRes.next())
+    {
+        std::cerr << "FOUND SDI TABLE" << std::endl;
         tmp.close();
         tmp.clear();
         tmp.open();
-		ShrRecord rec(5);
-		rec[0] = this->m_dbc.getCurrentCatalog();
-		rec[1] = String("DEFAULT");
-		rec[2] = rawRes.column("NAME");
-		rec[3] = String("TABLE");
-		tmp.insert(rec);
-	    tmp.first();
+        ShrRecord rec(5);
+        rec[0] = this->m_dbc.getCurrentCatalog();
+        rec[1] = String("DEFAULT");
+        rec[2] = rawRes.column("NAME");
+        rec[3] = String("TABLE");
+        tmp.insert(rec);
+        tmp.first();
         if(!tmp.eof() && filter(tmp))
         {
             rs.insert(*tmp.begin());
         }
-	}
-	std::cerr << "RETURN OBDC TABLE" << std::endl;
-	return rs;
+    }
+    std::cerr << "RETURN OBDC TABLE" << std::endl;
+    return rs;
 }
 
 
 
 static MetadataColumnDescriptor columnDescs[] = {
-	{ "CATALOG_NAME",	  DAL_TYPE_STRING,  0, true  },
-	{ "SCHEMA_NAME",	  DAL_TYPE_STRING,  0, true  },
-	{ "TABLE_NAME",		  DAL_TYPE_STRING,  0, true  },
-	{ "COLUMN_NAME",	  DAL_TYPE_STRING,  0, true  },
-	{ "COLUMN_TYPE",      DAL_TYPE_INT,     0, true  },
-	{ "TYPE_NAME",        DAL_TYPE_STRING,  0, true  },
-	{ "COLUMN_SIZE",      DAL_TYPE_INT,     0, true  },
-	{ "NULLABLE",         DAL_TYPE_BOOL,    0, true  },
-	{ "ORDINAL_POSITION", DAL_TYPE_INT,     0, true  },
-	{ "COMMENT",		  DAL_TYPE_STRING,  0, true  }
+    { "CATALOG_NAME",     DAL_TYPE_STRING,  0, true  },
+    { "SCHEMA_NAME",      DAL_TYPE_STRING,  0, true  },
+    { "TABLE_NAME",       DAL_TYPE_STRING,  0, true  },
+    { "COLUMN_NAME",      DAL_TYPE_STRING,  0, true  },
+    { "COLUMN_TYPE",      DAL_TYPE_INT,     0, true  },
+    { "TYPE_NAME",        DAL_TYPE_STRING,  0, true  },
+    { "COLUMN_SIZE",      DAL_TYPE_INT,     0, true  },
+    { "NULLABLE",         DAL_TYPE_BOOL,    0, true  },
+    { "ORDINAL_POSITION", DAL_TYPE_INT,     0, true  },
+    { "COMMENT",          DAL_TYPE_STRING,  0, true  }
 };
 
 
 RecordSet
-SDIMetadata::getColumns(const DatasetFilter &filter,
-		const String &catalog,
-		const String &schema,
-		const String &table)
-{	
-	RecordSet rs;
-	rs.setColumnCount(10);
+SDIMetadata::getColumns(const Variant &table,
+                        const Variant &schema,
+                        const Variant &catalog,
+                        const Variant &column,
+                        const ObjectClass system,
+                        const DatasetFilter &filter)
+{   
+    RecordSet rs;
+    rs.setColumnCount(10);
 
-	assert(sizeof(columnDescs) / sizeof(MetadataColumnDescriptor) == 10);
+    assert(sizeof(columnDescs) / sizeof(MetadataColumnDescriptor) == 10);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(columnDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(columnDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(columnDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(columnDescs[i-1].nullable));
-		rs.setDatatype(i, columnDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(columnDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(columnDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(columnDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(columnDescs[i-1].nullable));
+        rs.setDatatype(i, columnDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
@@ -265,52 +273,52 @@ SDIMetadata::getColumns(const DatasetFilter &filter,
 
 
 
-	RecordSet tables = this->getTables();
-   for(tables.first(); !tables.eof(); tables.next())
-   {
-		if(!table.empty())
-		{
-			//std::cerr << "TABFILTER: \"" << tables.column("TABLE_NAME").asStr().utf8() << "\"/\"" << table.utf8() << "\"" << std::endl;
-			if(std::wstring(tables.column("TABLE_NAME").asStr()) != std::wstring(table))
-				continue;
-		}
-
-
-	std::shared_ptr<SDIStmt> rawStmt(this->m_dbc.newStatement());
-    SDIDataProvider* dp = rawStmt->newProvider();
-    dp->openColumns(String(), String(), tables.column("TABLE_NAME").asStr());
-    assert(dp->isOpen());
-	IDataset &rawRes = *dp;
-
-
-	for(rawRes.first(); !rawRes.eof(); rawRes.next())
-	{
-        tmp.close();
-        tmp.clear();
-        tmp.open();
-        ShrRecord rec(10);
-		rec[0] = this->m_dbc.getCurrentCatalog();
-        rec[1] = String("DEFAULT");
-        rec[2] = tables.column("TABLE_NAME");
-        rec[3] = rawRes.column("NAME");
-        //rec[4] = rawRes.column("COLUMN_TYPE");
-        //rec[5] = rawRes.column("type");
-        //rec[6] = rawRes.column("COLUMN_SIZE");
-        //rec[7] = rawRes.column("NULLABLE");
-        //rec[8] = rawRes.column("ORDINAL_POSITION");
-        //rec[9] = rawRes.column("REMARKS");
-        //tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
-        tmp.insert(rec);
-	    tmp.first();
-        if(!tmp.eof() && filter(tmp))
+    RecordSet tables = this->getTables();
+    for(tables.first(); !tables.eof(); tables.next())
+    {
+        if(!table.isnull())
         {
-		
-			rs.insert(*tmp.begin());
-			skipit:;
+            //std::cerr << "TABFILTER: \"" << tables.column("TABLE_NAME").asStr().utf8() << "\"/\"" << table.utf8() << "\"" << std::endl;
+            if(std::wstring(tables.column("TABLE_NAME").asStr()) != std::wstring(table.get<String>()))
+                continue;
         }
-	}
-	}
-	return rs;
+
+
+        std::shared_ptr<SDIStmt> rawStmt(this->m_dbc.newStatement());
+        SDIDataProvider* dp = rawStmt->newProvider();
+        dp->openColumns(String(), String(), tables.column("TABLE_NAME").asStr());
+        assert(dp->isOpen());
+        IDataset &rawRes = *dp;
+
+
+        for(rawRes.first(); !rawRes.eof(); rawRes.next())
+        {
+            tmp.close();
+            tmp.clear();
+            tmp.open();
+            ShrRecord rec(10);
+            rec[0] = this->m_dbc.getCurrentCatalog();
+            rec[1] = String("DEFAULT");
+            rec[2] = tables.column("TABLE_NAME");
+            rec[3] = rawRes.column("NAME");
+            //rec[4] = rawRes.column("COLUMN_TYPE");
+            //rec[5] = rawRes.column("type");
+            //rec[6] = rawRes.column("COLUMN_SIZE");
+            //rec[7] = rawRes.column("NULLABLE");
+            //rec[8] = rawRes.column("ORDINAL_POSITION");
+            //rec[9] = rawRes.column("REMARKS");
+            //tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
+            tmp.insert(rec);
+            tmp.first();
+            if(!tmp.eof() && filter(tmp))
+            {
+        
+                rs.insert(*tmp.begin());
+            skipit:;
+            }
+        }
+    }
+    return rs;
 }
 
 
@@ -414,16 +422,16 @@ sv_accessor<SDIData*>::cast(TDate*, std::locale loc) const
 {
     return TDate(this->cast((String*)0, loc));
 /*
-    String s = this->asStr(std::locale("C"));
-    try
-    {
-        int a = Variant(s).get<int>();
-        return TDate(TTimestamp(a));
-    }
-    catch(ex::convert_error &)
-    {
-        return TDate(s);
-    }
+  String s = this->asStr(std::locale("C"));
+  try
+  {
+  int a = Variant(s).get<int>();
+  return TDate(TTimestamp(a));
+  }
+  catch(ex::convert_error &)
+  {
+  return TDate(s);
+  }
 */
 }
 
@@ -432,16 +440,16 @@ sv_accessor<SDIData*>::cast(TTime*, std::locale loc) const
 {
     return TTime(this->cast((String*)0, loc));
 /*
-    String s = this->asStr(std::locale("C"));
-    try
-    {
-        int a = Variant(s).get<int>();
-        return TTime(TTimestamp(a));
-    }
-    catch(ex::convert_error &)
-    {
-        return TTime(std::string(s));
-    }
+  String s = this->asStr(std::locale("C"));
+  try
+  {
+  int a = Variant(s).get<int>();
+  return TTime(TTimestamp(a));
+  }
+  catch(ex::convert_error &)
+  {
+  return TTime(std::string(s));
+  }
 */
 }
 
@@ -451,16 +459,16 @@ sv_accessor<SDIData*>::cast(TTimestamp*, std::locale loc) const
 {
     return TTimestamp(this->cast((String*)0, loc));
 /*
-    String s = this->asStr(std::locale("C"));
-    try
-    {
-        int a = Variant(s).get<int>();
-        return TTimestamp(a);
-    }
-    catch(ex::convert_error &)
-    {
-        return TTimestamp(std::string(s));
-    }
+  String s = this->asStr(std::locale("C"));
+  try
+  {
+  int a = Variant(s).get<int>();
+  return TTimestamp(a);
+  }
+  catch(ex::convert_error &)
+  {
+  return TTimestamp(std::string(s));
+  }
 */
 }
 
@@ -502,7 +510,7 @@ sv_accessor<SDIData*>::cast(String*, std::locale loc) const
 
     case DAL_TYPE_BLOB:
         return Variant(Blob(this->get_value()->getBlob())).asStr(loc);
-	case DAL_TYPE_MEMO:
+    case DAL_TYPE_MEMO:
         return Memo(this->get_value()->getMemo()).str();
 
     default:
@@ -528,11 +536,11 @@ sv_accessor<SDIData*>::datatype() const
 /*
 
 
-void
-variant_assign<SDIData*>::set_new_value(SDIData*& dest, const Variant &src)
-{
-    throw ex::read_only("SDIData", DBWTL_MACRO_SRCPOS);
-}
+  void
+  variant_assign<SDIData*>::set_new_value(SDIData*& dest, const Variant &src)
+  {
+  throw ex::read_only("SDIData", DBWTL_MACRO_SRCPOS);
+  }
 */
 
 
@@ -1167,8 +1175,8 @@ SDIDbc::getDatatypes(const IDatatypeFilter& filter)
 //
 void
 SDIDbc::beginTrans(trx_mode mode,
-                      access_mode access,
-                      String name)
+                   access_mode access,
+                   String name)
 {
     std::string s_cmd("BEGIN TRANSACTION ");
     this->directCmd(s_cmd);
@@ -1244,7 +1252,7 @@ SDIDbc::directCmd(String cmd)
 
 //
 SDIEnv::SDIEnv(void) : EnvBase(),
-                             m_diag()
+                       m_diag()
 { }
 
 
@@ -1372,8 +1380,8 @@ SDIDiag::SDIDiag(const SDIDiag& ref)
 
 
 
-#define DAL_THROW_STATE(state)                          \
-    case sdi_sqlstates::DAL_SDI_SQLSTATE_##state: \
+#define DAL_THROW_STATE(state)                      \
+    case sdi_sqlstates::DAL_SDI_SQLSTATE_##state:   \
     throw sdi::STATES::SQLSTATE_##state(*this)
 
 //

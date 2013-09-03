@@ -922,17 +922,26 @@ public:
 	OdbcMetadata(OdbcDbc &dbc) : IMetadata(), m_dbc(dbc)
 	{}
 
-	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter());
-	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String());
-	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String(), 
-		const String &schema = String(),
-		const String &type = String());
-	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String(),
-		const String &schema = String(),
-		const String &table = String());
+
+        virtual RecordSet getCatalogs(const Variant &catalog = Variant(),
+                const IMetadata::ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+        virtual RecordSet getSchemas(const Variant &catalog = Variant(),
+                const Variant &schema = Variant(),
+                const ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+        virtual RecordSet getTables(const Variant &schema = Variant(),
+                const Variant &catalog = Variant(),
+                const Variant &table = Variant(),
+                const IMetadata::ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+        virtual RecordSet getColumns(const Variant &table = Variant(),
+                const Variant &schema = Variant(),
+                const Variant &catalog = Variant(),
+                const Variant &column = Variant(),
+                const IMetadata::ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+
 
 	virtual ~OdbcMetadata(void)
 	{}
@@ -1041,11 +1050,11 @@ public:
     virtual OdbcMetadata* newMetadata(void);
 
     virtual OdbcStmt*      getOdbcCatalogs(void) = 0;
-    virtual OdbcStmt*      getOdbcSchemas(const String &catalog) = 0;
-    virtual OdbcStmt*      getOdbcTables(const String &catalog, const String &schema, const String &type) = 0;
-    virtual OdbcStmt*      getOdbcColumns(const String &catalog, const String &schema, const String &table) = 0;
+    virtual OdbcStmt*      getOdbcSchemas(const Variant &catalog) = 0;
+    virtual OdbcStmt*      getOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type) = 0;
+    virtual OdbcStmt*      getOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table) = 0;
 
-    virtual String         getCurrentCatalog(void) = 0;
+    virtual Variant        getCurrentCatalog(void) = 0;
 
     virtual TableList      getTables(const ITableFilter& = EmptyTableFilter());
     virtual ViewList       getViews(const IViewFilter& = EmptyViewFilter());

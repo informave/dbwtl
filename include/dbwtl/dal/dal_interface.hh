@@ -578,21 +578,36 @@ public:
         METADATA_FILTER_OUTPUT
     } FilterDirection;
     */
+
+    typedef enum
+    {
+    	META_OBJECT_CLASS_SYSTEM,
+	META_OBJECT_CLASS_USER,
+	META_OBJECT_CLASS_ALL
+    } ObjectClass;
+
 	typedef utils::SmartPtr<IMetadata, utils::RefCounted, utils::AllowConversion> ptr;
 
 	virtual ~IMetadata(void) {}
 
-	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter()) = 0;
-	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String()) = 0;
-	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String(), 
-		const String &schema = String(),
-		const String &type = String()) = 0;
-	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String(),
-		const String &schema = String(),
-		const String &table = String()) = 0;
+	virtual RecordSet getCatalogs(const Variant &catalog = Variant(),
+		const ObjectClass system = META_OBJECT_CLASS_USER,
+		const DatasetFilter &filter = NoFilter()) = 0;
+	virtual RecordSet getSchemas(const Variant &catalog = Variant(),
+		const Variant &schema = Variant(),
+		const ObjectClass system = META_OBJECT_CLASS_USER,
+		const DatasetFilter &filter = NoFilter()) = 0;
+	virtual RecordSet getTables(const Variant &schema = Variant(),
+		const Variant &catalog = Variant(),
+		const Variant &table = Variant(),
+		const ObjectClass system = META_OBJECT_CLASS_USER,
+		const DatasetFilter &filter = NoFilter()) = 0;
+	virtual RecordSet getColumns(const Variant &table = Variant(),
+		const Variant &schema = Variant(),
+		const Variant &catalog = Variant(),
+		const Variant &column = Variant(),
+		const ObjectClass system = META_OBJECT_CLASS_USER,
+		const DatasetFilter &filter = NoFilter()) = 0;
 
 };
 
@@ -1090,7 +1105,7 @@ public:
     virtual IndexList      getIndices(const IIndexFilter& = EmptyIndexFilter()) = 0;
     //virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
 
-    virtual String         getCurrentCatalog(void) { return "DBNAME-FIXME"; } /// @bug implement for all
+    virtual Variant        getCurrentCatalog(void) { return String("DBNAME-FIXME"); } /// @bug implement for all
 
 protected:
     virtual void           setDbcEncoding(std::string encoding) = 0;

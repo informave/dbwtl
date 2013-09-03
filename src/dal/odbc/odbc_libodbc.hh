@@ -606,9 +606,9 @@ public:
 
 	// exttensions
 	virtual void openOdbcCatalogs(void);
-	virtual void openOdbcSchemas(const String &catalog);
-	virtual void openOdbcTables(const String &catalog, const String &schema, const String &type);
-	virtual void openOdbcColumns(const String &catalog, const String &schema, const String &table);
+	virtual void openOdbcSchemas(const Variant &catalog);
+	virtual void openOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type);
+	virtual void openOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table);
 protected:
     OdbcResult_libodbc* newResultset(void);
 
@@ -673,11 +673,11 @@ public:
     virtual const OdbcEnv_libodbc& getEnv(void) const { return this->m_env; }
 
     virtual OdbcStmt*      getOdbcCatalogs(void);
-    virtual OdbcStmt*      getOdbcSchemas(const String &catalog);
-    virtual OdbcStmt*      getOdbcTables(const String &catalog, const String &schema, const String &type);
-    virtual OdbcStmt*      getOdbcColumns(const String &catalog, const String &schema, const String &table);
+    virtual OdbcStmt*      getOdbcSchemas(const Variant &catalog);
+    virtual OdbcStmt*      getOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type);
+    virtual OdbcStmt*      getOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table);
 
-    virtual String         getCurrentCatalog(void);
+    virtual Variant        getCurrentCatalog(void);
 
 protected:
     virtual void           setDbcEncoding(std::string encoding);

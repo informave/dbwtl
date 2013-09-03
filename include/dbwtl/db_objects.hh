@@ -527,7 +527,7 @@ public:
 
     virtual dal_dbc_type*           getImpl(void)   { return this->m_dbc.get(); }
 
-	virtual String         getCurrentCatalog(void) { return this->m_dbc->getCurrentCatalog(); }
+	virtual Variant         getCurrentCatalog(void) { return this->m_dbc->getCurrentCatalog(); }
 
 protected:
     virtual void           setDbcEncoding(std::string encoding)
@@ -1270,10 +1270,28 @@ public:
     }
 
 
-    virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter()) { return getImpl()->getCatalogs(filter); }
-    virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(), const String &catalog = String()) { return getImpl()->getSchemas(filter, catalog); }
-    virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(), const String &catalog = String(), const String &schema = String(), const String &type = String()) { return getImpl()->getTables(filter, catalog, schema, type); }
-    virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(), const String &catalog = String(), const String &schema = String(), const String &table = String()) { return getImpl()->getColumns(filter, catalog, schema, table); }
+    virtual RecordSet getCatalogs(const Variant &catalog = Variant(),
+                    const IMetadata::ObjectClass system = IMetadata::META_OBJECT_CLASS_USER,
+		                    const DatasetFilter &filter = NoFilter())
+    { return getImpl()->getCatalogs(catalog, system, filter); }
+    virtual RecordSet getSchemas(const Variant &catalog = Variant(),
+                    const Variant &schema = Variant(),
+		                    const IMetadata::ObjectClass system = IMetadata::META_OBJECT_CLASS_USER,
+				                    const DatasetFilter &filter = NoFilter())
+    { return getImpl()->getSchemas(catalog, schema, system, filter); }
+    virtual RecordSet getTables(const Variant &schema = Variant(),
+                    const Variant &catalog = Variant(),
+		                    const Variant &table = Variant(),
+				                    const IMetadata::ObjectClass system = IMetadata::META_OBJECT_CLASS_USER,
+						                    const DatasetFilter &filter = NoFilter())
+    { return getImpl()->getTables(schema, catalog, table, system, filter); }
+    virtual RecordSet getColumns(const Variant &table = Variant(),
+                    const Variant &schema = Variant(),
+		                    const Variant &catalog = Variant(),
+				                    const Variant &column = Variant(),
+						                    const IMetadata::ObjectClass system = IMetadata::META_OBJECT_CLASS_USER,
+								                    const DatasetFilter &filter = NoFilter())
+    { return getImpl()->getColumns(table, schema, catalog, column, system, filter); }
 
 
     virtual dal_metadata_type*          getImpl(void)               { return this->m_metadata.get(); }

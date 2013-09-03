@@ -66,46 +66,46 @@ sv_accessor<OdbcData*>::cast(signed char*, std::locale loc) const
 
     typedef signed char output_type;
 /*
-    if(this->get_value()->daltype() == DAL_TYPE_TINYINT)
-        return this->get_value()->getSTinyint();
-    else if(this->get_value()->daltype() == DAL_TYPE_UTINYINT)
-        return this->get_value()->getUTinyint();
-    else
-        return this->deepcopy().get<output_type>();
-    {
-        
-    }
+  if(this->get_value()->daltype() == DAL_TYPE_TINYINT)
+  return this->get_value()->getSTinyint();
+  else if(this->get_value()->daltype() == DAL_TYPE_UTINYINT)
+  return this->get_value()->getUTinyint();
+  else
+  return this->deepcopy().get<output_type>();
+  {
+
+  }
 */
 
     return Variant(this->deepcopy()).get<int>();
 /*
-    switch(this->get_value()->daltype())
-    {
-    case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
-    case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
-    case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
-    case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
-    case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
-    case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
-    case DAL_TYPE_BOOL:
-        return this->get_value()->getBit();
-    case DAL_TYPE_FLOAT:
-        return this->get_value()->getFloat();
-    case DAL_TYPE_DOUBLE:
-        return this->get_value()->getDouble();
-    case DAL_TYPE_NUMERIC:
-        return Variant(this->get_value()->getNumeric()).get<output_type>();
-    case DAL_TYPE_STRING:
-        return Variant(this->get_value()->getString()).get<output_type>();
-    default:
-        DBWTL_BUG();
-    }
+  switch(this->get_value()->daltype())
+  {
+  case DAL_TYPE_INT:
+  return this->get_value()->getSLong();
+  case DAL_TYPE_UINT:
+  return this->get_value()->getULong();
+  case DAL_TYPE_SMALLINT:
+  return this->get_value()->getSShort();
+  case DAL_TYPE_USMALLINT:
+  return this->get_value()->getUShort();
+  case DAL_TYPE_BIGINT:
+  return this->get_value()->getSBigint();
+  case DAL_TYPE_UBIGINT:
+  return this->get_value()->getUBigint();
+  case DAL_TYPE_BOOL:
+  return this->get_value()->getBit();
+  case DAL_TYPE_FLOAT:
+  return this->get_value()->getFloat();
+  case DAL_TYPE_DOUBLE:
+  return this->get_value()->getDouble();
+  case DAL_TYPE_NUMERIC:
+  return Variant(this->get_value()->getNumeric()).get<output_type>();
+  case DAL_TYPE_STRING:
+  return Variant(this->get_value()->getString()).get<output_type>();
+  default:
+  DBWTL_BUG();
+  }
 */
 }
 
@@ -114,34 +114,34 @@ sv_accessor<OdbcData*>::cast(unsigned char*, std::locale loc) const
 {
     DBWTL_NOTIMPL();
 /*
-    typedef signed char output_type;
-    switch(this->get_value()->daltype())
-    {
-    case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
-    case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
-    case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
-    case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
-    case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
-    case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
-    case DAL_TYPE_BOOL:
-        return this->get_value()->getBit();
-    case DAL_TYPE_FLOAT:
-        return this->get_value()->getFloat();
-    case DAL_TYPE_DOUBLE:
-        return this->get_value()->getDouble();
-    case DAL_TYPE_NUMERIC:
-        return Variant(this->get_value()->getNumeric()).get<output_type>();
-    case DAL_TYPE_STRING:
-        return Variant(this->get_value()->getString()).get<output_type>();
-    default:
-        DBWTL_BUG();
-    }
+  typedef signed char output_type;
+  switch(this->get_value()->daltype())
+  {
+  case DAL_TYPE_INT:
+  return this->get_value()->getSLong();
+  case DAL_TYPE_UINT:
+  return this->get_value()->getULong();
+  case DAL_TYPE_SMALLINT:
+  return this->get_value()->getSShort();
+  case DAL_TYPE_USMALLINT:
+  return this->get_value()->getUShort();
+  case DAL_TYPE_BIGINT:
+  return this->get_value()->getSBigint();
+  case DAL_TYPE_UBIGINT:
+  return this->get_value()->getUBigint();
+  case DAL_TYPE_BOOL:
+  return this->get_value()->getBit();
+  case DAL_TYPE_FLOAT:
+  return this->get_value()->getFloat();
+  case DAL_TYPE_DOUBLE:
+  return this->get_value()->getDouble();
+  case DAL_TYPE_NUMERIC:
+  return Variant(this->get_value()->getNumeric()).get<output_type>();
+  case DAL_TYPE_STRING:
+  return Variant(this->get_value()->getString()).get<output_type>();
+  default:
+  DBWTL_BUG();
+  }
 */
 }
 
@@ -152,17 +152,17 @@ sv_accessor<OdbcData*>::cast(signed int*, std::locale loc) const
     switch(this->get_value()->daltype())
     {
     case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
+        return this->get_value()->getSLong();
     case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
+        return this->get_value()->getULong();
     case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
+        return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
+        return this->get_value()->getUShort();
     case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
+        return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
+        return this->get_value()->getUBigint();
     case DAL_TYPE_BOOL:
         return this->get_value()->getBit();
     case DAL_TYPE_FLOAT:
@@ -186,17 +186,17 @@ sv_accessor<OdbcData*>::cast(signed short*, std::locale loc) const
     switch(this->get_value()->daltype())
     {
     case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
+        return this->get_value()->getSLong();
     case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
+        return this->get_value()->getULong();
     case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
+        return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
+        return this->get_value()->getUShort();
     case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
+        return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
+        return this->get_value()->getUBigint();
     case DAL_TYPE_BOOL:
         return this->get_value()->getBit();
     case DAL_TYPE_FLOAT:
@@ -219,17 +219,17 @@ sv_accessor<OdbcData*>::cast(signed long long*, std::locale loc) const
     switch(this->get_value()->daltype())
     {
     case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
+        return this->get_value()->getSLong();
     case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
+        return this->get_value()->getULong();
     case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
+        return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
+        return this->get_value()->getUShort();
     case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
+        return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
+        return this->get_value()->getUBigint();
     case DAL_TYPE_BOOL:
         return this->get_value()->getBit();
     case DAL_TYPE_FLOAT:
@@ -252,17 +252,17 @@ sv_accessor<OdbcData*>::cast(unsigned int*, std::locale loc) const
     switch(this->get_value()->daltype())
     {
     case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
+        return this->get_value()->getSLong();
     case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
+        return this->get_value()->getULong();
     case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
+        return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
+        return this->get_value()->getUShort();
     case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
+        return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
+        return this->get_value()->getUBigint();
     case DAL_TYPE_BOOL:
         return this->get_value()->getBit();
     case DAL_TYPE_FLOAT:
@@ -285,17 +285,17 @@ sv_accessor<OdbcData*>::cast(unsigned short*, std::locale loc) const
     switch(this->get_value()->daltype())
     {
     case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
+        return this->get_value()->getSLong();
     case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
+        return this->get_value()->getULong();
     case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
+        return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
+        return this->get_value()->getUShort();
     case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
+        return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
+        return this->get_value()->getUBigint();
     case DAL_TYPE_BOOL:
         return this->get_value()->getBit();
     case DAL_TYPE_FLOAT:
@@ -318,17 +318,17 @@ sv_accessor<OdbcData*>::cast(unsigned long long*, std::locale loc) const
     switch(this->get_value()->daltype())
     {
     case DAL_TYPE_INT:
-        return this->get_value()->getSLong(); 
+        return this->get_value()->getSLong();
     case DAL_TYPE_UINT:
-        return this->get_value()->getULong(); 
+        return this->get_value()->getULong();
     case DAL_TYPE_SMALLINT:
-        return this->get_value()->getSShort(); 
+        return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
-        return this->get_value()->getUShort(); 
+        return this->get_value()->getUShort();
     case DAL_TYPE_BIGINT:
-        return this->get_value()->getSBigint(); 
+        return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
-        return this->get_value()->getUBigint(); 
+        return this->get_value()->getUBigint();
     case DAL_TYPE_BOOL:
         return this->get_value()->getBit();
     case DAL_TYPE_FLOAT:
@@ -354,7 +354,7 @@ sv_accessor<OdbcData*>::cast(float*, std::locale loc) const
         return this->get_value()->getFloat();
     case DAL_TYPE_DOUBLE:
         return this->get_value()->getDouble();
-    //case DAL_TYPE_NUMERIC:
+        //case DAL_TYPE_NUMERIC:
         //return this->get_value()->getNumeric();
     default:
         DBWTL_BUG();
@@ -617,7 +617,7 @@ OdbcData::do_deepcopy(const IVariantValue *owner) const
     {
     case DAL_TYPE_CUSTOM:     return new value_traits<String>::stored_type(tmp.get<String>());
     case DAL_TYPE_UNKNOWN:    return new value_traits<String>::stored_type(tmp.get<String>());
-    case DAL_TYPE_INT:        return new value_traits<signed int>::stored_type(tmp.get<signed int>());       
+    case DAL_TYPE_INT:        return new value_traits<signed int>::stored_type(tmp.get<signed int>());
     case DAL_TYPE_UINT:       return new value_traits<unsigned int>::stored_type(tmp.get<unsigned int>());
     case DAL_TYPE_CHAR:       return new value_traits<signed char>::stored_type(tmp.get<signed char>());
     case DAL_TYPE_UCHAR:      return new value_traits<unsigned char>::stored_type(tmp.get<unsigned char>());
@@ -732,7 +732,7 @@ OdbcTable::OdbcTable(String dbname, OdbcResult& src)
 }
 
 
- 
+
 ///
 ///
 OdbcTable::~OdbcTable(void)
@@ -805,7 +805,7 @@ OdbcIndex::OdbcIndex(String dbname, OdbcResult& src)
 }
 
 
- 
+
 ///
 ///
 OdbcIndex::~OdbcIndex(void)
@@ -883,7 +883,7 @@ OdbcView::OdbcView(String dbname, OdbcResult& src)
 }
 
 
- 
+
 ///
 ///
 OdbcView::~OdbcView(void)
@@ -950,7 +950,7 @@ OdbcCatalog::OdbcCatalog(String dbname)
 }
 
 
- 
+
 ///
 ///
 OdbcCatalog::~OdbcCatalog(void)
@@ -1013,45 +1013,47 @@ OdbcDatatype::~OdbcDatatype(void)
 OdbcMetadata*
 OdbcDbc::newMetadata(void)
 {
-	return new OdbcMetadata(*this); /// @bug
+    return new OdbcMetadata(*this); /// @bug
 }
 
 
 
 
 static MetadataColumnDescriptor catalogsDescs[] = {
-	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+    { "CATALOG_NAME",   DAL_TYPE_STRING, 0, true },
+    { "COMMENT",        DAL_TYPE_STRING, 0, true }
 };
 
 #define METADATA_DESC_COUNT(descs) (sizeof(descs)/sizeof(MetadataColumnDescriptor))
 
 RecordSet
-OdbcMetadata::getCatalogs(const DatasetFilter &filter)
-{	
-	RecordSet rs;
-	rs.setColumnCount(2);
+OdbcMetadata::getCatalogs(const Variant &catalog,
+                          const ObjectClass system,
+                          const DatasetFilter &filter)
+{
+    RecordSet rs;
+    rs.setColumnCount(2);
 
-	assert(sizeof(catalogsDescs) / sizeof(MetadataColumnDescriptor) == 2);
+    assert(sizeof(catalogsDescs) / sizeof(MetadataColumnDescriptor) == 2);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(catalogsDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(catalogsDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(catalogsDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(catalogsDescs[i-1].nullable));
-		rs.setDatatype(i, catalogsDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(catalogsDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(catalogsDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(catalogsDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(catalogsDescs[i-1].nullable));
+        rs.setDatatype(i, catalogsDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcCatalogs());
-	IResult &rawRes = rawStmt->resultset();
+    std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcCatalogs());
+    IResult &rawRes = rawStmt->resultset();
 
 
-	for(rawRes.first(); !rawRes.eof(); rawRes.next())
-	{
+    for(rawRes.first(); !rawRes.eof(); rawRes.next())
+    {
         std::cout << "read cat data" << std::endl;
         tmp.close();
         tmp.clear();
@@ -1060,50 +1062,73 @@ OdbcMetadata::getCatalogs(const DatasetFilter &filter)
         rec[0] = rawRes.column("TABLE_CAT");
         //rec[1] = rawRes.column("");
         tmp.insert(rec);
-	    tmp.first();
+        tmp.first();
         if(filter(tmp))
         {
             rs.insert(*tmp.begin());
         }
-	}
-	return rs;
+    }
+    return rs;
 }
 
 
 
 static MetadataColumnDescriptor schemaDescs[] = {
-	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+    { "CATALOG_NAME",   DAL_TYPE_STRING, 0, true },
+    { "SCHEMA_NAME",    DAL_TYPE_STRING, 0, true },
+    { "COMMENT",        DAL_TYPE_STRING, 0, true }
 };
 
 
 RecordSet
-OdbcMetadata::getSchemas(const DatasetFilter &filter, const String &catalog)
-{	
-	RecordSet rs;
-	rs.setColumnCount(3);
+OdbcMetadata::getSchemas(const Variant &catalog,
+                         const Variant &schema,
+                         const ObjectClass system,
+                         const DatasetFilter &filter)
+{
+    RecordSet rs;
+    rs.setColumnCount(3);
 
-	assert(sizeof(schemaDescs) / sizeof(MetadataColumnDescriptor) == 3);
+    assert(sizeof(schemaDescs) / sizeof(MetadataColumnDescriptor) == 3);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(schemaDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(schemaDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(schemaDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(schemaDescs[i-1].nullable));
-		rs.setDatatype(i, schemaDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(schemaDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(schemaDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(schemaDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(schemaDescs[i-1].nullable));
+        rs.setDatatype(i, schemaDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcSchemas(catalog));
-	IResult &rawRes = rawStmt->resultset();
+
+    OdbcStmt::ptr rawStmt;
 
 
-	for(rawRes.first(); !rawRes.eof(); rawRes.next())
-	{
+    try
+    {
+        rawStmt.reset(this->m_dbc.getOdbcSchemas(catalog));
+
+    }
+    catch(odbc::STATES::SQLSTATE_HYC00 &)
+    {
+        tmp.open();
+        ShrRecord rec(3);
+        rec[0] = this->m_dbc.getCurrentCatalog();
+        rec[1] = Variant();
+        rec[2] = String("NULL schema, driver did not support SCHEMA");
+        tmp.insert(rec);
+        tmp.first();
+        if(filter(tmp)) rs.insert(*tmp.begin());
+        return rs;
+    }
+
+    IResult &rawRes = rawStmt->resultset();
+
+    for(rawRes.first(); !rawRes.eof(); rawRes.next())
+    {
         tmp.close();
         tmp.clear();
         tmp.open();
@@ -1112,117 +1137,120 @@ OdbcMetadata::getSchemas(const DatasetFilter &filter, const String &catalog)
         rec[1] = rawRes.column("TABLE_SCHEM");
         rec[2] = rawRes.column("REMARKS");
         tmp.insert(rec);
-	    tmp.first();
+        tmp.first();
         if(filter(tmp))
         {
             rs.insert(*tmp.begin());
         }
-	}
-	return rs;
+    }
+    return rs;
 }
 
 
 
 static MetadataColumnDescriptor tableDescs[] = {
-	{ "CATALOG_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "SCHEMA_NAME",	DAL_TYPE_STRING, 0, true },
-	{ "TABLE_NAME",		DAL_TYPE_STRING, 0, false },
-	{ "TABLE_TYPE",     DAL_TYPE_STRING, 0, false },
-	{ "COMMENT",		DAL_TYPE_STRING, 0, true }
+    { "CATALOG_NAME",   DAL_TYPE_STRING, 0, true },
+    { "SCHEMA_NAME",    DAL_TYPE_STRING, 0, true },
+    { "TABLE_NAME",     DAL_TYPE_STRING, 0, false },
+    { "TABLE_TYPE",     DAL_TYPE_STRING, 0, false },
+    { "COMMENT",        DAL_TYPE_STRING, 0, true }
 };
 
 
 
 RecordSet
-OdbcMetadata::getTables(const DatasetFilter &filter,
-		const String &catalog, 
-		const String &schema,
-		const String &type)
-{	
-	RecordSet rs;
-	rs.setColumnCount(5);
+OdbcMetadata::getTables(const Variant &schema,
+                        const Variant &catalog,
+                        const Variant &table,
+                        const ObjectClass system,
+                        const DatasetFilter &filter)
+{
+    RecordSet rs;
+    rs.setColumnCount(5);
 
-	assert(sizeof(tableDescs) / sizeof(MetadataColumnDescriptor) == 5);
+    assert(sizeof(tableDescs) / sizeof(MetadataColumnDescriptor) == 5);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(tableDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(tableDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(tableDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(tableDescs[i-1].nullable));
-		rs.setDatatype(i, tableDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(tableDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(tableDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(tableDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(tableDescs[i-1].nullable));
+        rs.setDatatype(i, tableDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcTables(catalog, schema, type));
-	IResult &rawRes = rawStmt->resultset();
+    std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcTables(catalog, schema, Variant()));
+    IResult &rawRes = rawStmt->resultset();
 
-	const int columnsToCopy = 5;
+    const int columnsToCopy = 5;
 
-	for(rawRes.first(); !rawRes.eof(); rawRes.next())
-	{
-		std::cerr << "FOUND OBDC TABLE" << std::endl;
+    for(rawRes.first(); !rawRes.eof(); rawRes.next())
+    {
+        std::cerr << "FOUND OBDC TABLE" << std::endl;
         tmp.close();
         tmp.clear();
         tmp.open();
         tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
-	    tmp.first();
+        tmp.first();
         if(filter(tmp))
         {
             rs.insert(*tmp.begin());
         }
-	}
-	std::cerr << "RETURN OBDC TABLE" << std::endl;
-	return rs;
+    }
+    std::cerr << "RETURN OBDC TABLE" << std::endl;
+    return rs;
 }
 
 
 
 static MetadataColumnDescriptor columnDescs[] = {
-	{ "CATALOG_NAME",	  DAL_TYPE_STRING,  0, true  },
-	{ "SCHEMA_NAME",	  DAL_TYPE_STRING,  0, true  },
-	{ "TABLE_NAME",		  DAL_TYPE_STRING,  0, true  },
-	{ "COLUMN_NAME",	  DAL_TYPE_STRING,  0, true  },
-	{ "COLUMN_TYPE",      DAL_TYPE_INT,     0, true  },
-	{ "TYPE_NAME",        DAL_TYPE_STRING,  0, true  },
-	{ "COLUMN_SIZE",      DAL_TYPE_INT,     0, true  },
-	{ "NULLABLE",         DAL_TYPE_BOOL,    0, true  },
-	{ "ORDINAL_POSITION", DAL_TYPE_INT,     0, true  },
-	{ "COMMENT",		  DAL_TYPE_STRING,  0, true  }
+    { "CATALOG_NAME",     DAL_TYPE_STRING,  0, true  },
+    { "SCHEMA_NAME",      DAL_TYPE_STRING,  0, true  },
+    { "TABLE_NAME",       DAL_TYPE_STRING,  0, true  },
+    { "COLUMN_NAME",      DAL_TYPE_STRING,  0, true  },
+    { "COLUMN_TYPE",      DAL_TYPE_INT,     0, true  },
+    { "TYPE_NAME",        DAL_TYPE_STRING,  0, true  },
+    { "COLUMN_SIZE",      DAL_TYPE_INT,     0, true  },
+    { "NULLABLE",         DAL_TYPE_BOOL,    0, true  },
+    { "ORDINAL_POSITION", DAL_TYPE_INT,     0, true  },
+    { "COMMENT",          DAL_TYPE_STRING,  0, true  }
 };
 
 
 RecordSet
-OdbcMetadata::getColumns(const DatasetFilter &filter,
-		const String &catalog,
-		const String &schema,
-		const String &table)
-{	
-	RecordSet rs;
-	rs.setColumnCount(10);
+OdbcMetadata::getColumns(const Variant &table,
+                         const Variant &schema,
+                         const Variant &catalog,
+                         const Variant &column,
+                         const ObjectClass system,
+                         const DatasetFilter &filter)
+{
+    RecordSet rs;
+    rs.setColumnCount(10);
 
-	assert(sizeof(columnDescs) / sizeof(MetadataColumnDescriptor) == 10);
+    assert(sizeof(columnDescs) / sizeof(MetadataColumnDescriptor) == 10);
 
-	for(size_t i = 1; i <= METADATA_DESC_COUNT(columnDescs); ++i)
-	{
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(columnDescs[i-1].name));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(columnDescs[i-1].size));
-		rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(columnDescs[i-1].nullable));
-		rs.setDatatype(i, columnDescs[i-1].daltype);
-	}
+    for(size_t i = 1; i <= METADATA_DESC_COUNT(columnDescs); ++i)
+    {
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_NAME, String(columnDescs[i-1].name));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_SIZE, int(columnDescs[i-1].size));
+        rs.modifyColumnDesc(i, DBWTL_COLUMNDESC_IS_NULLABLE, bool(columnDescs[i-1].nullable));
+        rs.setDatatype(i, columnDescs[i-1].daltype);
+    }
 
     RecordSet tmp(rs);
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-	std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcColumns(catalog, schema, table));
-	IResult &rawRes = rawStmt->resultset();
+    std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcColumns(catalog, schema, table));
+    IResult &rawRes = rawStmt->resultset();
 
 
-	for(rawRes.first(); !rawRes.eof(); rawRes.next())
-	{
+    for(rawRes.first(); !rawRes.eof(); rawRes.next())
+    {
         tmp.close();
         tmp.clear();
         tmp.open();
@@ -1239,13 +1267,13 @@ OdbcMetadata::getColumns(const DatasetFilter &filter,
         rec[9] = rawRes.column("REMARKS");
         //tmp.insert(ShrRecord(rawRes, std::mem_fun_ref(&IResult::columnByNumber), columnsToCopy));
         tmp.insert(rec);
-	    tmp.first();
+        tmp.first();
         if(filter(tmp))
         {
             rs.insert(*tmp.begin());
         }
-	}
-	return rs;
+    }
+    return rs;
 }
 
 
@@ -1258,11 +1286,11 @@ OdbcDbc::getTables(const ITableFilter&)
     OdbcStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
-    
+
     for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
     {
         String::Internal dbname = dblist->resultset().column("name").asStr();
-        
+
         String::Internal sql_column_query =
             US(" SELECT name, sql, CASE WHEN name IN ('odbc_stat1', 'odbc_sequence') THEN 1 ELSE 0 END AS sys")
             US(" FROM ")+dbname+US(".odbc_master WHERE type = 'table'")
@@ -1284,7 +1312,7 @@ OdbcDbc::getTables(const ITableFilter&)
         {
             continue;
         }
-        
+
         for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
         {
             list.push_back(new OdbcTable(dbname, tables->resultset()));
@@ -1296,16 +1324,16 @@ OdbcDbc::getTables(const ITableFilter&)
         US(" SELECT name, sql, CASE WHEN name IN ('odbc_stat1', 'odbc_sequence') THEN 1 ELSE 0 END AS sys")
         US(" FROM odbc_temp_master")
         US(" WHERE type = 'table';");
-    
-    OdbcStmt::ptr tables(this->newStatement());        
+
+    OdbcStmt::ptr tables(this->newStatement());
     tables->prepare(sql_column_query);
     tables->execute();
-    
+
     for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
     {
         list.push_back(new OdbcTable("temp", tables->resultset()));
     }
-    
+
     return list;
 }
 
@@ -1321,11 +1349,11 @@ OdbcDbc::getIndices(const IIndexFilter&)
     dblist->execute();
 
 
-    
+
     for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
     {
         String::Internal dbname = dblist->resultset().column("name").asStr();
-        
+
         String::Internal sql_column_query =
             US(" SELECT name, tbl_name, sql, 0 AS sys")
             US(" FROM ")+dbname+US(".odbc_master WHERE type = 'index'");
@@ -1344,7 +1372,7 @@ OdbcDbc::getIndices(const IIndexFilter&)
         }
 
 
-        
+
         for(indices->resultset().first(); ! indices->resultset().eof(); indices->resultset().next())
         {
             list.push_back(new OdbcIndex(dbname, indices->resultset()));
@@ -1358,19 +1386,19 @@ OdbcDbc::getIndices(const IIndexFilter&)
         US(" SELECT name, tbl_name, sql, CASE WHEN name IN ('odbc_stat1', 'odbc_sequence') THEN 1 ELSE 0 END AS sys")
         US(" FROM odbc_temp_master")
         US(" WHERE type = 'index';");
-    
 
 
 
-    OdbcStmt::ptr indices(this->newStatement());        
+
+    OdbcStmt::ptr indices(this->newStatement());
     indices->prepare(sql_column_query);
     indices->execute();
-    
+
     for(indices->resultset().first(); ! indices->resultset().eof(); indices->resultset().next())
     {
         list.push_back(new OdbcIndex("temp", indices->resultset()));
     }
-    
+
     return list;
 }
 
@@ -1402,11 +1430,11 @@ OdbcDbc::getViews(const IViewFilter&)
     OdbcStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
-    
+
     for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
     {
         String::Internal dbname = dblist->resultset().column("name").asStr();
-        
+
         String::Internal sql_column_query =
             US(" SELECT name, sql, 0 AS sys")
             US(" FROM ")+dbname+US(".odbc_master WHERE type = 'view'");
@@ -1421,7 +1449,7 @@ OdbcDbc::getViews(const IViewFilter&)
         {
             continue;
         }
-        
+
         for(views->resultset().first(); ! views->resultset().eof(); views->resultset().next())
         {
             list.push_back(new OdbcView(dbname, views->resultset()));
@@ -1434,16 +1462,16 @@ OdbcDbc::getViews(const IViewFilter&)
   US(" SELECT name, sql, CASE WHEN name IN ('odbc_stat1', 'odbc_sequence') THEN 1 ELSE 0 END AS sys")
   US(" FROM odbc_temp_master")
   US(" WHERE type = 'view';");
-    
-  OdbcStmt::ptr tables(this->newStatement());        
+
+  OdbcStmt::ptr tables(this->newStatement());
   tables->prepare(sql_column_query);
   tables->execute();
-    
+
   for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
   {
   list.push_back(new OdbcTable("temp", tables->resultset()));
   }
-*/  
+*/
     return list;
 }
 
@@ -1456,7 +1484,7 @@ OdbcDbc::getCatalogs(const ICatalogFilter&)
     OdbcStmt::ptr dblist(this->newStatement());
     dblist->prepare("PRAGMA database_list");
     dblist->execute();
-    
+
     for(dblist->resultset().first(); ! dblist->resultset().eof(); dblist->resultset().next())
     {
         String::Internal dbname = dblist->resultset().column("name").asStr();
@@ -1470,16 +1498,16 @@ OdbcDbc::getCatalogs(const ICatalogFilter&)
   US(" SELECT name, sql, CASE WHEN name IN ('odbc_stat1', 'odbc_sequence') THEN 1 ELSE 0 END AS sys")
   US(" FROM odbc_temp_master")
   US(" WHERE type = 'view';");
-    
-  OdbcStmt::ptr tables(this->newStatement());        
+
+  OdbcStmt::ptr tables(this->newStatement());
   tables->prepare(sql_column_query);
   tables->execute();
-    
+
   for(tables->resultset().first(); ! tables->resultset().eof(); tables->resultset().next())
   {
   list.push_back(new OdbcTable("temp", tables->resultset()));
   }
-*/  
+*/
     return list;
 }
 
@@ -1492,7 +1520,7 @@ OdbcDbc::getDatatypes(const IDatatypeFilter& filter)
 {
     DatatypeList dtlist;
     OdbcDatatype *dt = 0;
-    
+
     dt = new OdbcDatatype();
     dt->m_name.set(String("BLOB"));
     dt->m_size.set<signed int>(-1);
@@ -1520,8 +1548,8 @@ OdbcDbc::getDatatypes(const IDatatypeFilter& filter)
     dt->m_literal_prefix.set(String("'"));
     dt->m_literal_suffix.set(String("'"));
     dtlist.push_back(dt);
-    
-   
+
+
     return dtlist;
 }
 
@@ -1534,13 +1562,13 @@ OdbcDbc::getDatatypes(const IDatatypeFilter& filter)
 void
 OdbcDbc::commit(Transaction trx)
 {
-	throw FeatureUnsuppException("ODBC has not support for transaction handles in commit()");
+    throw FeatureUnsuppException("ODBC has not support for transaction handles in commit()");
 }
 
 void
 OdbcDbc::rollback(Transaction trx)
 {
-	throw FeatureUnsuppException("ODBC has not support for transaction handles in rollback()");
+    throw FeatureUnsuppException("ODBC has not support for transaction handles in rollback()");
 }
 
 
@@ -1548,7 +1576,7 @@ OdbcDbc::rollback(Transaction trx)
 
 
 //
-void     
+void
 OdbcDbc::directCmd(String cmd)
 {
     OdbcStmt::ptr stmt(this->newStatement());
@@ -1587,7 +1615,7 @@ OdbcVariant::OdbcVariant(OdbcData* data)
 
 //
 OdbcVariant::~OdbcVariant(void)
-{ 
+{
     //this->m_storage->release_pointee();
     delete this->m_data;
 }
@@ -1608,7 +1636,7 @@ void OdbcVariant::refresh(void)
 
 void OdbcVariant::fetchParts(void)
 {
-	this->m_data->fetchParts();
+    this->m_data->fetchParts();
 }
 
 
@@ -1700,7 +1728,7 @@ odbc::sqlstate2string(STATES::engine_states_t id)
         DAL_NAMEOF_STATE(42S12);
         DAL_NAMEOF_STATE(42S21);
         DAL_NAMEOF_STATE(42S22);
-	DAL_NAMEOF_STATE(40000);
+        DAL_NAMEOF_STATE(40000);
         DAL_NAMEOF_STATE(40001);
         DAL_NAMEOF_STATE(40002);
         DAL_NAMEOF_STATE(40003);
@@ -1979,7 +2007,7 @@ OdbcDiag::raiseException(void) const
         DAL_THROW_STATE(42S12);
         DAL_THROW_STATE(42S21);
         DAL_THROW_STATE(42S22);
-	DAL_THROW_STATE(40000);
+        DAL_THROW_STATE(40000);
         DAL_THROW_STATE(40001);
         DAL_THROW_STATE(40002);
         DAL_THROW_STATE(40003);

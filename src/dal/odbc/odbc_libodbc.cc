@@ -2547,7 +2547,10 @@ OdbcResult_libodbc::first(void)
     {
         throw ex::engine_error("can't scroll to first record");
     }
-  
+ 
+    if(this->m_current_tuple == 1)
+    	return; // nothing to do...
+
 
     SQLRETURN ret = this->drv()->SQLFetch(this->getHandle());
     assert(ret != SQL_INVALID_HANDLE);
@@ -3633,7 +3636,7 @@ OdbcDbc_libodbc::getOdbcCatalogs(void)
 }
 
 OdbcStmt*
-OdbcDbc_libodbc::getOdbcSchemas(const String &catalog)
+OdbcDbc_libodbc::getOdbcSchemas(const Variant &catalog)
 {
 	OdbcStmt_libodbc *stmt = newStatement();
 	stmt->openOdbcSchemas(catalog);
@@ -3641,7 +3644,7 @@ OdbcDbc_libodbc::getOdbcSchemas(const String &catalog)
 }
 
 OdbcStmt*
-OdbcDbc_libodbc::getOdbcTables(const String &catalog, const String &schema, const String &type)
+OdbcDbc_libodbc::getOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type)
 {
 	OdbcStmt_libodbc *stmt = newStatement();
 	stmt->openOdbcTables(catalog, schema, type);
@@ -3650,7 +3653,7 @@ OdbcDbc_libodbc::getOdbcTables(const String &catalog, const String &schema, cons
 
 
 OdbcStmt*
-OdbcDbc_libodbc::getOdbcColumns(const String &catalog, const String &schema, const String &table)
+OdbcDbc_libodbc::getOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table)
 {
     /// @todo possible leak on exception
 	OdbcStmt_libodbc *stmt = newStatement();
@@ -3660,7 +3663,7 @@ OdbcDbc_libodbc::getOdbcColumns(const String &catalog, const String &schema, con
 
 
 void
-OdbcStmt_libodbc::openOdbcTables(const String &catalog, const String &schema, const String &type)
+OdbcStmt_libodbc::openOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type)
 {
     SQLRETURN ret;
 
@@ -3668,9 +3671,9 @@ OdbcStmt_libodbc::openOdbcTables(const String &catalog, const String &schema, co
 
     if(this->getDbc().usingUnicode())
     {
-        OdbcStrW str_catalog = catalog;
-        OdbcStrW str_schema = schema;
-        OdbcStrW str_type = type;
+		OdbcStrW str_catalog = catalog.isnull() ? OdbcStrW() : catalog.get<String>();
+        OdbcStrW str_schema = schema.isnull() ? OdbcStrW() : schema.get<String>();
+        OdbcStrW str_type = type.isnull() ? OdbcStrW() : type.get<String>();
 		
         //ret = this->drv()->SQLTablesW(this->getHandle(),
         //                              catalog.ptr(), 0,
@@ -3678,16 +3681,17 @@ OdbcStmt_libodbc::openOdbcTables(const String &catalog, const String &schema, co
         //                              table.ptr(), 0,
         //                              type.ptr(), 0);
         ret = this->drv()->SQLTablesW(this->getHandle(),
-                                      str_catalog.empty() ? 0 : str_catalog.ptr(),
+                                      catalog.isnull() ? 0 : str_catalog.ptr(),
 									  str_catalog.size(),
-                                      str_schema.empty() ? 0 : str_schema.ptr(),
+                                      schema.isnull() ? 0 : str_schema.ptr(),
 									  str_schema.size(),
                                       NULL, 0,									  
-                                      str_type.empty() ? 0 : str_type.ptr(),
+                                      type.isnull() ? 0 : str_type.ptr(),
 									  str_type.size());
     }
     else
     {
+		throw std::runtime_error("not implemented: getTables ANSI");
         OdbcStrA str_catalog;
         OdbcStrA str_schema;
         OdbcStrA str_table;
@@ -3764,7 +3768,7 @@ OdbcStmt_libodbc::openOdbcCatalogs(void)
 
 
 void
-OdbcStmt_libodbc::openOdbcSchemas(const String &catalog)
+OdbcStmt_libodbc::openOdbcSchemas(const Variant &catalog)
 {
     SQLRETURN ret;
 
@@ -3797,8 +3801,11 @@ OdbcStmt_libodbc::openOdbcSchemas(const String &catalog)
 
 
     if(! SQL_SUCCEEDED(ret))
+    {
+        //HYC00; -> schemas not supported!
         THROW_ODBC_DIAG_ERROR(this->getDbc(), *this, this->getHandle(), SQL_HANDLE_STMT,
                               "SQLTables() failed");
+    }
 
     DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_OPEN);
 
@@ -3810,7 +3817,7 @@ OdbcStmt_libodbc::openOdbcSchemas(const String &catalog)
 
 
 void
-OdbcStmt_libodbc::openOdbcColumns(const String &catalog, const String &schema, const String &table)
+OdbcStmt_libodbc::openOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table)
 {
     SQLRETURN ret;
 
@@ -3818,9 +3825,9 @@ OdbcStmt_libodbc::openOdbcColumns(const String &catalog, const String &schema, c
 
     if(this->getDbc().usingUnicode())
     {
-        OdbcStrW str_catalog = catalog;
-        OdbcStrW str_schema = schema;
-        OdbcStrW str_table = table;
+        OdbcStrW str_catalog = catalog.isnull() ? OdbcStrW() : catalog.get<String>();
+        OdbcStrW str_schema = schema.isnull() ? OdbcStrW() : schema.get<String>();
+        OdbcStrW str_table = table.isnull() ? OdbcStrW() : table.get<String>();
         //OdbcStrW str_colname
         //ret = this->drv()->SQLColumnsW(this->getHandle(),
         //                              catalog.ptr(), SQL_NTS,
@@ -3828,16 +3835,17 @@ OdbcStmt_libodbc::openOdbcColumns(const String &catalog, const String &schema, c
         //                              table.ptr(), SQL_NTS,
         //                              colname.ptr(), SQL_NTS);
         ret = this->drv()->SQLColumnsW(this->getHandle(),
-                                      str_catalog.empty() ? 0 : str_catalog.ptr(),
+                                      catalog.isnull()  ? 0 : str_catalog.ptr(),
 									  str_catalog.size(),
-                                      str_schema.empty() ? 0 : str_schema.ptr(),
+                                      schema.isnull() ? 0 : str_schema.ptr(),
 									  str_schema.size(),
-                                      str_table.empty() ? 0 : str_table.ptr(),
+                                      table.isnull() ? 0 : str_table.ptr(),
 									  str_table.size(),
                                       0, 0);
     }
     else
     {
+		throw std::runtime_error("not implemented: getcolumns ANSI");
         OdbcStrA str_catalog;
         OdbcStrA str_schema;
         OdbcStrA str_table;
@@ -4084,7 +4092,7 @@ OdbcDbc_libodbc::usingUnicode(void) const
 
 
 
-String
+Variant
 OdbcDbc_libodbc::getCurrentCatalog(void)
 {
 	return sqlgetinfo<String>(*this, SQL_DATABASE_NAME);

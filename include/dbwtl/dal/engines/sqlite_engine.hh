@@ -437,17 +437,25 @@ public:
 	SqliteMetadata(SqliteDbc &dbc) : IMetadata(), m_dbc(dbc)
 	{}
 
-	virtual RecordSet getCatalogs(const DatasetFilter &filter = NoFilter());
-	virtual RecordSet getSchemas(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String());
-	virtual RecordSet getTables(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String(), 
-		const String &schema = String(),
-		const String &type = String());
-	virtual RecordSet getColumns(const DatasetFilter &filter = NoFilter(),
-		const String &catalog = String(),
-		const String &schema = String(),
-		const String &table = String());
+        virtual RecordSet getCatalogs(const Variant &catalog = Variant(),
+                const IMetadata::ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+        virtual RecordSet getSchemas(const Variant &catalog = Variant(),
+                const Variant &schema = Variant(),
+                const ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+        virtual RecordSet getTables(const Variant &schema = Variant(),
+                const Variant &catalog = Variant(),
+                const Variant &table = Variant(),
+                const IMetadata::ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+        virtual RecordSet getColumns(const Variant &table = Variant(),
+                const Variant &schema = Variant(),
+                const Variant &catalog = Variant(),
+                const Variant &column = Variant(),
+                const IMetadata::ObjectClass system = META_OBJECT_CLASS_USER,
+                const DatasetFilter &filter = NoFilter());
+
 
 	virtual ~SqliteMetadata(void)
 	{}

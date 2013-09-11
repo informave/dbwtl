@@ -52,6 +52,8 @@
 
 DAL_NAMESPACE_BEGIN
 
+#define DBWTL_FIREBIRD_DEFAULT_CHARSET	"UTF-8"
+
 class FirebirdResult_libfbclient;
 class FirebirdStmt_libfbclient;
 class FirebirdDbc_libfbclient;
@@ -443,6 +445,7 @@ protected:
 
     FBClientDrv               *m_lib; /* lib is stored in ENV */
     mutable ::isc_db_handle    m_dbh;
+    std::string                m_dbc_encoding;
     Transaction                m_dbc_trx; // internal dbc transaction
     trx_map_type               m_trx_map;
     trxid_t                    m_trx_counter;

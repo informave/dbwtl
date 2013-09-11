@@ -367,7 +367,7 @@ FirebirdData_libfbclient::getMemo(void) const
     ss.imbue(std::locale("C"));
     ss << blob;
 
-    *this->m_memostream << String(ss.str(), "UTF-8");
+    *this->m_memostream << String(ss.str(), this->m_resultset.getDbc().getDbcEncoding());
 
     return this->m_memostream->rdbuf();
 }
@@ -509,9 +509,11 @@ FirebirdData_libfbclient::getText(void) const
         {
         case SQL_VARYING:
             len = reinterpret_cast<short*>(this->m_sqlvar->sqldata)[0];
-            return std::string(this->m_sqlvar->sqldata + 2, len);
+            return String(std::string(this->m_sqlvar->sqldata + 2, len),
+	    		this->m_resultset.getDbc().getDbcEncoding());
         case SQL_TEXT:
-            return std::string(this->m_sqlvar->sqldata, this->m_sqlvar->sqllen);
+            return String(std::string(this->m_sqlvar->sqldata, this->m_sqlvar->sqllen),
+	    		this->m_resultset.getDbc().getDbcEncoding());
         default:
             DBWTL_BUG_FMT("unknown sqltype: %hd", this->m_sqlvar->sqltype & ~1);
         }
@@ -717,7 +719,7 @@ FirebirdResult_libfbclient::prepare(String sql, Transaction trx)
     this->m_sql = sql;
 
     ISC_STATUS sv[20];
-    std::string sql_e = sql.to("UTF-8");
+    std::string sql_e = sql.to(this->getDbc().getDbcEncoding());
 
     this->drv()->isc_dsql_allocate_statement(sv, this->m_stmt.getDbc().getHandle(), &this->m_handle);
     if(sv[0] == 1 && sv[1] > 0)
@@ -991,7 +993,7 @@ FirebirdResult_libfbclient::fillBindBuffers(StmtBase::ParamMap &params)
                     }
                     else
                     {
-                        std::string s = v->get<String>().to("UTF-8");
+                        std::string s = v->get<String>().to(this->getDbc().getDbcEncoding());
                         free(sqlv->sqldata);
                         sqlv->sqldata = 0;
                         sqlv->sqllen = s.length();
@@ -1919,6 +1921,7 @@ FirebirdDbc_libfbclient::FirebirdDbc_libfbclient(FirebirdEnv_libfbclient& env)
     : FirebirdDbc(),
       m_lib(env.drv()),
       m_dbh(0),
+      m_dbc_encoding(DBWTL_FIREBIRD_DEFAULT_CHARSET),
       m_dbc_trx(),
       m_trx_map(),
       m_trx_counter(0),
@@ -1992,7 +1995,7 @@ FirebirdDbc_libfbclient::connect(String database,
 
 /// @details
 /// 
-char* add_dpb_param(std::vector<char> &dpb, char *p, char type, const Variant &v)
+char* add_dpb_param(std::vector<char> &dpb, char *p, char type, const Variant &v, const std::string &charset)
 {
     if(v.isnull())
         return p;
@@ -2045,7 +2048,7 @@ char* add_dpb_param(std::vector<char> &dpb, char *p, char type, const Variant &v
     }
     else if(v.datatype() == DAL_TYPE_STRING)
     {
-        std::string s = v.get<String>().to("UTF-8");
+        std::string s = v.get<String>().to(charset);
         assert(s.length() <= 256);
         while(1)
         {
@@ -2086,20 +2089,22 @@ FirebirdDbc_libfbclient::connect(IDbc::Options& options)
             .raiseException();        
     }
 
-    std::string database(options[ "database" ].to("UTF-8"));
-    std::string username(options[ "username" ].to("UTF-8"));
-    std::string password(options[ "password" ].to("UTF-8"));
-
+    std::string database(options[ "database" ].toSystemEncoding());
+    std::string username(options[ "username" ].toSystemEncoding());
+    std::string password(options[ "password" ].toSystemEncoding());
+    std::string charset(options[ "charset" ].to("ASCII"));
+    if(!charset.empty())
+    	this->setDbcEncoding(charset);
 
     ISC_STATUS sv[20];
     std::vector<char> dpb(256);
     char *p = dpb.data();
     *p++ = isc_dpb_version1;
 
-    p = add_dpb_param(dpb, p, isc_dpb_user_name, Variant(String(username)));
-    p = add_dpb_param(dpb, p, isc_dpb_password, Variant(String(password)));
-    p = add_dpb_param(dpb, p, isc_dpb_lc_ctype, Variant(String("UTF-8")));
-    p = add_dpb_param(dpb, p, isc_dpb_sql_dialect, Variant((signed char)(SQL_DIALECT_V6)));
+    p = add_dpb_param(dpb, p, isc_dpb_user_name, Variant(String(username)), this->getDbcEncoding());
+    p = add_dpb_param(dpb, p, isc_dpb_password, Variant(String(password)), this->getDbcEncoding());
+    p = add_dpb_param(dpb, p, isc_dpb_lc_ctype, Variant(String(this->getDbcEncoding())), this->getDbcEncoding());
+    p = add_dpb_param(dpb, p, isc_dpb_sql_dialect, Variant((signed char)(SQL_DIALECT_V6)), this->getDbcEncoding());
     //isc_dpb_connect_timeout
     //isc_dpb_sql_role_name
     //isc_dpb_set_db_readonly
@@ -2489,7 +2494,7 @@ FirebirdDbc_libfbclient::drv(void) const
 std::string  
 FirebirdDbc_libfbclient::getDbcEncoding(void) const
 {
-    return "UTF-8";
+    return this->m_dbc_encoding;
 }
 
 
@@ -2498,7 +2503,7 @@ FirebirdDbc_libfbclient::getDbcEncoding(void) const
 void    
 FirebirdDbc_libfbclient::setDbcEncoding(std::string encoding)
 {
-    // nothing to do, Firebird only can handle UTF-8 and UTF-16
+	this->m_dbc_encoding = encoding;
 }
 
 

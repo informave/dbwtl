@@ -871,10 +871,10 @@ bool
 SqlCursor::internalNext(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     // Start with the last source and iterate to the first source
     // until we found a source which is not EOF after next().
@@ -940,10 +940,10 @@ bool
 SqlCursor::eof(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(! (this->m_cursorstate & DAL_CURSOR_POSITIONED))
     {
@@ -967,7 +967,7 @@ void
 SqlCursor::close(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     this->m_fields.clear();
     //this->m_params.clear();
@@ -1028,17 +1028,17 @@ colnum_t
 SqlCursor::columnID(String name) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     for(colnum_t i = 1; i <= this->columnCount(); ++i)
     {
         if(name == this->columnName(i))
             return i;
     }
-    throw ex::not_found(US("Column '") + String::Internal(name) + US("' not found."));
+    throw NotFoundException(US("Column '") + String::Internal(name) + US("' not found."));
 }
 
 
@@ -1096,7 +1096,7 @@ SqlCursor::findField(colnum_t num)
     if(i != this->m_fields.end())
         return *i->second;
     else
-        throw ex::engine_error("field not found");
+        throw EngineException("field not found");
 }
 
 
@@ -1109,7 +1109,7 @@ SqlCursor::findField(colnum_t num) const
     if(i != this->m_fields.end())
         return *i->second;
     else
-        throw ex::engine_error("field not found");
+        throw EngineException("field not found");
 }
 
 
@@ -1138,17 +1138,17 @@ void
 SqlCursor::first(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
 /*
   if(!(this->m_cursorstate & DAL_CURSOR_POSITIONED))
   this->next();
   else if(this->eof() || this->m_current_tuple != 1)
   {
-  throw ex::engine_error("can't scroll to first record");
+  throw EngineException("can't scroll to first record");
   }
 */
     std::for_each(this->m_objects_vector.begin(),
@@ -1188,7 +1188,7 @@ SqlCursor::findField(IdGroupNode* nodekey)
         return *i->second;
     }
     else
-        throw ex::engine_error("nodekey not found");
+        throw EngineException("nodekey not found");
 }
 
 
@@ -1204,7 +1204,7 @@ SqlCursor::findParam(ParamNode *nodekey)
         return i->second;
     }
     else
-        throw ex::engine_error("nodekey not found");
+        throw EngineException("nodekey not found");
 }
 
 
@@ -1252,7 +1252,7 @@ SqlCursor::execute(StmtBase::ParamMap& params)
 IDALDriver*
 SqlCursor::drv(void) const
 {
-    throw ex::engine_error("no driver");
+    throw EngineException("no driver");
 }
 
 

@@ -258,14 +258,14 @@ protected:
 ///
 /// @since 0.0.1
 /// @brief Exception if something was not found.
-class DBWTL_EXPORT NotfoundException : public Exception
+class DBWTL_EXPORT NotFoundException : public Exception
 {
 public:
     //not_found(dalstate_t state, const std::wstring &what = std::wstring());
 
-    NotfoundException(const String &what);
+    NotFoundException(const String &what);
 
-    virtual ~NotfoundException(void) throw()
+    virtual ~NotFoundException(void) throw()
     {}
 };
 
@@ -342,11 +342,11 @@ namespace ex
     typedef EngineException engine_error;
     typedef SqlstateException sqlstate_exception;
     typedef FunctionException missing_function;
-    typedef NotfoundException not_found;
+     typedef NotFoundException not_found;
     typedef NullException null_value;
-    //typedef CharconvException charset_error;
+    typedef CharconvException charset_error;
     typedef ConvertException convert_error;
-    //typedef ReadonlyException read_only;
+    typedef ReadonlyException read_only;
 }
 
 

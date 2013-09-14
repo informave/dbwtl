@@ -102,7 +102,7 @@ CachedResultBase::open(void)
     if(!this->m_rscache.isOpen())
     {
         if(!this->sourceAvail())
-            throw ex::engine_error("Could not open cached resultset because source "
+            throw EngineException("Could not open cached resultset because source "
                                    "resultset is not available.");
         this->m_rscache.open();
 

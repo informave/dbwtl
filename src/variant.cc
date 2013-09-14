@@ -143,7 +143,7 @@ Variant::setNull(void) { this->m_storage.reset(0); }
 IVariantValue*
 Variant::get_storage(void)
 {
-    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
+    if(this->m_storage.get() == 0) throw db::NullException(*this);
     return this->m_storage.get();
 }
 
@@ -153,7 +153,7 @@ Variant::get_storage(void)
 const IVariantValue*
 Variant::get_storage(void) const
 {
-    if(this->m_storage.get() == 0) throw db::ex::null_value(*this);
+    if(this->m_storage.get() == 0) throw db::NullException(*this);
     return this->m_storage.get();
 }
 

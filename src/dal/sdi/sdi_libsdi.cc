@@ -358,7 +358,7 @@ SDIData_libsdi::getBlob(void) const
     size_t size = 0;
 
     if(this->isnull())
-        throw ex::null_value(String("SDIData_libsdi result column"));
+        throw NullException(String("SDIData_libsdi result column"));
 
 
     if(! this->m_blobbuf.get())
@@ -395,7 +395,7 @@ SDIData_libsdi::getMemo(void) const
     size_t size = 0;
 
     if(this->isnull())
-        throw ex::null_value(String("SDIData_libsdi result column"));
+        throw NullException(String("SDIData_libsdi result column"));
 
    
     std::stringstream ss;
@@ -416,7 +416,7 @@ template<typename T>
 T get_data(const SDIData_libsdi &data, SDIDataProvider_libsdi &result)
 {
     if(data.isnull())
-        throw ex::null_value(String("SDIData_libsdi result column"));
+        throw NullException(String("SDIData_libsdi result column"));
     else
     {
         T value;
@@ -563,7 +563,7 @@ SDIData_libsdi::getString(void) const
     assert(this->m_colnum > 0);
    
     if(this->isnull())
-        throw ex::null_value(String("SDIData_libsdi result column"));
+        throw NullException(String("SDIData_libsdi result column"));
     else
     {
         int ind;
@@ -739,14 +739,14 @@ void
 SDIDataProvider_libsdi::first(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(this->m_current_tuple != 1)
     {
-        throw ex::engine_error("can't scroll to first record");
+        throw EngineException("can't scroll to first record");
     }
 }
 
@@ -757,10 +757,10 @@ bool
 SDIDataProvider_libsdi::next(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     this->m_last_row_status = this->drv()->SDIFetch(this->getHandle());
 
@@ -801,10 +801,10 @@ bool
 SDIDataProvider_libsdi::eof(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->m_last_row_status != SDI_SUCCESS;
 }
@@ -817,7 +817,7 @@ SDIDataProvider_libsdi::close(void)
 {
 /*
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 */
 
     if(this->m_handle)
@@ -844,10 +844,10 @@ SDIDataProvider_libsdi::affectedRows(void) const
     return -1;
 /*
   if(this->isBad())
-  throw ex::engine_error("Resultset is in bad state.");
+  throw EngineException("Resultset is in bad state.");
 
   if(! this->isPrepared())
-  throw ex::engine_error("Resultset is not prepared.");
+  throw EngineException("Resultset is not prepared.");
 
   int count = this->drv()->sdi3_changes(this->m_stmt.getDbc().getHandle());
   return count;
@@ -863,10 +863,10 @@ SDIDataProvider_libsdi::lastInsertRowId(void)
     return Variant(id);
 /*
   if(this->isBad())
-  throw ex::engine_error("Resultset is in bad state.");
+  throw EngineException("Resultset is in bad state.");
 
   if(! this->isPrepared())
-  throw ex::engine_error("Resultset is not prepared.");
+  throw EngineException("Resultset is not prepared.");
 
   long long id = this->drv()->sdi3_last_insert_rowid(this->m_stmt.getDbc().getHandle());
     
@@ -895,13 +895,13 @@ SDIDataProvider_libsdi::column(colnum_t num)
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(num > this->columnCount())
-        throw ex::not_found("column number out of range");
+        throw NotFoundException("column number out of range");
 
 
     VariantListT::iterator p = this->m_column_accessors.find(num);
@@ -924,10 +924,10 @@ rowid_t
 SDIDataProvider_libsdi::getCurrentRowID(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->m_current_tuple;
 }
@@ -941,10 +941,10 @@ SDIDataProvider_libsdi::columnCount(void) const
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     int c = this->drv()->SDINumCols(this->getHandle());
     DAL_DEBUG("Query column count: " << c);
@@ -959,17 +959,17 @@ colnum_t
 SDIDataProvider_libsdi::columnID(String name) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     for(colnum_t i = 1; i <= this->columnCount(); ++i)
     {
         if(name == this->columnName(i))
             return i;
     }
-    throw ex::not_found(US("Column '") + String::Internal(name) + US("' not found."));
+    throw NotFoundException(US("Column '") + String::Internal(name) + US("' not found."));
 }
 
 
@@ -981,10 +981,10 @@ SDIDataProvider_libsdi::columnName(colnum_t num) const
     DALTRACE("VISIT");
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->describeColumn(num).getName().asStr();
 }
@@ -1046,10 +1046,10 @@ const SDIColumnDesc&
 SDIDataProvider_libsdi::describeColumn(colnum_t num) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
 
     std::map<colnum_t, SDIColumnDesc_libsdi>::const_iterator i =
@@ -1057,7 +1057,7 @@ SDIDataProvider_libsdi::describeColumn(colnum_t num) const
 
     if(i == this->m_column_desc.end())
     {
-        throw ex::not_found(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+        throw NotFoundException(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
     }
     else
         return i->second;
@@ -1468,10 +1468,10 @@ void SDIDataProvider_libsdi::openColumns(const String &catalog, const String &sc
 DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
-        throw ex::engine_error("not connected");
+        throw EngineException("not connected");
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
@@ -1501,7 +1501,7 @@ DALTRACE_ENTER;
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
 
     this->m_last_row_status = this->drv()->SDIFetch(this->m_handle);
@@ -1522,10 +1522,10 @@ SDIDataProvider_libsdi::openObjects(void)
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
-        throw ex::engine_error("not connected");
+        throw EngineException("not connected");
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
@@ -1554,7 +1554,7 @@ SDIDataProvider_libsdi::openObjects(void)
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
 
     this->m_last_row_status = this->drv()->SDIFetch(this->m_handle);
@@ -1580,10 +1580,10 @@ SDIDataProvider_libsdi::open(open_mode mode,
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
-        throw ex::engine_error("not connected");
+        throw EngineException("not connected");
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
@@ -1617,7 +1617,7 @@ SDIDataProvider_libsdi::open(open_mode mode,
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
 
     this->m_last_row_status = this->drv()->SDIFetch(this->m_handle);

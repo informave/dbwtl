@@ -308,7 +308,7 @@ SqliteData_libsqlite::getBlob(void) const
     const void *buf = NULL;
 
     if(this->isnull())
-        throw ex::null_value(String("SqliteData_libsqlite result column"));
+        throw NullException(String("SqliteData_libsqlite result column"));
 
 
     if(! this->m_blobbuf.get())
@@ -339,7 +339,7 @@ SqliteData_libsqlite::getDouble(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("SqliteData_libsqlite result column"));
+        throw NullException(String("SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_double(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -353,7 +353,7 @@ SqliteData_libsqlite::getInt(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("SqliteData_libsqlite result column"));
+        throw NullException(String("SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_int(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -367,7 +367,7 @@ SqliteData_libsqlite::getInt64(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("SqliteData_libsqlite result column"));
+        throw NullException(String("SqliteData_libsqlite result column"));
     else
         return this->m_resultset.drv()->sqlite3_column_int64(this->m_resultset.getHandle(), this->m_colnum - 1);
 }
@@ -382,13 +382,13 @@ SqliteData_libsqlite::getText(void) const
 
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("SqliteData_libsqlite result column"));
+        throw NullException(String("SqliteData_libsqlite result column"));
     else
     {
         const unsigned char *s = this->m_resultset.drv()->
             sqlite3_column_text(this->m_resultset.getHandle(), this->m_colnum - 1);
         if(!s)
-            throw ex::null_value(String("SqliteData_libsqlite result column"));
+            throw NullException(String("SqliteData_libsqlite result column"));
         return reinterpret_cast<const char*>(s);
     }
 }
@@ -403,13 +403,13 @@ SqliteData_libsqlite::getText16(void) const
 
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("SqliteData_libsqlite result column"));
+        throw NullException(String("SqliteData_libsqlite result column"));
     else
     {
         const void *s = this->m_resultset.drv()->
             sqlite3_column_text16(this->m_resultset.getHandle(), this->m_colnum - 1);
         if(!s)
-            throw ex::null_value(String("SqliteData_libsqlite result column"));
+            throw NullException(String("SqliteData_libsqlite result column"));
         return s;
     }
 }
@@ -505,10 +505,10 @@ SqliteResult_libsqlite::prepare(String sql)
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
-        throw ex::engine_error("not connected");
+        throw EngineException("not connected");
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
@@ -548,10 +548,10 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
     
     /// If the resultset is already open, we cleanup all bindings
     /// because the current bindings are maintained by this class instead
@@ -628,7 +628,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             throw std::bad_alloc();
 
         case SQLITE_RANGE:
-            throw ex::not_found("Parameter number out of range");
+            throw NotFoundException("Parameter number out of range");
 
         default:
             const char *msg = this->drv()->sqlite3_errmsg(this->m_stmt.getDbc().getHandle());
@@ -674,10 +674,10 @@ size_t
 SqliteResult_libsqlite::paramCount(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     int count = this->drv()->sqlite3_bind_parameter_count(this->getHandle());
     return count;
@@ -690,14 +690,14 @@ void
 SqliteResult_libsqlite::first(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(this->m_current_tuple != 1)
     {
-        throw ex::engine_error("can't scroll to first record");
+        throw EngineException("can't scroll to first record");
     }
 }
 
@@ -708,10 +708,10 @@ bool
 SqliteResult_libsqlite::next(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     this->m_last_row_status = this->drv()->sqlite3_step(this->getHandle());
 
@@ -752,10 +752,10 @@ bool
 SqliteResult_libsqlite::eof(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->m_last_row_status != SQLITE_ROW;
 }
@@ -768,7 +768,7 @@ SqliteResult_libsqlite::close(void)
 {
 /*
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 */
 
     if(this->m_handle)
@@ -813,10 +813,10 @@ rowcount_t
 SqliteResult_libsqlite::affectedRows(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     int count = this->drv()->sqlite3_changes(this->m_stmt.getDbc().getHandle());
     return count;
@@ -828,10 +828,10 @@ Variant
 SqliteResult_libsqlite::lastInsertRowId(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     long long id = this->drv()->sqlite3_last_insert_rowid(this->m_stmt.getDbc().getHandle());
     
@@ -858,13 +858,13 @@ SqliteResult_libsqlite::column(colnum_t num)
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(num > this->columnCount())
-        throw ex::not_found("column number out of range");
+        throw NotFoundException("column number out of range");
 
 
     VariantListT::iterator p = this->m_column_accessors.find(num);
@@ -887,10 +887,10 @@ rowid_t
 SqliteResult_libsqlite::getCurrentRowID(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->m_current_tuple;
 }
@@ -904,10 +904,10 @@ SqliteResult_libsqlite::columnCount(void) const
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     int c = this->drv()->sqlite3_column_count(this->getHandle());
     DAL_DEBUG("Query column count: " << c);
@@ -922,17 +922,17 @@ colnum_t
 SqliteResult_libsqlite::columnID(String name) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     for(colnum_t i = 1; i <= this->columnCount(); ++i)
     {
         if(name == this->columnName(i))
             return i;
     }
-    throw ex::not_found(US("Column '") + String::Internal(name) + US("' not found."));
+    throw NotFoundException(US("Column '") + String::Internal(name) + US("' not found."));
 }
 
 
@@ -944,10 +944,10 @@ SqliteResult_libsqlite::columnName(colnum_t num) const
     DALTRACE("VISIT");
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->describeColumn(num).getName().asStr();
 }
@@ -1009,10 +1009,10 @@ const SqliteColumnDesc&
 SqliteResult_libsqlite::describeColumn(colnum_t num) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
 
     std::map<colnum_t, SqliteColumnDesc_libsqlite>::const_iterator i =
@@ -1020,7 +1020,7 @@ SqliteResult_libsqlite::describeColumn(colnum_t num) const
 
     if(i == this->m_column_desc.end())
     {
-        throw ex::not_found(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+        throw NotFoundException(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
     }
     else
         return i->second;

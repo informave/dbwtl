@@ -35,6 +35,31 @@ struct FirebirdTestbaseFixture
 };
 
 
+struct FirebirdTestbaseIso88591Fixture
+{
+    FirebirdTestbaseIso88591Fixture(void)
+        : env("firebird:libfbclient"),
+          dbc(env)
+    {}
+
+
+    void onSetUp(void)
+    {
+	IDbc::Options opts;
+	opts["database"] = "localhost:/var/lib/firebird/dbwtldb.fdb";
+	opts["username"] = "SYSDBA";
+	opts["password"] = "masterkey";
+         dbc.connect(opts);
+    }
+
+   virtual ~FirebirdTestbaseIso88591Fixture(void) {}
+
+    DBMS::Environment env;
+    DBMS::Connection dbc;
+};
+
+
+
 //
 // Local Variables:
 // mode: C++

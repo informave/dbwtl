@@ -114,7 +114,7 @@ generic::createEnv(String driver)
 */
 
 err:
-    throw ex::engine_error(format("Env: Unknown driver: %s") % driver);
+    throw EngineException(format("Env: Unknown driver: %s") % driver);
 }
 
 

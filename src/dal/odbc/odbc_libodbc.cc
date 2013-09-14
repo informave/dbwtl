@@ -160,7 +160,7 @@ inline void copy_diag_and_throw(const OdbcDbc_libodbc &dbc, T &obj, const CodePo
 			}
 			else if(ret != SQL_NO_DATA)
 			{
-				throw ex::engine_error("SQLGetDiagRec() returns an unexpected error");
+				throw EngineException("SQLGetDiagRec() returns an unexpected error");
 			}
 		}
 		while(SQL_SUCCEEDED(ret));
@@ -183,7 +183,7 @@ inline void copy_diag_and_throw(const OdbcDbc_libodbc &dbc, T &obj, const CodePo
             }
             else if(ret != SQL_NO_DATA)
             {
-                throw ex::engine_error("SQLGetDiagRec() returns an unexpected error");
+                throw EngineException("SQLGetDiagRec() returns an unexpected error");
             }
         }
         while(SQL_SUCCEEDED(ret));
@@ -230,11 +230,11 @@ inline std::string diag_sqlstate(const OdbcDbc_libodbc &dbc, SQLHANDLE handle, S
     }
     else if(ret == SQL_NO_DATA)
     {
-        throw ex::engine_error("SQLGetDiagRec() returns SQL_NO_DATA when asking for SQLSTATE");
+        throw EngineException("SQLGetDiagRec() returns SQL_NO_DATA when asking for SQLSTATE");
     }
     else
     {
-        throw ex::engine_error("SQLGetDiagRec() returns an unexpected error");
+        throw EngineException("SQLGetDiagRec() returns an unexpected error");
     }
 		
 }
@@ -1033,7 +1033,7 @@ OdbcData_libodbc::getMemo(void) const
     DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_MEMO);
 
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
 
 
     if(this->m_resultset.getDbc().usingUnicode())
@@ -1075,7 +1075,7 @@ OdbcData_libodbc::getBlob(void) const
     DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_BLOB || (this->daltype() == DAL_TYPE_MEMO && !this->m_resultset.getDbc().usingUnicode()));
 
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
 
     if(! this->m_blobbuf.get())
     {
@@ -1092,7 +1092,7 @@ String OdbcData_libodbc::getString(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         if(m_value.strbufA.size())
@@ -1110,7 +1110,7 @@ signed short int OdbcData_libodbc::getSShort(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.sShortInt;
@@ -1122,7 +1122,7 @@ unsigned short int OdbcData_libodbc::getUShort(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.uShortInt;
@@ -1137,7 +1137,7 @@ OdbcData_libodbc::getSLong(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.sLongInt;
@@ -1152,7 +1152,7 @@ unsigned long int OdbcData_libodbc::getULong(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.uLongInt;
@@ -1164,7 +1164,7 @@ float OdbcData_libodbc::getFloat(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.float_;
@@ -1176,7 +1176,7 @@ double OdbcData_libodbc::getDouble(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.double_;
@@ -1188,7 +1188,7 @@ unsigned char OdbcData_libodbc::getBit(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.bit;
@@ -1199,7 +1199,7 @@ signed char OdbcData_libodbc::getSTinyint(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.sTinyInt;
@@ -1210,7 +1210,7 @@ unsigned char OdbcData_libodbc::getUTinyint(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.uTinyInt;
@@ -1222,7 +1222,7 @@ signed long long OdbcData_libodbc::getSBigint(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.sBigInt;
@@ -1233,7 +1233,7 @@ unsigned long long OdbcData_libodbc::getUBigint(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return this->m_value.data.uBigInt;
@@ -1245,7 +1245,7 @@ TVarbinary OdbcData_libodbc::getBinary(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return TVarbinary(this->m_value.varbinary.data(), this->m_value.ind);
@@ -1264,7 +1264,7 @@ TDate OdbcData_libodbc::getDate(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return TDate(this->m_value.data.date.year,
@@ -1278,7 +1278,7 @@ TTime OdbcData_libodbc::getTime(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return TTime(this->m_value.data.time.hour,
@@ -1291,7 +1291,7 @@ TTimestamp OdbcData_libodbc::getTimestamp(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         return TTimestamp(this->m_value.data.timestamp.year,
@@ -1309,7 +1309,7 @@ TNumeric OdbcData_libodbc::getNumeric(void) const
     DALTRACE("VISIT");
     assert(this->m_colnum > 0);
     if(this->isnull())
-        throw ex::null_value(String("OdbcData_libodbc result column"));
+        throw NullException(String("OdbcData_libodbc result column"));
     else
     {
         const SQL_NUMERIC_STRUCT &num = this->m_value.data.numeric;
@@ -1572,10 +1572,10 @@ OdbcResult_libodbc::prepare(String sql)
 	DBWTL_TRACE1(sql);
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
-        throw ex::engine_error("not connected");
+        throw EngineException("not connected");
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
@@ -1948,10 +1948,10 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
 
 /// If the resultset is already open, we cleanup all bindings
@@ -2512,10 +2512,10 @@ size_t
 OdbcResult_libodbc::paramCount(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     SQLSMALLINT count;
 
@@ -2538,14 +2538,14 @@ OdbcResult_libodbc::first(void)
 {
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(this->m_current_tuple > 1)
     {
-        throw ex::engine_error("can't scroll to first record");
+        throw EngineException("can't scroll to first record");
     }
  
     if(this->m_current_tuple == 1)
@@ -2598,10 +2598,10 @@ OdbcResult_libodbc::next(void)
 {
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     SQLRETURN ret = this->drv()->SQLFetch(this->getHandle());
     assert(ret != SQL_INVALID_HANDLE);
@@ -2629,24 +2629,24 @@ bool
 OdbcResult_libodbc::eof(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(! (this->m_cursorstate & DAL_CURSOR_POSITIONED))
     {
-        throw ex::engine_error("Dataset is not positioned.");
+        throw EngineException("Dataset is not positioned.");
     }
 
     return this->m_cursorstate & DAL_CURSOR_EOF;
 
 /*
   if(this->isBad())
-  throw ex::engine_error("Resultset is in bad state.");
+  throw EngineException("Resultset is in bad state.");
 
   if(! this->isOpen())
-  throw ex::engine_error("Resultset is not open.");
+  throw EngineException("Resultset is not open.");
 
   return this->m_last_row_status != ODBC_ROW;
 */
@@ -2741,10 +2741,10 @@ Variant
 OdbcResult_libodbc::lastInsertRowId(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     throw FeatureUnsuppException("LastInsertRowID not supported by ODBC API");
 }
@@ -2772,14 +2772,14 @@ OdbcResult_libodbc::column(colnum_t num)
     DBWTL_TRACE1(num);
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(num > this->columnCount())
     {
-        throw NotfoundException(FORMAT2("Column %d not found, column count is %d", num, this->columnCount()));
+        throw NotFoundException(FORMAT2("Column %d not found, column count is %d", num, this->columnCount()));
 	}
 
     VariantListT::iterator p = this->m_column_accessors.find(num);
@@ -2797,10 +2797,10 @@ rowid_t
 OdbcResult_libodbc::getCurrentRowID(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->m_current_tuple;
 }
@@ -2815,10 +2815,10 @@ OdbcResult_libodbc::columnCount(void) const
     DBWTL_TRACE0();
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     SQLSMALLINT c;
 
@@ -2842,17 +2842,17 @@ OdbcResult_libodbc::columnID(String name) const
 {
 	DBWTL_TRACE1(name);
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     for(colnum_t i = 1; i <= this->columnCount(); ++i)
     {
         if(name == this->columnName(i))
             return i;
     }
-    throw ex::not_found(US("Column '") + String::Internal(name) + US("' not found."));
+    throw NotFoundException(US("Column '") + String::Internal(name) + US("' not found."));
 }
 
 
@@ -2864,10 +2864,10 @@ OdbcResult_libodbc::columnName(colnum_t num) const
     DBWTL_TRACE1(num);
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->describeColumn(num).getName().asStr();
 }
@@ -3069,10 +3069,10 @@ const OdbcColumnDesc&
 OdbcResult_libodbc::describeColumn(colnum_t num) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
 
     std::map<colnum_t, OdbcColumnDesc_libodbc>::const_iterator i =
@@ -3080,7 +3080,7 @@ OdbcResult_libodbc::describeColumn(colnum_t num) const
 
     if(i == this->m_column_desc.end())
     {
-        throw ex::not_found(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+        throw NotFoundException(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
     }
     else
         return i->second;

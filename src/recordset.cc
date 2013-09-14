@@ -105,10 +105,10 @@ void
 RecordSet::first(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     //if(! this->isOpen())
-    //    throw ex::engine_error("Resultset is not open.");
+    //    throw EngineException("Resultset is not open.");
 
     DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
 
@@ -122,10 +122,10 @@ bool
 RecordSet::next(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     //  if(! this->isOpen())
-    //    throw ex::engine_error("Resultset is not open.");
+    //    throw EngineException("Resultset is not open.");
 
     if(!eof())
     {
@@ -182,10 +182,10 @@ bool
 RecordSet::eof(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     //if(! this->isOpen())
-    //   throw ex::engine_error("Resultset is not open.");
+    //   throw EngineException("Resultset is not open.");
 
     if(! (this->m_cursorstate & DAL_CURSOR_POSITIONED))
     {
@@ -231,10 +231,10 @@ const IResult::value_type&
 RecordSet::column(colnum_t num)
 {
     if(! this->isPositioned())
-        throw ex::engine_error("Resultset is not positioned.");
+        throw EngineException("Resultset is not positioned.");
 
     if(this->eof())
-        throw ex::engine_error("Resultset is eof.");
+        throw EngineException("Resultset is eof.");
 
     if(num < 1)
     	throw EngineException("RecordSet has no support for bookmark columns");
@@ -261,17 +261,17 @@ colnum_t
 RecordSet::columnID(String name) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     for(colnum_t i = 1; i <= this->columnCount(); ++i)
     {
         if(name == this->columnName(i))
             return i;
     }
-    throw ex::not_found(US("Column '") + String::Internal(name) + US("' not found."));
+    throw NotFoundException(US("Column '") + String::Internal(name) + US("' not found."));
 }
 
 String        
@@ -283,10 +283,10 @@ RecordSet::columnName(colnum_t num) const
 
 /*
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->describeColumn(num).getName().asStr();
 */
@@ -299,11 +299,11 @@ const IColumnDesc&
 RecordSet::describeColumn(colnum_t num) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
 /*
 if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 */
 
 //std::vector<ColumnDesc>     m_column_descriptors
@@ -312,7 +312,7 @@ if(! this->isPrepared())
     	return this->m_column_descriptors[num-1];
     else
     {
-    	 throw ex::not_found(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+    	 throw NotFoundException(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
     }
 /*
     std::map<colnum_t, SDIColumnDesc_libsdi>::const_iterator i =
@@ -320,7 +320,7 @@ if(! this->isPrepared())
 
     if(i == this->m_column_desc.end())
     {
-        throw ex::not_found(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+        throw NotFoundException(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
     }
     else
         return i->second;

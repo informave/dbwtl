@@ -315,7 +315,7 @@ public:
             return **this->m_cur++;
         }
         else
-            throw ex::not_found(L"No diagnostic records available");
+            throw NotFoundException(L"No diagnostic records available");
     }
 
 protected:

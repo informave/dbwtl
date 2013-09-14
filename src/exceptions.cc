@@ -357,7 +357,7 @@ return this->m_what;
 
 //
 //
-NotfoundException::NotfoundException(const String &what)
+NotFoundException::NotFoundException(const String &what)
 {
     this->setMessage(what);
 }

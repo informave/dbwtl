@@ -39,7 +39,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteMemo)
         stmt.bind(1, m);
         stmt.execute();
         stmt.close();
-	stmt.execDirect("SELECT CAST(t_text AS VARCHAR(30) CHARACTER SET UTF8) FROM alltypes");
+	stmt.execDirect("SELECT CAST(t_text AS VARCHAR(30)) FROM alltypes");
 	DBMS::Resultset rs;
 	rs.attach(stmt);
 	rs.first();
@@ -62,6 +62,18 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, ReadMemo)
         dbc.commit();
 }
 
+CXXC_FIXTURE_TEST(FirebirdTestbaseIso88591Fixture, ReadMemoIso88591)
+{
+        dbc.beginTrans(trx_read_committed, trx_readonly);
+        DBMS::Statement stmt(dbc);
+        stmt.execDirect("SELECT t_text FROM alltypes");
+        DBMS::Resultset rs;
+        rs.attach(stmt);
+        rs.first();
+        CXXC_CHECK( rs.column(1).get<String>() == "TeststringÖÄÜ" );
+        stmt.close();
+        dbc.commit();
+}
 
 
 
@@ -71,7 +83,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteStringToMemo)
 	dbc.directCmd("DELETE FROM alltypes");
 	DBMS::Statement stmt(dbc);
 	stmt.prepare("INSERT INTO alltypes(t_text) VALUES(?)");
-	stmt.bind(1, String("foo"));
+	stmt.bind(1, String("Ghe ÖÄÜ"));
 	stmt.execute();
 	stmt.close();
 	dbc.commit();

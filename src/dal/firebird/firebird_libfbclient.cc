@@ -336,7 +336,7 @@ FirebirdData_libfbclient::getBlob(void) const
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_BLOB);
 
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
 
     if(! this->m_blobbuf.get())
     {
@@ -382,7 +382,7 @@ FirebirdData_libfbclient::getDouble(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_DOUBLE);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         return *reinterpret_cast<double*>(this->m_sqlvar->sqldata);
@@ -398,7 +398,7 @@ FirebirdData_libfbclient::getInt64(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_INT64);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         return *reinterpret_cast<ISC_INT64*>(this->m_sqlvar->sqldata);
@@ -414,7 +414,7 @@ FirebirdData_libfbclient::getFloat(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_FLOAT);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         return *reinterpret_cast<float*>(this->m_sqlvar->sqldata);
@@ -430,7 +430,7 @@ FirebirdData_libfbclient::getTime(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_TYPE_TIME);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         ::tm time;
@@ -449,7 +449,7 @@ FirebirdData_libfbclient::getTimestamp(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_TIMESTAMP);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         ::tm ts;
@@ -467,7 +467,7 @@ FirebirdData_libfbclient::getNumeric(void) const
 {
     DALTRACE("VISIT");
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         ISC_INT64 llv = 0;
@@ -501,7 +501,7 @@ FirebirdData_libfbclient::getText(void) const
 {
     DALTRACE("VISIT");
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         short len = 0;
@@ -529,7 +529,7 @@ FirebirdData_libfbclient::getDate(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_TYPE_DATE);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         ::tm date;
@@ -548,7 +548,7 @@ FirebirdData_libfbclient::getSmallint(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_SHORT);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         return *reinterpret_cast<ISC_SHORT*>(this->m_sqlvar->sqldata);
@@ -564,7 +564,7 @@ FirebirdData_libfbclient::getLong(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_LONG);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         return *reinterpret_cast<ISC_LONG*>(this->m_sqlvar->sqldata);
@@ -580,7 +580,7 @@ FirebirdData_libfbclient::getVarbinary(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_VARBINARY);
     if(this->isnull())
-        throw ex::null_value(String("FirebirdData_libfbclient result column"));
+        throw NullException(String("FirebirdData_libfbclient result column"));
     else
     {
         short len = 0;
@@ -705,10 +705,10 @@ FirebirdResult_libfbclient::prepare(String sql, Transaction trx)
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->m_stmt.getDbc().isConnected())
-        throw ex::engine_error("not connected");
+        throw EngineException("not connected");
 
     // if anything is currently open, we need to close.
     // This removes all binded vars, too.
@@ -1192,10 +1192,10 @@ FirebirdResult_libfbclient::execute(StmtBase::ParamMap& params)
     std::map<int, std::string> tmp_strings;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
     
     ISC_STATUS sv[20];
 
@@ -1260,10 +1260,10 @@ size_t
 FirebirdResult_libfbclient::paramCount(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     assert(this->m_isqlda);
     return this->m_isqlda->sqln;
@@ -1276,16 +1276,16 @@ void
 FirebirdResult_libfbclient::first(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(!(this->m_cursorstate & DAL_CURSOR_POSITIONED))
         this->next();
     else if(this->eof() || this->m_current_tuple != 1)
     {
-        throw ex::engine_error("can't scroll to first record");
+        throw EngineException("can't scroll to first record");
     }
 }
 
@@ -1296,10 +1296,10 @@ bool
 FirebirdResult_libfbclient::next(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     ISC_STATUS sv[20];
 
@@ -1345,10 +1345,10 @@ bool
 FirebirdResult_libfbclient::eof(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(! (this->m_cursorstate & DAL_CURSOR_POSITIONED))
     {
@@ -1371,7 +1371,7 @@ FirebirdResult_libfbclient::close(void)
 {
 /*
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 */
 
     if(this->m_handle)
@@ -1413,10 +1413,10 @@ rowcount_t
 FirebirdResult_libfbclient::affectedRows(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     ISC_STATUS sv[20];
     ISC_SCHAR type_item[] = { isc_info_sql_records };
@@ -1485,10 +1485,10 @@ Variant
 FirebirdResult_libfbclient::lastInsertRowId(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
 
     this->appendDiagRec(CREATE_DIAG(DAL_STATE_ERROR, 0A000,
@@ -1517,13 +1517,13 @@ FirebirdResult_libfbclient::column(colnum_t num)
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(num > this->columnCount())
-        throw ex::not_found("column number out of range");
+        throw NotFoundException("column number out of range");
 
     VariantListT::iterator p = this->m_column_accessors.find(num);
     if(this->m_column_accessors.end() == p)
@@ -1545,10 +1545,10 @@ rowid_t
 FirebirdResult_libfbclient::getCurrentRowID(void) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->m_current_tuple;
 }
@@ -1562,10 +1562,10 @@ FirebirdResult_libfbclient::columnCount(void) const
     DALTRACE_ENTER;
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     if(this->m_osqlda)
         return this->m_osqlda->sqln;
@@ -1580,17 +1580,17 @@ colnum_t
 FirebirdResult_libfbclient::columnID(String name) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     for(colnum_t i = 1; i <= this->columnCount(); ++i)
     {
         if(name == this->columnName(i))
             return i;
     }
-    throw ex::not_found(US("Column '") + String::Internal(name) + US("' not found."));
+    throw NotFoundException(US("Column '") + String::Internal(name) + US("' not found."));
 }
 
 
@@ -1602,10 +1602,10 @@ FirebirdResult_libfbclient::columnName(colnum_t num) const
     DALTRACE("VISIT");
 
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     return this->describeColumn(num).getName().asStr();
 }
@@ -1615,10 +1615,10 @@ short
 FirebirdResult_libfbclient::getStatementType(void)
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isPrepared())
-        throw ex::engine_error("Resultset is not prepared.");
+        throw EngineException("Resultset is not prepared.");
 
     ISC_STATUS sv[20];
     ISC_SCHAR type_item[] = { isc_info_sql_stmt_type };
@@ -1677,17 +1677,17 @@ const FirebirdColumnDesc&
 FirebirdResult_libfbclient::describeColumn(colnum_t num) const
 {
     if(this->isBad())
-        throw ex::engine_error("Resultset is in bad state.");
+        throw EngineException("Resultset is in bad state.");
 
     if(! this->isOpen())
-        throw ex::engine_error("Resultset is not open.");
+        throw EngineException("Resultset is not open.");
 
     std::map<colnum_t, FirebirdColumnDesc_libfbclient>::const_iterator i =
         this->m_column_desc.find(num);
 
     if(i == this->m_column_desc.end())
     {
-        throw ex::not_found(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+        throw NotFoundException(US("Column '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
     }
     else
         return i->second;

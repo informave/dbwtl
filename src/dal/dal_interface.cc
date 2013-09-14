@@ -665,7 +665,7 @@ EnvBase::setOption(std::string name, const Variant &data)
     }
     else
     {
-        throw ex::not_found(format("The option '%s' is invalid or not supported by this engine.") % String(name));
+        throw NotFoundException(format("The option '%s' is invalid or not supported by this engine.") % String(name));
     }
 }
 
@@ -681,7 +681,7 @@ EnvBase::getOption(std::string name) const
     }
     else
     {
-        throw ex::not_found(format("The option '%s' is invalid or not supported by this engine.") % String(name));
+        throw NotFoundException(format("The option '%s' is invalid or not supported by this engine.") % String(name));
     }
 }
 
@@ -719,7 +719,7 @@ StmtBase::setOption(std::string name, const Variant &data)
     }
     else
     {
-        throw ex::not_found(format("The option '%s' is invalid or not supported by this engine.") % String(name));
+        throw NotFoundException(format("The option '%s' is invalid or not supported by this engine.") % String(name));
     }
 }
 
@@ -736,7 +736,7 @@ StmtBase::getOption(std::string name) const
     }
     else
     {
-        throw ex::not_found(format("The option '%s' is invalid or not supported by this engine.") % String(name));
+        throw NotFoundException(format("The option '%s' is invalid or not supported by this engine.") % String(name));
     }
 }
 
@@ -839,7 +839,7 @@ StmtBase::isBad(void) const
 IDataProvider*
 StmtBase::newProvider(void)
 {
-	throw ex::engine_error("Unsupported method: newProvider()");
+	throw EngineException("Unsupported method: newProvider()");
 }
 
 
@@ -906,7 +906,7 @@ DbcBase::setOption(std::string name, const Variant &data)
     }
     else
     {
-        throw ex::not_found(format("The option '%s' is invalid or not supported by this engine.") % String(name));
+        throw NotFoundException(format("The option '%s' is invalid or not supported by this engine.") % String(name));
     }
 }
 
@@ -923,7 +923,7 @@ DbcBase::getOption(std::string name) const
     }
     else
     {
-        throw ex::not_found(format("The option '%s' is invalid or not supported by this engine.") % String(name));
+        throw NotFoundException(format("The option '%s' is invalid or not supported by this engine.") % String(name));
     }
 }
 

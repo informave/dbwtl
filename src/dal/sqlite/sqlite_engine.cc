@@ -1349,7 +1349,7 @@ sqlite::createEnv(String driver)
 
     // nothing found..
 err:
-    throw ex::engine_error(US("Driver '") + drv + US("' is not a valid driver name."));
+    throw EngineException(US("Driver '") + drv + US("' is not a valid driver name."));
 }
 
 

@@ -72,7 +72,7 @@ struct extended_api_tag { };
 //------------------------------------------------------------------------------
 ///
 /// @brief SQLSTATE template
-template<int T, class U = informave::db::ex::sqlstate_exception>
+template<int T, class U = informave::db::SqlstateException>
 struct sqlstate : public U
 {
     sqlstate(const IDiagnostic& diag_to_clone)

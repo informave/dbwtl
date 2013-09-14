@@ -1189,7 +1189,6 @@ OdbcMetadata::getTables(const Variant &schema,
 
     for(rawRes.first(); !rawRes.eof(); rawRes.next())
     {
-        std::cerr << "FOUND OBDC TABLE" << std::endl;
         tmp.close();
         tmp.clear();
         tmp.open();
@@ -1200,7 +1199,6 @@ OdbcMetadata::getTables(const Variant &schema,
             rs.insert(*tmp.begin());
         }
     }
-    std::cerr << "RETURN OBDC TABLE" << std::endl;
     return rs;
 }
 

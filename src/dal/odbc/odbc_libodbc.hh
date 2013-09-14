@@ -174,29 +174,41 @@ struct basic_odbcstr<1>
         m_string.resize(size);
     }
 
+    explicit basic_odbcstr(const Variant &var, const std::string &charset)
+        : m_string()
+    {
+        if(!var.isnull())
+        {
+            std::string bs = var.asStr().to(charset);
+            std::copy(bs.begin(), bs.end(), std::back_inserter(m_string));
+        }
+        // unixODBC tracer ignores the length of a string but
+        // assumes SQL_NTS. For this and other broken implementations
+        // we always add a null-terminator.
+        m_string.push_back(0);
+    }
 
-	basic_odbcstr(const String &str, const std::string &charset)
+
+	explicit basic_odbcstr(const String &str, const std::string &charset)
 		: m_string()
 	{
 		std::string bs = str.to(charset);
 		std::copy(bs.begin(), bs.end(), std::back_inserter(m_string));
-	}
 
-    basic_odbcstr(const String &str, const char *charset)
-        : m_string()
-    {
-		std::string bs = str.to(charset);
-        std::copy(bs.begin(), bs.end(), std::back_inserter(m_string));
-    }
+        // unixODBC tracer ignores the length of a string but
+        // assumes SQL_NTS. For this and other broken implementations
+        // we always add a null-terminator.
+        m_string.push_back(0);
+	}
 
     SQLCHAR* ptr(void) const
     {
-        return const_cast<SQLCHAR*>(m_string.c_str());
+        return const_cast<SQLCHAR*>(m_string.data());
     }
 
     SQLLEN size(void) const
     {
-        return this->m_string.size();
+		return this->m_string.size() ? this->m_string.size()-1 : 0;
     }
 
 	bool empty(void) const
@@ -236,7 +248,7 @@ struct basic_odbcstr<1>
     }
 
 protected:
-    mutable std::basic_string<unsigned char> m_string;
+    mutable std::vector<unsigned char> m_string;
 };
 
 
@@ -249,11 +261,31 @@ struct basic_odbcstr<2>
 		m_string.resize(size);
 	}
 
-	basic_odbcstr(const String &str)
+
+    explicit basic_odbcstr(const Variant &var)
+        : m_string()
+    {
+        if(!var.isnull())
+        {
+            std::wstring ws = var.asStr();
+            std::copy(ws.begin(), ws.end(), std::back_inserter(m_string));
+        }
+        // unixODBC tracer ignores the length of a string but
+        // assumes SQL_NTS. For this and other broken implementations
+        // we always add a null-terminator.
+        m_string.push_back(0);
+    }
+
+	explicit basic_odbcstr(const String &str)
         : m_string()
 	{
 		std::wstring ws = str;
 		std::copy(ws.begin(), ws.end(), std::back_inserter(m_string));
+
+        // unixODBC tracer ignores the length of a string but
+        // assumes SQL_NTS. For this and other broken implementations
+        // we always add a null-terminator.
+        m_string.push_back(0);
 	}
 
 	SQLWCHAR* ptr(void) const
@@ -263,7 +295,7 @@ struct basic_odbcstr<2>
 
 	SQLLEN size(void) const
 	{
-		return this->m_string.size();
+		return this->m_string.size() ? this->m_string.size()-1 : 0;
 	}
 
 	bool empty(void) const
@@ -302,9 +334,9 @@ struct basic_odbcstr<2>
 
 protected:
 #ifdef _WIN32
-	mutable std::basic_string<wchar_t> m_string;
+	mutable std::vector<wchar_t> m_string;
 #else
-	mutable std::basic_string<unsigned short> m_string;
+	mutable std::vector<unsigned short> m_string;
 #endif
 };
 

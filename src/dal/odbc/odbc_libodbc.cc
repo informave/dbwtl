@@ -77,7 +77,7 @@
                                  String(msg), desc, code, excode);      \
         handle->m_diag.push_back(__dal__diag);                          \
         __dal__diag->raiseException();                                  \
-    } 
+    }
 
 
 
@@ -136,38 +136,38 @@ String sqlgetinfo<String>(const OdbcDbc_libodbc &dbc, SQLSMALLINT info)
 template<typename T>
 inline void copy_diag_and_throw(const OdbcDbc_libodbc &dbc, T &obj, const CodePosInfo &pos, SQLHANDLE handle, SQLSMALLINT htype, const String &desc)
 {
-	
-	SQLINTEGER i = 0;
-	SQLINTEGER native = 0;
-	SQLSMALLINT len = 0;
-	SQLRETURN ret;
-	OdbcDiag *first_diag = 0;
 
-	if(dbc.usingUnicode())
-	{
-		OdbcStrW state(6);
-		OdbcStrW text(512+1);
-		do
-		{
-			ret = dbc.drv()->SQLGetDiagRecW(htype, handle, ++i, state.ptr(), &native, text.ptr(), text.size(), &len);
-			if(SQL_SUCCEEDED(ret))
-			{
-				OdbcDiag_libodbc diag = OdbcDiag_libodbc(DAL_STATE_ERROR, pos,
+    SQLINTEGER i = 0;
+    SQLINTEGER native = 0;
+    SQLSMALLINT len = 0;
+    SQLRETURN ret;
+    OdbcDiag *first_diag = 0;
+
+    if(dbc.usingUnicode())
+    {
+        OdbcStrW state(6);
+        OdbcStrW text(512+1);
+        do
+        {
+            ret = dbc.drv()->SQLGetDiagRecW(htype, handle, ++i, state.ptr(), &native, text.ptr(), text.size(), &len);
+            if(SQL_SUCCEEDED(ret))
+            {
+                OdbcDiag_libodbc diag = OdbcDiag_libodbc(DAL_STATE_ERROR, pos,
                                                          text.str(len), desc, native, state.str(5).utf8(), native);
-				OdbcDiag &d = obj.appendDiagRec(diag);
-				if(!first_diag)
-					first_diag = &d;
-			}
-			else if(ret != SQL_NO_DATA)
-			{
-				throw EngineException("SQLGetDiagRec() returns an unexpected error");
-			}
-		}
-		while(SQL_SUCCEEDED(ret));
-		
-	}
-	else
-	{
+                OdbcDiag &d = obj.appendDiagRec(diag);
+                if(!first_diag)
+                    first_diag = &d;
+            }
+            else if(ret != SQL_NO_DATA)
+            {
+                throw EngineException("SQLGetDiagRec() returns an unexpected error");
+            }
+        }
+        while(SQL_SUCCEEDED(ret));
+
+    }
+    else
+    {
         OdbcStrA state(6);
         OdbcStrA text(512+1);
         do
@@ -187,9 +187,9 @@ inline void copy_diag_and_throw(const OdbcDbc_libodbc &dbc, T &obj, const CodePo
             }
         }
         while(SQL_SUCCEEDED(ret));
-	}
-	if(first_diag)
-		first_diag->raiseException();
+    }
+    if(first_diag)
+        first_diag->raiseException();
     else
         throw EngineException("Last function returns SQL_ERROR, but no DIAG avail.");
 }
@@ -200,28 +200,28 @@ inline void copy_diag_and_throw(const OdbcDbc_libodbc &dbc, T &obj, const CodePo
 
 inline std::string diag_sqlstate(const OdbcDbc_libodbc &dbc, SQLHANDLE handle, SQLSMALLINT htype)
 {
-	SQLINTEGER native = 0;
-	SQLSMALLINT len = 0;
-	SQLRETURN ret;
+    SQLINTEGER native = 0;
+    SQLSMALLINT len = 0;
+    SQLRETURN ret;
 
-	std::string s;
+    std::string s;
 
-	if(dbc.usingUnicode())
-	{
-		OdbcStrW state(6);
-		OdbcStrW text(512+1);
+    if(dbc.usingUnicode())
+    {
+        OdbcStrW state(6);
+        OdbcStrW text(512+1);
 
 
         ret = dbc.drv()->SQLGetDiagRecW(htype, handle, 1, state.ptr(), &native, text.ptr(), text.size(), &len);
         s = state.str(5);
-	}
-	else
-	{
-		OdbcStrA state(6);
-		OdbcStrA text(512+1);
-		ret = dbc.drv()->SQLGetDiagRecA(htype, handle, 1, state.ptr(), &native, text.ptr(), text.size(), &len);
-		s = state.str(5, "ASCII");
-	}
+    }
+    else
+    {
+        OdbcStrA state(6);
+        OdbcStrA text(512+1);
+        ret = dbc.drv()->SQLGetDiagRecA(htype, handle, 1, state.ptr(), &native, text.ptr(), text.size(), &len);
+        s = state.str(5, "ASCII");
+    }
 
 
     if(SQL_SUCCEEDED(ret))
@@ -236,7 +236,7 @@ inline std::string diag_sqlstate(const OdbcDbc_libodbc &dbc, SQLHANDLE handle, S
     {
         throw EngineException("SQLGetDiagRec() returns an unexpected error");
     }
-		
+
 }
 
 
@@ -250,7 +250,7 @@ inline std::string diag_sqlstate(const OdbcDbc_libodbc &dbc, SQLHANDLE handle, S
   SQLINTEGER   i = 0;
   SQLINTEGER   native;
   SQLWCHAR      state[ 7 ];
-  OdbcStrW	text(512);
+  OdbcStrW  text(512);
   SQLSMALLINT  len;
   SQLRETURN    ret;
 
@@ -274,7 +274,7 @@ while( ret == SQL_SUCCESS );
 }
 */
 #define THROW_ODBC_DIAG_ERROR(env, obj, handle, htype, desc)            \
-	copy_diag_and_throw(env, obj, DBWTL_SPOS(), handle, htype, String(desc))
+    copy_diag_and_throw(env, obj, DBWTL_SPOS(), handle, htype, String(desc))
 
 
 /*
@@ -300,28 +300,28 @@ static void delete_resultset(OdbcResult_libodbc* rs)
 OdbcDiag&
 OdbcEnv_libodbc::appendDiagRec(const OdbcDiag &diag)
 {
-    
+
     return *this->m_diag.push_back(diag.clone());
 }
 
 OdbcDiag&
 OdbcResult_libodbc::appendDiagRec(const OdbcDiag &diag)
 {
-    
+
     return *this->m_diag.push_back(diag.clone());
 }
 
 OdbcDiag&
 OdbcDbc_libodbc::appendDiagRec(const OdbcDiag &diag)
 {
-    
+
     return *this->m_diag.push_back(diag.clone());
 }
 
 OdbcDiag&
 OdbcStmt_libodbc::appendDiagRec(const OdbcDiag &diag)
 {
-    
+
     return *this->m_diag.push_back(diag.clone());
 }
 
@@ -333,7 +333,7 @@ OdbcStmt_libodbc::appendDiagRec(const OdbcDiag &diag)
 /////////////////////////////////////////////////////////////// OdbcBlob_libodbc
 
 /// @details
-/// 
+///
 ODBC30Drv*
 OdbcBlob_libodbc::drv(void) const
 {
@@ -342,7 +342,7 @@ OdbcBlob_libodbc::drv(void) const
 
 
 /// @details
-/// 
+///
 SQLHSTMT
 OdbcBlob_libodbc::getHandle(void) const
 {
@@ -351,7 +351,7 @@ OdbcBlob_libodbc::getHandle(void) const
 
 
 /// @details
-/// 
+///
 OdbcBlob_libodbc::OdbcBlob_libodbc(const OdbcData_libodbc& data)
     : OdbcBlob(),
       m_data(data),
@@ -381,7 +381,7 @@ OdbcBlob_libodbc::OdbcBlob_libodbc(const OdbcData_libodbc& data)
 
 
 /// @details
-/// 
+///
 OdbcBlob_libodbc::~OdbcBlob_libodbc(void)
 {
 /*
@@ -401,7 +401,7 @@ OdbcBlob_libodbc::~OdbcBlob_libodbc(void)
 
 
 /// @details
-/// 
+///
 OdbcBlob_libodbc::int_type
 OdbcBlob_libodbc::underflow()
 {
@@ -434,11 +434,11 @@ OdbcBlob_libodbc::underflow()
                               "GetData failed");
     }
 
-	//std::cout << "IND: " << ind << std::endl;
+    //std::cout << "IND: " << ind << std::endl;
 
     if(ret == SQL_SUCCESS_WITH_INFO)
     {
-    	//std::cout << "TRUNC" << std::endl;
+        //std::cout << "TRUNC" << std::endl;
         std::string state = diag_sqlstate(this->m_data.m_resultset.getDbc(),
                                           this->getHandle(), SQL_HANDLE_STMT);
         if(state != "01004")
@@ -452,10 +452,10 @@ OdbcBlob_libodbc::underflow()
     }
 
     if(ret == SQL_NO_DATA || ind == SQL_NULL_DATA)
-    	return traits_type::eof();
+        return traits_type::eof();
     else
     {
-    	assert(ind > 0); // there mus be data avail!
+        assert(ind > 0); // there mus be data avail!
         setg(base, start, start + ind);
         return traits_type::to_int_type(*gptr());
     }
@@ -463,7 +463,7 @@ OdbcBlob_libodbc::underflow()
 
 
 /// @details
-/// 
+///
 bool
 OdbcBlob_libodbc::isNull(void) const
 {
@@ -495,7 +495,7 @@ OdbcBlob_libodbc::isNull(void) const
 /////////////////////////////////////////////////////////////// OdbcMemo_libodbc
 
 /// @details
-/// 
+///
 ODBC30Drv*
 OdbcMemo_libodbc::drv(void) const
 {
@@ -504,7 +504,7 @@ OdbcMemo_libodbc::drv(void) const
 
 
 /// @details
-/// 
+///
 SQLHSTMT
 OdbcMemo_libodbc::getHandle(void) const
 {
@@ -513,7 +513,7 @@ OdbcMemo_libodbc::getHandle(void) const
 
 
 /// @details
-/// 
+///
 OdbcMemo_libodbc::OdbcMemo_libodbc(const OdbcData_libodbc& data)
     : OdbcMemo(),
       m_data(data),
@@ -543,7 +543,7 @@ OdbcMemo_libodbc::OdbcMemo_libodbc(const OdbcData_libodbc& data)
 
 
 /// @details
-/// 
+///
 OdbcMemo_libodbc::~OdbcMemo_libodbc(void)
 {
 /*
@@ -563,7 +563,7 @@ OdbcMemo_libodbc::~OdbcMemo_libodbc(void)
 
 
 /// @details
-/// 
+///
 OdbcMemo_libodbc::int_type
 OdbcMemo_libodbc::underflow()
 {
@@ -589,13 +589,13 @@ OdbcMemo_libodbc::underflow()
 
     if(sizeof(char_type) == sizeof(SQLWCHAR))
     {
-    	ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
+        ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
                                       SQL_C_WCHAR, start, sizeof(m_buf) - (start - base), &ind);
-//	std::wcout << "DATA: " << std::wstring(start, start + (sizeof(m_buf) - (start - base))) << std::endl;
+//  std::wcout << "DATA: " << std::wstring(start, start + (sizeof(m_buf) - (start - base))) << std::endl;
     }
     else
     {
-    	std::vector<SQLWCHAR> tmp((sizeof(m_buf)/sizeof(wchar_t) - (start - base)));
+        std::vector<SQLWCHAR> tmp((sizeof(m_buf)/sizeof(wchar_t) - (start - base)));
         ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
                                       SQL_C_WCHAR, tmp.data(), tmp.size()*sizeof(SQLWCHAR), &ind);
         for(size_t i = 0; i < (sizeof(m_buf)/sizeof(wchar_t) - (start - base)); ++i)
@@ -616,11 +616,11 @@ OdbcMemo_libodbc::underflow()
                               "GetData failed");
     }
 
-	//std::cout << "IND: " << ind << std::endl;
+    //std::cout << "IND: " << ind << std::endl;
 
     if(ret == SQL_SUCCESS_WITH_INFO)
     {
-    	//std::cout << "TRUNC" << std::endl;
+        //std::cout << "TRUNC" << std::endl;
         std::string state = diag_sqlstate(this->m_data.m_resultset.getDbc(),
                                           this->getHandle(), SQL_HANDLE_STMT);
         if(state != "01004")
@@ -634,10 +634,10 @@ OdbcMemo_libodbc::underflow()
     }
 
     if(ret == SQL_NO_DATA || ind == SQL_NULL_DATA)
-    	return traits_type::eof();
+        return traits_type::eof();
     else
     {
-    	assert(ind > 0); // there mus be data avail!
+        assert(ind > 0); // there mus be data avail!
         setg(base, start, start + (ind/2));
         return traits_type::to_int_type(*gptr());
     }
@@ -645,7 +645,7 @@ OdbcMemo_libodbc::underflow()
 
 
 /// @details
-/// 
+///
 bool
 OdbcMemo_libodbc::isNull(void) const
 {
@@ -660,7 +660,7 @@ OdbcMemo_libodbc::isNull(void) const
 OdbcResult_libodbc&
 OdbcData_libodbc::getResultset(void) const
 {
-    return this->m_resultset; 
+    return this->m_resultset;
 }
 
 OdbcStmt_libodbc&
@@ -671,7 +671,7 @@ OdbcData_libodbc::drv(void) const {  return this->getResultset().drv(); }
 SQLHSTMT
 OdbcData_libodbc::getHandle(void) const
 {
-	return this->getResultset().getHandle();
+    return this->getResultset().getHandle();
 }
 
 
@@ -682,11 +682,11 @@ OdbcData_libodbc::getHandle(void) const
 void
 OdbcData_libodbc::bindIndicator(colnum_t colnum, SQLLEN *len)
 {
-	DBWTL_TRACE2(colnum, *len);
+    DBWTL_TRACE2(colnum, *len);
     SQLRETURN ret;
 
 
-	assert(!"do not call");
+    assert(!"do not call");
 #if 0
 
     SQLHDESC desc = SQL_NULL_HANDLE;
@@ -791,26 +791,26 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
       m_memostream(),
       m_bufsize(),
       m_value()
-{ 
-	DBWTL_TRACE2(colnum, locked);
-	assert(result.isOpen());
+{
+    DBWTL_TRACE2(colnum, locked);
+    assert(result.isOpen());
 
-	if(colnum == 0)
-	{
-		/// @todo Implement bookmark support for ODBC
-		return;
-	}
+    if(colnum == 0)
+    {
+        /// @todo Implement bookmark support for ODBC
+        return;
+    }
 
-	SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
-	SQLULEN size = 0;
-	SQLLEN is_unsigned = SQL_FALSE;
+    SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
+    SQLULEN size = 0;
+    SQLLEN is_unsigned = SQL_FALSE;
 
-	SQLRETURN ret;
-	
-	if(this->m_resultset.getDbc().usingUnicode())
+    SQLRETURN ret;
+
+    if(this->m_resultset.getDbc().usingUnicode())
         ret = this->drv()->SQLDescribeColW(this->getHandle(), m_colnum, NULL, 0, NULL,
                                            &sqltype, &size, NULL, NULL);
-	else
+    else
         ret = this->drv()->SQLDescribeColA(this->getHandle(), m_colnum, NULL, 0, NULL,
                                            &sqltype, &size, NULL, NULL);
 
@@ -821,11 +821,11 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
                               this->getHandle(), SQL_HANDLE_STMT, "DescribeCol failed");
     }
 
-	if(this->m_resultset.getDbc().usingUnicode())
+    if(this->m_resultset.getDbc().usingUnicode())
         ret = this->drv()->SQLColAttributeW(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
-                	                        NULL, 0, NULL, &is_unsigned);
-	else
-		ret = this->drv()->SQLColAttributeA(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
+                                            NULL, 0, NULL, &is_unsigned);
+    else
+        ret = this->drv()->SQLColAttributeA(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
                                             NULL, 0, NULL, &is_unsigned);
 
     if(! SQL_SUCCEEDED(ret))
@@ -835,12 +835,12 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
     }
 
 
-	if(sqltype == SQL_WCHAR && !this->m_resultset.getDbc().usingUnicode())
-		sqltype = SQL_CHAR;
-	if(sqltype == SQL_WVARCHAR && !this->m_resultset.getDbc().usingUnicode())
-		sqltype = SQL_VARCHAR;
-	if(sqltype == SQL_WLONGVARCHAR && !this->m_resultset.getDbc().usingUnicode())
-		sqltype = SQL_LONGVARCHAR;
+    if(sqltype == SQL_WCHAR && !this->m_resultset.getDbc().usingUnicode())
+        sqltype = SQL_CHAR;
+    if(sqltype == SQL_WVARCHAR && !this->m_resultset.getDbc().usingUnicode())
+        sqltype = SQL_VARCHAR;
+    if(sqltype == SQL_WLONGVARCHAR && !this->m_resultset.getDbc().usingUnicode())
+        sqltype = SQL_LONGVARCHAR;
 
 
 
@@ -862,7 +862,7 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
         // If data pointer is NULL, the indicator variable is ignored by drivers (WTF?)
         ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_CHAR,
                                       m_value.strbufA.ptr(), m_value.strbufA.size()*sizeof(SQLCHAR), &m_value.ind);
-        break; 
+        break;
     case SQL_WCHAR:
     case SQL_WVARCHAR:
         m_value.strbufW.resize(size == 0 || size > DBWTL_ODBC_MAX_STRING_SIZE ? 256 : size+1); // size = chars
@@ -897,7 +897,7 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
                                           &m_value.data.uShortInt, sizeof(m_value.data.uShortInt), &m_value.ind);
         else
             ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SSHORT,
-	                                      &m_value.data.sShortInt, sizeof(m_value.data.sShortInt), &m_value.ind);
+                                          &m_value.data.sShortInt, sizeof(m_value.data.sShortInt), &m_value.ind);
 
         break;
     case SQL_INTEGER:
@@ -906,7 +906,7 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
                                           &m_value.data.uLongInt, sizeof(m_value.data.uLongInt), &m_value.ind);
         else
             ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SLONG,
-	                                      &m_value.data.sLongInt, sizeof(m_value.data.sLongInt), &m_value.ind);
+                                          &m_value.data.sLongInt, sizeof(m_value.data.sLongInt), &m_value.ind);
 
         break;
     case SQL_REAL:
@@ -928,7 +928,7 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
                                           &m_value.data.uTinyInt, sizeof(m_value.data.uTinyInt), &m_value.ind);
         else
             ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_STINYINT,
-	                                      &m_value.data.sTinyInt, sizeof(m_value.data.sTinyInt), &m_value.ind);
+                                          &m_value.data.sTinyInt, sizeof(m_value.data.sTinyInt), &m_value.ind);
         break;
     case SQL_BIGINT:
         if(is_unsigned == SQL_TRUE)
@@ -936,7 +936,7 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
                                           &m_value.data.uBigInt, sizeof(m_value.data.uBigInt), &m_value.ind);
         else
             ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SBIGINT,
-	                                      &m_value.data.sBigInt, sizeof(m_value.data.sBigInt), &m_value.ind);
+                                          &m_value.data.sBigInt, sizeof(m_value.data.sBigInt), &m_value.ind);
 
         break;
     case SQL_BINARY:
@@ -980,12 +980,12 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
     case SQL_INTERVAL_HOUR_TO_MINUTE:
     case SQL_INTERVAL_HOUR_TO_SECOND:
     case SQL_INTERVAL_MINUTE_TO_SECOND:
-    	/// @todo Implement Interval types
+        /// @todo Implement Interval types
         throw FeatureUnsuppException("Interval types for ODBC are not implemented yet.");
 //case SQL_GUID:
     default:
         /// @note Other types: fallback to string
-    	if(this->getStmt().getDbc().usingUnicode())
+        if(this->getStmt().getDbc().usingUnicode())
         {
             m_value.strbufW.resize(size == 0 ? 256 : size+1); // size = chars
             ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
@@ -1002,7 +1002,7 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
 
     //m_buf = new int();
     //m_bufsize = sizeof(int);
-	m_value.ind = SQL_NULL_DATA;
+    m_value.ind = SQL_NULL_DATA;
 /*
 
   ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, type, &m_value.sLongInt, sizeof(m_value.sLongInt), &m_ind);
@@ -1061,7 +1061,7 @@ OdbcData_libodbc::getMemo(void) const
 
         *this->m_memostream << String(ss.str(), this->m_resultset.getDbc().getDbcEncoding());
 
-        return this->m_memostream->rdbuf();    
+        return this->m_memostream->rdbuf();
     }
 }
 
@@ -1102,7 +1102,7 @@ String OdbcData_libodbc::getString(void) const
         else
             return m_value.strbufW.str((unsigned)this->m_value.ind/sizeof(SQLWCHAR) > m_value.strbufW.size() ?
                                        m_value.strbufW.size()-1 : this->m_value.ind/sizeof(SQLWCHAR));
-    }    
+    }
 }
 
 signed short int OdbcData_libodbc::getSShort(void) const
@@ -1253,11 +1253,11 @@ TVarbinary OdbcData_libodbc::getBinary(void) const
 }
 unsigned long int OdbcData_libodbc::getBookmark(void) const
 {
-	throw FeatureUnsuppException("Bookmark support for ODBC is not implemented yet.");
+    throw FeatureUnsuppException("Bookmark support for ODBC is not implemented yet.");
 }
 const  unsigned char* OdbcData_libodbc::getVarbookmark(void) const
 {
-	throw FeatureUnsuppException("Bookmark support for ODBC is not implemented yet.");
+    throw FeatureUnsuppException("Bookmark support for ODBC is not implemented yet.");
 }
 TDate OdbcData_libodbc::getDate(void) const
 {
@@ -1324,14 +1324,14 @@ TNumeric OdbcData_libodbc::getNumeric(void) const
         }
 
         res.rescale(num.scale);
-        // NOTE: The ODBC 3.0 spec required drivers to return the sign as 
+        // NOTE: The ODBC 3.0 spec required drivers to return the sign as
         // 1 for positive numbers and 2 for negative number. This was changed in the
         // ODBC 3.5 spec to return 0 for negative instead of 2.
         if(num.sign == 0 || num.sign == 2)
         {
             res = res * -1;
         }
-	
+
         return res;
     }
 }
@@ -1339,32 +1339,32 @@ TNumeric OdbcData_libodbc::getNumeric(void) const
 
 
 //
-bool 
+bool
 OdbcData_libodbc::isnull(void) const
 {
     return this->m_value.ind == SQL_NULL_DATA;
 }
 
-// 
+//
 void
 OdbcData_libodbc::fetchParts(void)
 {
     DBWTL_TRACE0();
 
-	if(this->m_value.ind == SQL_NULL_DATA || this->m_value.ind == SQL_NTS)
-		return;
+    if(this->m_value.ind == SQL_NULL_DATA || this->m_value.ind == SQL_NTS)
+        return;
 
-	SQLRETURN ret;
-	SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
-	SQLULEN size = 0;
+    SQLRETURN ret;
+    SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
+    SQLULEN size = 0;
 
-	if(this->m_resultset.getDbc().usingUnicode())
+    if(this->m_resultset.getDbc().usingUnicode())
         ret = this->drv()->SQLDescribeColW(this->getHandle(), m_colnum, NULL, 0, NULL,
                                            &sqltype, &size, NULL, NULL);
-	else
+    else
         ret = this->drv()->SQLDescribeColA(this->getHandle(), m_colnum, NULL, 0, NULL,
                                            &sqltype, &size, NULL, NULL);
-    
+
     if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->m_resultset.getStmt().getDbc(),
@@ -1398,9 +1398,9 @@ OdbcData_libodbc::fetchParts(void)
         }
         else if(this->m_value.ind == SQL_NO_TOTAL)
         {
-			SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
-			m_value.strbufW.resize(bufsize);
-			SQLWCHAR *ptr = m_value.strbufW.ptr();            
+            SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
+            m_value.strbufW.resize(bufsize);
+            SQLWCHAR *ptr = m_value.strbufW.ptr();
             do
             {
                 this->m_value.ind = SQL_NULL_DATA; // reset indicator
@@ -1460,9 +1460,9 @@ OdbcData_libodbc::fetchParts(void)
         }
         else if(this->m_value.ind == SQL_NO_TOTAL)
         {
-			SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
-			m_value.strbufA.resize(bufsize);
-			SQLCHAR *ptr = m_value.strbufA.ptr();            
+            SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
+            m_value.strbufA.resize(bufsize);
+            SQLCHAR *ptr = m_value.strbufA.ptr();
             do
             {
                 this->m_value.ind = SQL_NULL_DATA; // reset indicator
@@ -1509,7 +1509,7 @@ OdbcData_libodbc::fetchParts(void)
 
 
 //
-rowid_t 
+rowid_t
 OdbcData_libodbc::getCurrentRowID(void) const
 {
     DBWTL_TRACE;
@@ -1569,7 +1569,7 @@ void
 OdbcResult_libodbc::prepare(String sql)
 {
 
-	DBWTL_TRACE1(sql);
+    DBWTL_TRACE1(sql);
 
     if(this->isBad())
         throw EngineException("Resultset is in bad state.");
@@ -1582,18 +1582,18 @@ OdbcResult_libodbc::prepare(String sql)
     if(this->isPrepared())
         this->close();
 
-	SQLRETURN ret;
+    SQLRETURN ret;
 
-	if(this->getDbc().usingUnicode())
-	{
-		OdbcStrW text(sql);
-        ret = this->drv()->SQLPrepareW(this->getHandle(),  text.ptr(), SQL_NTS);
-	}
-	else
-	{
-		OdbcStrA text(sql, this->getDbc().getDbcEncoding());
-		ret = this->drv()->SQLPrepareA(this->getHandle(),  text.ptr(), SQL_NTS);
-	}
+    if(this->getDbc().usingUnicode())
+    {
+        OdbcStrW text(sql);
+        ret = this->drv()->SQLPrepareW(this->getHandle(),  text.ptr(), text.size());
+    }
+    else
+    {
+        OdbcStrA text(sql, this->getDbc().getDbcEncoding());
+        ret = this->drv()->SQLPrepareA(this->getHandle(),  text.ptr(), text.size());
+    }
 
     if(! SQL_SUCCEEDED(ret))
     {
@@ -1641,25 +1641,25 @@ static void ttimestamp2odbc(const TTimestamp &ttimestamp, SQL_TIMESTAMP_STRUCT &
 void
 OdbcResult_libodbc::bindParamBlob(StmtBase::ParamMapIterator param)
 {
-	std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
-	assert(pdata.get());
+    std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
+    assert(pdata.get());
 
-	SQLRETURN ret;
+    SQLRETURN ret;
 
-	bool needLength = sqlgetinfo<String>(this->getDbc(), SQL_NEED_LONG_DATA_LEN) == "Y";
+    bool needLength = sqlgetinfo<String>(this->getDbc(), SQL_NEED_LONG_DATA_LEN) == "Y";
 
-	//std::cout << sqlgetinfo<String>(this->getDbc(), SQL_NEED_LONG_DATA_LEN) << std::endl;
+    //std::cout << sqlgetinfo<String>(this->getDbc(), SQL_NEED_LONG_DATA_LEN) << std::endl;
 
-	if(needLength)
-	{
-		pdata->varbinary = Blob(param->second->get<BlobStream>().rdbuf()).toVarbinary();
-		assert(pdata->varbinary.size());
+    if(needLength)
+    {
+        pdata->varbinary = Blob(param->second->get<BlobStream>().rdbuf()).toVarbinary();
+        assert(pdata->varbinary.size());
         pdata->ind = SQL_LEN_DATA_AT_EXEC(pdata->varbinary.size());
-	}
-	else // no length required
-	{
+    }
+    else // no length required
+    {
         pdata->ind = SQL_LEN_DATA_AT_EXEC(1); // any non-negative integer is ok
-	}
+    }
 
     ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                         SQL_C_BINARY,
@@ -1669,7 +1669,7 @@ OdbcResult_libodbc::bindParamBlob(StmtBase::ParamMapIterator param)
                                         reinterpret_cast<void*>(param->first),
                                         0, // len 0
                                         &pdata->ind);
-    
+
     if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -1683,16 +1683,16 @@ OdbcResult_libodbc::bindParamBlob(StmtBase::ParamMapIterator param)
 void
 OdbcResult_libodbc::bindParamMemo(StmtBase::ParamMapIterator param)
 {
-	std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
-	assert(pdata.get());
+    std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
+    assert(pdata.get());
 
-	SQLRETURN ret;
+    SQLRETURN ret;
 
-	bool needLength = sqlgetinfo<String>(this->getDbc(), SQL_NEED_LONG_DATA_LEN) == "Y";
+    bool needLength = sqlgetinfo<String>(this->getDbc(), SQL_NEED_LONG_DATA_LEN) == "Y";
 
 
-	if(this->getDbc().usingUnicode())
-	{
+    if(this->getDbc().usingUnicode())
+    {
 
         //std::cout << sqlgetinfo<String>(this->getDbc(), SQL_NEED_LONG_DATA_LEN) << std::endl;
 
@@ -1717,7 +1717,7 @@ OdbcResult_libodbc::bindParamMemo(StmtBase::ParamMapIterator param)
     }
     else
     {
-    	// we ignore needLength because we need to transform the whole data in-memory.
+        // we ignore needLength because we need to transform the whole data in-memory.
         pdata->strbufA = OdbcStrA(Memo(param->second->get<MemoStream>().rdbuf()).str(), this->getDbc().getDbcEncoding());
         pdata->ind = SQL_LEN_DATA_AT_EXEC(pdata->strbufA.size()*sizeof(SQLCHAR));
         ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
@@ -1744,13 +1744,13 @@ OdbcResult_libodbc::bindParamMemo(StmtBase::ParamMapIterator param)
 void
 OdbcResult_libodbc::bindParamString(StmtBase::ParamMapIterator param)
 {
-	std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
+    std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
     assert(pdata.get());
     Variant *var = param->second;
-	SQLRETURN ret;
-	if(this->getDbc().usingUnicode())
-	{
-        pdata->strbufW = var->get<String>();
+    SQLRETURN ret;
+    if(this->getDbc().usingUnicode())
+    {
+        pdata->strbufW = OdbcStrW(var->get<String>());
         pdata->ind = SQL_NTS;
         ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                             SQL_C_WCHAR,
@@ -1760,12 +1760,12 @@ OdbcResult_libodbc::bindParamString(StmtBase::ParamMapIterator param)
                                             pdata->strbufW.ptr(),
                                             pdata->strbufW.size()*sizeof(SQLWCHAR),
                                             &pdata->ind);
-	}
-	else
-	{
-		pdata->strbufA = OdbcStrA(var->get<String>(), this->getDbc().getDbcEncoding());
-		pdata->ind = SQL_NTS;
-		ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
+    }
+    else
+    {
+        pdata->strbufA = OdbcStrA(var->get<String>(), this->getDbc().getDbcEncoding());
+        pdata->ind = SQL_NTS;
+        ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                             SQL_C_CHAR,
                                             SQL_VARCHAR,
                                             pdata->strbufA.size(),
@@ -1773,7 +1773,7 @@ OdbcResult_libodbc::bindParamString(StmtBase::ParamMapIterator param)
                                             pdata->strbufA.ptr(),
                                             pdata->strbufA.size(),
                                             &pdata->ind);
-	}
+    }
     if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -1785,11 +1785,11 @@ OdbcResult_libodbc::bindParamString(StmtBase::ParamMapIterator param)
 void
 OdbcResult_libodbc::bindParamNumeric(StmtBase::ParamMapIterator param)
 {
-	std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
-	assert(pdata.get());
+    std::shared_ptr<OdbcValue> pdata = this->m_param_data[param->first];
+    assert(pdata.get());
     Variant *var = param->second;
 
-	SQLRETURN ret;
+    SQLRETURN ret;
 
     SQLHDESC desc = SQL_NULL_HANDLE;
 
@@ -1812,41 +1812,41 @@ OdbcResult_libodbc::bindParamNumeric(StmtBase::ParamMapIterator param)
     SQLSMALLINT scale = src.scale();
     SQLSMALLINT prec = src.precision();
 
-	num.sign = src.sign() ? 1 : 2;   /* 1 if positive, 2 if negative */
+    num.sign = src.sign() ? 1 : 2;   /* 1 if positive, 2 if negative */
 
-	src.zeroscale();
-	src = std::abs(src);
+    src.zeroscale();
+    src = std::abs(src);
 
 
     ::memset (num.val, 0, 16);
 
-   	TNumeric q(1);
+    TNumeric q(1);
 
     int i;
     for(i = 0; i < SQL_MAX_NUMERIC_LEN; ++i)
     {
-        //	std::cout << i << std::endl;
+        //  std::cout << i << std::endl;
         TNumeric r = q;
         q = q * 256;
-//	std::cout << x << " " << q << " " << r << std::endl;
-//	std::cout << "DAT: " << (x % q) << std::endl;
-//	std::cout << "DAT: " << divi(x % q, r) << std::endl;
+//  std::cout << x << " " << q << " " << r << std::endl;
+//  std::cout << "DAT: " << (x % q) << std::endl;
+//  std::cout << "DAT: " << divi(x % q, r) << std::endl;
         num.val[i] = divi(src % q, r).convert<unsigned short>();
-//	std::cout << "VAL: " << int(num.val[i]) << std::endl;
+//  std::cout << "VAL: " << int(num.val[i]) << std::endl;
         src = src - (src % q);
 
         if(src == 0) break;
     }
 
 //   x / 256;
-   
+
 //   num.val [0] = 0x0;
 //   num.val [1] = 0x2;
 
     // Some documentation states that this information fields are ignored.
     // Lots of tests shows that they are required...
     num.precision = prec;
-    num.scale = scale;  
+    num.scale = scale;
 
 /*
   for(size_t i = 0; i < SQL_MAX_NUMERIC_LEN; ++i)
@@ -1904,24 +1904,24 @@ OdbcResult_libodbc::bindParamNumeric(StmtBase::ParamMapIterator param)
 
     ret = this->drv()->SQLSetDescFieldA(desc, param->first, SQL_DESC_PRECISION,
                                         reinterpret_cast<void*>(num.precision), SQL_IS_SMALLINT);
-    
-    
+
+
     if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(), this->getHandle(),
                               SQL_HANDLE_STMT, "SQLSetDescFieldW failed");
-    } 
-    
+    }
+
 
     ret = this->drv()->SQLSetDescFieldA(desc, param->first, SQL_DESC_SCALE,
                                         reinterpret_cast<void*>(num.scale), SQL_IS_SMALLINT);
-    
-    
+
+
     if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(), this->getHandle(),
                               SQL_HANDLE_STMT, "SQLSetDescFieldW failed");
-    } 
+    }
 
 
 
@@ -1933,10 +1933,10 @@ OdbcResult_libodbc::bindParamNumeric(StmtBase::ParamMapIterator param)
     {
         THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(), this->getHandle(),
                               SQL_HANDLE_STMT, "SQLSetDescFieldW failed");
-    } 
+    }
 
 
-    
+
 }
 
 
@@ -1986,7 +1986,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
         {
             /// @todo Setting TINYINT is just a workaround.
             SQLSMALLINT dtype = SQL_TINYINT;
-            
+
             if(sqlgetfunction(this->getDbc(), SQL_API_SQLDESCRIBEPARAM))
             {
                 SQLRETURN ret = this->drv()->SQLDescribeParam(this->getHandle(), param->first,
@@ -1996,7 +1996,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                           this->getHandle(), SQL_HANDLE_STMT,
                                           "SQLDescribeParam() for NULL value failed");
             }
-            
+
             ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                 SQL_C_DEFAULT,
                                                 dtype,
@@ -2005,7 +2005,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                 NULL,
                                                 0,
                                                 &pdata->ind);
-                                      
+
             if(! SQL_SUCCEEDED(ret))
             {
                 THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2031,7 +2031,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.sLongInt,
                                                     sizeof(pdata->data.sLongInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2039,7 +2039,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                           "SQLBindParameter() failed");
                 }
                 break;
-	
+
             case DAL_TYPE_UINT:
                 pdata->data.uLongInt = var->get<unsigned int>();
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
@@ -2050,7 +2050,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.uLongInt,
                                                     sizeof(pdata->data.uLongInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2068,7 +2068,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.sTinyInt,
                                                     sizeof(pdata->data.sTinyInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2086,7 +2086,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.uTinyInt,
                                                     sizeof(pdata->data.uTinyInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2104,14 +2104,14 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.bit,
                                                     sizeof(pdata->data.bit),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
                                           this->getHandle(), SQL_HANDLE_STMT,
                                           "SQLBindParameter() failed");
                 }
-                break;                
+                break;
             case DAL_TYPE_SMALLINT:
                 pdata->data.sShortInt = var->get<signed short>();
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
@@ -2122,7 +2122,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.sShortInt,
                                                     sizeof(pdata->data.sShortInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2140,7 +2140,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.uShortInt,
                                                     sizeof(pdata->data.uShortInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2158,7 +2158,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.sBigInt,
                                                     sizeof(pdata->data.sBigInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2176,7 +2176,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.uBigInt,
                                                     sizeof(pdata->data.uBigInt),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2194,7 +2194,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.float_,
                                                     sizeof(pdata->data.float_),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2212,7 +2212,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.double_,
                                                     sizeof(pdata->data.double_),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2230,7 +2230,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.date,
                                                     sizeof(pdata->data.date),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2249,7 +2249,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.time,
                                                     sizeof(pdata->data.time),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2268,7 +2268,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     &pdata->data.timestamp,
                                                     sizeof(pdata->data.timestamp),
                                                     NULL);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2291,7 +2291,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                     pdata->varbinary.data(),
                                                     pdata->varbinary.size(),
                                                     &pdata->ind);
-                
+
                 if(! SQL_SUCCEEDED(ret))
                 {
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2328,7 +2328,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                   pdata->strbufW.ptr(),
                   pdata->strbufW.size(),
                   &pdata->ind);
-                
+
                   if(! SQL_SUCCEEDED(ret))
                   {
                   THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
@@ -2347,7 +2347,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
     // If params exists with SQL_DATA_AT_EXEC, we must supply this data now.
     if(ret == SQL_NEED_DATA)
     {
-    	SQLRETURN ret;
+        SQLRETURN ret;
         SQLINTEGER param_num = 0;
         while((ret = this->drv()->SQLParamData(this->getHandle(), (SQLPOINTER*)&param_num))
               == SQL_NEED_DATA)
@@ -2366,7 +2366,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
             else
             {
                 Variant &data =  *param->second;
-                
+
                 if(data.datatype() == DAL_TYPE_BLOB)
                 {
                     Blob tmp_blob;
@@ -2390,9 +2390,9 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                     {
                         DBWTL_BUG();
                     }
-                    
+
                     std::vector<char> vec(DBWTL_ODBC_LOB_BUFSIZE);
-                    
+
                     while(std::streamsize i = buf->sgetn(vec.data(), vec.size()))
                     {
                         SQLRETURN ret = this->drv()->SQLPutData(this->getHandle(), vec.data(), i);
@@ -2454,7 +2454,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
 
                         // copy buffer
                         std::vector<wchar_t> vec(DBWTL_ODBC_LOB_BUFSIZE);
-                    
+
                         while(std::streamsize i = buf->sgetn(vec.data(), vec.size()))
                         {
                             SQLRETURN ret;
@@ -2476,7 +2476,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                                       this->getHandle(), SQL_HANDLE_STMT,
                                                       "SQLPutData failed");
                             }
-                        }   
+                        }
                     }
                 } // endif memo
             }
@@ -2486,7 +2486,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
         {
             THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
                                   this->getHandle(), SQL_HANDLE_STMT,
-                                  "SQLParamData failed");	
+                                  "SQLParamData failed");
         }
     }
     else if(! SQL_SUCCEEDED(ret))
@@ -2508,7 +2508,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
 
 
 //
-size_t    
+size_t
 OdbcResult_libodbc::paramCount(void) const
 {
     if(this->isBad())
@@ -2533,7 +2533,7 @@ OdbcResult_libodbc::paramCount(void) const
 
 
 //
-void 
+void
 OdbcResult_libodbc::first(void)
 {
 
@@ -2547,37 +2547,37 @@ OdbcResult_libodbc::first(void)
     {
         throw EngineException("can't scroll to first record");
     }
- 
+
     if(this->m_current_tuple == 1)
-    	return; // nothing to do...
+        return; // nothing to do...
 
 
     SQLRETURN ret = this->drv()->SQLFetch(this->getHandle());
     assert(ret != SQL_INVALID_HANDLE);
 
     if(SQL_SUCCEEDED(ret))
-	{
-		this->m_current_tuple = 1;
-		DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
-	}
-	else if(ret == SQL_NO_DATA)
-	{
-		DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_EOF);
-	}
-	else
+    {
+        this->m_current_tuple = 1;
+        DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
+    }
+    else if(ret == SQL_NO_DATA)
+    {
+        DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_EOF);
+    }
+    else
     {
         THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "Fetch first failed");
     }
     if(ret == SQL_SUCCESS_WITH_INFO)
     {
         //assert(!"foo");
-    	if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
+        if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
         {
             // std::for_each(this->m_column_accessors.begin(),
             //               this->m_column_accessors.end(),
             //               stdext::compose1(std::mem_fun(&OdbcVariant::fetchParts),
             //                                stdext::select2nd<VariantListT::value_type>())
-			// 	);
+            //  );
 
             std::for_each(this->m_column_accessors.begin(),
                           this->m_column_accessors.end(),
@@ -2608,7 +2608,7 @@ OdbcResult_libodbc::next(void)
 
     if(SQL_SUCCEEDED(ret))
     {
-		++this->m_current_tuple;
+        ++this->m_current_tuple;
     }
     else if(ret == SQL_NO_DATA)
     {
@@ -2625,7 +2625,7 @@ OdbcResult_libodbc::next(void)
 
 
 //
-bool  
+bool
 OdbcResult_libodbc::eof(void) const
 {
     if(this->isBad())
@@ -2655,7 +2655,7 @@ OdbcResult_libodbc::eof(void) const
 
 
 //
-void   
+void
 OdbcResult_libodbc::close(void)
 {
     this->reset(); /// @todo this may conflict with multiple resultsets.
@@ -2727,10 +2727,10 @@ OdbcResult_libodbc::affectedRows(void) const
     SQLRETURN ret = this->drv()->SQLRowCount(this->getHandle(), &c);
 
     if(! SQL_SUCCEEDED(ret))
-	{
-		THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT,
+    {
+        THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT,
                               "SQLRowCount() failed");
-	}
+    }
     return c;
 }
 
@@ -2780,12 +2780,12 @@ OdbcResult_libodbc::column(colnum_t num)
     if(num > this->columnCount())
     {
         throw NotFoundException(FORMAT2("Column %d not found, column count is %d", num, this->columnCount()));
-	}
+    }
 
     VariantListT::iterator p = this->m_column_accessors.find(num);
     if(this->m_column_accessors.end() == p)
     {
-    	DBWTL_BUG_EX(FORMAT2("Column %d not found, column count is %d", num, this->columnCount()));
+        DBWTL_BUG_EX(FORMAT2("Column %d not found, column count is %d", num, this->columnCount()));
     }
     return *(p->second);
 }
@@ -2808,7 +2808,7 @@ OdbcResult_libodbc::getCurrentRowID(void) const
 
 
 //
-size_t    
+size_t
 OdbcResult_libodbc::columnCount(void) const
 {
 
@@ -2825,9 +2825,9 @@ OdbcResult_libodbc::columnCount(void) const
     SQLRETURN ret = this->drv()->SQLNumResultCols(this->getHandle(), &c);
 
     if(! SQL_SUCCEEDED(ret))
-	{
-		THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "NumResultCols");
-	}
+    {
+        THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "NumResultCols");
+    }
 
     DAL_DEBUG("Query column count: " << c);
     DALTRACE_LEAVE;
@@ -2840,7 +2840,7 @@ OdbcResult_libodbc::columnCount(void) const
 colnum_t
 OdbcResult_libodbc::columnID(String name) const
 {
-	DBWTL_TRACE1(name);
+    DBWTL_TRACE1(name);
     if(this->isBad())
         throw EngineException("Resultset is in bad state.");
 
@@ -2884,7 +2884,7 @@ OdbcResult_libodbc::drv(void) const
 
 
 //
-OdbcDbc_libodbc& 
+OdbcDbc_libodbc&
 OdbcResult_libodbc::getDbc(void) const
 {
     return this->m_stmt.getDbc();
@@ -2907,21 +2907,21 @@ OdbcResult_libodbc::getStmt(void) const
 OdbcColumnDesc_libodbc::OdbcColumnDesc_libodbc(colnum_t i, OdbcResult_libodbc &result)
     : OdbcColumnDesc()
 {
-	DBWTL_TRACE1(i);
+    DBWTL_TRACE1(i);
 
-	SQLRETURN ret;
+    SQLRETURN ret;
 
     OdbcStrW nameW(256);
     OdbcStrA nameA(256);
-	SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
+    SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
     SQLSMALLINT namelen = 0;
     SQLSMALLINT digits = 0;
     SQLSMALLINT nullable = SQL_NULLABLE_UNKNOWN;
-	SQLLEN is_unsigned = SQL_FALSE;
+    SQLLEN is_unsigned = SQL_FALSE;
     SQLLEN scale = 0;
     SQLLEN precision = 0;
-	SQLULEN size = 0;
-	
+    SQLULEN size = 0;
+
     if(i == 0)
     {
         this->m_daltype = DAL_TYPE_UNKNOWN;
@@ -2932,7 +2932,7 @@ OdbcColumnDesc_libodbc::OdbcColumnDesc_libodbc(colnum_t i, OdbcResult_libodbc &r
         if(result.getDbc().usingUnicode())
         {
             ret = result.drv()->SQLDescribeColW(result.getHandle(), i, nameW.ptr(), nameW.size(), &namelen,
-                                                &sqltype, &size, &digits, &nullable);					    
+                                                &sqltype, &size, &digits, &nullable);
         }
         else
         {
@@ -3091,7 +3091,7 @@ OdbcResult_libodbc::describeColumn(colnum_t num) const
 const OdbcColumnDesc&
 OdbcResult_libodbc::describeColumn(String name) const
 {
-	DBWTL_TRACE1(name);
+    DBWTL_TRACE1(name);
     colnum_t num = this->columnID(name);
     return this->describeColumn(num);
 }
@@ -3108,14 +3108,14 @@ OdbcResult_libodbc::refreshMetadata(void)
 
     if(! this->getHandle())
         return;
-    
+
 
     // We use SQLFetch() and column binding for fetching data, so
     // we need to supply a buffer ptr for each output column.
     // This is automatically done by OdbcData_libodbc.
     size_t colcount = this->columnCount();
     OdbcColumnDesc desc;
-    
+
     for(size_t i = 0; i <= colcount; ++i)
     {
         OdbcColumnDesc_libodbc x(i, *this);
@@ -3128,7 +3128,7 @@ OdbcResult_libodbc::refreshMetadata(void)
             this->m_allocated_accessors.push_back(v); // smart ptr
             r = this->m_column_accessors.insert(VariantListT::value_type(i, v));
         }
-	
+
     }
 }
 
@@ -3161,16 +3161,16 @@ OdbcEnv_libodbc::OdbcEnv_libodbc(String lib)
 //
 OdbcEnv_libodbc::~OdbcEnv_libodbc(void)
 {
-	SQLRETURN ret = this->m_lib->SQLFreeHandle(SQL_HANDLE_ENV, this->m_handle);
-	assert(ret == SQL_SUCCESS);
-	this->m_handle = SQL_NULL_HANDLE;
+    SQLRETURN ret = this->m_lib->SQLFreeHandle(SQL_HANDLE_ENV, this->m_handle);
+    assert(ret == SQL_SUCCESS);
+    this->m_handle = SQL_NULL_HANDLE;
 }
 
 
 SQLHENV
 OdbcEnv_libodbc::getHandle(void) const
 {
-	return this->m_handle;
+    return this->m_handle;
 }
 
 //
@@ -3183,7 +3183,7 @@ OdbcEnv_libodbc::newConnection(void)
 
 
 //
-ODBC30Drv* 
+ODBC30Drv*
 OdbcEnv_libodbc::drv() const
 {
     return this->m_lib.get();
@@ -3206,31 +3206,31 @@ OdbcDbc_libodbc::OdbcDbc_libodbc(OdbcEnv_libodbc& env)
       m_dbh(SQL_NULL_HANDLE),
       m_useUnicode(true),
       m_ansics("UNICODE")
-{ 
-	assert(env.getHandle() != SQL_NULL_HANDLE);
-	SQLRETURN ret = this->drv()->SQLAllocHandle(SQL_HANDLE_DBC, env.getHandle(), &this->m_dbh);
-	assert(ret == SQL_SUCCESS);
+{
+    assert(env.getHandle() != SQL_NULL_HANDLE);
+    SQLRETURN ret = this->drv()->SQLAllocHandle(SQL_HANDLE_DBC, env.getHandle(), &this->m_dbh);
+    assert(ret == SQL_SUCCESS);
 }
 
 IEnv&
-	OdbcDbc_libodbc::getEnv(void)
+OdbcDbc_libodbc::getEnv(void)
 {
-	return this->m_env;
+    return this->m_env;
 }
 
 //
 OdbcDbc_libodbc::~OdbcDbc_libodbc(void)
 {
     this->disconnect();
-	SQLRETURN ret = this->drv()->SQLFreeHandle(SQL_HANDLE_DBC, this->m_dbh);
+    SQLRETURN ret = this->drv()->SQLFreeHandle(SQL_HANDLE_DBC, this->m_dbh);
     assert(ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
-	this->m_dbh = SQL_NULL_HANDLE;
+    this->m_dbh = SQL_NULL_HANDLE;
 }
 
 
 
 //
-OdbcStmt_libodbc*       
+OdbcStmt_libodbc*
 OdbcDbc_libodbc::newStatement(void)
 {
     return new OdbcStmt_libodbc(*this);
@@ -3245,7 +3245,7 @@ OdbcDbc_libodbc::connect(String database,
                          String password)
 {
     IDbc::Options options;
-    
+
     options[ "DSN" ] = database;
     options[ "UID" ] = user;
     options[ "PWD" ] = password;
@@ -3300,7 +3300,7 @@ OdbcDiag_libodbc::str(void) const
        << ifnull<String>(this->m_message, L"No message") << std::endl
        << ifnull<String>(this->m_description, L"No description") << std::endl
        << L"ODBC native error: " << this->m_nativecode << std::endl
-       << L"Raised at: " 
+       << L"Raised at: "
        << L" [" << this->m_codepos.str() << "]";
 
     return ss.str();
@@ -3312,27 +3312,24 @@ OdbcDiag_libodbc::str(void) const
 void
 OdbcDbc_libodbc::connect(IDbc::Options& options)
 {
-	assert(this->m_isConnected == false);
-	//OdbcStrW charset(options[ "charset" ]);
-	//OdbcStrA str2(30);
-	//str2.str(SQL_NTS, "iso8859-1");
+    assert(this->m_isConnected == false);
 
-	assert(this->getHandle() != SQL_NULL_HANDLE);
+    assert(this->getHandle() != SQL_NULL_HANDLE);
 
-	if(options["charset"].empty())
-	{
-		throw EngineException("connect() failed. You must specify the 'charset' option"
+    if(options["charset"].empty())
+    {
+        throw EngineException("connect() failed. You must specify the 'charset' option"
                               " with a valid character set"
                               " like \"utf-8\" or \"iso-8859-1\".");
-	}
+    }
     this->m_ansics = options["charset"];
 
-	if(options["unicode"].empty())
-	{
-		throw EngineException("connect() failed. You must specify the 'unicode' option"
+    if(options["unicode"].empty())
+    {
+        throw EngineException("connect() failed. You must specify the 'unicode' option"
                               " with either 'yes' or 'no' to switch between the ODBC ANSI and UNICODE API.");
-	}
-	else if(options["unicode"].upper() == "YES")
+    }
+    else if(options["unicode"].upper() == "YES")
         this->m_useUnicode = true;
     else if(options["unicode"].upper() == "NO")
         this->m_useUnicode = false;
@@ -3340,33 +3337,35 @@ OdbcDbc_libodbc::connect(IDbc::Options& options)
         throw EngineException(FORMAT1("Invalid value for option \"unicode\": %s", options["unicode"]));
 
 
-	SQLRETURN ret;
-	if(usingUnicode())
-	{
+    SQLRETURN ret;
+    if(usingUnicode())
+    {
+
         OdbcStrW dsn(options[ "datasource" ]);
         OdbcStrW uid(options[ "username" ]);
-        OdbcStrW pwd(options[ "password" ]);	
-		ret = this->drv()->SQLConnectW(this->getHandle(),
-                                       dsn.ptr(), SQL_NTS, uid.ptr(), SQL_NTS, pwd.ptr(), SQL_NTS);
+        OdbcStrW pwd(options[ "password" ]);
 
-	}
-	else
-	{
+        ret = this->drv()->SQLConnectW(this->getHandle(),
+                                       dsn.ptr(), dsn.size(), uid.ptr(), uid.size(), pwd.ptr(), pwd.size());
+    }
+    else
+    {
         OdbcStrA dsn(options[ "datasource" ], this->m_ansics);
         OdbcStrA uid(options[ "username" ], this->m_ansics);
         OdbcStrA pwd(options[ "password" ], this->m_ansics);
-		ret = this->drv()->SQLConnectA(this->getHandle(),
-                                       dsn.ptr(), SQL_NTS, uid.ptr(), SQL_NTS, pwd.ptr(), SQL_NTS);
-	}
-		
-	assert(ret != SQL_INVALID_HANDLE);
+        ret = this->drv()->SQLConnectA(this->getHandle(),
+                                       dsn.ptr(), dsn.size(), uid.ptr(), uid.size(), pwd.ptr(), pwd.size());
+    }
+
+    assert(ret != SQL_INVALID_HANDLE);
 
     if(! SQL_SUCCEEDED(ret))
-	{
-		THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Connect failed");
-	}
-	assert(ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
-	this->m_isConnected = true;
+    {
+        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Connect failed");
+    }
+    assert(ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
+    this->m_isConnected = true;
+
 /*
   DALTRACE_ENTER;
 
@@ -3423,7 +3422,7 @@ OdbcDbc_libodbc::disconnect(void)
     }
 /*
   DALTRACE_ENTER;
-    
+
   if(this->m_dbh)
   {
   DALTRACE("is connected, disconnecting...");
@@ -3435,7 +3434,7 @@ OdbcDbc_libodbc::disconnect(void)
   this->m_isConnected = false;
   break;
 
-  case ODBC_BUSY:            
+  case ODBC_BUSY:
   default:
   const char *msg = this->drv()->odbc3_errmsg(this->m_dbh);
   String u_msg(msg, "UTF-8");
@@ -3456,63 +3455,63 @@ OdbcDbc_libodbc::disconnect(void)
 
 void
 OdbcDbc_libodbc::beginTrans(trx_mode mode,
-                                      access_mode access,
-                                      String name)
+                            access_mode access,
+                            String name)
 {
-	SQLRETURN ret = SQL_ERROR;
-	ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_AUTOCOMMIT, (void*)SQL_AUTOCOMMIT_OFF, SQL_IS_UINTEGER);
-        if(! SQL_SUCCEEDED(ret))
-		THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set autocommit off failed");
-	switch(mode)
-	{
-	case trx_read_uncommitted:
-		 ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_READ_UNCOMMITTED, SQL_IS_UINTEGER);
-		 break;
-	case trx_read_committed:
-		ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_READ_COMMITTED, SQL_IS_UINTEGER);
-		break;
-	case trx_repeatable_read:
-		ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_REPEATABLE_READ, SQL_IS_UINTEGER);
-		break;
-	case trx_serializable:
-		ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_SERIALIZABLE, SQL_IS_UINTEGER);
-		break;
-	};
-	 if(! SQL_SUCCEEDED(ret))
-	 	THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set transaction mode failed");
+    SQLRETURN ret = SQL_ERROR;
+    ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_AUTOCOMMIT, (void*)SQL_AUTOCOMMIT_OFF, SQL_IS_UINTEGER);
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set autocommit off failed");
+    switch(mode)
+    {
+    case trx_read_uncommitted:
+        ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_READ_UNCOMMITTED, SQL_IS_UINTEGER);
+        break;
+    case trx_read_committed:
+        ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_READ_COMMITTED, SQL_IS_UINTEGER);
+        break;
+    case trx_repeatable_read:
+        ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_REPEATABLE_READ, SQL_IS_UINTEGER);
+        break;
+    case trx_serializable:
+        ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_TXN_ISOLATION, (void*)SQL_TXN_SERIALIZABLE, SQL_IS_UINTEGER);
+        break;
+    };
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set transaction mode failed");
 }
 
 void
-           OdbcDbc_libodbc::commit(void)
+OdbcDbc_libodbc::commit(void)
 {
-	SQLRETURN ret = SQL_ERROR;
-	ret = this->drv()->SQLEndTran(SQL_HANDLE_DBC, this->getHandle(), SQL_COMMIT);
-	 if(! SQL_SUCCEEDED(ret))
-	                 THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "commit failed");
-	ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_AUTOCOMMIT, (void*)SQL_AUTOCOMMIT_ON, SQL_IS_UINTEGER);
-	if(! SQL_SUCCEEDED(ret))
-	                THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set autocommit on failed");
+    SQLRETURN ret = SQL_ERROR;
+    ret = this->drv()->SQLEndTran(SQL_HANDLE_DBC, this->getHandle(), SQL_COMMIT);
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "commit failed");
+    ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_AUTOCOMMIT, (void*)SQL_AUTOCOMMIT_ON, SQL_IS_UINTEGER);
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set autocommit on failed");
 }
 
-void          
+void
 OdbcDbc_libodbc::savepoint(String name)
 {
-	throw FeatureUnsuppException("ODBC has no support for savepoints");
+    throw FeatureUnsuppException("ODBC has no support for savepoints");
 }
- 
+
 void
 OdbcDbc_libodbc::rollback(String name)
 {
-	if(!name.empty())
-		throw FeatureUnsuppException(FORMAT1("ODBC has no support for ROLLACK TO %s", name));
+    if(!name.empty())
+        throw FeatureUnsuppException(FORMAT1("ODBC has no support for ROLLACK TO %s", name));
 
-        SQLRETURN ret = SQL_ERROR;
-        ret = this->drv()->SQLEndTran(SQL_HANDLE_DBC, this->getHandle(), SQL_ROLLBACK);
-         if(! SQL_SUCCEEDED(ret))
-                         THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "commit failed");
-        ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_AUTOCOMMIT, (void*)SQL_AUTOCOMMIT_ON, SQL_IS_UINTEGER);
-        if(! SQL_SUCCEEDED(ret))
-                        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set autocommit on failed");
+    SQLRETURN ret = SQL_ERROR;
+    ret = this->drv()->SQLEndTran(SQL_HANDLE_DBC, this->getHandle(), SQL_ROLLBACK);
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "commit failed");
+    ret = this->drv()->SQLSetConnectAttrA(this->getHandle(), SQL_ATTR_AUTOCOMMIT, (void*)SQL_AUTOCOMMIT_ON, SQL_IS_UINTEGER);
+    if(! SQL_SUCCEEDED(ret))
+        THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Set autocommit on failed");
 }
 
 
@@ -3521,7 +3520,7 @@ OdbcDbc_libodbc::rollback(String name)
 SQLHSTMT
 OdbcResult_libodbc::getHandle(void) const
 {
-	return this->m_stmt.getHandle(); 
+    return this->m_stmt.getHandle();
 }
 
 
@@ -3544,7 +3543,7 @@ OdbcDbc_libodbc::getHandle(void) const
 
 
 //
-String 
+String
 OdbcDbc_libodbc::driverName(void) const
 {
     return "ODBC 3.0 (libodbc)";
@@ -3569,13 +3568,13 @@ OdbcDbc_libodbc::driverName(void) const
 
 
 //
-String 
+String
 OdbcDbc_libodbc::dbmsName(void) const
 {
 
     SQLSMALLINT ind;
 
-	if(this->usingUnicode())
+    if(this->usingUnicode())
     {
         OdbcStrW strbufW(256);
         SQLRETURN ret = this->drv()->SQLGetInfoW(this->getHandle(), SQL_DBMS_NAME,
@@ -3591,7 +3590,7 @@ OdbcDbc_libodbc::dbmsName(void) const
             */
         }
 
-                                             
+
         return strbufW.str(ind/sizeof(SQLWCHAR));
     }
     else
@@ -3630,25 +3629,25 @@ OdbcDbc_libodbc::drv(void) const
 OdbcStmt*
 OdbcDbc_libodbc::getOdbcCatalogs(void)
 {
-	OdbcStmt_libodbc *stmt = newStatement();
-	stmt->openOdbcCatalogs();
-	return stmt;
+    OdbcStmt_libodbc *stmt = newStatement();
+    stmt->openOdbcCatalogs();
+    return stmt;
 }
 
 OdbcStmt*
 OdbcDbc_libodbc::getOdbcSchemas(const Variant &catalog)
 {
-	OdbcStmt_libodbc *stmt = newStatement();
-	stmt->openOdbcSchemas(catalog);
-	return stmt;
+    OdbcStmt_libodbc *stmt = newStatement();
+    stmt->openOdbcSchemas(catalog);
+    return stmt;
 }
 
 OdbcStmt*
 OdbcDbc_libodbc::getOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type)
 {
-	OdbcStmt_libodbc *stmt = newStatement();
-	stmt->openOdbcTables(catalog, schema, type);
-	return stmt;
+    OdbcStmt_libodbc *stmt = newStatement();
+    stmt->openOdbcTables(catalog, schema, type);
+    return stmt;
 }
 
 
@@ -3656,9 +3655,9 @@ OdbcStmt*
 OdbcDbc_libodbc::getOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table)
 {
     /// @todo possible leak on exception
-	OdbcStmt_libodbc *stmt = newStatement();
-	stmt->openOdbcColumns(catalog, schema, table);
-	return stmt;
+    OdbcStmt_libodbc *stmt = newStatement();
+    stmt->openOdbcColumns(catalog, schema, table);
+    return stmt;
 }
 
 
@@ -3671,41 +3670,33 @@ OdbcStmt_libodbc::openOdbcTables(const Variant &catalog, const Variant &schema, 
 
     if(this->getDbc().usingUnicode())
     {
-		OdbcStrW str_catalog = catalog.isnull() ? OdbcStrW() : catalog.get<String>();
-        OdbcStrW str_schema = schema.isnull() ? OdbcStrW() : schema.get<String>();
-        OdbcStrW str_type = type.isnull() ? OdbcStrW() : type.get<String>();
-		
-        //ret = this->drv()->SQLTablesW(this->getHandle(),
-        //                              catalog.ptr(), 0,
-        //                              schema.ptr(), 0,
-        //                              table.ptr(), 0,
-        //                              type.ptr(), 0);
+        OdbcStrW str_catalog(catalog);
+        OdbcStrW str_schema(schema);
+        OdbcStrW str_type(type);
+
         ret = this->drv()->SQLTablesW(this->getHandle(),
                                       catalog.isnull() ? 0 : str_catalog.ptr(),
-									  str_catalog.size(),
+                                      str_catalog.size(),
                                       schema.isnull() ? 0 : str_schema.ptr(),
-									  str_schema.size(),
-                                      NULL, 0,									  
+                                      str_schema.size(),
+                                      NULL, 0,
                                       type.isnull() ? 0 : str_type.ptr(),
-									  str_type.size());
+                                      str_type.size());
     }
     else
     {
-		throw std::runtime_error("not implemented: getTables ANSI");
-        OdbcStrA str_catalog;
-        OdbcStrA str_schema;
-        OdbcStrA str_table;
-        OdbcStrA type(String("TABLE, SYSTEM TABLE"), "ASCII");
-        //ret = this->drv()->SQLTablesA(this->getHandle(),
-        //                              catalog.ptr(), SQL_NTS,
-        //                              schema.ptr(), SQL_NTS,
-        //                              table.ptr(), SQL_NTS,
-        //                              type.ptr(), SQL_NTS);
+        OdbcStrA str_catalog(catalog, this->getDbc().getDbcEncoding());
+        OdbcStrA str_schema(schema, this->getDbc().getDbcEncoding());
+        OdbcStrA str_type(type, this->getDbc().getDbcEncoding());
+
         ret = this->drv()->SQLTablesA(this->getHandle(),
+                                      catalog.isnull() ? 0 : str_catalog.ptr(),
+                                      str_catalog.size(),
+                                      schema.isnull() ? 0 : str_schema.ptr(),
+                                      str_schema.size(),
                                       NULL, 0,
-                                      NULL, 0,
-                                      NULL, 0,
-                                      type.ptr(), SQL_NTS);
+                                      type.isnull() ? 0 : str_type.ptr(),
+                                      str_type.size());
     }
 
 
@@ -3730,27 +3721,27 @@ OdbcStmt_libodbc::openOdbcCatalogs(void)
 
     if(this->getDbc().usingUnicode())
     {
-        OdbcStrW catalog(SQL_ALL_CATALOGS);
+        OdbcStrW catalog(String(SQL_ALL_CATALOGS));
         OdbcStrW schema;
         OdbcStrW table;
         OdbcStrW type;
         ret = this->drv()->SQLTablesW(this->getHandle(),
-                                      catalog.ptr(), SQL_NTS,
-                                      schema.ptr(), SQL_NTS,
-                                      table.ptr(), SQL_NTS,
-                                      type.ptr(), SQL_NTS);
+                                      catalog.ptr(), catalog.size(),
+                                      schema.ptr(), schema.size(),
+                                      table.ptr(), table.size(),
+                                      type.ptr(), type.size());
     }
     else
     {
-        OdbcStrA catalog(SQL_ALL_CATALOGS, "ASCII");
+        OdbcStrA catalog(String(SQL_ALL_CATALOGS), std::string("ASCII"));
         OdbcStrA schema;
         OdbcStrA table;
         OdbcStrA type;
         ret = this->drv()->SQLTablesA(this->getHandle(),
-                                      catalog.ptr(), SQL_NTS,
-                                      schema.ptr(), SQL_NTS,
-                                      table.ptr(), SQL_NTS,
-                                      type.ptr(), SQL_NTS);
+                                      catalog.ptr(), catalog.size(),
+                                      schema.ptr(), schema.size(),
+                                      table.ptr(), table.size(),
+                                      type.ptr(), type.size());
     }
 
 
@@ -3773,28 +3764,28 @@ OdbcStmt_libodbc::openOdbcSchemas(const Variant &catalog)
     SQLRETURN ret;
 
     OdbcResult_libodbc* rs = this->newResultset();
-	/// @bug catalog is ignored, because only the current catalog is used
+    /// @bug catalog is ignored, because only the current catalog is used
     if(this->getDbc().usingUnicode())
     {
         OdbcStrW str_catalog;
-        OdbcStrW str_schema(SQL_ALL_SCHEMAS);
+        OdbcStrW str_schema(String(SQL_ALL_SCHEMAS));
         OdbcStrW str_table;
         OdbcStrW str_type;
         ret = this->drv()->SQLTablesW(this->getHandle(),
                                       str_catalog.ptr(), 0,
-                                      str_schema.ptr(), SQL_NTS,
+                                      str_schema.ptr(), str_schema.size(),
                                       str_table.ptr(), 0,
                                       NULL, 0);
     }
     else
     {
         OdbcStrA str_catalog;
-        OdbcStrA str_schema(SQL_ALL_SCHEMAS, "ASCII");
+        OdbcStrA str_schema(String(SQL_ALL_SCHEMAS), std::string("ASCII"));
         OdbcStrA str_table;
         OdbcStrA str_type;
         ret = this->drv()->SQLTablesA(this->getHandle(),
                                       str_catalog.ptr(), 0,
-                                      str_schema.ptr(), SQL_NTS,
+                                      str_schema.ptr(), str_schema.size(),
                                       str_table.ptr(), 0,
                                       NULL, 0);
     }
@@ -3825,36 +3816,33 @@ OdbcStmt_libodbc::openOdbcColumns(const Variant &catalog, const Variant &schema,
 
     if(this->getDbc().usingUnicode())
     {
-        OdbcStrW str_catalog = catalog.isnull() ? OdbcStrW() : catalog.get<String>();
-        OdbcStrW str_schema = schema.isnull() ? OdbcStrW() : schema.get<String>();
-        OdbcStrW str_table = table.isnull() ? OdbcStrW() : table.get<String>();
-        //OdbcStrW str_colname
-        //ret = this->drv()->SQLColumnsW(this->getHandle(),
-        //                              catalog.ptr(), SQL_NTS,
-        //                              schema.ptr(), SQL_NTS,
-        //                              table.ptr(), SQL_NTS,
-        //                              colname.ptr(), SQL_NTS);
+        OdbcStrW str_catalog(catalog);
+        OdbcStrW str_schema(schema);
+        OdbcStrW str_table(table);
+
         ret = this->drv()->SQLColumnsW(this->getHandle(),
-                                      catalog.isnull()  ? 0 : str_catalog.ptr(),
-									  str_catalog.size(),
-                                      schema.isnull() ? 0 : str_schema.ptr(),
-									  str_schema.size(),
-                                      table.isnull() ? 0 : str_table.ptr(),
-									  str_table.size(),
-                                      0, 0);
+                                       catalog.isnull()  ? 0 : str_catalog.ptr(),
+                                       str_catalog.size(),
+                                       schema.isnull() ? 0 : str_schema.ptr(),
+                                       str_schema.size(),
+                                       table.isnull() ? 0 : str_table.ptr(),
+                                       str_table.size(),
+                                       0, 0);
     }
     else
     {
-		throw std::runtime_error("not implemented: getcolumns ANSI");
-        OdbcStrA str_catalog;
-        OdbcStrA str_schema;
-        OdbcStrA str_table;
-        OdbcStrA str_colname;
+        OdbcStrA str_catalog(catalog, this->getDbc().getDbcEncoding());
+        OdbcStrA str_schema(schema, this->getDbc().getDbcEncoding());
+        OdbcStrA str_table(table, this->getDbc().getDbcEncoding());
+
         ret = this->drv()->SQLColumnsA(this->getHandle(),
-                                      str_catalog.ptr(), SQL_NTS,
-                                      str_schema.ptr(), SQL_NTS,
-                                      str_table.ptr(), SQL_NTS,
-                                      str_colname.ptr(), SQL_NTS);
+                                       catalog.isnull()  ? 0 : str_catalog.ptr(),
+                                       str_catalog.size(),
+                                       schema.isnull() ? 0 : str_schema.ptr(),
+                                       str_schema.size(),
+                                       table.isnull() ? 0 : str_table.ptr(),
+                                       str_table.size(),
+                                       0, 0);
     }
 
 
@@ -3882,7 +3870,7 @@ OdbcStmt_libodbc::OdbcStmt_libodbc(OdbcDbc_libodbc& conn)
       m_resultsets(),
       m_currentResultset(0),
       m_handle(SQL_NULL_HANDLE)
-{ 
+{
 
     assert(conn.getHandle() != SQL_NULL_HANDLE);
     SQLRETURN ret = this->drv()->SQLAllocHandle(SQL_HANDLE_STMT, conn.getHandle(), &this->m_handle);
@@ -3906,7 +3894,7 @@ OdbcStmt_libodbc::~OdbcStmt_libodbc(void)
 
 
 //
-OdbcResult& 
+OdbcResult&
 OdbcStmt_libodbc::resultset(void)
 {
     return *this->m_resultsets.at(this->m_currentResultset);
@@ -3915,7 +3903,7 @@ OdbcStmt_libodbc::resultset(void)
 
 
 //
-const OdbcResult& 
+const OdbcResult&
 OdbcStmt_libodbc::resultset(void) const
 {
     return *this->m_resultsets.at(this->m_currentResultset);
@@ -3925,7 +3913,7 @@ OdbcStmt_libodbc::resultset(void) const
 
 /// @todo For now, prepare() only supports a single statement.
 /// It is planned to support multiple statements.
-void  
+void
 OdbcStmt_libodbc::prepare(String sql)
 {
     /// For SQLite, it is save to create a new resultset
@@ -3939,7 +3927,7 @@ OdbcStmt_libodbc::prepare(String sql)
 
 
 //
-void   
+void
 OdbcStmt_libodbc::execute(void)
 {
     DALTRACE_ENTER;
@@ -3947,7 +3935,7 @@ OdbcStmt_libodbc::execute(void)
     for(ResultsetVectorT::iterator i = this->m_resultsets.begin();
         i != this->m_resultsets.end();
         ++i)
-    {             
+    {
         (*i)->execute(this->m_params);
     }
     this->m_currentResultset = 0;
@@ -3957,9 +3945,9 @@ OdbcStmt_libodbc::execute(void)
 
 
 //
-void  
+void
 OdbcStmt_libodbc::execDirect(String sql)
-{ 
+{
     this->prepare(sql);
     this->execute();
 }
@@ -3967,7 +3955,7 @@ OdbcStmt_libodbc::execDirect(String sql)
 
 
 //
-void   
+void
 OdbcStmt_libodbc::close(void)
 {
     DALTRACE_ENTER;
@@ -3990,7 +3978,7 @@ OdbcStmt_libodbc::close(void)
 
 
 //
-bool 
+bool
 OdbcStmt_libodbc::nextResultset(void)
 {
     return false;
@@ -3999,7 +3987,7 @@ OdbcStmt_libodbc::nextResultset(void)
 
 
 //
-bool  
+bool
 OdbcStmt_libodbc::moreResultsets(void) const
 {
     return false;
@@ -4008,7 +3996,7 @@ OdbcStmt_libodbc::moreResultsets(void) const
 
 
 //
-size_t  
+size_t
 OdbcStmt_libodbc::paramCount(void) const
 {
     return this->resultset().paramCount();
@@ -4017,7 +4005,7 @@ OdbcStmt_libodbc::paramCount(void) const
 
 
 //
-rowid_t 
+rowid_t
 OdbcStmt_libodbc::affectedRows(void) const
 {
     return this->resultset().affectedRows();
@@ -4034,7 +4022,7 @@ OdbcStmt_libodbc::lastInsertRowId(void)
 
 
 //
-ODBC30Drv* 
+ODBC30Drv*
 OdbcStmt_libodbc::drv(void) const
 {
     return this->getDbc().drv();
@@ -4043,7 +4031,7 @@ OdbcStmt_libodbc::drv(void) const
 
 
 //
-OdbcDbc_libodbc& 
+OdbcDbc_libodbc&
 OdbcStmt_libodbc::getDbc(void) const
 {
     return this->m_conn;
@@ -4069,16 +4057,16 @@ OdbcStmt_libodbc::newResultset(void)
 
 
 
-std::string  
+std::string
 OdbcDbc_libodbc::getDbcEncoding(void) const
 {
     return this->m_ansics;
 }
 
-void    
+void
 OdbcDbc_libodbc::setDbcEncoding(std::string encoding)
 {
-	this->m_ansics = encoding;
+    this->m_ansics = encoding;
 }
 
 
@@ -4095,7 +4083,7 @@ OdbcDbc_libodbc::usingUnicode(void) const
 Variant
 OdbcDbc_libodbc::getCurrentCatalog(void)
 {
-	return sqlgetinfo<String>(*this, SQL_DATABASE_NAME);
+    return sqlgetinfo<String>(*this, SQL_DATABASE_NAME);
 }
 
 

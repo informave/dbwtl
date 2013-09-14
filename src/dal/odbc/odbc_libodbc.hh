@@ -213,7 +213,8 @@ struct basic_odbcstr<1>
 
 	bool empty(void) const
 	{
-		return this->m_string.empty();
+		return this->m_string.empty() ||
+            (this->m_string.size() == 1 && this->m_string[0] == 0);
 	}
 
     size_t max_size(void) const
@@ -300,7 +301,8 @@ struct basic_odbcstr<2>
 
 	bool empty(void) const
 	{
-		return this->m_string.empty();
+		return this->m_string.empty() ||
+            (this->m_string.size() == 1 && this->m_string[0] == 0);
 	}
 
     size_t max_size(void) const

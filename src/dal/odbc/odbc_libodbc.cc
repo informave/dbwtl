@@ -1546,6 +1546,7 @@ OdbcResult_libodbc::OdbcResult_libodbc(OdbcStmt_libodbc& stmt)
       m_current_tuple(DAL_TYPE_ROWID_NPOS),
       m_last_row_status(0),
       m_isopen(false),
+      m_cached_resultcol_count(-1),
       m_param_data(),
       m_column_desc(),
       m_column_accessors(),
@@ -2703,6 +2704,8 @@ OdbcResult_libodbc::reset(void)
                               "SQLFreeStmt() failed");
     }
     this->m_param_data.clear();
+
+    m_cached_resultcol_count = -1;
 }
 
 
@@ -2822,14 +2825,17 @@ OdbcResult_libodbc::columnCount(void) const
 
     SQLSMALLINT c;
 
-    SQLRETURN ret = this->drv()->SQLNumResultCols(this->getHandle(), &c);
-
-    if(! SQL_SUCCEEDED(ret))
+    if(this->m_cached_resultcol_count == -1)
     {
-        THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "NumResultCols");
+        SQLRETURN ret = this->drv()->SQLNumResultCols(this->getHandle(), &c);
+
+        if(! SQL_SUCCEEDED(ret))
+        {
+            THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "NumResultCols");
+        }
     }
 
-    DAL_DEBUG("Query column count: " << c);
+    DAL_DEBUG("Query column count: " << this->m_cached_resultcol_count);
     DALTRACE_LEAVE;
     return c;
 }

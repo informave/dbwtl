@@ -3728,8 +3728,8 @@ OdbcStmt_libodbc::openOdbcCatalogs(void)
     if(this->getDbc().usingUnicode())
     {
         OdbcStrW catalog(String(SQL_ALL_CATALOGS));
-        OdbcStrW schema;
-        OdbcStrW table;
+        OdbcStrW schema(String(""));
+        OdbcStrW table(String(""));
         OdbcStrW type;
         ret = this->drv()->SQLTablesW(this->getHandle(),
                                       catalog.ptr(), catalog.size(),
@@ -3740,8 +3740,8 @@ OdbcStmt_libodbc::openOdbcCatalogs(void)
     else
     {
         OdbcStrA catalog(String(SQL_ALL_CATALOGS), std::string("ASCII"));
-        OdbcStrA schema;
-        OdbcStrA table;
+        OdbcStrA schema(String(""), std::string("ASCII"));
+        OdbcStrA table(String(""), std::string("ASCII"));
         OdbcStrA type;
         ret = this->drv()->SQLTablesA(this->getHandle(),
                                       catalog.ptr(), catalog.size(),
@@ -3773,9 +3773,9 @@ OdbcStmt_libodbc::openOdbcSchemas(const Variant &catalog)
     /// @bug catalog is ignored, because only the current catalog is used
     if(this->getDbc().usingUnicode())
     {
-        OdbcStrW str_catalog;
+        OdbcStrW str_catalog(String(""));
         OdbcStrW str_schema(String(SQL_ALL_SCHEMAS));
-        OdbcStrW str_table;
+        OdbcStrW str_table(String(""));
         OdbcStrW str_type;
         ret = this->drv()->SQLTablesW(this->getHandle(),
                                       str_catalog.ptr(), 0,
@@ -3785,9 +3785,9 @@ OdbcStmt_libodbc::openOdbcSchemas(const Variant &catalog)
     }
     else
     {
-        OdbcStrA str_catalog;
+        OdbcStrA str_catalog(String(""), std::string("ASCII"));
         OdbcStrA str_schema(String(SQL_ALL_SCHEMAS), std::string("ASCII"));
-        OdbcStrA str_table;
+        OdbcStrA str_table(String(""), std::string("ASCII"));
         OdbcStrA str_type;
         ret = this->drv()->SQLTablesA(this->getHandle(),
                                       str_catalog.ptr(), 0,

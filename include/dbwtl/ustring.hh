@@ -2,7 +2,7 @@
 // ustring.hh - Unicode string and conversion functions
 //
 // Copyright (C)         informave.org
-//   2010,               Daniel Vogelbacher <daniel@vogelbacher.name>
+//   2013,               Daniel Vogelbacher <daniel@vogelbacher.name>
 //
 // BSD License
 //
@@ -62,6 +62,92 @@
 DB_NAMESPACE_BEGIN
 
 
+#define LIKELY(x)      __builtin_expect(!!(x), 1)
+#define UNLIKELY(x)    __builtin_expect(!!(x), 0)
+
+
+typedef uint16_t UCharT;
+
+#define DEFAULT_CHARSET "UTF-8"
+
+#ifdef _WIN32
+#define USTRING_WCHAR_SIZE 2
+#else
+#define USTRING_WCHAR_SIZE 4
+#endif
+
+#ifndef _WIN32
+#define USTRING_WCHAR_NEED_CONV
+#endif
+
+
+class DBWTL_EXPORT ustring_base
+{
+public:
+
+    static int32_t convert(const char *src, size_t srclen, const char *from,
+                           char *dest, size_t len, const char *to);
+
+    virtual ~ustring_base(void)
+    {}
+};
+
+
+class DBWTL_EXPORT ustring_icu : public ustring_base
+{
+public:
+    virtual ~ustring_icu(void)
+    {}
+
+
+protected:
+
+    size_t from_wide(char *cdest, size_t cdestbuf,
+                     const UCharT *wsrc, size_t wlen,
+                     const std::string &charset) const;
+
+    size_t to_wide(UCharT *wdest, size_t wbuflen,
+                   const char *csrc, size_t clen,
+                   const std::string &charset) const;
+
+
+    size_t utf32_to_utf16(UCharT *wdest, size_t wbuflen,
+                          const char32_t *wsrc, size_t wlen) const;
+
+    size_t utf16_to_utf32(char32_t *wdest, size_t wbuflen,
+                          const UCharT *wsrc, size_t wlen) const;
+
+    size_t utf16_to_utf8(char *cdest, int32_t cbuflen,
+                         const UCharT *wsrc, size_t wlen) const;
+
+    size_t utf8_to_utf16(UCharT *wdest, int32_t wbuflen,
+                         const char *csrc, size_t clen) const;
+
+};
+
+struct DBWTL_EXPORT ConversionError : std::exception
+{
+
+
+    virtual ~ConversionError(void) throw()
+    {}
+
+    const char* what(void) const throw()
+    {
+        return "convert error";
+    }
+};
+
+
+
+class DBWTL_EXPORT ustring_error : public std::exception
+{
+public:
+        ustring_error(const std::string &what)
+        {}
+};
+
+
 
 template<typename T>
 class string_ptr_base;
@@ -78,232 +164,317 @@ class string_ptr;
 
 
 
-class DBWTL_EXPORT ustring_error : public std::exception
+template<typename allocator = std::allocator<UCharT> >
+class ustring : public ustring_icu
 {
 public:
-	ustring_error(const std::string &what)
-	{}
-};
+
+    typedef std::u32string UTF32Str;
+
+    typedef std::basic_string<UCharT, std::char_traits<UCharT>, allocator> StrT;
+
+    typedef std::wstring Internal;
+
+    typedef ustring<allocator> string_type;
+
+    virtual ~ustring(void)
+    {}
 
 
-//--------------------------------------------------------------------------
-/// ustring base class
-///
-/// @since 0.0.1
-/// @brief Base class for ustring
-class DBWTL_EXPORT ustring_base
-{
-public:
-    /// Convert from one charset to another charset
-    static size_t convert(const char    *src,
-                          size_t         srclen,
-                          const char    *from,
-                          char          *dest,
-                          size_t         len,
-                          const char    *to);
-
-
-    /// Returns the right enconding for the given size
-    static inline const char* encoding(size_t size)
+    /// @final
+    inline static string_type fromUTF8(const char *s)
     {
-        switch(size)
-        {
-        case 1: return "UTF-8";
-        case 2: return "UTF-16-LE";
-        case 4: return "UTF-32-LE";
-        default:
-	    throw ustring_error("ustring error: invalid character size");
-        }
+        string_type tmp;
+        tmp.loadUTF8(s);
+        return tmp;
     }
 
-    virtual ~ustring_base(void)
-    {}
-};
+
+    /// @final
+    inline void loadUTF8(const char *s)
+    {
+        this->m_data.clear();
+        if(s)
+        {
+            size_t len = ::strlen(s);
+            ref().resize(len*2); // 4 correct? no ->2
+            size_t c = this->utf8_to_utf16(cptr(), ref().size(),
+                                           s, len);
+            ref().resize(c);
+        }
+        this->writeStr(this->m_data);
+    }
 
 
+    /// @final
+    ustring(const char *s)
+        : m_data(),
+          m_narrow(),
+          m_strptr(0)
+
+    {
+        if(!s) return;
+        this->loadUTF8(s);
+    }
 
 
-
-//--------------------------------------------------------------------------
-/// convert function for strings
-///
-/// @since 0.0.1
-/// @brief convert a string to another string
-template<typename DestT, typename SrcT>
-inline std::vector<DestT> conv_string(const SrcT *str, size_t n, std::string srccs, std::string charset)
-{
-    std::vector<DestT> dest;
-    if(!n)
-        return dest;
-    dest.resize(n * 4);
-    size_t c = ustring_base::convert(reinterpret_cast<const char*>(str),
-                                      n * sizeof(SrcT),
-                                      srccs.c_str(),
-                                      reinterpret_cast<char*>(&dest[0]),
-                                      dest.size(),
-                                      charset.c_str());
-    dest.resize(c / sizeof(DestT));
-    return dest;
-}
-
-/// Specialization for wchar_t, requires no conversion
-template<>
-inline std::vector<wchar_t> conv_string(const wchar_t *str, size_t n, std::string srccs, std::string charset)
-{
-    std::vector<wchar_t> tmp(str, str+n);
-    return tmp;
-}
-
-
-
-
-//--------------------------------------------------------------------------
-/// ustring class for strings
-///
-/// @since 0.0.1
-/// @brief String class
-template<class CharT, class TraitsT = std::char_traits<CharT>, class AllocatorT = std::allocator<CharT> >
-class DBWTL_EXPORT ustring : public ustring_base
-{
-public:
-    typedef std::basic_string<CharT, TraitsT, AllocatorT>   Internal;
-    typedef ustring<CharT, TraitsT, AllocatorT>             string_type;
-    typedef CharT                                           char_type;
-
-	virtual ~ustring(void)
-	{
-		delete this->m_strptr;
-	}
-
-    /// Constructor from char
-    ustring(const char *s, std::string charset = DBWTL_DEFAULT_CHARSET)
-        : m_str(),
+    /// @final
+    ustring(const char *s, const std::string &charset)
+        : m_data(),
           m_narrow(),
           m_strptr(0)
     {
-        if(s)
-        {
-            std::vector<char_type> str(conv_string<char_type, char>(s,
-                                                                    strlen(s),
-                                                                    charset,
-                                                                    ustring_base::encoding(sizeof(char_type))));
-            this->m_str = Internal(str.data(), str.size());
-        }
+        if(!s) return;
+        size_t clen = ::strlen(s);
+        this->ref().resize(clen*2);
+
+        size_t wlen = this->to_wide(cptr(), ref().size(),
+                                    s, clen,
+                                    charset);
+        this->ref().resize(wlen);
     }
 
-    /// Constructor from wchar_t
-    ustring(const wchar_t *s) : m_str(),
-                                m_narrow(),
-                                m_strptr(0)
-    {
-        if(s)
-        {
-            std::vector<char_type> str(conv_string<char_type, wchar_t>(s,
-                                                                       wcslen(s),
-                                                                       ustring_base::encoding(sizeof(wchar_t)),
-                                                                       ustring_base::encoding(sizeof(char_type))));
-            this->m_str = Internal(str.data(), str.size());
-        }
-    }
 
-    /// Constructor from internal string type
-    ustring(const Internal& str) : m_str(str),
-                                   m_narrow(),
-                                   m_strptr(0)
-    {}
-
-
-    /// Constructor from std::basic_string
-    template<class A, class B, class C>
-    ustring(const std::basic_string<A, B, C> &s,
-            const std::string &charset = DBWTL_DEFAULT_CHARSET)
-	    : m_str(),
+    /// @final
+    ustring(const wchar_t *s)
+        : m_data(),
           m_narrow(),
           m_strptr(0)
     {
-        if(s.length())
+        if(LIKELY(s))
         {
-            std::vector<char_type> str(conv_string<char_type, A>(s.c_str(),
-                                                                 s.length(),
-                                                                 charset,
-                                                                 ustring_base::encoding(sizeof(char_type))));
-            this->m_str = Internal(str.data(), str.size());
+#if defined(USTRING_WCHAR_NEED_CONV)
+            static_assert(sizeof(wchar_t) == 4, "wchar_t must of size 4");
+            size_t wlen = ::wcslen(s);
+            ref().resize(wlen*2);
+            size_t c = this->utf32_to_utf16(cptr(), ref().size(),
+                                            (const char32_t*)s, wlen);
+            ref().resize(c);
+#else
+            ref().insert(ref().begin(), s, s+::wcslen(s));
+#endif
         }
     }
 
-    /// Constructor from another ustring
-    ustring(const string_type& str) : m_str(str.readStr()),
-                                      m_narrow(),
-                                      m_strptr(0)
-    {}
-            
-     
-    /// Constructor
-    ustring(void) : m_str(),
-                    m_narrow(),
-                    m_strptr(0)
-    {}
 
-
-    /// Assign operator
-    ustring& operator=(const string_type& str)
+    /// @final
+    template<class B, class C>
+    ustring(const std::basic_string<wchar_t, B, C> &s)
+        : m_data(),
+          m_narrow(),
+          m_strptr(0)
     {
-        this->writeStr(str.readStr());
+        if(s.empty()) return;
+
+#if defined(USTRING_WCHAR_NEED_CONV)
+        static_assert(sizeof(wchar_t) == 4, "wchar_t must of size 4");
+        ref().resize(s.size()*2);
+        size_t c = this->utf32_to_utf16(cptr(), ref().size(),
+                                        (const char32_t*)s.c_str(), s.size());
+        ref().resize(c);
+#else
+        ref().insert(ref().begin(), s.begin(), s.end());
+#endif
+    }
+
+
+    /// @final
+    template<class B, class C>
+    ustring(const std::basic_string<char, B, C> &s,
+            const std::string &charset = DEFAULT_CHARSET)
+        : m_data(),
+          m_narrow(),
+          m_strptr(0)
+    {
+        static_assert(sizeof(char) == 1, "Invalid char size");
+
+        if(!s.length()) return;
+
+        ref().resize(s.size()*2); // 4 correct? no -> 2
+        size_t wlen = this->to_wide(cptr(), ref().size(),
+                                    s.c_str(), s.size(),
+                                    charset);
+        this->ref().resize(wlen);
+    }
+
+
+    /// @final
+    ustring(const string_type &s)
+        : m_data(s.readStr()),
+          m_narrow(),
+          m_strptr(0)
+    {
+    }
+
+
+    /// @final
+    ustring(void)
+        : m_data(),
+          m_narrow(),
+          m_strptr(0)
+    {
+    }
+
+
+
+    /// @final
+    inline bool hasExternStorage(void) const
+    {
+        return this->m_strptr != 0;
+    }
+
+
+
+    /// @final
+    bool empty(void) const
+    {
+        if(hasExternStorage())
+            return this->readStr().empty();
+        else
+            return ref().empty();
+    }
+
+
+    /// @final
+    string_type upper(void) const
+    {
+        /// use icu u_strToUpper()
+        if(LIKELY(!hasExternStorage()))
+        {
+            std::wstring s = *this;
+            std::transform(s.begin(), s.end(),
+                           s.begin(),
+                           ::towupper);
+            return string_type(s);
+        }
+        else
+        {
+            string_type tmp;
+            tmp.m_data = this->readStr();
+            std::wstring s(tmp);
+            std::transform(s.begin(), s.end(),
+                           s.begin(),
+                           ::towupper);
+            return string_type(s);
+        }
+    }
+
+
+    /// @final
+    string_type& operator=(const string_type& str)
+    {
+        if(LIKELY(!hasExternStorage()))
+            m_data = str.hasExternStorage() ? str.readStr() : str.m_data;
+        else
+            this->writeStr(str.readStr());
         return *this;
     }
 
-    /// Assign operator from std::basic_string
+
+    /// @final
     template<class A, class B, class C>
     string_type& operator=(const std::basic_string<A, B, C>& s)
     {
-        std::vector<char_type> str(conv_string<char_type, A>(s.c_str(), 
-                                                             s.length(),
-                                                             ustring_base::encoding(sizeof(A)),
-                                                             ustring_base::encoding(sizeof(char_type))));
-        this->writeStr(Internal(str.data(), str.size()));
+        string_type tmp(s);
+        if(LIKELY(!hasExternStorage()))
+            this->m_data = tmp.m_data;
+        else
+            this->writeStr(tmp.m_data);
         return *this;
     }
-            
-    /// Append operator from std::basic_string
+
+
+
+    /// @final
+    string_type operator+(const string_type& str) const
+    {
+        if(LIKELY(!hasExternStorage()))
+        {
+            string_type tmp;
+            tmp.m_data = this->m_data;
+            tmp.m_data += str.readStr();
+            return tmp;
+        }
+        else
+        {
+            string_type tmp(*this);
+            tmp.m_data += str.readStr();
+            return tmp;
+        }
+    }
+
+
+    /// @final
     template<class A, class B, class C>
-    string_type operator+(const std::basic_string<A, B, C>& s)
+    string_type operator+(const std::basic_string<A, B, C>& s) const
     {
-        std::vector<char_type> str(conv_string<char_type, A>(s.c_str(), 
-                                                             s.length(),
-                                                             ustring_base::encoding(sizeof(A)),
-                                                             ustring_base::encoding(sizeof(char_type))));
-        this->append(Internal(str.data(), str.size()));
-        return *this;
+        string_type tmp1(*this);
+        string_type tmp2(s);
+        return tmp1+tmp2;
     }
 
-    /// Append operator for ustring
-    string_type operator+(const string_type& str)
-    {
-        //this->m_str.append(str.m_str);
-        this->append(str);
-        return *this;
-    }
 
-    /// Compare operator for ustring
-    bool operator==(const string_type& str) const
+    /// @final
+    inline bool operator==(const string_type& str) const
     {
         return this->readStr() == str.readStr();
     }
-            
-    /// Convert method
-    const char* to(std::string x = "UTF-8") const
+
+
+    /// @final
+    inline bool operator<(const string_type& s) const
     {
-    	Internal tmp = this->readStr();
-        std::vector<char> str(conv_string<char, char_type>(tmp.c_str(),
-                                                           tmp.length(),
-                                                           ustring_base::encoding(sizeof(char_type))
-                                                           , x));
-        this->m_narrow = std::string(str.data(), str.size());
-        return this->m_narrow.c_str();
+        return this->readStr() < s.readStr();
     }
 
-    
-    /// Conversion to system encoding
+
+    /// @final
+    const char* utf8(void) const
+    {
+        if(LIKELY(!hasExternStorage()))
+        {
+            this->m_narrow.resize(ref().size()*4);
+            size_t clen = this->utf16_to_utf8(&this->m_narrow[0], this->m_narrow.size(),
+                                              ref().c_str(), ref().size());
+            this->m_narrow.resize(clen);
+            return this->m_narrow.c_str();
+        }
+        else
+        {
+            StrT tmp = this->readStr();
+            this->m_narrow.resize(tmp.size()*4);
+            size_t clen = this->utf16_to_utf8(&this->m_narrow[0], this->m_narrow.size(),
+                                              tmp.c_str(), tmp.size());
+            this->m_narrow.resize(clen);
+            return this->m_narrow.c_str();
+        }
+    }
+
+
+    /// @final
+    const char* to(const std::string &charset = DEFAULT_CHARSET) const
+    {
+        if(LIKELY(!hasExternStorage()))
+        {
+            this->m_narrow.resize(ref().size()*4);
+            size_t clen = this->from_wide(&this->m_narrow[0], this->m_narrow.size(),
+                                          ref().c_str(), ref().size(), charset);
+            this->m_narrow.resize(clen);
+            return this->m_narrow.c_str();
+        }
+        else
+        {
+            StrT tmp = this->readStr();
+            this->m_narrow.resize(tmp.size()*4);
+            size_t clen = this->from_wide(&this->m_narrow[0], this->m_narrow.size(),
+                                          tmp.c_str(), tmp.size(), charset);
+            this->m_narrow.resize(clen);
+            return this->m_narrow.c_str();
+        }
+    }
+
+
+    /// @final
     const char* toSystemEncoding(void) const
     {
         typedef std::codecvt<typename std::wstring::value_type, char, std::mbstate_t> facet;
@@ -340,165 +511,177 @@ public:
         this->m_narrow = out;
         return this->m_narrow.c_str();
     }
-    
 
 
-    const char* utf8(void) const
-    {
-        return this->to("UTF-8");
-    }
-
-
-    /// Compare operator for ustring
-    bool operator<(const string_type& s) const
-    {
-        return this->readStr() < s.readStr();
-    }
-
-    /// Check if empty
-    bool empty(void) const
-    {
-        return this->readStr().empty();
-    }
-    
-    string_type upper(void) const
-    {
-    	std::wstring s = *this;
-	std::transform(
-	  s.begin(), s.end(),
-	    s.begin(),
-	      ::towupper);
-	return s;
-    }
-
-
-    /// Append ustring
-    string_type& append(const string_type& s)
-    {
-        /*
-    	Internal tmp = this->readStr();
-        tmp.append(s.readStr());
-        this->writeStr(tmp);
-        return *this;
-        */
-        this->readStr();
-        const Internal &tmp = s.readStr();
-        this->m_str.append(tmp);
-        this->writeStr();
-        return *this;
-    }
-
+    /// @final
     string_type& operator+=(const string_type& s)
     {
-        return this->append(s);
+        if(LIKELY(!hasExternStorage()))
+            this->m_data += s.m_data;
+        else
+            this->m_data += s.readStr();
+
+        this->writeStr(this->m_data);
+        return *this;
     }
 
 
-    /// Append ustring
+    /// @final
+    string_type& append(const string_type& s)
+    {
+        (*this) += s;
+        return *this;
+    }
+
+
+    /// @final
     template<class A, class B, class C>
     string_type& append(const std::basic_string<A, B, C>& s)
     {
-        this->readStr();
-        this->m_str.append(s);
-        this->writeStr();
-        return *this;
+        return append(string_type(s));
     }
 
-            
-    /// Get length
-    size_t length(void) const
+
+
+    /// final
+    inline size_t length(void) const
     {
-        return this->readStr().length();
+        if(LIKELY(!hasExternStorage()))
+            return this->m_data.length();
+        else
+            return this->readStr().length();
     }
 
+
+    /// @final
     size_t capacity(void) const
     {
-        return this->readStr().capacity();
+        return this->m_data.capacity();
     }
 
+
+    /// @final
     void reserve(size_t res_arg = 0)
     {
-        this->m_str.reserve(res_arg);
+        this->m_data.reserve(res_arg);
     }
 
-    
-    /// Compare with another ustring
+
+    /// @final
     int compare(const string_type& s) const
     {
         return this->readStr().compare(s.readStr());
     }
 
-    /// Compare with another ustring
+
+    /// @final
     template<class A, class B, class C>
     int compare(const std::basic_string<A, B, C>& s) const
     {
-        return this->readStr().compare(String(s));
+        return this->readStr().compare(string_type(s));
     }
 
-            
-    /// Convert operator to std::basic_string
-    template<class A, class B, class C>
-    operator std::basic_string<A, B, C>(void) const
+
+    /// @final
+    template<typename B, typename C>
+    operator std::basic_string<wchar_t, B, C>(void) const
     {
-    	Internal tmp = this->readStr();
-        std::vector<A> str(conv_string<A, char_type>(tmp.c_str(),
-                                                     tmp.length(),
-                                                     ustring_base::encoding(sizeof(char_type)),
-                                                     ustring_base::encoding(sizeof(A)))); 
-        return std::basic_string<A, B, C>(str.data(), str.size());
+#if defined(USTRING_WCHAR_NEED_CONV)
+        std::basic_string<wchar_t, B, C> s;
+        s.resize(ref().size()*2);
+        size_t c = this->utf16_to_utf32((char32_t*)&s[0], s.size(),
+                                        ref().c_str(), ref().size());
+        s.resize(c);
+        return s;
+#else
+        if(LIKELY(!hasExternStorage()))
+            return std::wstring(this->m_data.begin(), this->m_data.end());
+        else
+        {
+            StrT tmp = this->readStr();
+            return std::basic_string<wchar_t, B, C>(tmp.begin(), tmp.end());
+        }
+#endif
     }
+
+
+    /// @final
+    template<typename B, typename C>
+    inline operator std::basic_string<char, B, C>(void) const
+    {
+        return std::basic_string<char, B, C>(utf8());
+    }
+
+
+
+    /// @finalized
+    inline StrT readStr(void) const
+    {
+        if(UNLIKELY(this->m_strptr))
+        {
+            return string_type(this->m_strptr->get()).m_data;
+        }
+        else
+            return ref();
+    }
+
+    /// @finalized
+    inline void writeStr(const StrT &s)
+    {
+        if(this->m_strptr)
+        {
+            string_type tmp;
+            tmp.m_data = s;
+            Internal data(tmp);;
+            this->m_strptr->set(data);
+        }
+    }
+
+
+
+    inline StrT& ref(void)
+    {
+        return this->m_data;
+    }
+
+    inline const StrT& ref(void) const
+    {
+        return this->m_data;
+    }
+
+    inline UCharT* cptr(void)
+    {
+        return &this->m_data[0];
+    }
+
+    inline const UCharT* cptr(void) const
+    {
+        return &this->m_data[0];
+    }
+
 
     template<class A, class B, class C>
     void sync_with(std::basic_string<A, B, C> *str)
     {
-    	delete m_strptr;
+        delete m_strptr;
         m_strptr = new string_ptr<string_type, std::basic_string<A, B, C> >(str);
     }
 
     template<class A, class B, class C>
     void sync_with(const std::basic_string<A, B, C> *str)
     {
-    	delete m_strptr;
+        delete m_strptr;
         m_strptr = new string_ptr<string_type, const std::basic_string<A, B, C> >(str);
     }
 
+
 private:
-    inline const Internal& readStr(void) const
-    {
-    	if(m_strptr) this->m_str = m_strptr->get();
-        return m_str;
-    }
-
-    inline Internal& readStr(void)
-    {
-		if(m_strptr) this->m_str = m_strptr->get();
-		return m_str;
-	}
-
-
-    inline void writeStr(void)
-    {
-    	if(m_strptr) m_strptr->set(this->m_str);
-    }
-
-    inline void writeStr(const Internal &str)
-    {
-    	this->m_str = str;
-    	if(m_strptr) m_strptr->set(this->m_str);
-    }
-
-    mutable Internal               m_str;
+    StrT m_data;
     mutable std::string            m_narrow;
     string_ptr_base<string_type>  *m_strptr;
 };
 
 
-
-//--------------------------------------------------------------------------
-/// string_ptr base class
-///
-/// @since 0.0.1
-/// @brief Base class for string_ptr
 template<typename T>
 class string_ptr_base
 {
@@ -513,11 +696,7 @@ public:
 };
 
 
-//--------------------------------------------------------------------------
-/// string_ptr holds a pointer to a basic_string type and convert the value
-///
-/// @since 0.0.1
-/// @brief string_ptr
+
 template<typename T, typename U, bool writeable>
 class string_ptr : public string_ptr_base<T>
 {
@@ -530,19 +709,19 @@ public:
 
     virtual typename T::Internal get(void) const
     {
-    	T str(*this->m_ptr);
+        T str(*this->m_ptr);
         return str; // auto conversion
     }
 
     virtual void set(const typename T::Internal &data)
     {
-    	T src(data);
-    	U str(src);
+        T src(data);
+        U str(src);
         *this->m_ptr = str;
     }
 
 protected:
-	U *m_ptr;
+    U *m_ptr;
 
 private:
     string_ptr(const string_ptr&);
@@ -568,7 +747,8 @@ public:
 
     virtual void set(const typename T::Internal &data)
     {
-    	throw ustring_error("string_ptr: Unable to update a const string pointer.");
+        //throw ustring_error("string_ptr: Unable to update a const string pointer.");
+        throw ConversionError();
     }
 
 protected:
@@ -581,24 +761,10 @@ private:
 
 
 
-
-///////// IF YOU ARE SEARCHING FOR THE `String` TYPE, HERE IS IT /////////
-
-/// String type used by DBWTL
-
-#if DBWTL_INTERNAL_CHARTYPE == 1
-typedef ustring<char>                 String;
-#elif DBWTL_INTERNAL_CHARTYPE == 2
-typedef ustring<wchar_t>              String;
-#elif DBWTL_INTERNAL_CHARTYPE == 3
-typedef ustring<u16char_t>            String;
-#elif DBWTL_INTERNAL_CHARTYPE == 4
-typedef ustring<u32char_t>            String;
-#endif
+typedef ustring<> String;
 
 
-
-/// 
+///
 template<class T, class U>
 inline std::basic_ostream<T, U>& operator<<(std::basic_ostream<T, U>& o, const String& str)
 {
@@ -616,6 +782,9 @@ inline std::basic_istream<T, U>& operator>>(std::basic_istream<T, U>& o, String&
     str = tmp;
     return o;
 }
+
+
+
 
 
 

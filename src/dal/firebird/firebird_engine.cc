@@ -188,7 +188,7 @@ FirebirdMetadata::getTables(const Variant &schema,
     rs.open();
 
     std::shared_ptr<FirebirdStmt> rawStmt(this->m_dbc.newStatement());
-    rawStmt->execDirect("SELECT 'DBNAME-FIXME', 'DEFAULT', RDB$RELATION_NAME, 'TABLE', NULL FROM RDB$RELATIONS WHERE (rdb$system_flag is null or rdb$system_flag = 0)");
+    rawStmt->execDirect("SELECT NULL, NULL, RDB$RELATION_NAME, 'TABLE', NULL FROM RDB$RELATIONS WHERE (rdb$system_flag is null or rdb$system_flag = 0)");
 
     IResult &rawRes = rawStmt->resultset();
 
@@ -272,7 +272,7 @@ FirebirdMetadata::getColumns(const Variant &table,
         tmp.open();
         ShrRecord rec(10);
         rec[0] = this->m_dbc.getCurrentCatalog();
-        rec[1] = String("DEFAULT");
+        //rec[1] = String("DEFAULT");
         rec[2] = rawRes.column("RDB$RELATION_NAME");
         rec[3] = rawRes.column("RDB$FIELD_NAME");
         //rec[4] = rawRes.column("COLUMN_TYPE");

@@ -3375,7 +3375,7 @@ OdbcDbc_libodbc::connect(IDbc::Options& options)
 	SQLSMALLINT outlen = 0;
         ret = this->drv()->SQLDriverConnectW(this->getHandle(), 0,
 					constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
-					&outlen, SQL_DRIVER_PROMPT);
+					&outlen, SQL_DRIVER_NOPROMPT);
     }
     else
     {
@@ -3384,7 +3384,7 @@ OdbcDbc_libodbc::connect(IDbc::Options& options)
 	SQLSMALLINT outlen = 0;
 	ret = this->drv()->SQLDriverConnectA(this->getHandle(), 0,
 				constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
-				&outlen, SQL_DRIVER_PROMPT);
+				&outlen, SQL_DRIVER_NOPROMPT);
     }
     }
 

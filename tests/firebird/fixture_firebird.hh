@@ -8,7 +8,6 @@
 #include "../cxxc.hh"
 
 
-using namespace informave::db::ex;
 
 
 using namespace informave::db;

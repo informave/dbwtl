@@ -434,6 +434,8 @@ public:
     virtual unsigned short    getDialect(void) const;
 
 
+    virtual Variant        getCurrentCatalog(void);
+
     virtual FirebirdDiag& appendDiagRec(const FirebirdDiag &diag) const;
 
 protected:

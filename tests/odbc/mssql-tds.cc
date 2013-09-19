@@ -5,7 +5,6 @@
 #include "../cxxc.hh"
 #include "fixture_odbc.hh"
 
-using namespace informave::db::ex;
 
 
 CXXC_TEST(CreateDbc)
@@ -24,7 +23,7 @@ CXXC_TEST(CreateDbc)
 	db.disconnect();
 }
 
-
+/*
 CXXC_FIXTURE_TEST(OdbcTestbaseFixture, Connect)
 {
 	DBMS::Statement stmt(dbc);
@@ -44,7 +43,7 @@ CXXC_FIXTURE_TEST(OdbcTestbaseFixture, Connect)
 	}
 
 }
-
+*/
 
 CXXC_FIXTURE_TEST(OdbcTestbaseFixture, ParamCount)
 {

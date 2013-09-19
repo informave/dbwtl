@@ -515,10 +515,10 @@ SqliteResult_libsqlite::prepare(String sql)
     if(this->isPrepared())
         this->close();
 
-    std::string sql_e = sql.to("UTF-8");
+    const char *sql_cstr = sql.utf8();
 
     int err = this->drv()->sqlite3_prepare_v2(this->m_stmt.getDbc().getHandle(),
-                                              sql_e.c_str(), sql_e.size(), &this->m_handle,  NULL);
+                                              sql_cstr, -1, &this->m_handle,  NULL);
     switch(err)
     {
     case SQLITE_OK:
@@ -614,7 +614,7 @@ SqliteResult_libsqlite::execute(StmtBase::ParamMap& params)
             default:
                 // all other types are passed as string
                 err = this->drv()->sqlite3_bind_text(this->getHandle(), param->first,
-                                                     var->asStr().to("UTF-8"), -1, 
+                                                     var->asStr().utf8(), -1, 
                                                      SQLITE_TRANSIENT);
                 break;
             }
@@ -987,14 +987,14 @@ SqliteColumnDesc_libsqlite::SqliteColumnDesc_libsqlite(colnum_t i, SqliteResult_
     {
         // set name
         const char *s = result.drv()->sqlite3_column_name(result.getHandle(), i-1);
-        this->m_name.set(String(s ? s : "", "UTF-8"));
+        this->m_name.set(String::fromUTF8(s));
 
         // set type
         const char *type = result.drv()->sqlite3_column_decltype(result.getHandle(), i-1);
 
         SqlTypeParser pt;
         pt.registerType(DAL_TYPE_STRING, US("TEXT*"));
-        pt.parse(String(type, "UTF-8"));
+        pt.parse(String::fromUTF8(type));
         this->m_type_name.set(daltype2sqlname(pt.getDaltype()));
         this->m_daltype = pt.getDaltype();
         this->m_size.set<signed int>(pt.getSize());
@@ -1281,7 +1281,7 @@ SqliteDbc_libsqlite::connect(IDbc::Options& options)
     DALTRACE_ENTER;
 
 
-    std::string dbc_db(options[ "database" ].to("UTF-8"));
+    std::string dbc_db(options[ "database" ].utf8());
 
     int err = this->drv()->sqlite3_open_v2(dbc_db.c_str(), &this->m_dbh,
                                            SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -1390,6 +1390,12 @@ SqliteDbc_libsqlite::drv(void) const
     return this->m_lib;
 }
 
+
+Variant
+SqliteDbc_libsqlite::getCurrentCatalog(void)
+{
+    return Variant(); /// @todo support multiple databases
+}
 
 
 

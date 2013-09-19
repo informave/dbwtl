@@ -262,7 +262,7 @@ template<typename T> daltype_t sa_base<T>::datatype(void) const { return value_t
 /// @brief Interface for a supported implicit type cast from a value store
 /// 
 template<typename U, typename T>
-struct supports_cast : public virtual sa_base<U>, /// @bug rename to supports_implicit_cast
+struct supports_cast : public virtual sa_base<U>, /// @todo rename to supports_implicit_cast
                        public supports<T>
 {
     virtual T cast(T*, std::locale) const
@@ -562,9 +562,9 @@ public:
 
     ///
     template<typename T>
-        Variant(const T& value, const String& name = String())
+        Variant(const T& value, const char *utf8name = 0)
         : m_storage(),
-        m_name(name),
+	 m_name_ptr(utf8name),
         m_type_ifnull(DAL_TYPE_UNKNOWN)
         {
             this->m_storage.reset(new typename value_traits<T>::stored_type(value));
@@ -573,7 +573,7 @@ public:
     ///
     Variant(const Variant& value)
         : m_storage(),
-        m_name(value.m_name),
+        m_name_ptr(value.m_name_ptr),
         m_type_ifnull(value.m_type_ifnull)
         {
             this->assign(value); // assign via deepcopy
@@ -583,25 +583,35 @@ public:
     ///
     Variant(void) 
         : m_storage(),
-        m_name(),
+        m_name_ptr(0),
         m_type_ifnull(DAL_TYPE_UNKNOWN)
         {}
     
     ///
     Variant(IVariantValue *value) 
         : m_storage(value),
-        m_name(),
+        m_name_ptr(0),
         m_type_ifnull(DAL_TYPE_UNKNOWN)
         {}
 
 
+
     ///
-    explicit Variant(daltype_t type, const String &name = String(L"<unnamed>"))
+    explicit Variant(daltype_t type, const char *utf8name)
+    : m_storage(),
+     // m_name(String::fromUTF8(utf8name)),
+     m_name_ptr(0),
+      m_type_ifnull(type)
+    {}
+
+    ///
+    /*
+    explicit Variant(daltype_t type, const String &name)
         : m_storage(),
         m_name(name),
         m_type_ifnull(type)
         {}
-
+   */
 
     ///
     virtual ~Variant(void) {}
@@ -685,7 +695,7 @@ public:
 
     virtual void setNull(void);
 
-    inline const String& getName(void) const { return this->m_name; }
+    inline String getName(void) const { return String::fromUTF8(this->m_name_ptr); }
 
 
     IVariantValue*       get_storage(void);
@@ -715,7 +725,7 @@ public:
 
 protected:
     std::auto_ptr<IVariantValue> m_storage;
-    String    m_name;
+    const char*    m_name_ptr;
     daltype_t m_type_ifnull;
 };
 

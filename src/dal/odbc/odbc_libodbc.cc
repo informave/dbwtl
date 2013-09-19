@@ -3367,6 +3367,29 @@ OdbcDbc_libodbc::connect(IDbc::Options& options)
 
     if(! SQL_SUCCEEDED(ret))
     {
+    if(usingUnicode())
+    {
+
+        OdbcStrW constr(options[ "datasource" ]);
+	OdbcStrW outstr(1024);
+	SQLSMALLINT outlen = 0;
+        ret = this->drv()->SQLDriverConnectW(this->getHandle(), 0,
+					constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
+					&outlen, SQL_DRIVER_PROMPT);
+    }
+    else
+    {
+        OdbcStrA constr(options[ "datasource" ], this->m_ansics);
+	OdbcStrA outstr(1024);
+	SQLSMALLINT outlen = 0;
+	ret = this->drv()->SQLDriverConnectA(this->getHandle(), 0,
+				constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
+				&outlen, SQL_DRIVER_PROMPT);
+    }
+    }
+
+    if(! SQL_SUCCEEDED(ret))
+    {
         THROW_ODBC_DIAG_ERROR(this->m_env, *this, this->getHandle(), SQL_HANDLE_DBC, "Connect failed");
     }
     assert(ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
@@ -3676,13 +3699,24 @@ OdbcStmt_libodbc::openOdbcTables(const Variant &catalog, const Variant &schema, 
 
     if(this->getDbc().usingUnicode())
     {
+
+// unixODBC seems to have an issue with catalog names here.
+// We leave these empty for the moment...
+#ifdef DBWTL_ON_UNIX
+        OdbcStrW str_catalog;
+#else
         OdbcStrW str_catalog(catalog);
+#endif
         OdbcStrW str_schema(schema);
         OdbcStrW str_type(type);
 
         ret = this->drv()->SQLTablesW(this->getHandle(),
+#ifdef DBWTL_ON_LINUX
+                                      NULL, 0,
+#else
                                       catalog.isnull() ? 0 : str_catalog.ptr(),
                                       str_catalog.size(),
+#endif
                                       schema.isnull() ? 0 : str_schema.ptr(),
                                       str_schema.size(),
                                       NULL, 0,

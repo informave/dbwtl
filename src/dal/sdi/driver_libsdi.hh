@@ -178,7 +178,7 @@ inline sdi_code SDISetDbcOption(SDIDBC dbc, const char *option, const char *valu
 	        if(this->m_func_SDISetDbcOption)
             return this->m_func_SDISetDbcOption(dbc, option, value, sizeOrInd);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
 }
 
   inline   const char* SDIDiagText(void *handle, sdi_handle_type type)
@@ -186,7 +186,7 @@ inline sdi_code SDISetDbcOption(SDIDBC dbc, const char *option, const char *valu
         if(this->m_func_SDIDiagText)
             return this->m_func_SDIDiagText(handle, type);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
   inline    sdi_code SDIAllocEnv(SDIENV *env)
@@ -194,7 +194,7 @@ inline sdi_code SDISetDbcOption(SDIDBC dbc, const char *option, const char *valu
         if(this->m_func_SDIAllocEnv)
             return this->m_func_SDIAllocEnv(env);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
  inline     sdi_code SDIDeallocEnv(SDIENV *env)
@@ -202,7 +202,7 @@ inline sdi_code SDISetDbcOption(SDIDBC dbc, const char *option, const char *valu
         if(this->m_func_SDIDeallocEnv)
             return this->m_func_SDIDeallocEnv(env);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline     const char* SDICharset(SDIENV env)
@@ -210,7 +210,7 @@ inline     const char* SDICharset(SDIENV env)
         if(this->m_func_SDICharset)
             return this->m_func_SDICharset(env);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIAllocDbc(SDIENV env, SDIDBC *dbc)
@@ -218,7 +218,7 @@ inline sdi_code SDIAllocDbc(SDIENV env, SDIDBC *dbc)
         if(this->m_func_SDIAllocDbc)
             return this->m_func_SDIAllocDbc(env, dbc);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIDeallocDbc(SDIDBC *dbc)
@@ -226,7 +226,7 @@ inline sdi_code SDIDeallocDbc(SDIDBC *dbc)
         if(this->m_func_SDIDeallocDbc)
             return this->m_func_SDIDeallocDbc(dbc);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIConnect(SDIDBC dbc, const char *string)
@@ -234,7 +234,7 @@ inline sdi_code SDIConnect(SDIDBC dbc, const char *string)
         if(this->m_func_SDIConnect)
             return this->m_func_SDIConnect(dbc, string);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
     
 inline sdi_code SDIDisconnect(SDIDBC dbc)
@@ -242,7 +242,7 @@ inline sdi_code SDIDisconnect(SDIDBC dbc)
         if(this->m_func_SDIDisconnect)
             return this->m_func_SDIDisconnect(dbc);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline const char* SDIGetInfo(SDIDBC dbc, const char *infoname)
@@ -250,7 +250,7 @@ inline const char* SDIGetInfo(SDIDBC dbc, const char *infoname)
         if(this->m_func_SDIGetInfo)
             return this->m_func_SDIGetInfo(dbc, infoname);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIOpen(SDIDBC dbc, SDISTMT *stmt, const char *object, const char *schema)
@@ -258,7 +258,7 @@ inline sdi_code SDIOpen(SDIDBC dbc, SDISTMT *stmt, const char *object, const cha
         if(this->m_func_SDIOpen)
             return this->m_func_SDIOpen(dbc, stmt, object, schema);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIObjects(SDIDBC dbc, SDISTMT *stmt)
@@ -266,7 +266,7 @@ inline sdi_code SDIObjects(SDIDBC dbc, SDISTMT *stmt)
         if(this->m_func_SDIObjects)
             return this->m_func_SDIObjects(dbc, stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIColumns(SDIDBC dbc, SDISTMT *stmt, const char *database, const char *schema, const char *object)
@@ -274,7 +274,7 @@ inline sdi_code SDIColumns(SDIDBC dbc, SDISTMT *stmt, const char *database, cons
         if(this->m_func_SDIColumns)
             return this->m_func_SDIColumns(dbc, stmt, database, schema, object);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIClose(SDISTMT *stmt)
@@ -282,7 +282,7 @@ inline sdi_code SDIClose(SDISTMT *stmt)
         if(this->m_func_SDIClose)
             return this->m_func_SDIClose(stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIFetch(SDISTMT stmt)
@@ -290,7 +290,7 @@ inline sdi_code SDIFetch(SDISTMT stmt)
         if(this->m_func_SDIFetch)
             return this->m_func_SDIFetch(stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIGetData(SDISTMT stmt, int colnum, void *buf, size_t bufsize, int *ind)
@@ -298,7 +298,7 @@ inline sdi_code SDIGetData(SDISTMT stmt, int colnum, void *buf, size_t bufsize, 
         if(this->m_func_SDIGetData)
             return this->m_func_SDIGetData(stmt, colnum, buf, bufsize, ind);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 inline sdi_code SDIGetLargeObject(SDISTMT stmt, int colnum, void **buf, size_t *size, int *ind)
@@ -306,7 +306,7 @@ inline sdi_code SDIGetLargeObject(SDISTMT stmt, int colnum, void **buf, size_t *
         if(this->m_func_SDIGetLargeObject)
             return this->m_func_SDIGetLargeObject(stmt, colnum, buf, size, ind);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
 }
 
 
@@ -315,7 +315,7 @@ inline sdi_code SDIFree(void **ptr)
         if(this->m_func_SDIFree)
             return this->m_func_SDIFree(ptr);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -325,7 +325,7 @@ inline int SDINumCols(SDISTMT stmt)
         if(this->m_func_SDINumCols)
             return this->m_func_SDINumCols(stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline sdi_code SDIDescribeCol(SDISTMT stmt, int colnum, size_t *size, const char **name, sditype_t *type)
@@ -333,7 +333,7 @@ inline int SDINumCols(SDISTMT stmt)
         if(this->m_func_SDIDescribeCol)
             return this->m_func_SDIDescribeCol(stmt, colnum, size, name, type);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
                 

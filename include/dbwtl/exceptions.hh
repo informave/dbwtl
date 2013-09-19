@@ -313,19 +313,19 @@ public:
 
 
 //..............................................................................
-////////////////////////////////////////////////////////////// FunctionException
+/////////////////////////////////////////////////////////// LibFunctionException
 ///
 /// This exception class is thrown if required function is not
 /// found in the specified module.
 ///
 /// @since 0.0.1
 /// @brief Exception if a function is not found
-class DBWTL_EXPORT FunctionException : public EngineException
+class DBWTL_EXPORT LibFunctionException : public EngineException
 {
 public:
-    FunctionException(const std::string &func_name, const String &module_path = L"<unknown module>");
+    LibFunctionException(const std::string &func_name, const String &module_path = "<unknown module>");
 
-    virtual ~FunctionException(void) throw()
+    virtual ~LibFunctionException(void) throw()
     {}
 
 protected:
@@ -333,21 +333,6 @@ protected:
     String m_module_path;
 };
 
-
-
-/// @bug backward compatibility, remove for final build
-namespace ex
-{
-    typedef Exception exception;
-    typedef EngineException engine_error;
-    typedef SqlstateException sqlstate_exception;
-    typedef FunctionException missing_function;
-     typedef NotFoundException not_found;
-    typedef NullException null_value;
-    typedef CharconvException charset_error;
-    typedef ConvertException convert_error;
-    typedef ReadonlyException read_only;
-}
 
 
 DB_NAMESPACE_END

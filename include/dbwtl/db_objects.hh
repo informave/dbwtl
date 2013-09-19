@@ -770,12 +770,11 @@ public:
     ShrRecord(T &obj, U fun, colnum_t lastColnum, colnum_t firstColnum = 1)
     	: m_data(new ShrRecord::ColumnBuffer())
     {
+        if(firstColnum < 1) throw std::out_of_range("ShrRecord() ctor: firstColumn < 1 !!!");
     	this->allocate(lastColnum);
     	for(colnum_t n = firstColnum; n <= lastColnum; ++n)
 	{
-		assert(n > 0); /// @bug throw exception
 		(*this)[n-1] = fun(obj, n);
-		//(*this)[n] = r(obj);
 	}
     }
 

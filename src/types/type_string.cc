@@ -59,7 +59,7 @@ DB_NAMESPACE_BEGIN
 
 
 /// @todo include value in error message
-#define DAL_THROW_INVALID_CAST() throw ex::convert_error("Invalid format")
+#define DAL_THROW_INVALID_CAST() throw ConvertException("Invalid format")
 
 
 signed int

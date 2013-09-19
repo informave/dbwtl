@@ -412,7 +412,7 @@ ReadonlyException::ReadonlyException(const String &resource_name,
 //--------------------------------------------------------------------------
 //
 //
-FunctionException::FunctionException(const std::string &func_name, const String &module_path)
+LibFunctionException::LibFunctionException(const std::string &func_name, const String &module_path)
     : EngineException(),
       m_func_name(func_name),
       m_module_path(module_path)

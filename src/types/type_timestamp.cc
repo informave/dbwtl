@@ -155,7 +155,7 @@ TTimestamp::TTimestamp(const String &str)
 
 {
     if(! TTimestamp::isTimestamp(str))
-        throw ex::convert_error(format("Invalid timestamp format: %s") % str);
+        throw ConvertException(format("Invalid timestamp format: %s") % str);
 
     const std::string s = str;
     std::string v;

@@ -20,8 +20,8 @@ CXXC_TEST(TDateCreation)
     TDate d("2010-12-04");
     CXXC_CHECK( d.day() == 4 && d.month() == 12 && d.day() == 4);
 
-    CXXC_CHECK_THROW(ex::convert_error, TDate d2("234234234"));
-    CXXC_CHECK_THROW(ex::convert_error, TDate d3("2011-13-04"));
+    CXXC_CHECK_THROW(ConvertException, TDate d2("234234234"));
+    CXXC_CHECK_THROW(ConvertException, TDate d3("2011-13-04"));
 
     TDate d4("2011-12-04 13:12:04");
     TDate d5("2011-12-04T13:12:04Z");

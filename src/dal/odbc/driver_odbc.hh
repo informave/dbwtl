@@ -966,6 +966,9 @@ public:
 	this->getproc(this->m_func_SQLColumnsA, "SQLColumnsA");
 	this->getproc(this->m_func_SQLColumnsW, "SQLColumnsW");
 
+	this->getproc(this->m_func_SQLDriverConnectA, "SQLDriverConnectA");
+	this->getproc(this->m_func_SQLDriverConnectW, "SQLDriverConnectW");
+
 /*
   this->getproc(this->m_func_sqlite3_step, "sqlite3_step");
   this->getproc(this->m_func_sqlite3_libversion, "sqlite3_libversion");
@@ -1050,7 +1053,7 @@ public:
             if(this->m_func_SQLAllocHandle)
                 return this->m_func_SQLAllocHandle(HandleType, InputHandle, OutputHandle);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1061,7 +1064,7 @@ public:
             if(this->m_func_SQLConnectA)
                 return this->m_func_SQLFreeHandle(HandleType, Handle);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1079,7 +1082,7 @@ public:
                 return this->m_func_SQLConnectA(ConnectionHandle, ServerName, NameLength1,
                                                 UserName, NameLength2, Authentication, NameLength3);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1095,9 +1098,44 @@ public:
                 return this->m_func_SQLConnectW(ConnectionHandle, ServerName, NameLength1,
                                                 UserName, NameLength2, Authentication, NameLength3);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
+    inline SQLRETURN SQLDriverConnectA(SQLHDBC     ConnectionHandle,
+                                                    SQLHWND     WindowHandle,
+                                                    SQLCHAR *     InConnectionString,
+                                                    SQLSMALLINT     StringLength1,
+                                                    SQLCHAR *     OutConnectionString,
+                                                    SQLSMALLINT     BufferLength,
+                                                    SQLSMALLINT *     StringLength2Ptr,
+                                                    SQLUSMALLINT     DriverCompletion)
+{
+                    if(this->m_func_SQLDriverConnectA)
+                return this->m_func_SQLDriverConnectA(ConnectionHandle, WindowHandle,
+                                InConnectionString, StringLength1, OutConnectionString,
+                                                BufferLength, StringLength2Ptr, DriverCompletion);
+            else
+                throw LibFunctionException(__FUNCTION__);
+}
+
+
+    inline SQLRETURN SQLDriverConnectW(SQLHDBC     ConnectionHandle,
+                                                    SQLHWND     WindowHandle,
+                                                    SQLWCHAR *     InConnectionString,
+                                                    SQLSMALLINT     StringLength1,
+                                                    SQLWCHAR *     OutConnectionString,
+                                                    SQLSMALLINT     BufferLength,
+                                                    SQLSMALLINT *     StringLength2Ptr,
+                                                    SQLUSMALLINT     DriverCompletion)
+{
+	            if(this->m_func_SQLDriverConnectW)
+                return this->m_func_SQLDriverConnectW(ConnectionHandle, WindowHandle,
+				InConnectionString, StringLength1, OutConnectionString,
+						BufferLength, StringLength2Ptr, DriverCompletion);
+            else
+                throw LibFunctionException(__FUNCTION__);
+
+}
 
 
 
@@ -1106,7 +1144,7 @@ public:
             if(this->m_func_SQLDisconnect)
                 return this->m_func_SQLDisconnect(ConnectionHandle);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1118,7 +1156,7 @@ public:
             if(this->m_func_SQLSetConnectAttrA)
                 return this->m_func_SQLSetConnectAttrA(hdbc, fAttribute, rgbValue, cbValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLSetConnectAttrW(SQLHDBC            hdbc,
@@ -1129,7 +1167,7 @@ public:
             if(this->m_func_SQLSetConnectAttrW)
                 return this->m_func_SQLSetConnectAttrW(hdbc, fAttribute, rgbValue, cbValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1140,7 +1178,7 @@ public:
             if(this->m_func_SQLExecDirectA)
                 return this->m_func_SQLExecDirectA(StatementHandle, StatementText, TextLength);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLExecDirectW(SQLHSTMT     StatementHandle,
@@ -1150,7 +1188,7 @@ public:
             if(this->m_func_SQLExecDirectW)
                 return this->m_func_SQLExecDirectW(StatementHandle, StatementText, TextLength);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLSetEnvAttr(SQLHENV EnvironmentHandle,
@@ -1160,7 +1198,7 @@ public:
             if(this->m_func_SQLSetEnvAttr)
                 return this->m_func_SQLSetEnvAttr(EnvironmentHandle, Attribute, Value, StringLength);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLSetStmtAttrA(SQLHSTMT           hstmt,
@@ -1171,7 +1209,7 @@ public:
             if(this->m_func_SQLSetStmtAttrA)
                 return this->m_func_SQLSetStmtAttrA(hstmt, fAttribute, rgbValue, cbValueMax);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1184,7 +1222,7 @@ public:
             if(this->m_func_SQLSetStmtAttrW)
                 return this->m_func_SQLSetStmtAttrW(hstmt, fAttribute, rgbValue, cbValueMax);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLGetDiagRecA(SQLSMALLINT     HandleType,
@@ -1199,7 +1237,7 @@ public:
             if(this->m_func_SQLGetDiagRecA)
                 return this->m_func_SQLGetDiagRecA(HandleType, handle_, RecNumber, SQLState, NativeErrorPtr, MessageText, BufferLength, TextLengthPtr);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1215,7 +1253,7 @@ public:
             if(this->m_func_SQLGetDiagRecW)
                 return this->m_func_SQLGetDiagRecW(HandleType, handle_, RecNumber, SQLState, NativeErrorPtr, MessageText, BufferLength, TextLengthPtr);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1228,7 +1266,7 @@ public:
             if(this->m_func_SQLPrepareA)
                 return this->m_func_SQLPrepareA(StatementHandle, StatementText, TextLength);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLPrepareW(SQLHSTMT     StatementHandle,
@@ -1238,7 +1276,7 @@ public:
             if(this->m_func_SQLPrepareW)
                 return this->m_func_SQLPrepareW(StatementHandle, StatementText, TextLength);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLExecute(SQLHSTMT StatementHandle)
@@ -1246,7 +1284,7 @@ public:
             if(this->m_func_SQLExecute)
                 return this->m_func_SQLExecute(StatementHandle);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1258,7 +1296,7 @@ public:
             if(this->m_func_SQLNumResultCols)
                 return this->m_func_SQLNumResultCols(StatementHandle, ColumnCount);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
         
@@ -1276,7 +1314,7 @@ public:
                 return this->m_func_SQLGetData(StatementHandle, ColumnNumber, TargetType, TargetValue,
                                                BufferLength, StrLen_or_Ind);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
                             
 // Core
@@ -1285,7 +1323,7 @@ public:
             if(this->m_func_SQLFetch)
                 return this->m_func_SQLFetch(StatementHandle);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 // Core
@@ -1300,7 +1338,7 @@ public:
                 return this->m_func_SQLBindCol(StatementHandle, ColumnNumber, TargetType, TargetValue,
                                                BufferLength, StrLen_or_Ind);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1319,7 +1357,7 @@ public:
                 return this->m_func_SQLDescribeColA(StatementHandle, ColumnNumber,
                                                     ColumnName, BufferLength, NameLength, DataType, ColumnSize, DecimalDigits, Nullable);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1338,7 +1376,7 @@ public:
                 return this->m_func_SQLDescribeColW(StatementHandle, ColumnNumber,
                                                     ColumnName, BufferLength, NameLength, DataType, ColumnSize, DecimalDigits, Nullable);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1349,7 +1387,7 @@ public:
             if(this->m_func_SQLNumParams)
                 return this->m_func_SQLNumParams(hstmt, pcpar);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLBindParameter(SQLHSTMT hstmt,
@@ -1368,7 +1406,7 @@ public:
                                                      fSqlType, cbColDef, ibScale,
                                                      rgbValue, cbValueMax, pcbValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLFreeStmt(SQLHSTMT     StatementHandle,
@@ -1377,7 +1415,7 @@ public:
             if(this->m_func_SQLFreeStmt)
                 return this->m_func_SQLFreeStmt(StatementHandle, Option);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1391,7 +1429,7 @@ public:
                 return this->m_func_SQLGetInfoA(hdbc, fInfoType, rgbInfoValue, cbInfoValueMax,
                                                 pcbInfoValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLGetInfoW(SQLHDBC            hdbc,
@@ -1404,7 +1442,7 @@ public:
                 return this->m_func_SQLGetInfoW(hdbc, fInfoType, rgbInfoValue, cbInfoValueMax,
                                                 pcbInfoValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLRowCount(SQLHSTMT StatementHandle, 
@@ -1413,7 +1451,7 @@ public:
             if(this->m_func_SQLRowCount)
                 return this->m_func_SQLRowCount(StatementHandle, RowCount);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1426,7 +1464,7 @@ public:
             if(this->m_func_SQLParamData)
                 return this->m_func_SQLParamData(StatementHandle, Value);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1438,7 +1476,7 @@ public:
             if(this->m_func_SQLPutData)
                 return this->m_func_SQLPutData(StatementHandle, Data, StrLen_or_Ind);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1458,7 +1496,7 @@ public:
                                                      CharacterAttributePtr, BufferLength, StringLengthPtr, NumericAttributePtr);
             
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1475,7 +1513,7 @@ public:
                 return this->m_func_SQLColAttributeW(StatementHandle, ColumnNumber, FieldIdentifier,
                                                      CharacterAttributePtr, BufferLength, StringLengthPtr, NumericAttributePtr);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1489,7 +1527,7 @@ public:
             if(this->m_func_SQLGetStmtAttrA)
                 return this->m_func_SQLGetStmtAttrA(hstmt, fAttribute, rgbValue, cbValueMax, pcbValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1502,7 +1540,7 @@ public:
             if(this->m_func_SQLGetStmtAttrW)
                 return this->m_func_SQLGetStmtAttrW(hstmt, fAttribute, rgbValue, cbValueMax, pcbValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLGetDescFieldA(SQLHDESC           hdesc,
@@ -1515,7 +1553,7 @@ public:
             if(this->m_func_SQLGetDescFieldA)
                 return this->m_func_SQLGetDescFieldA(hdesc, iRecord, iField, rgbValue, cbValueMax, pcbValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLGetDescFieldW(SQLHDESC           hdesc,
@@ -1528,7 +1566,7 @@ public:
             if(this->m_func_SQLGetDescFieldW)
                 return this->m_func_SQLGetDescFieldW(hdesc, iRecord, iField, rgbValue, cbValueMax, pcbValue);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1541,7 +1579,7 @@ public:
             if(this->m_func_SQLSetDescFieldA)
                 return this->m_func_SQLSetDescFieldA(DescriptorHandle, RecNumber, FieldIdentifier, Value, BufferLength);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }   
 
     inline SQLRETURN SQLSetDescFieldW(SQLHDESC DescriptorHandle,
@@ -1553,7 +1591,7 @@ public:
             if(this->m_func_SQLSetDescFieldW)
                 return this->m_func_SQLSetDescFieldW(DescriptorHandle, RecNumber, FieldIdentifier, Value, BufferLength);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }   
 
     inline SQLRETURN SQLDescribeParam(SQLHSTMT           hstmt,
@@ -1566,7 +1604,7 @@ public:
             if(this->m_func_SQLDescribeParam)
                 return this->m_func_SQLDescribeParam(hstmt, ipar, pfSqlType, pcbParamDef, pibScale, pfNullable);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 
         }
 
@@ -1576,7 +1614,7 @@ public:
             if(this->m_func_SQLGetFunctions)
                 return this->m_func_SQLGetFunctions(ConnectionHandle, FunctionId, Supported);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1598,7 +1636,7 @@ public:
                                                    TypePtr, SubTypePtr, LengthPtr,
                                                    PrecisionPtr, ScalePtr, NullablePtr);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
     inline SQLRETURN SQLGetDescRecW(SQLHDESC     DescriptorHandle,
@@ -1619,7 +1657,7 @@ public:
                                                    TypePtr, SubTypePtr, LengthPtr,
                                                    PrecisionPtr, ScalePtr, NullablePtr);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 inline SQLRETURN SQLEndTran(SQLSMALLINT HandleType,
@@ -1629,7 +1667,7 @@ inline SQLRETURN SQLEndTran(SQLSMALLINT HandleType,
             if(this->m_func_SQLEndTran)
                 return this->m_func_SQLEndTran(HandleType, Handle, CompletionType);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
 }
 
 
@@ -1649,7 +1687,7 @@ inline SQLRETURN SQLEndTran(SQLSMALLINT HandleType,
                                                SchemaName, NameLength2, TableName,
                                                NameLength3, TableType, NameLength4);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1668,7 +1706,7 @@ inline SQLRETURN SQLEndTran(SQLSMALLINT HandleType,
                                                SchemaName, NameLength2, TableName,
                                                NameLength3, TableType, NameLength4);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
         }
 
 
@@ -1687,7 +1725,7 @@ inline SQLRETURN SQLEndTran(SQLSMALLINT HandleType,
                                                SchemaName, NameLength2, TableName,
                                                NameLength3, ColumnName, NameLength4);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
     }
 
     inline SQLRETURN SQLColumnsW(SQLHSTMT     StatementHandle,
@@ -1705,7 +1743,7 @@ inline SQLRETURN SQLEndTran(SQLSMALLINT HandleType,
                                                SchemaName, NameLength2, TableName,
                                                NameLength3, ColumnName, NameLength4);
             else
-                throw ex::missing_function(__FUNCTION__);
+                throw LibFunctionException(__FUNCTION__);
     }
 
 

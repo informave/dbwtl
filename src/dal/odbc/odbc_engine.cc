@@ -1182,7 +1182,21 @@ OdbcMetadata::getTables(const Variant &schema,
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-    std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcTables(catalog, schema, Variant()));
+
+    String typeStr;
+
+    switch(system)
+    {
+    case META_OBJECT_CLASS_SYSTEM:
+        typeStr = "SYSTEM TABLE"; break;
+    case META_OBJECT_CLASS_USER:
+        typeStr = "TABLE"; break;
+    case META_OBJECT_CLASS_ALL:
+        typeStr = "TABLE, SYSTEM TABLE"; break;
+    }
+
+
+    std::shared_ptr<OdbcStmt> rawStmt(this->m_dbc.getOdbcTables(catalog, schema, typeStr));
     IResult &rawRes = rawStmt->resultset();
 
     const int columnsToCopy = 5;

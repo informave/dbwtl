@@ -379,6 +379,7 @@ public:
 
     virtual SqliteDiag& appendDiagRec(const SqliteDiag &diag);
 
+    virtual Variant        getCurrentCatalog(void);
 
 protected:
     virtual void           setDbcEncoding(std::string encoding);

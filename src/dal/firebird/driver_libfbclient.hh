@@ -1332,7 +1332,7 @@ public:
         if(this->m_func_isc_attach_database)
             return this->m_func_isc_attach_database(a, b, c, d, e, f);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_array_gen_sdl(ISC_STATUS*,
@@ -1386,7 +1386,7 @@ public:
         if(this->m_func_isc_blob_default_desc)
             return this->m_func_isc_blob_default_desc(a, b, c);
         else
-            throw ex::missing_function(__FUNCTION__);                
+            throw LibFunctionException(__FUNCTION__);                
     }
 
     inline ISC_STATUS isc_blob_gen_bpb(ISC_STATUS* a,
@@ -1399,7 +1399,7 @@ public:
         if(this->m_func_isc_blob_gen_bpb)
             return this->m_func_isc_blob_gen_bpb(a, b, c, d, e, f);
         else
-            throw ex::missing_function(__FUNCTION__);                
+            throw LibFunctionException(__FUNCTION__);                
     }
 
     inline ISC_STATUS isc_blob_info(ISC_STATUS*,
@@ -1420,7 +1420,7 @@ public:
         if(this->m_func_isc_blob_lookup_desc)
             return this->m_func_isc_blob_lookup_desc(a, b, c, d, e, f, g);
         else
-            throw ex::missing_function(__FUNCTION__);                
+            throw LibFunctionException(__FUNCTION__);                
     }
 
     inline ISC_STATUS isc_blob_set_desc(ISC_STATUS*,
@@ -1444,7 +1444,7 @@ public:
         if(this->m_func_isc_close_blob)
             return this->m_func_isc_close_blob(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);                
+            throw LibFunctionException(__FUNCTION__);                
     }
 
     inline ISC_STATUS isc_commit_retaining(ISC_STATUS *,
@@ -1456,7 +1456,7 @@ public:
         if(this->m_func_isc_commit_transaction)
             return this->m_func_isc_commit_transaction(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_create_blob(ISC_STATUS*,
@@ -1476,7 +1476,7 @@ public:
         if(this->m_func_isc_create_blob2)
             return this->m_func_isc_create_blob2(a, b, c, d, e, f, g);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_create_database(ISC_STATUS*,
@@ -1504,7 +1504,7 @@ public:
         if(this->m_func_isc_decode_sql_date)
             return this->m_func_isc_decode_sql_date(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline void isc_decode_sql_time(const ISC_TIME* a,
@@ -1513,7 +1513,7 @@ public:
         if(this->m_func_isc_decode_sql_time)
             return this->m_func_isc_decode_sql_time(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline void isc_decode_timestamp(const ISC_TIMESTAMP* a,
@@ -1522,7 +1522,7 @@ public:
         if(this->m_func_isc_decode_timestamp)
             return this->m_func_isc_decode_timestamp(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_detach_database(ISC_STATUS *a,
@@ -1531,7 +1531,7 @@ public:
         if(this->m_func_isc_detach_database)
             return this->m_func_isc_detach_database(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -1545,7 +1545,7 @@ public:
         if(this->m_func_isc_dsql_allocate_statement)
             return this->m_func_isc_dsql_allocate_statement(a, b, c);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_dsql_alloc_statement2(ISC_STATUS *,
@@ -1560,7 +1560,7 @@ public:
         if(this->m_func_isc_dsql_describe)
             return this->m_func_isc_dsql_describe(a, b, c, d);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
 
 }
 
@@ -1572,7 +1572,7 @@ public:
         if(this->m_func_isc_dsql_describe_bind)
             return this->m_func_isc_dsql_describe_bind(a, b, c, d);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_dsql_exec_immed2(ISC_STATUS*,
@@ -1593,7 +1593,7 @@ public:
         if(this->m_func_isc_dsql_execute)
             return this->m_func_isc_dsql_execute(a, b, c, d, e);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_dsql_execute2(ISC_STATUS* a,
@@ -1606,7 +1606,7 @@ public:
         if(this->m_func_isc_dsql_execute2)
             return this->m_func_isc_dsql_execute2(a, b, c, d, e, f);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_dsql_execute_immediate(ISC_STATUS* a,
@@ -1620,7 +1620,7 @@ public:
         if(this->m_func_isc_dsql_execute_immediate)
             return this->m_func_isc_dsql_execute_immediate(a, b, c, d, e, f, g);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_dsql_fetch(ISC_STATUS * a,
@@ -1631,7 +1631,7 @@ public:
         if(this->m_func_isc_dsql_fetch)
             return this->m_func_isc_dsql_fetch(a, b, c, d);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
 
 }
 
@@ -1644,7 +1644,7 @@ public:
         if(this->m_func_isc_dsql_free_statement)
             return this->m_func_isc_dsql_free_statement(a, b, c);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline ISC_STATUS isc_dsql_insert(ISC_STATUS*,
@@ -1663,7 +1663,7 @@ public:
         if(this->m_func_isc_dsql_prepare)
             return this->m_func_isc_dsql_prepare(a, b, c, d, e, f, g);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_dsql_set_cursor_name(ISC_STATUS*,
@@ -1681,7 +1681,7 @@ public:
         if(this->m_func_isc_dsql_sql_info)
             return this->m_func_isc_dsql_sql_info(a, b, c, d, e, f);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline void isc_encode_date(const void* a,
@@ -1690,7 +1690,7 @@ public:
         if(this->m_func_isc_encode_date)
             this->m_func_isc_encode_date(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline void isc_encode_sql_date(const void* a,
@@ -1699,7 +1699,7 @@ public:
         if(this->m_func_isc_encode_sql_date)
             this->m_func_isc_encode_sql_date(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline void isc_encode_sql_time(const void* a,
@@ -1708,7 +1708,7 @@ public:
         if(this->m_func_isc_encode_sql_time)
             this->m_func_isc_encode_sql_time(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline void isc_encode_timestamp(const void* a,
@@ -1717,7 +1717,7 @@ public:
         if(this->m_func_isc_encode_timestamp)
             this->m_func_isc_encode_timestamp(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline ISC_LONG ISC_EXPORT_VARARG isc_event_block(ISC_UCHAR**,
@@ -1750,7 +1750,7 @@ public:
         if(this->m_func_isc_get_segment)
             return this->m_func_isc_get_segment(a, b, c, d, e);
         else
-            throw ex::missing_function(__FUNCTION__);                
+            throw LibFunctionException(__FUNCTION__);                
     }
 
     inline ISC_STATUS isc_get_slice(ISC_STATUS*,
@@ -1772,7 +1772,7 @@ public:
         if(this->m_func_isc_interprete)
             return this->m_func_isc_interprete(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
 /* This const params version used in the engine and other places. */
@@ -1797,7 +1797,7 @@ public:
         if(this->m_func_isc_open_blob2)
             return this->m_func_isc_open_blob2(a, b, c, d, e, f, g);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline ISC_STATUS isc_prepare_transaction2(ISC_STATUS*,
@@ -1818,7 +1818,7 @@ public:
         if(this->m_func_isc_put_segment)
             return this->m_func_isc_put_segment(a, b, c, d);
         else
-            throw ex::missing_function(__FUNCTION__);        
+            throw LibFunctionException(__FUNCTION__);        
     }
 
     inline ISC_STATUS isc_put_slice(ISC_STATUS*,
@@ -1849,7 +1849,7 @@ public:
         if(this->m_func_isc_rollback_transaction)
             return this->m_func_isc_rollback_transaction(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_STATUS isc_start_multiple(ISC_STATUS *,
@@ -1867,7 +1867,7 @@ public:
         if(this->m_func_isc_start_transaction)
             return this->m_func_isc_start_transaction(a, b, c, d, e, f);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_LONG isc_sqlcode(const ISC_STATUS*);
@@ -1899,7 +1899,7 @@ public:
         if(this->m_func_isc_vax_integer)
             return this->m_func_isc_vax_integer(a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline ISC_INT64 isc_portable_integer(const ISC_UCHAR*,

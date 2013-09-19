@@ -31,7 +31,7 @@ inline std::wstring to_widen(std::string s)
 /// three classes.
 #define DAL_ADD_OPTION(name, type)                                      \
     this->m_options.insert(options_type::value_type(name,               \
-                                                    Variant(type, L##name))) 
+                                                    Variant(type, name))) 
 
 
 

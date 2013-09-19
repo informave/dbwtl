@@ -13,7 +13,6 @@
 #include "fixtures/sqlite_memory.hh"
 
 
-using namespace informave::db::ex;
 
 
 
@@ -38,7 +37,7 @@ CXXC_FIXTURE_TEST(SqliteMemoryFixture, DoubleResultset)
 CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteVariantConversion)
 {
 	DBMS::Statement stmt(dbc);
-	stmt.execDirect("SELECT date('now'), datetime('now'), NULL");
+	stmt.execDirect("SELECT date('now', 'localtime'), datetime('now', 'localtime'), NULL");
 	DBMS::Resultset rs;
 	rs.attach(stmt);
 	rs.first();
@@ -49,6 +48,8 @@ CXXC_FIXTURE_TEST(SqliteMemoryFixture, SqliteVariantConversion)
 	std::cout << "VAL: " << std::string(TTimestamp(2011, 12, 31, 10, 35, 23, 888).str()) << std::endl;
 
 	CXXC_CHECK( ! rs.column(1).isnull() );
+	CXXC_ECHO(  rs.column(1).get<TDate>() );
+
 	CXXC_CHECK( rs.column(1).get<TDate>() == TDate("now") );
 	CXXC_CHECK( rs.column(2).get<TDate>() == TDate("now") );
 	CXXC_CHECK_THROW( NullException, rs.column(3).get<TDate>() );

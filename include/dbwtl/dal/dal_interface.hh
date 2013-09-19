@@ -335,8 +335,8 @@ class DBWTL_EXPORT  EngineVariant : public Variant
 {
 public:
     template<class T>
-        EngineVariant(const T& value, const String &name = String("<engine-variant>"))
-        : Variant(value, name)
+        EngineVariant(const T& value, const char *utf8name = "<engine-variant>")
+        : Variant(value, utf8name)
     {}
 
 
@@ -1105,7 +1105,7 @@ public:
     virtual IndexList      getIndices(const IIndexFilter& = EmptyIndexFilter()) = 0;
     //virtual ProcColumnList getProcColumns(const IProcColumnFilter& = EmptyProcColumnFilter()) = 0;
 
-    virtual Variant        getCurrentCatalog(void) { return String("DBNAME-FIXME"); } /// @bug implement for all
+    virtual Variant        getCurrentCatalog(void) = 0;
 
 protected:
     virtual void           setDbcEncoding(std::string encoding) = 0;

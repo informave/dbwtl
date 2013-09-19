@@ -133,7 +133,7 @@ TTime::TTime(const String &str)
 
     std::vector<std::string> parts = utils::split<std::string>(str, ':');
     if(! utils::between(parts.size(), size_t(2), size_t(3)))
-        throw ex::convert_error(format("Invalid time format: %s") % str);
+        throw ConvertException(format("Invalid time format: %s") % str);
 
     //m_year = utils::lexical_cast<int>(parts[0]);
     m_hour = Variant(String(parts[0])).asInt();
@@ -142,7 +142,7 @@ TTime::TTime(const String &str)
         m_second = Variant(String(parts[2].substr(0, 2))).asInt();
 
     if(! (utils::between(m_hour, 0, 23) && utils::between(m_minute, 0, 59) && utils::between(m_second, 0, 61)))
-        throw ex::convert_error(format("Invalid time format: %s") % str);
+        throw ConvertException(format("Invalid time format: %s") % str);
 
 }
 

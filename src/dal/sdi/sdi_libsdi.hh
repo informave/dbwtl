@@ -475,6 +475,8 @@ public:
 
     virtual SDIDrv*    drv(void) const;
 
+    virtual Variant        getCurrentCatalog(void);
+
 TableList getTables(const ITableFilter& = EmptyTableFilter());
 
 	virtual SDIStmt* getSDICatalogs(void);

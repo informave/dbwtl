@@ -185,7 +185,7 @@ struct basic_odbcstr<1>
         // unixODBC tracer ignores the length of a string but
         // assumes SQL_NTS. For this and other broken implementations
         // we always add a null-terminator.
-        m_string.push_back(0);
+        // m_string.push_back(0);
     }
 
 
@@ -198,7 +198,7 @@ struct basic_odbcstr<1>
         // unixODBC tracer ignores the length of a string but
         // assumes SQL_NTS. For this and other broken implementations
         // we always add a null-terminator.
-        m_string.push_back(0);
+        // m_string.push_back(0);
 	}
 
     SQLCHAR* ptr(void) const
@@ -208,13 +208,13 @@ struct basic_odbcstr<1>
 
     SQLLEN size(void) const
     {
-		return this->m_string.size() ? this->m_string.size()-1 : 0;
+		return this->m_string.size();// ? this->m_string.size()-1 : 0;
     }
 
 	bool empty(void) const
 	{
-		return this->m_string.empty() ||
-            (this->m_string.size() == 1 && this->m_string[0] == 0);
+		return this->m_string.empty();// ||
+        //(this->m_string.size() == 1 && this->m_string[0] == 0);
 	}
 
     size_t max_size(void) const
@@ -249,7 +249,7 @@ struct basic_odbcstr<1>
     }
 
 protected:
-    mutable std::vector<unsigned char> m_string;
+    mutable std::basic_string<unsigned char> m_string;
 };
 
 
@@ -274,7 +274,7 @@ struct basic_odbcstr<2>
         // unixODBC tracer ignores the length of a string but
         // assumes SQL_NTS. For this and other broken implementations
         // we always add a null-terminator.
-        m_string.push_back(0);
+        //m_string.push_back(0);
     }
 
 	explicit basic_odbcstr(const String &str)
@@ -286,7 +286,7 @@ struct basic_odbcstr<2>
         // unixODBC tracer ignores the length of a string but
         // assumes SQL_NTS. For this and other broken implementations
         // we always add a null-terminator.
-        m_string.push_back(0);
+        // m_string.push_back(0);
 	}
 
 	SQLWCHAR* ptr(void) const
@@ -296,13 +296,13 @@ struct basic_odbcstr<2>
 
 	SQLLEN size(void) const
 	{
-		return this->m_string.size() ? this->m_string.size()-1 : 0;
+		return this->m_string.size();// ? this->m_string.size()-1 : 0;
 	}
 
 	bool empty(void) const
 	{
-		return this->m_string.empty() ||
-            (this->m_string.size() == 1 && this->m_string[0] == 0);
+		return this->m_string.empty();// ||
+        //(this->m_string.size() == 1 && this->m_string[0] == 0);
 	}
 
     size_t max_size(void) const
@@ -336,9 +336,9 @@ struct basic_odbcstr<2>
 
 protected:
 #ifdef _WIN32
-	mutable std::vector<wchar_t> m_string;
+	mutable std::basic_string<wchar_t> m_string;
 #else
-	mutable std::vector<unsigned short> m_string;
+	mutable std::basic_string<unsigned short> m_string;
 #endif
 };
 

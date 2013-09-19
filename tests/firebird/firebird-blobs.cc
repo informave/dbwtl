@@ -3,7 +3,6 @@
 #include "../cxxc.hh"
 #include "fixture_firebird.hh"
 
-using namespace informave::db::ex;
 
 
 CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, DatabaseVersion)

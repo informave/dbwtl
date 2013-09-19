@@ -22,8 +22,8 @@ CXXC_TEST(TTimeCreation)
 
     TTime t2("01:00");
 
-    CXXC_CHECK_THROW(ex::convert_error, TTime t2("234234234"));
-    CXXC_CHECK_THROW(ex::convert_error, TTime t3("23:14:70"));
+    CXXC_CHECK_THROW(ConvertException, TTime t2("234234234"));
+    CXXC_CHECK_THROW(ConvertException, TTime t3("23:14:70"));
 }
 
 

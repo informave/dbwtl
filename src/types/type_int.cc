@@ -62,7 +62,7 @@ sv_accessor<unsigned int>::cast(signed int*, std::locale loc) const
     const unsigned int &v = this->get_value();
 /*
     if(v < 0)
-        throw ex::convert_error(format("Negative number can't converted to unsigned int: %d") % this->get_value());
+        throw ConvertException(format("Negative number can't converted to unsigned int: %d") % this->get_value());
     else
 */
         return this->get_value();
@@ -76,7 +76,7 @@ sv_accessor<signed int>::cast(unsigned int*, std::locale loc) const
 {
     const signed int &v = this->get_value();
     if(v < 0)
-        throw ex::convert_error(format("Negative number can't converted to unsigned int: %d") % this->get_value());
+        throw ConvertException(format("Negative number can't converted to unsigned int: %d") % this->get_value());
     else
         return this->get_value();
 
@@ -88,7 +88,7 @@ sv_accessor<signed int>::cast(signed char*, std::locale loc) const
 {
 	const signed int &v = this->get_value();
 	if(v > std::numeric_limits<signed char>::max() || v < std::numeric_limits<signed char>::min())
-        throw ex::convert_error(format("Number can't converted to signed char: %d") % this->get_value());
+        throw ConvertException(format("Number can't converted to signed char: %d") % this->get_value());
 	else
 	    return this->get_value();
 }
@@ -98,7 +98,7 @@ sv_accessor<signed int>::cast(unsigned char*, std::locale loc) const
 {
         const signed int &v = this->get_value();
         if(v > std::numeric_limits<unsigned char>::max() || v < std::numeric_limits<unsigned char>::min())
-            throw ex::convert_error(format("Number can't converted to unsigned char: %d") % this->get_value());
+            throw ConvertException(format("Number can't converted to unsigned char: %d") % this->get_value());
         else
             return this->get_value();
 }
@@ -109,7 +109,7 @@ sv_accessor<signed int>::cast(signed short*, std::locale loc) const
 {
         const signed int &v = this->get_value();
         if(v > std::numeric_limits<signed short>::max() || v < std::numeric_limits<signed short>::min())
-            throw ex::convert_error(format("Number can't converted to signed short: %d") % this->get_value());
+            throw ConvertException(format("Number can't converted to signed short: %d") % this->get_value());
         else
             return this->get_value();
 }
@@ -119,7 +119,7 @@ sv_accessor<signed int>::cast(unsigned short*, std::locale loc) const
 {
         const signed int &v = this->get_value();
         if(v > std::numeric_limits<unsigned short>::max() || v < std::numeric_limits<unsigned short>::min())
-            throw ex::convert_error(format("Number can't converted to unsigned short: %d") % this->get_value());
+            throw ConvertException(format("Number can't converted to unsigned short: %d") % this->get_value());
         else
             return this->get_value();
 }
@@ -129,7 +129,7 @@ sv_accessor<signed int>::cast(unsigned long long*, std::locale loc) const
 {
          const signed int &v = this->get_value();
         if(v < 0)
-            throw ex::convert_error(format("Number can't converted to unsigned long long: %d") % this->get_value());
+            throw ConvertException(format("Number can't converted to unsigned long long: %d") % this->get_value());
         else
             return this->get_value();
  

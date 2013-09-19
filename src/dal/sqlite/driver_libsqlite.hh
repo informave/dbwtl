@@ -573,7 +573,7 @@ public:
         if(this->m_func_sqlite3_open_v2)
             return this->m_func_sqlite3_open_v2(filename, ppDb, flags, zVfs);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -583,7 +583,7 @@ public:
         if(this->m_func_sqlite3_step)
             return this->m_func_sqlite3_step(stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const char* sqlite3_libversion(void)
@@ -591,7 +591,7 @@ public:
         if(this->m_func_sqlite3_libversion)
             return this->m_func_sqlite3_libversion();
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -600,7 +600,7 @@ public:
         if(this->m_func_sqlite3_close)
             return this->m_func_sqlite3_close(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -609,7 +609,7 @@ public:
         if(this->m_func_sqlite3_finalize)
             return this->m_func_sqlite3_finalize(pStmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_prepare_v2(sqlite3 *db, const char *zSql, int nByte,       
@@ -618,7 +618,7 @@ public:
         if(this->m_func_sqlite3_prepare_v2)
             return this->m_func_sqlite3_prepare_v2(db, zSql, nByte, ppStmt, pzTail);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline void *sqlite3_aggregate_context(sqlite3_context* context, int nBytes)
@@ -626,7 +626,7 @@ public:
         if(this->m_func_sqlite3_aggregate_context)
             return this->m_func_sqlite3_aggregate_context(context, nBytes);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_auto_extension(void (*xEntryPoint)(void))
@@ -634,7 +634,7 @@ public:
         if(this->m_func_sqlite3_auto_extension)
             return this->m_func_sqlite3_auto_extension(xEntryPoint);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_blob(sqlite3_stmt* stmt, int col, const void* value, int n, void(*dtor)(void*))
@@ -642,7 +642,7 @@ public:
         if(this->m_func_sqlite3_bind_blob)
             return this->m_func_sqlite3_bind_blob(stmt, col, value, n, dtor);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_double(sqlite3_stmt* stmt, int col, double value)
@@ -650,7 +650,7 @@ public:
         if(this->m_func_sqlite3_bind_double)
             return this->m_func_sqlite3_bind_double(stmt, col, value);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_int(sqlite3_stmt* stmt, int col, int value)
@@ -658,7 +658,7 @@ public:
         if(this->m_func_sqlite3_bind_int)
             return this->m_func_sqlite3_bind_int(stmt, col, value);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_int64(sqlite3_stmt* stmt, int col, sqlite3_int64 value)
@@ -666,7 +666,7 @@ public:
         if(this->m_func_sqlite3_bind_int64)
             return this->m_func_sqlite3_bind_int64(stmt, col, value);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_null(sqlite3_stmt* stmt, int col)
@@ -674,7 +674,7 @@ public:
         if(this->m_func_sqlite3_bind_null)
             return this->m_func_sqlite3_bind_null(stmt, col);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_text(sqlite3_stmt* stmt, int col, const char* value, int n, void(*dtor)(void*))
@@ -682,7 +682,7 @@ public:
         if(this->m_func_sqlite3_bind_text)
             return this->m_func_sqlite3_bind_text(stmt, col, value, n, dtor);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -691,7 +691,7 @@ public:
         if(this->m_func_sqlite3_bind_value)
             return this->m_func_sqlite3_bind_value(stmt, col, value);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_zeroblob(sqlite3_stmt* stmt, int col, int n)
@@ -699,7 +699,7 @@ public:
         if(this->m_func_sqlite3_bind_zeroblob)
             return this->m_func_sqlite3_bind_zeroblob(stmt, col, n);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_parameter_count(sqlite3_stmt* stmt)
@@ -707,7 +707,7 @@ public:
         if(this->m_func_sqlite3_bind_parameter_count)
             return this->m_func_sqlite3_bind_parameter_count(stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_bind_parameter_index(sqlite3_stmt* stmt, const char *zName)
@@ -715,7 +715,7 @@ public:
         if(this->m_func_sqlite3_bind_parameter_index)
             return this->m_func_sqlite3_bind_parameter_index(stmt, zName);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const char *sqlite3_bind_parameter_name(sqlite3_stmt* stmt, int col)
@@ -723,7 +723,7 @@ public:
         if(this->m_func_sqlite3_bind_parameter_name)
             return this->m_func_sqlite3_bind_parameter_name(stmt, col);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_blob_bytes(sqlite3_blob *blob)
@@ -731,7 +731,7 @@ public:
         if(this->m_func_sqlite3_blob_bytes)
             return this->m_func_sqlite3_blob_bytes(blob);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_blob_close(sqlite3_blob *blob)
@@ -739,7 +739,7 @@ public:
         if(this->m_func_sqlite3_blob_close)
             return this->m_func_sqlite3_blob_close(blob);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_blob_open(sqlite3* db, const char *zDb, const char *zTable, const char *zColumn,
@@ -748,7 +748,7 @@ public:
         if(this->m_func_sqlite3_blob_open)
             return this->m_func_sqlite3_blob_open(db, zDb, zTable, zColumn, iRow, flags, ppBlob);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_blob_read(sqlite3_blob *blob, void *Z, int N, int iOffset)
@@ -756,7 +756,7 @@ public:
         if(this->m_func_sqlite3_blob_read)
             return this->m_func_sqlite3_blob_read(blob, Z, N, iOffset);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_blob_write(sqlite3_blob *blob, const void *z, int n, int iOffset)
@@ -764,7 +764,7 @@ public:
         if(this->m_func_sqlite3_blob_write)
             return this->m_func_sqlite3_blob_write(blob, z, n, iOffset);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_busy_handler(sqlite3 *db, int(*handler)(void*,int), void *arg)
@@ -772,7 +772,7 @@ public:
         if(this->m_func_sqlite3_busy_handler)
             return this->m_func_sqlite3_busy_handler(db, handler, arg);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_busy_timeout(sqlite3* db, int ms)
@@ -780,7 +780,7 @@ public:
         if(this->m_func_sqlite3_busy_timeout)
             return this->m_func_sqlite3_busy_timeout(db, ms);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_changes(sqlite3* db)
@@ -788,7 +788,7 @@ public:
         if(this->m_func_sqlite3_changes)
             return this->m_func_sqlite3_changes(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_clear_bindings(sqlite3_stmt* stmt)
@@ -796,7 +796,7 @@ public:
         if(this->m_func_sqlite3_clear_bindings)
             return this->m_func_sqlite3_clear_bindings(stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_collation_needed(sqlite3* db, void* a, 
@@ -805,7 +805,7 @@ public:
         if(this->m_func_sqlite3_collation_needed)
             return this->m_func_sqlite3_collation_needed(db, a, b);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -814,7 +814,7 @@ public:
         if(this->m_func_sqlite3_column_blob)
             return this->m_func_sqlite3_column_blob(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_column_bytes(sqlite3_stmt* stmt, int iCol)
@@ -822,7 +822,7 @@ public:
         if(this->m_func_sqlite3_column_bytes)
             return this->m_func_sqlite3_column_bytes(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -831,7 +831,7 @@ public:
         if(this->m_func_sqlite3_column_double)
             return this->m_func_sqlite3_column_double(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_column_int(sqlite3_stmt* stmt, int iCol)
@@ -839,7 +839,7 @@ public:
         if(this->m_func_sqlite3_column_int)
             return this->m_func_sqlite3_column_int(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline sqlite3_int64 sqlite3_column_int64(sqlite3_stmt* stmt, int iCol)
@@ -847,7 +847,7 @@ public:
         if(this->m_func_sqlite3_column_int64)
             return this->m_func_sqlite3_column_int64(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const unsigned char *sqlite3_column_text(sqlite3_stmt* stmt, int iCol)
@@ -855,7 +855,7 @@ public:
         if(this->m_func_sqlite3_column_text)
             return this->m_func_sqlite3_column_text(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const void *sqlite3_column_text16(sqlite3_stmt* stmt, int iCol)
@@ -863,7 +863,7 @@ public:
         if(this->m_func_sqlite3_column_text16)
             return this->m_func_sqlite3_column_text16(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_column_type(sqlite3_stmt *stmt, int iCol)
@@ -871,7 +871,7 @@ public:
         if(this->m_func_sqlite3_column_type)
             return this->m_func_sqlite3_column_type(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline sqlite3_value *sqlite3_column_value(sqlite3_stmt *stmt, int iCol)
@@ -879,7 +879,7 @@ public:
         if(this->m_func_sqlite3_column_value)
             return this->m_func_sqlite3_column_value(stmt, iCol);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_column_count(sqlite3_stmt *pStmt)
@@ -887,7 +887,7 @@ public:
         if(this->m_func_sqlite3_column_count)
             return this->m_func_sqlite3_column_count(pStmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const char *sqlite3_column_name(sqlite3_stmt *stmt, int N)
@@ -895,7 +895,7 @@ public:
         if(this->m_func_sqlite3_column_name)
             return this->m_func_sqlite3_column_name(stmt, N);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 /*
@@ -904,7 +904,7 @@ public:
   if(this->m_func_sqlite3_database_name)
   return this->m_func_sqlite3_column_database_name(stmt, col);
   else
-  throw ex::missing_function(__FUNCTION__);
+  throw LibFunctionException(__FUNCTION__);
   }
 */
 
@@ -913,7 +913,7 @@ public:
         if(this->m_func_sqlite3_column_table_name)
             return this->m_func_sqlite3_column_table_name(stmt, col);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const char *sqlite3_column_origin_name(sqlite3_stmt* stmt,int col)
@@ -921,7 +921,7 @@ public:
         if(this->m_func_sqlite3_column_origin_name)
             return this->m_func_sqlite3_column_origin_name(stmt, col);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const char *sqlite3_column_decltype(sqlite3_stmt *stmt, int col)
@@ -929,7 +929,7 @@ public:
         if(this->m_func_sqlite3_column_decltype)
             return this->m_func_sqlite3_column_decltype(stmt, col);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline void *sqlite3_commit_hook(sqlite3*db, int(*hook)(void*), void*arg)
@@ -937,7 +937,7 @@ public:
         if(this->m_func_sqlite3_commit_hook)
             return this->m_func_sqlite3_commit_hook(db, hook, arg);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline void *sqlite3_rollback_hook(sqlite3*db, void(*hook)(void *), void*arg)
@@ -945,7 +945,7 @@ public:
         if(this->m_func_sqlite3_rollback_hook)
             return this->m_func_sqlite3_rollback_hook(db, hook, arg);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -954,7 +954,7 @@ public:
         if(this->m_func_sqlite3_complete)
             return this->m_func_sqlite3_complete(sql);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_create_collation( sqlite3*db, const char *zName, int eTextRep, 
@@ -963,7 +963,7 @@ public:
         if(this->m_func_sqlite3_create_collation)
             return this->m_func_sqlite3_create_collation(db, zName, eTextRep, a, xCompare);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_create_collation_v2(sqlite3*db, const char *zName, int eTextRep, void* a,
@@ -973,7 +973,7 @@ public:
         if(this->m_func_sqlite3_create_collation_v2)
             return this->m_func_sqlite3_create_collation_v2(db, zName, eTextRep, a, xCompare, xDestroy);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
                 
@@ -987,7 +987,7 @@ public:
             return this->m_func_sqlite3_create_function(db, zFunctionName, nArg, eTextRep, pApp,
                                                         xFunc, xStep, xFinal);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -996,7 +996,7 @@ public:
         if(this->m_func_sqlite3_data_count)
             return this->m_func_sqlite3_data_count(pStmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline sqlite3 *sqlite3_db_handle(sqlite3_stmt* stmt)
@@ -1004,7 +1004,7 @@ public:
         if(this->m_func_sqlite3_db_handle)
             return this->m_func_sqlite3_db_handle(stmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -1013,7 +1013,7 @@ public:
         if(this->m_func_sqlite3_errcode)
             return this->m_func_sqlite3_errcode(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -1022,7 +1022,7 @@ public:
         if(this->m_func_sqlite3_extended_errcode)
             return this->m_func_sqlite3_extended_errcode(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -1031,7 +1031,7 @@ public:
         if(this->m_func_sqlite3_errmsg)
             return this->m_func_sqlite3_errmsg(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 /*
@@ -1040,7 +1040,7 @@ public:
   if(this->m_func_sqlite3_extended_result_code)
   return this->m_func_sqlite3_extended_result_code(db, onoff);
   else
-  throw ex::missing_function(__FUNCTION__);
+  throw LibFunctionException(__FUNCTION__);
   }
 */
 
@@ -1049,7 +1049,7 @@ public:
         if(this->m_func_sqlite3_get_autocommit)
             return this->m_func_sqlite3_get_autocommit(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
 
@@ -1058,7 +1058,7 @@ public:
         if(this->m_func_sqlite3_interrupt)
             return this->m_func_sqlite3_interrupt(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline sqlite3_int64 sqlite3_last_insert_rowid(sqlite3*db)
@@ -1066,7 +1066,7 @@ public:
         if(this->m_func_sqlite3_last_insert_rowid)
             return this->m_func_sqlite3_last_insert_rowid(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_limit(sqlite3*db, int id, int newVal)
@@ -1074,7 +1074,7 @@ public:
         if(this->m_func_sqlite3_limit)
             return this->m_func_sqlite3_limit(db, id, newVal);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline sqlite3_stmt *sqlite3_next_stmt(sqlite3 *pDb, sqlite3_stmt *pStmt)
@@ -1082,7 +1082,7 @@ public:
         if(this->m_func_sqlite3_next_stmt)
             return this->m_func_sqlite3_next_stmt(pDb, pStmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline void sqlite3_progress_handler(sqlite3* db, int a, int(*handler)(void*), void*arg)
@@ -1090,7 +1090,7 @@ public:
         if(this->m_func_sqlite3_progress_handler)
             return this->m_func_sqlite3_progress_handler(db, a, handler, arg);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_reset(sqlite3_stmt *pStmt)
@@ -1098,7 +1098,7 @@ public:
         if(this->m_func_sqlite3_reset)
             return this->m_func_sqlite3_reset(pStmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline const char *sqlite3_sql(sqlite3_stmt *pStmt)
@@ -1106,7 +1106,7 @@ public:
         if(this->m_func_sqlite3_sql)
             return this->m_func_sqlite3_sql(pStmt);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_table_column_metadata(sqlite3 *db, const char *zDbName, const char *zTableName,   
@@ -1118,7 +1118,7 @@ public:
             return this->m_func_sqlite3_table_column_metadata(db, zDbName, zTableName, zColumnName, pzDataType,
                                                               pzCollSeq, pNotNull, pPrimaryKey, pAutoinc);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_threadsafe(void)
@@ -1126,7 +1126,7 @@ public:
         if(this->m_func_sqlite3_threadsafe)
             return this->m_func_sqlite3_threadsafe();
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline int sqlite3_total_changes(sqlite3*db)
@@ -1134,7 +1134,7 @@ public:
         if(this->m_func_sqlite3_total_changes)
             return this->m_func_sqlite3_total_changes(db);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
 
     inline void *sqlite3_update_hook(sqlite3*db, 
@@ -1144,7 +1144,7 @@ public:
         if(this->m_func_sqlite3_update_hook)
             return this->m_func_sqlite3_update_hook(db, a, arg);
         else
-            throw ex::missing_function(__FUNCTION__);
+            throw LibFunctionException(__FUNCTION__);
     }
                 
 };

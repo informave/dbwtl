@@ -2489,6 +2489,16 @@ FirebirdDbc_libfbclient::drv(void) const
 }
 
 
+
+Variant
+FirebirdDbc_libfbclient::getCurrentCatalog(void)
+{
+    return Variant();
+}
+
+
+
+
 /// @details
 /// 
 std::string  

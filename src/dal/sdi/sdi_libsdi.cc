@@ -1196,6 +1196,11 @@ SDIDbc_libsdi::connect(String database,
     return this->connect(options);
 }
 
+Variant
+SDIDbc_libsdi::getCurrentCatalog(void)
+{
+    return Variant();
+}
 
 
 

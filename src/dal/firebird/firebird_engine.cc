@@ -356,7 +356,7 @@ sv_accessor<FirebirdData*>::cast(BlobStream*, std::locale loc) const
     if(this->get_value()->daltype() == DAL_TYPE_BLOB || this->get_value()->daltype() == DAL_TYPE_MEMO)
         return BlobStream(this->get_value()->getBlob());
     else
-        throw ex::convert_error(this->datatype(), value_traits<BlobStream>::info_type::type());
+        throw ConvertException(this->datatype(), value_traits<BlobStream>::info_type::type());
 }
 
 
@@ -366,7 +366,7 @@ sv_accessor<FirebirdData*>::cast(MemoStream*, std::locale loc) const
     if(this->get_value()->daltype() == DAL_TYPE_MEMO)
         return this->get_value()->getMemo();
     else
-        throw ex::convert_error(this->datatype(), value_traits<MemoStream>::info_type::type());
+        throw ConvertException(this->datatype(), value_traits<MemoStream>::info_type::type());
 
 }
 

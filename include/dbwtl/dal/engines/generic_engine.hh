@@ -664,6 +664,7 @@ struct generic
     typedef IDiagnostic         DIAG;
     typedef ITable              TABLE;
     typedef IColumnDesc         COLUMNDESC;
+    typedef IMetadata           METADATA;
 //  typedef SqliteTypeInfo      TYPEINFO;
 
 
@@ -705,7 +706,7 @@ struct db_traits<generic, tag>
     typedef generic::COLUMNDESC            dal_columndesc_type;
     typedef generic::STATES                sqlstate_types;
     typedef basic_datatypes                     datatype_types;
-    typedef IMetadata                   dal_metadata_type; /// @bug
+    typedef generic::METADATA              dal_metadata_type;
 
     typedef Variant                            dal_variant_type;
 

@@ -5,7 +5,6 @@
 #include "../cxxc.hh"
 #include "fixture_pg.hh"
 
-using namespace informave::db::ex;
 
 
 CXXC_TEST(CreateDbc)

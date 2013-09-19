@@ -68,7 +68,7 @@ int main(void)
     {
         return test();
     }
-    catch(informave::db::ex::exception &e)
+    catch(informave::db::Exception &e)
     {
         std::cout << e.what() << std::endl;
         return -1;

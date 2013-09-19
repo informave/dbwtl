@@ -133,7 +133,7 @@ TDate::TDate(const String &str)
 
     std::vector<std::string> parts = utils::split<std::string>(str, '-');
     if(parts.size() != 3)
-        throw ex::convert_error(format("Invalid date format: %s") % str);
+        throw ConvertException(format("Invalid date format: %s") % str);
 
     try
     {
@@ -141,13 +141,13 @@ TDate::TDate(const String &str)
         m_month = Variant(String(parts[1])).asInt();
         m_day = Variant(String(parts[2])).asInt();
     }
-    catch(ex::convert_error&)
+    catch(ConvertException&)
     {
-        throw ex::convert_error(format("Invalid date format: %s") % str);
+        throw ConvertException(format("Invalid date format: %s") % str);
     }
 
     if(m_month < 1 || m_month > 12 || m_day < 1 || m_day > 31)
-        throw ex::convert_error(format("Invalid date format: %s") % str);
+        throw ConvertException(format("Invalid date format: %s") % str);
 }
 
 

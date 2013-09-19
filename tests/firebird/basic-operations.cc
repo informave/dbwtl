@@ -3,7 +3,6 @@
 #include "../cxxc.hh"
 #include "fixture_firebird.hh"
 
-using namespace informave::db::ex;
 
 
 CXXC_TEST(InvalidDb)
@@ -313,7 +312,7 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, InsertValueTooLarge)
 
     CXXC_CHECK(stmt.paramCount() == 1);
     stmt.bind(1, String("ThisStringIsTooLargeForTheColumn"));
-    CXXC_CHECK_THROW( DBMS::SQLSTATE_22000, stmt.execute() );
+    CXXC_CHECK_THROW( DBMS::SQLSTATE_HY000, stmt.execute() );
     CXXC_CHECK_THROW( DBMS::SQLSTATE_feature_not_supported, stmt.lastInsertRowId() );
 }
 

@@ -60,7 +60,7 @@ DB_NAMESPACE_BEGIN
 FirebirdMetadata*
 FirebirdDbc::newMetadata(void)
 {
-    return new FirebirdMetadata(*this); /// @bug
+    return new FirebirdMetadata(*this);
 }
 
 
@@ -144,7 +144,7 @@ FirebirdMetadata::getSchemas(const Variant &catalog,
 
     ShrRecord rec(3);
     rec[0] = this->m_dbc.getCurrentCatalog();
-    rec[1] = String("DEFAULT"); /// @bug set to null
+    //rec[1] = String("DEFAULT"); /// @bug set to null
     //rec[2] = rawRes.column("REMARKS");
     rs.insert(rec);
 

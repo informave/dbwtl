@@ -387,10 +387,12 @@ public:
 
     virtual SDIDbc_libsdi& getDbc(void) const; // interface
 
+/*
 	virtual void openSDICatalogs(void);
 	virtual void openSDISchemas(void);
 	virtual void openSDITables(void);
 	virtual void openSDIColumns(void);
+*/
 
 protected:
     SDIResult_libsdi* newResultset(void);
@@ -459,7 +461,7 @@ public:
 
     virtual SDIStmt_libsdi*    newStatement(void);
 
-	virtual IEnv &getEnv(void);
+    virtual SDIEnv&        getEnv(void);
 
     virtual void           connect(String database,
                                    String user = String(),
@@ -479,11 +481,12 @@ public:
 
 TableList getTables(const ITableFilter& = EmptyTableFilter());
 
+/*
 	virtual SDIStmt* getSDICatalogs(void);
 	virtual SDIStmt* getSDISchemas(void);
 	virtual SDIStmt* getSDITables(void);
 	virtual SDIStmt* getSDIColumns(void);
-
+*/
 
 
 protected:
@@ -498,7 +501,6 @@ private:
     SDIDbc_libsdi(const SDIDbc_libsdi&);
     SDIDbc_libsdi& operator=(const SDIDbc_libsdi&);
 };
-
 
 
 
@@ -527,6 +529,10 @@ protected:
     SDIENV                           m_env;
     mutable std::auto_ptr<SDIDrv>    m_lib;
 };
+
+
+
+
 
 
 /// @endcond

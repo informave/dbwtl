@@ -283,8 +283,6 @@ FirebirdData_libfbclient::~FirebirdData_libfbclient(void)
 IVariantValue*
 FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
 {
-    /// @bug What about NULL values?
-
     // Numeric columns need special handling
     if(this->daltype() == DAL_TYPE_NUMERIC)
     {

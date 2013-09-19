@@ -655,10 +655,12 @@ public:
 
 	virtual SDIMetadata* newMetadata(void);
 
+/*
 	virtual SDIStmt* getSDICatalogs(void) = 0;
 	virtual SDIStmt* getSDISchemas(void) = 0;
 	virtual SDIStmt* getSDITables(void) = 0;
 	virtual SDIStmt* getSDIColumns(void) = 0;
+*/
 
 protected:
     SDIDiagController m_diag;

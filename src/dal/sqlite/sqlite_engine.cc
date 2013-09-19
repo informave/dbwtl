@@ -57,7 +57,7 @@ DB_NAMESPACE_BEGIN
 SqliteMetadata*
 SqliteDbc::newMetadata(void)
 {
-    return new SqliteMetadata(*this); /// @bug
+    return new SqliteMetadata(*this);
 }
 
 

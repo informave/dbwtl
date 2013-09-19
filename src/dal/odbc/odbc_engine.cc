@@ -1013,7 +1013,7 @@ OdbcDatatype::~OdbcDatatype(void)
 OdbcMetadata*
 OdbcDbc::newMetadata(void)
 {
-    return new OdbcMetadata(*this); /// @bug
+    return new OdbcMetadata(*this);
 }
 
 

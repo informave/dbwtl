@@ -3022,7 +3022,7 @@ OdbcColumnDesc_libodbc::OdbcColumnDesc_libodbc(colnum_t i, OdbcResult_libodbc &r
             this->m_daltype = DAL_TYPE_BOOL;
             break;
         case SQL_TINYINT:
-            this->m_daltype = DAL_TYPE_SMALLINT; /// @bug fixme
+            this->m_daltype = is_unsigned == SQL_TRUE ? DAL_TYPE_UCHAR : DAL_TYPE_CHAR;
             break;
         case SQL_BIGINT:
             this->m_daltype = is_unsigned == SQL_TRUE ? DAL_TYPE_UBIGINT : DAL_TYPE_BIGINT;
@@ -3804,7 +3804,7 @@ OdbcStmt_libodbc::openOdbcSchemas(const Variant &catalog)
     SQLRETURN ret;
 
     OdbcResult_libodbc* rs = this->newResultset();
-    /// @bug catalog is ignored, because only the current catalog is used
+    /// @todo catalog is ignored, because only the current catalog is used
     if(this->getDbc().usingUnicode())
     {
         OdbcStrW str_catalog(String(""));

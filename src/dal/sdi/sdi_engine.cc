@@ -59,7 +59,7 @@ DB_NAMESPACE_BEGIN
 SDIMetadata*
 SDIDbc::newMetadata(void)
 {
-    return new SDIMetadata(*this); /// @bug
+    return new SDIMetadata(*this);
 }
 
 

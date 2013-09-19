@@ -83,7 +83,7 @@ struct delete_object
 };
 */
 
-
+/*
 	 SDIStmt* 
 	 SDIDbc_libsdi::getSDICatalogs(void)
 {
@@ -121,7 +121,7 @@ struct delete_object
 
 	 void SDIStmt_libsdi::openSDICatalogs(void)
 	 {
-		 assert(!"fixme"); /// @bug
+		 assert(!"fixme");
 	 }
 	 void SDIStmt_libsdi::openSDISchemas(void)
 	 {
@@ -132,6 +132,8 @@ struct delete_object
 	 void SDIStmt_libsdi::openSDIColumns(void)
 	 {
 	 }
+
+*/
 
 static void delete_resultset(SDIDataProvider_libsdi* rs)
 {
@@ -166,7 +168,8 @@ daltype_t sdi2daltype(enum sdi_data_types type)
     case SDI_TYPE_BLOB: return DAL_TYPE_BLOB;
     case SDI_TYPE_ARRAY:
     case SDI_TYPE_CUSTOM:
-    default: assert(!"foo");
+    default:
+    	throw EngineException("Unhandled SDI type");
     }
 }
 
@@ -401,8 +404,9 @@ SDIData_libsdi::getMemo(void) const
     std::stringstream ss;
     ss << this->getBlob();
 
-    /// @bug use SDI encoding
-    m_memo_stream << String(ss.str(), "ISO-8859-1");
+    SDIENV envh = dynamic_cast<SDIEnv_libsdi&>(this->m_resultset.getDbc().getEnv()).getHandle();
+    const char *charset = this->m_resultset.drv()->SDICharset(envh);
+    m_memo_stream << String(ss.str(), charset);
 
     return this->m_memo_stream.rdbuf();
 }
@@ -575,8 +579,10 @@ SDIData_libsdi::getString(void) const
             tmp.resize(ind+1);
             sdi_code e = m_resultset.drv()->SDIGetData(m_resultset.getHandle(), colnum(), &tmp[0], ind+1, &ind);
             tmp.resize(ind);
-			const char *charset = m_resultset.drv()->SDICharset(NULL); /// @bug pass env handle,better: getdata encoding!
-            return String(tmp, charset); /// @bug check encoding
+
+	SDIENV envh = dynamic_cast<SDIEnv_libsdi&>(this->m_resultset.getDbc().getEnv()).getHandle();
+	const char *charset = m_resultset.drv()->SDICharset(envh);
+        return String(tmp, charset);
         }
         else
             return "";
@@ -692,10 +698,6 @@ SDIData_libsdi::refresh(void)
 daltype_t
 SDIData_libsdi::daltype(void) const
 {
-	/// @bug describeColumn is static, but at different records, columns
-	/// may change their type.
-    //return this->m_resultset.describeColumn(this->m_colnum).getDatatype();
-    
     return sdi2daltype(this->sdi_type());
 }
 
@@ -1029,7 +1031,8 @@ SDIColumnDesc_libsdi::SDIColumnDesc_libsdi(colnum_t i, SDIDataProvider_libsdi &r
         //printf("Name: %s\tSize: %d\n", name, size);
 
         // set name
-		const char *charset = result.drv()->SDICharset(NULL); /// @bug pass env handle
+	SDIENV envh = dynamic_cast<SDIEnv_libsdi&>(result.getDbc().getEnv()).getHandle();
+	const char *charset = result.drv()->SDICharset(envh);
         this->m_name.set(String(name ? name : "", charset));
 
         this->m_type_name.set(daltype2sqlname(sdi2daltype(type)));
@@ -1161,7 +1164,7 @@ SDIDbc_libsdi::SDIDbc_libsdi(SDIEnv_libsdi& env)
 { }
 
 
-IEnv&
+SDIEnv&
 	SDIDbc_libsdi::getEnv(void)
 {
 	return this->m_env;
@@ -1484,8 +1487,16 @@ DALTRACE_ENTER;
         this->close();
 
 
+    SDIENV envh = dynamic_cast<SDIEnv_libsdi&>(this->m_stmt.getDbc().getEnv()).getHandle();
+    const char *charset = this->drv()->SDICharset(envh);
+
+    std::string c_catalog(catalog.to(charset));
+    std::string c_schema(schema.to(charset));
+    std::string c_table(table.to(charset));
+
+
     sdi_code err = this->drv()->SDIColumns(this->m_stmt.getDbc().getHandle(), &this->m_handle,
-			catalog.utf8(), schema.utf8(), table.utf8()); /// @bug use encoding
+			c_catalog.c_str(), c_schema.c_str(), c_table.c_str());
 
     switch(err)
     {

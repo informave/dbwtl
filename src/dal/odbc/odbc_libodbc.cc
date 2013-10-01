@@ -2567,11 +2567,13 @@ OdbcResult_libodbc::first(void)
     }
     else
     {
-        THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "Fetch first failed");
+        THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(),
+                              this->getHandle(), SQL_HANDLE_STMT, "Fetch first failed");
     }
+
+    // Fetch parts
     if(ret == SQL_SUCCESS_WITH_INFO)
     {
-        //assert(!"foo");
         if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
         {
             // std::for_each(this->m_column_accessors.begin(),
@@ -2614,10 +2616,31 @@ OdbcResult_libodbc::next(void)
     else if(ret == SQL_NO_DATA)
     {
         DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_EOF);
+        return false;
     }
     else
     {
         THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "Fetch failed");
+    }
+
+    // Fetch parts
+    if(ret == SQL_SUCCESS_WITH_INFO)
+    {
+        if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
+        {
+            // std::for_each(this->m_column_accessors.begin(),
+            //               this->m_column_accessors.end(),
+            //               stdext::compose1(std::mem_fun(&OdbcVariant::fetchParts),
+            //                                stdext::select2nd<VariantListT::value_type>())
+            //  );
+
+            std::for_each(this->m_column_accessors.begin(),
+                          this->m_column_accessors.end(),
+                          [](VariantListT::value_type &item)
+                          {
+                              item.second->fetchParts();
+                          });
+        }
     }
 
     return !this->eof();

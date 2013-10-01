@@ -699,6 +699,7 @@ struct sv_accessor<SqliteData*> : public virtual sa_base<SqliteData*>,
                                        public supports<signed int>,
                                        public supports<bool>,
                                        public supports<BlobStream>,
+                                       public supports<Blob>,
                                        public supports<TDate>,
                                        public supports<TTime>,
                                        public supports<TTimestamp>,
@@ -708,6 +709,7 @@ struct sv_accessor<SqliteData*> : public virtual sa_base<SqliteData*>,
     virtual signed int cast(signed int*, std::locale loc) const;
     virtual bool cast(bool*, std::locale loc) const;
     virtual BlobStream cast(BlobStream*, std::locale loc) const;
+    virtual Blob cast(Blob*, std::locale loc) const;
     virtual TDate cast(TDate*, std::locale loc) const;
     virtual TTime cast(TTime*, std::locale loc) const;
     virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
@@ -719,6 +721,14 @@ struct sv_accessor<SqliteData*> : public virtual sa_base<SqliteData*>,
     //virtual bool isNull() const;
 
     virtual daltype_t datatype() const;
+
+   sv_accessor(void) : m_blob_buffer() {}
+
+   sv_accessor(const sv_accessor &orig)
+   : m_blob_buffer(orig.m_blob_buffer)
+   {}
+
+   mutable std::shared_ptr<std::stringstream> m_blob_buffer;
 };
 
 

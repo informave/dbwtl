@@ -410,8 +410,28 @@ sv_accessor<SqliteData*>::cast(bool*, std::locale loc) const
 BlobStream
 sv_accessor<SqliteData*>::cast(BlobStream*, std::locale loc) const
 {
-    return BlobStream(this->get_value()->getBlob());
+    if(this->m_blob_buffer.get())
+    {
+        this->m_blob_buffer->seekg(0);
+        return BlobStream(this->m_blob_buffer->rdbuf());
+    }
+    else
+        return BlobStream(this->get_value()->getBlob());
 }
+
+
+Blob
+sv_accessor<SqliteData*>::cast(Blob*, std::locale loc) const
+{
+    if(!this->m_blob_buffer.get())
+    {
+        this->m_blob_buffer.reset(new std::stringstream());
+        (*this->m_blob_buffer.get()) << this->get_value()->getBlob();
+    }
+    this->m_blob_buffer->rdbuf()->pubseekpos(0);
+    return Blob(this->m_blob_buffer->rdbuf());
+}
+
 
 TDate
 sv_accessor<SqliteData*>::cast(TDate*, std::locale loc) const
@@ -519,6 +539,13 @@ DAL_NAMESPACE_BEGIN
 IVariantValue*
 SqliteData::do_deepcopy(const IVariantValue *owner) const
 {
+    // The sv_accesor<SqliteData+> class uses buffers for BlobStreams.
+    // We can't use clone() because this would create new buffers for the tmp object.
+    if(owner->datatype() == DAL_TYPE_BLOB)
+    {
+    	return new value_traits<Blob>::stored_type(use_cast<Blob>(owner));
+    }
+
     // we make a copy of the variant_storage owner for this instance, so we can use
     // the get<T> method to reuse cast definitions.
     Variant tmp(owner->clone());
@@ -541,18 +568,15 @@ SqliteData::do_deepcopy(const IVariantValue *owner) const
     case DAL_TYPE_TIME:       return new value_traits<TTime>::stored_type(tmp.get<TTime>());
     case DAL_TYPE_TIMESTAMP:  return new value_traits<TTimestamp>::stored_type(tmp.get<TTimestamp>());
     case DAL_TYPE_NUMERIC:    return new value_traits<TNumeric>::stored_type(tmp.get<TNumeric>());
-    case DAL_TYPE_BLOB:       return new value_traits<BlobStream>::stored_type(tmp.get<BlobStream>());
-    case DAL_TYPE_MEMO:       return new value_traits<MemoStream>::stored_type(tmp.get<MemoStream>());
+    //case DAL_TYPE_BLOB:       return new value_traits<BlobStream>::stored_type(tmp.get<BlobStream>());
+    //case DAL_TYPE_MEMO:       return new value_traits<MemoStream>::stored_type(tmp.get<MemoStream>());
     case DAL_TYPE_FLOAT:      return new value_traits<float>::stored_type(tmp.get<float>());
     case DAL_TYPE_DOUBLE:     return new value_traits<double>::stored_type(tmp.get<double>());
     case DAL_TYPE_INTERVAL:   return new value_traits<TInterval>::stored_type(tmp.get<TInterval>());
-/*
-  default:
-  throw ex::exception(format("Unhandled datatype(%d) at %s") % int(this->daltype()) % DBWTL_MACRO_SRCPOS);
-*/
+
+    default:
+        throw EngineException(format("Unhandled datatype(%d)") % int(tmp.datatype()));
     }
-    assert(false);
-    return 0;
 }
 
 

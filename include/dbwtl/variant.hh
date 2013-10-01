@@ -325,6 +325,23 @@ struct sv_accessor : public virtual sa_base<T>
 
 
 
+
+//..............................................................................
+//////////////////////////////////////////////////////////////// deepcopy_helper
+///
+/// @since 0.0.1
+/// @brief Helper class for custom deepcopy
+///
+struct deepcopy_helper
+{
+    static IVariantValue* try_copy(const IVariantValue *owner, const custom_deepcopy *x)
+    { return x->do_deepcopy(owner); }
+
+    static IVariantValue* try_copy(const IVariantValue *owner, const void*) { return 0; }
+};
+
+
+
 //..............................................................................
 ////////////////////////////////////////////////////////////////// variant_value
 ///
@@ -334,6 +351,9 @@ struct sv_accessor : public virtual sa_base<T>
 template<typename T>
 struct variant_value : public sv_accessor<T>
 {
+    //variant_value(const variant_value<T> &orig) : sv_accessor<T>(orig), m_value(orig.m_value)
+    //{}
+
     variant_value(const T& value) : m_value(value) {}
 
     virtual T& get_value(void) { return this->m_value; }
@@ -341,32 +361,28 @@ struct variant_value : public sv_accessor<T>
 
     virtual int flags(void) const { return 0; }
 
-    virtual IVariantValue* deepcopy(void) const { return new typename value_traits<T>::stored_type(m_value); }
-    virtual IVariantValue* clone(void) const { return new variant_value<T>(m_value); }
+    //virtual IVariantValue* deepcopy(void) const { return new typename value_traits<T>::stored_type(m_value); }
+
+    virtual IVariantValue* deepcopy(void) const
+    {
+        if(IVariantValue *copy = deepcopy_helper::try_copy(this, &this->m_value))
+            return copy;
+        else
+            return new typename value_traits<T>::stored_type(m_value);
+    }
+
+
+
+    //virtual IVariantValue* clone(void) const { return new variant_value<T>(m_value); }
+    virtual IVariantValue* clone(void) const { return new variant_value<T>(*this); }
 
     virtual bool isNull(void) const { return this->valueNullCheck(); }
 
     T m_value;
 
 private:
-    variant_value(const variant_value& value) : m_value(value.m_value) {}
+    variant_value(const variant_value& value) : sv_accessor<T>(value), m_value(value.m_value) {}
     variant_value& operator=(const variant_value&);
-};
-
-
-
-//..............................................................................
-//////////////////////////////////////////////////////////////// deepcopy_helper
-///
-/// @since 0.0.1
-/// @brief Helper class for custom deepcopy
-/// 
-struct deepcopy_helper
-{
-    static IVariantValue* try_copy(const IVariantValue *owner, const custom_deepcopy *x)
-    { return x->do_deepcopy(owner); }
-    
-    static IVariantValue* try_copy(const IVariantValue *owner, const void*) { return 0; }
 };
 
 
@@ -488,6 +504,22 @@ private:
     raw_pointer(const raw_pointer&);
     raw_pointer& operator=(const raw_pointer&);
 };
+
+
+
+///
+/// @warning Do not use this from any sv_accessor method!
+template<typename T>
+inline T use_cast(const IVariantValue *v, std::locale loc = std::locale())
+{
+    if(const supports<T> *a = dynamic_cast<const supports<T>*>(v))
+    {
+        return a->cast((T*)0, loc);
+    }
+    else
+        throw std::invalid_argument("use_cast<> was called with a argument which is not "
+                                    "convertable to the given type T");
+}
 
 
 

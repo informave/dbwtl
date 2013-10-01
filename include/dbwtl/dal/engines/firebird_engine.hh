@@ -765,6 +765,8 @@ struct sv_accessor<FirebirdData*> : public virtual sa_base<FirebirdData*>,
                                          public supports<bool>,
                                          public supports<BlobStream>,
                                          public supports<MemoStream>,
+                                         public supports<Blob>,
+                                         public supports<Memo>,
                                          public supports<TDate>,
                                          public supports<TTime>,
                                          public supports<TTimestamp>,
@@ -780,6 +782,8 @@ struct sv_accessor<FirebirdData*> : public virtual sa_base<FirebirdData*>,
     virtual bool cast(bool*, std::locale loc) const;
     virtual BlobStream cast(BlobStream*, std::locale loc) const;
     virtual MemoStream cast(MemoStream*, std::locale loc) const;
+    virtual Blob cast(Blob*, std::locale loc) const;
+    virtual Memo cast(Memo*, std::locale loc) const;
     virtual TDate cast(TDate*, std::locale loc) const;
     virtual TTime cast(TTime*, std::locale loc) const;
     virtual TTimestamp cast(TTimestamp*, std::locale loc) const;
@@ -793,14 +797,21 @@ struct sv_accessor<FirebirdData*> : public virtual sa_base<FirebirdData*>,
 
     virtual daltype_t datatype() const;
 
-    sv_accessor(void) 
-    {}
-
     virtual ~sv_accessor(void)
     {}
 
+protected:
+   sv_accessor(void) : m_blob_buffer(), m_memo_buffer() {}
+
+   sv_accessor(const sv_accessor &orig)
+   : m_blob_buffer(orig.m_blob_buffer),
+     m_memo_buffer(orig.m_memo_buffer)
+   {}
+
+   mutable std::shared_ptr<std::stringstream> m_blob_buffer;
+   mutable std::shared_ptr<std::wstringstream> m_memo_buffer;
+
 private:    
-    sv_accessor(const sv_accessor&);
     sv_accessor& operator=(const sv_accessor&);
 };
 

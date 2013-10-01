@@ -291,12 +291,12 @@ FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
 
     if(this->daltype() == DAL_TYPE_BLOB)
     {
-        return new value_traits<Blob>::stored_type(this->getBlob());
+    	return new value_traits<Blob>::stored_type(use_cast<Blob>(owner));
     }
 
     if(this->daltype() == DAL_TYPE_MEMO)
     {
-        return new value_traits<Memo>::stored_type(this->getMemo());
+        return new value_traits<Memo>::stored_type(use_cast<Memo>(owner));
     }
 
     if(this->daltype() == DAL_TYPE_VARBINARY)

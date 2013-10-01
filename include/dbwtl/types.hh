@@ -753,14 +753,20 @@ template<>
 struct DBWTL_EXPORT  sv_accessor<BlobStream> : public virtual sa_base<BlobStream>,
                                  public supports<String>
 {
+    sv_accessor(void) : m_buffer(nullptr) {}
     SV_CAST_METHOD(String);
+    SV_CAST_METHOD(BlobStream); // special override, already provided by sa_base<>
+    mutable std::unique_ptr<std::stringstream> m_buffer;
 };
 
 template<>
 struct DBWTL_EXPORT sv_accessor<MemoStream> : public virtual sa_base<MemoStream>,
                                  public supports<String>
 {
+    sv_accessor(void) : m_buffer(nullptr) {}
     SV_CAST_METHOD(String);
+    SV_CAST_METHOD(MemoStream); // special override, already provided by sa_base<>
+    mutable std::unique_ptr<std::wstringstream> m_buffer;
 };
 
 

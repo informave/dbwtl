@@ -203,6 +203,20 @@ MemoStream::str() const
 
 
 
+MemoStream
+sv_accessor<MemoStream>::cast(MemoStream*, std::locale loc) const
+{
+        if(this->m_buffer.get())
+        {
+                this->m_buffer->seekg(0);
+                return MemoStream(this->m_buffer->rdbuf());
+        }
+        else
+                return MemoStream(this->get_value());
+}
+
+
+
 //
 //
 MemoStream
@@ -237,9 +251,12 @@ sv_accessor<Memo>::cast(String*, std::locale loc) const
 String
 sv_accessor<MemoStream>::cast(String*, std::locale loc) const
 {
-    std::wstringstream ss;
-    ss << this->get_value().rdbuf();
-    return ss.str();
+    if(!this->m_buffer.get())
+    {
+        this->m_buffer.reset(new std::wstringstream());
+        (*this->m_buffer.get()) << this->get_value().rdbuf();
+    }
+    return this->m_buffer->str();
 }
 
 

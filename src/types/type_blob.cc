@@ -205,25 +205,52 @@ sv_accessor<Blob>::cast(BlobStream*, std::locale loc) const
 }
 
 
+BlobStream
+sv_accessor<BlobStream>::cast(BlobStream*, std::locale loc) const
+{
+	if(this->m_buffer.get())
+	{
+		this->m_buffer->seekg(0);
+		return BlobStream(this->m_buffer->rdbuf());
+	}
+	else
+		return BlobStream(this->get_value());
+}
+
+
 String
 sv_accessor<BlobStream>::cast(String*, std::locale loc) const
 {
-    std::stringstream ss;
+    if(!this->m_buffer.get())
+    {
+    	this->m_buffer.reset(new std::stringstream());
+	(*this->m_buffer.get()) << this->get_value().rdbuf();
+    }
+    std::string x(this->m_buffer->str());
 
-    ss << this->get_value().rdbuf();
-
-    return ss.str();
+    return TVarbinary(x.c_str(), x.size()).str();
 }
 
 
 String
 sv_accessor<Blob>::cast(String*, std::locale loc) const
 {
+
+    std::stringstream ss;
+    ss << this->get_value().rdbuf();
+    std::string x(ss.str());
+
+    return TVarbinary(x.c_str(), x.size()).str();
+
+
+    // return this->get_value().toVarbinary().str();
+/*
     std::stringstream ss;
 
     ss << this->get_value().rdbuf();
 
     return ss.str();
+*/
 }
 
 

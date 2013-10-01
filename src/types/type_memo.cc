@@ -259,6 +259,26 @@ sv_accessor<MemoStream>::cast(String*, std::locale loc) const
     return this->m_buffer->str();
 }
 
+//
+//
+Memo
+sv_accessor<MemoStream>::cast(Memo*, std::locale loc) const
+{
+    if(!this->m_buffer.get())
+    {
+        this->m_buffer.reset(new std::wstringstream());
+        (*this->m_buffer.get()) << this->get_value().rdbuf();
+    }
+    this->m_buffer->rdbuf()->pubseekpos(0);
+    return Memo(this->m_buffer->rdbuf());
+}
+
+IVariantValue*
+MemoStream::do_deepcopy(const IVariantValue *owner) const
+{
+    return new value_traits<Memo>::stored_type(use_cast<Memo>(owner));
+}
+
 
 
 DB_NAMESPACE_END

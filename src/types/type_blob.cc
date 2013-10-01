@@ -60,6 +60,7 @@ DB_NAMESPACE_BEGIN
 //
 Blob::Blob(const Blob& blob) : m_data()
 {
+    blob.rdbuf()->pubseekpos(0);
     this->m_data << blob.rdbuf();
 }
 
@@ -77,6 +78,7 @@ Blob& Blob::operator=(const Blob& blob)
 {
     this->m_data.clear();
     assert(blob.rdbuf());
+    blob.rdbuf()->pubseekpos(0);
     this->m_data << blob.rdbuf();
     return *this;
 }
@@ -232,11 +234,25 @@ sv_accessor<BlobStream>::cast(String*, std::locale loc) const
 }
 
 
+Blob
+sv_accessor<BlobStream>::cast(Blob*, std::locale loc) const
+{
+    if(!this->m_buffer.get())
+    {
+        this->m_buffer.reset(new std::stringstream());
+        (*this->m_buffer.get()) << this->get_value().rdbuf();
+    }
+    this->m_buffer->rdbuf()->pubseekpos(0);
+    return Blob(this->m_buffer->rdbuf());
+}
+
+
 String
 sv_accessor<Blob>::cast(String*, std::locale loc) const
 {
 
     std::stringstream ss;
+    this->get_value().rdbuf()->pubseekpos(0); /// @bug fixme in memo, too!
     ss << this->get_value().rdbuf();
     std::string x(ss.str());
 
@@ -252,6 +268,14 @@ sv_accessor<Blob>::cast(String*, std::locale loc) const
     return ss.str();
 */
 }
+
+
+IVariantValue*
+BlobStream::do_deepcopy(const IVariantValue *owner) const
+{
+    return new value_traits<Blob>::stored_type(use_cast<Blob>(owner));
+}
+
 
 
 DB_NAMESPACE_END

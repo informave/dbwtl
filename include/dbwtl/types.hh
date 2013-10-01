@@ -71,7 +71,8 @@ DBWTL_EXPORT String daltype2sqlname(daltype_t type);
 ///
 /// @since 0.0.1
 /// @brief BlobStream Datatype
-class DBWTL_EXPORT BlobStream : public std::istream
+class DBWTL_EXPORT BlobStream : public std::istream,
+				public custom_deepcopy
 {
 public:
     BlobStream(ByteStreamBuf *buf);
@@ -84,6 +85,7 @@ public:
     virtual std::streambuf* rdbuf(void) const;
     virtual std::streambuf* rdbuf(std::streambuf* sb);
 
+    virtual IVariantValue* do_deepcopy(const IVariantValue *owner) const;
 
 protected:
     ByteStreamBuf* m_buf;
@@ -98,7 +100,8 @@ private:
 ///
 /// @since 0.0.1
 /// @brief MemoStream Datatype
-class DBWTL_EXPORT MemoStream : public std::wistream
+class DBWTL_EXPORT MemoStream : public std::wistream,
+                                public custom_deepcopy
 {
 public:
     MemoStream(UnicodeStreamBuf *buf);
@@ -113,6 +116,8 @@ public:
 
     virtual UnicodeStreamBuf* rdbuf(void) const;
     virtual UnicodeStreamBuf* rdbuf(UnicodeStreamBuf* sb);
+
+    virtual IVariantValue* do_deepcopy(const IVariantValue *owner) const;
 
 protected:
     UnicodeStreamBuf* m_buf;
@@ -751,22 +756,28 @@ struct DBWTL_EXPORT sv_accessor<Memo> : public virtual sa_base<Memo>,
 
 template<>
 struct DBWTL_EXPORT  sv_accessor<BlobStream> : public virtual sa_base<BlobStream>,
+                                 public supports<Blob>,
                                  public supports<String>
 {
     sv_accessor(void) : m_buffer(nullptr) {}
+    sv_accessor(const sv_accessor &orig) : m_buffer(orig.m_buffer) {}
     SV_CAST_METHOD(String);
+    SV_CAST_METHOD(Blob);
     SV_CAST_METHOD(BlobStream); // special override, already provided by sa_base<>
-    mutable std::unique_ptr<std::stringstream> m_buffer;
+    mutable std::shared_ptr<std::stringstream> m_buffer;
 };
 
 template<>
 struct DBWTL_EXPORT sv_accessor<MemoStream> : public virtual sa_base<MemoStream>,
+                                 public supports<Memo>,
                                  public supports<String>
 {
     sv_accessor(void) : m_buffer(nullptr) {}
+    sv_accessor(const sv_accessor &orig) : m_buffer(orig.m_buffer) {}
     SV_CAST_METHOD(String);
+    SV_CAST_METHOD(Memo);
     SV_CAST_METHOD(MemoStream); // special override, already provided by sa_base<>
-    mutable std::unique_ptr<std::wstringstream> m_buffer;
+    mutable std::shared_ptr<std::wstringstream> m_buffer;
 };
 
 

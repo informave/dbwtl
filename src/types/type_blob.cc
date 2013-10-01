@@ -67,8 +67,8 @@ Blob::Blob(const Blob& blob) : m_data()
 
 Blob::Blob(const void *ptr, size_t size) : m_data()
 {
-	assert(ptr);
-	this->m_data.rdbuf()->sputn(static_cast<const char*>(ptr), size);
+    assert(ptr);
+    this->m_data.rdbuf()->sputn(static_cast<const char*>(ptr), size);
 }
 
 
@@ -104,10 +104,6 @@ Blob::toVarbinary(void)
 //
 Blob::Blob(ByteStreamBuf *buf) : m_data()
 {
-/*
-  this->m_data.assign(std::istreambuf_iterator<char>(buf),
-  std::istreambuf_iterator<char>());
-*/
     this->m_data << buf;
 }
 
@@ -124,13 +120,9 @@ Blob::~Blob(void)
 std::streambuf*
 Blob::rdbuf(void) const
 {
-	
+    
     return this->m_data.rdbuf();
 }
-
-
-
-
 
 
 
@@ -173,13 +165,10 @@ BlobStream::operator=(const BlobStream& b)
 }
 
 
+
+
 //
 //
-BlobStream::~BlobStream(void)
-{}
-
-
-
 ByteStreamBuf*
 BlobStream::rdbuf(void) const
 {
@@ -187,6 +176,8 @@ BlobStream::rdbuf(void) const
 }
 
 
+//
+//
 ByteStreamBuf*
 BlobStream::rdbuf(ByteStreamBuf *buf)
 {
@@ -194,6 +185,13 @@ BlobStream::rdbuf(ByteStreamBuf *buf)
     this->m_buf = buf;
     return tmp;
 }
+
+
+//
+//
+BlobStream::~BlobStream(void)
+{}
+
 
 
 
@@ -207,33 +205,55 @@ sv_accessor<Blob>::cast(BlobStream*, std::locale loc) const
 }
 
 
+//
+//
 BlobStream
 sv_accessor<BlobStream>::cast(BlobStream*, std::locale loc) const
 {
-	if(this->m_buffer.get())
-	{
-		this->m_buffer->seekg(0);
-		return BlobStream(this->m_buffer->rdbuf());
-	}
-	else
-		return BlobStream(this->get_value());
+    if(this->m_buffer.get())
+    {
+        this->m_buffer->rdbuf()->pubseekpos(0);
+        return BlobStream(this->m_buffer->rdbuf());
+    }
+    else
+        return BlobStream(this->get_value());
 }
 
 
+//
+//
 String
 sv_accessor<BlobStream>::cast(String*, std::locale loc) const
 {
     if(!this->m_buffer.get())
     {
-    	this->m_buffer.reset(new std::stringstream());
-	(*this->m_buffer.get()) << this->get_value().rdbuf();
+        this->m_buffer.reset(new std::stringstream());
+        (*this->m_buffer.get()) << this->get_value().rdbuf();
     }
-    std::string x(this->m_buffer->str());
+    this->m_buffer->rdbuf()->pubseekpos(0);
+    std::string tmp(this->m_buffer->str());
 
-    return TVarbinary(x.c_str(), x.size()).str();
+    return TVarbinary(tmp.c_str(), tmp.size()).str();
 }
 
 
+//
+//
+String
+sv_accessor<Blob>::cast(String*, std::locale loc) const
+{
+    std::stringstream ss;
+    this->get_value().rdbuf()->pubseekpos(0);
+    ss << this->get_value().rdbuf();
+    std::string tmp(ss.str());
+
+    return TVarbinary(tmp.c_str(), tmp.size()).str();
+}
+
+
+
+//
+//
 Blob
 sv_accessor<BlobStream>::cast(Blob*, std::locale loc) const
 {
@@ -247,29 +267,8 @@ sv_accessor<BlobStream>::cast(Blob*, std::locale loc) const
 }
 
 
-String
-sv_accessor<Blob>::cast(String*, std::locale loc) const
-{
-
-    std::stringstream ss;
-    this->get_value().rdbuf()->pubseekpos(0); /// @bug fixme in memo, too!
-    ss << this->get_value().rdbuf();
-    std::string x(ss.str());
-
-    return TVarbinary(x.c_str(), x.size()).str();
-
-
-    // return this->get_value().toVarbinary().str();
-/*
-    std::stringstream ss;
-
-    ss << this->get_value().rdbuf();
-
-    return ss.str();
-*/
-}
-
-
+//
+//
 IVariantValue*
 BlobStream::do_deepcopy(const IVariantValue *owner) const
 {
@@ -279,3 +278,13 @@ BlobStream::do_deepcopy(const IVariantValue *owner) const
 
 
 DB_NAMESPACE_END
+
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

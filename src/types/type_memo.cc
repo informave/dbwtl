@@ -74,10 +74,11 @@ Memo::Memo(const Variant& data) : m_data()
 
 //
 //
-Memo& Memo::operator=(const Memo& blob)
+Memo& Memo::operator=(const Memo& memo)
 {
     this->m_data.clear();
-    this->m_data << blob.rdbuf();
+    memo.rdbuf()->pubseekpos(0);
+    this->m_data << memo.rdbuf();
     return *this;
 }
 
@@ -114,14 +115,10 @@ Memo::rdbuf(void) const
 
 
 
-
-
-
-
 ///
 ///
 MemoStream::MemoStream(UnicodeStreamBuf *buf) : std::wistream(0),
-                                    m_buf(buf)
+                                                m_buf(buf)
 {
     this->rdbuf(m_buf);
 }
@@ -131,8 +128,8 @@ MemoStream::MemoStream(UnicodeStreamBuf *buf) : std::wistream(0),
 ///
 ///
 MemoStream::MemoStream(const MemoStream& m) : std::basic_ios<wchar_t>(),
-                            std::wistream(0),
-                            m_buf()
+                                              std::wistream(0),
+                                              m_buf()
 {
     this->operator=(m);
 }
@@ -148,30 +145,6 @@ MemoStream::operator=(const MemoStream& m)
     return *this;
 }
 
-
-
-UnicodeStreamBuf*
-MemoStream::rdbuf(void) const
-{
-    return this->m_buf;
-}
-
-
-UnicodeStreamBuf*
-MemoStream::rdbuf(UnicodeStreamBuf *buf)
-{
-    UnicodeStreamBuf* tmp = this->m_buf;
-    this->m_buf = buf;
-    return tmp;
-}
-
-
-
-
-//
-//
-MemoStream::~MemoStream(void)
-{}
 
 
 
@@ -203,17 +176,43 @@ MemoStream::str() const
 
 
 
-MemoStream
-sv_accessor<MemoStream>::cast(MemoStream*, std::locale loc) const
+
+//
+//
+String
+Memo::str(void) const
 {
-        if(this->m_buffer.get())
-        {
-                this->m_buffer->seekg(0);
-                return MemoStream(this->m_buffer->rdbuf());
-        }
-        else
-                return MemoStream(this->get_value());
+    return this->m_data.str();
 }
+
+
+
+
+//
+//
+UnicodeStreamBuf*
+MemoStream::rdbuf(void) const
+{
+    return this->m_buf;
+}
+
+
+//
+//
+UnicodeStreamBuf*
+MemoStream::rdbuf(UnicodeStreamBuf *buf)
+{
+    UnicodeStreamBuf* tmp = this->m_buf;
+    this->m_buf = buf;
+    return tmp;
+}
+
+
+
+//
+//
+MemoStream::~MemoStream(void)
+{}
 
 
 
@@ -229,21 +228,18 @@ sv_accessor<Memo>::cast(MemoStream*, std::locale loc) const
 
 //
 //
-String
-Memo::str(void) const
+MemoStream
+sv_accessor<MemoStream>::cast(MemoStream*, std::locale loc) const
 {
-    return this->m_data.str();
+    if(this->m_buffer.get())
+    {
+        this->m_buffer->rdbuf()->pubseekpos(0);
+        return MemoStream(this->m_buffer->rdbuf());
+    }
+    else
+        return MemoStream(this->get_value());
 }
 
-
-
-//
-//
-String
-sv_accessor<Memo>::cast(String*, std::locale loc) const
-{
-    return this->get_value().str();
-}
 
 
 //
@@ -256,8 +252,21 @@ sv_accessor<MemoStream>::cast(String*, std::locale loc) const
         this->m_buffer.reset(new std::wstringstream());
         (*this->m_buffer.get()) << this->get_value().rdbuf();
     }
+    this->m_buffer->rdbuf()->pubseekpos(0);
     return this->m_buffer->str();
 }
+
+
+
+//
+//
+String
+sv_accessor<Memo>::cast(String*, std::locale loc) const
+{
+    this->get_value().rdbuf()->pubseekpos(0);
+    return this->get_value().str();
+}
+
 
 //
 //
@@ -273,6 +282,9 @@ sv_accessor<MemoStream>::cast(Memo*, std::locale loc) const
     return Memo(this->m_buffer->rdbuf());
 }
 
+
+//
+//
 IVariantValue*
 MemoStream::do_deepcopy(const IVariantValue *owner) const
 {
@@ -282,3 +294,13 @@ MemoStream::do_deepcopy(const IVariantValue *owner) const
 
 
 DB_NAMESPACE_END
+
+
+//
+// Local Variables:
+// mode: C++
+// c-file-style: "bsd"
+// c-basic-offset: 4
+// indent-tabs-mode: nil
+// End:
+//

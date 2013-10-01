@@ -560,6 +560,8 @@ sv_accessor<OdbcData*>::cast(String*, std::locale loc) const
 //    case DAL_TYPE_VARBINARY:
     case DAL_TYPE_MEMO:
         return Memo(this->get_value()->getMemo()).str();
+    case DAL_TYPE_BLOB:
+        return Blob(this->get_value()->getBlob()).toVarbinary().str();
     case DAL_TYPE_FLOAT:
         return Variant(this->get_value()->getFloat()).get<String>();
     case DAL_TYPE_DOUBLE:

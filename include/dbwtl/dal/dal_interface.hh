@@ -1433,8 +1433,6 @@ public:
     virtual void             setOption(std::string name, const Variant &data);
     virtual const Variant&   getOption(std::string name) const;
 
-    virtual IMetadata*     newMetadata(void) { throw std::runtime_error("not implemented"); }
-
     virtual ~DbcBase(void)
     {}
 

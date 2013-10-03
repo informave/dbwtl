@@ -161,22 +161,12 @@ CachedResultBase::copyRecord(void)
     ShrRecord rec(this->m_source->columnCount());
     for(colnum_t i = 1; i <= this->m_source->columnCount(); ++i)
     {
-	if(this->m_source->column(i).isnull())
-	{
-		rec[i-1] = Variant();
-		continue;
-	}
+        if(this->m_source->column(i).isnull())
+        {
+            rec[i-1] = Variant();
+            continue;
+        }
 
-        if(this->m_source->describeColumn(i).getDatatype() == DAL_TYPE_MEMO)
-        {
-            rec[i-1] = String("MEMO-UNSUPP");
-            continue;
-        }
-        if(this->m_source->describeColumn(i).getDatatype() == DAL_TYPE_BLOB)
-        {
-            rec[i-1] = String("BLOB-UNSUPP");
-            continue;
-        }
         try
         {
             rec[i-1] = this->m_source->column(i);

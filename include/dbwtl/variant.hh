@@ -276,34 +276,119 @@ void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, cons
 
 
 template<typename U, typename T>
+void arithmetic_cast_error(const T &value)
+{
+    std::stringstream ss;
+
+    ss << "The integral value " << value << " is incompatible to the "
+       << "numeric limits of the destination type ("
+	      << std::numeric_limits<U>::min() << " - " << std::numeric_limits<U>::max()
+	      << ")";
+
+    internal_helper__throw_ConvertException(type_id<T>::value(), type_id<U>::value(), ss.str());
+}
+
+
+
+//..............................................................................
+////////////////////////////////////////////////////////////////// integral_cast
+///
+/// @since 0.0.1
+/// @brief
+/// 
+
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_signed<U>::value && std::is_signed<T>::value, U>::type integral_cast(const T &value)
+{
+    if (value < std::numeric_limits<U>::min() || value > std::numeric_limits<U>::max()) 
+    {
+        arithmetic_cast_error<U, T>(value);
+    }
+    return static_cast<U>(value);
+}
+
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_signed<U>::value && std::is_unsigned<T>::value, U>::type integral_cast(const T &value)
+{
+    if (value > static_cast<typename std::make_unsigned<U>::type>(std::numeric_limits<U>::max()))
+    {
+        arithmetic_cast_error<U, T>(value);
+    }
+    return static_cast<U>(value);
+}
+
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_unsigned<U>::value && std::is_signed<T>::value, U>::type integral_cast(const T &value)
+{
+    if (value < 0 || static_cast<typename std::make_unsigned<T>::type>(value) > std::numeric_limits<U>::max())
+    {
+        arithmetic_cast_error<U, T>(value);
+        throw std::out_of_range("out of range");
+    }
+    return static_cast<U>(value);
+}
+
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_unsigned<U>::value && std::is_unsigned<T>::value, U>::type integral_cast(const T &value) 
+{
+    if (value > std::numeric_limits<U>::max())
+    {
+        arithmetic_cast_error<U, T>(value);
+    }
+    return static_cast<U>(value);
+}
+
+//..............................................................................
+//////////////////////////////////////////////////////////////// arithmetic_cast
+///
+/// @since 0.0.1
+/// @brief 
+/// 
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_integral<U>::value && std::is_integral<T>::value, U>::type
+arithmetic_cast(const T &value)
+{
+    return integral_cast<U, T>(value);
+}
+
+
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_floating_point<U>::value && std::is_integral<T>::value, U>::type
+arithmetic_cast(const T &value)
+{
+    return value;
+}
+
+
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_integral<U>::value && std::is_floating_point<T>::value, U>::type
+arithmetic_cast(const T &value)
+{
+    return value;
+}
+
+
+template<typename U, typename T>
+static inline typename std::enable_if<std::is_floating_point<U>::value && std::is_floating_point<T>::value, U>::type
+arithmetic_cast(const T &value)
+{
+    return value;
+}
+
+
+//..............................................................................
+//////////////////////////////////////////////////// supports_integral_type_cast
+///
+/// @since 0.0.1
+/// @brief
+/// 
+template<typename U, typename T>
 struct supports_integral_type_cast : public virtual sa_base<U>,
                                      public supports<T>
 {
     virtual T cast(T*, std::locale) const
     {
-	U tmp = this->get_value();
-	return tmp;
-/*
-	if(std::numeric_limits<U>::is_signed && 
-	   !std::numeric_limits<T>::is_signed &&
-	   tmp < 0)
-	   internal_helper__throw_ConvertException(DAL_TYPE_INT, DAL_TYPE_INT, String("negative signed value can not converted into unsigned value"));
-
-	   
-
-	if(tmp >= std::numeric_limits<T>::min() &&
-	   tmp <= std::numeric_limits<T>::max())
-	   return tmp;
-	else
-	{
-	   std::wstringstream ss;
-	   ss << L"The integral value " << tmp << L" is incompatible to the "
-	      << L"numeric limits of the destination type ("
-	      << std::numeric_limits<T>::min() << L" - " << std::numeric_limits<T>::max()
-	      << L")";
-	   internal_helper__throw_ConvertException(DAL_TYPE_INT, DAL_TYPE_INT, String(ss.str()));
-	}
-	*/
+        return arithmetic_cast<U, T>(this->get_value());
     }
 };
 

@@ -328,7 +328,7 @@ FirebirdData_libfbclient::do_deepcopy(const IVariantValue *owner) const
 /// @details
 /// 
 FirebirdBlob_libfbclient*
-FirebirdData_libfbclient::getBlob(void) const
+FirebirdData_libfbclient::getBlobStream(void) const
 {
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_BLOB);
@@ -349,12 +349,12 @@ FirebirdData_libfbclient::getBlob(void) const
 /// @details
 /// 
 UnicodeStreamBuf*
-FirebirdData_libfbclient::getMemo(void) const
+FirebirdData_libfbclient::getMemoStream(void) const
 {
     DALTRACE("VISIT");
     DBWTL_BUGCHECK((this->m_sqlvar->sqltype & ~1) == SQL_BLOB);
 
-    FirebirdBlob_libfbclient *blob = this->getBlob();
+    FirebirdBlob_libfbclient *blob = this->getBlobStream();
 
     if(! this->m_memostream.get())
     {

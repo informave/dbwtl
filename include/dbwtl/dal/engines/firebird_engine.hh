@@ -255,8 +255,8 @@ public:
     virtual TNumeric     getNumeric(void) const = 0;
     virtual TVarbinary   getVarbinary(void) const = 0;
 
-    virtual FirebirdBlob*  getBlob(void) const = 0;
-    virtual UnicodeStreamBuf* getMemo(void) const = 0;
+    virtual FirebirdBlob*  getBlobStream(void) const = 0;
+    virtual UnicodeStreamBuf* getMemoStream(void) const = 0;
     //virtual FirebirdMemo*  getMemo(void) const = 0;
 
  

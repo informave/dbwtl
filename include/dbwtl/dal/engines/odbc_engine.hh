@@ -666,8 +666,8 @@ public:
     OdbcData(void);
     virtual ~OdbcData(void);
 
-    virtual OdbcBlob*  getBlob(void) const = 0;
-    virtual UnicodeStreamBuf*  getMemo(void) const = 0;
+    virtual OdbcBlob*  getBlobStream(void) const = 0;
+    virtual UnicodeStreamBuf*  getMemoStream(void) const = 0;
 
     virtual String getString(void) const = 0;
     virtual signed short int getSShort(void) const = 0;

@@ -401,8 +401,8 @@ public:
     friend class OdbcBlob_libodbc;
     friend class OdbcMemo_libodbc;
 
-    virtual OdbcBlob_libodbc*       getBlob(void) const;
-    virtual UnicodeStreamBuf*       getMemo(void) const;
+    virtual OdbcBlob_libodbc*       getBlobStream(void) const;
+    virtual UnicodeStreamBuf*       getMemoStream(void) const;
 
     virtual String getString(void) const;
     virtual signed short int getSShort(void) const;

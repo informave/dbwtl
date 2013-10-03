@@ -1027,7 +1027,7 @@ OdbcData_libodbc::~OdbcData_libodbc(void)
 
 //
 UnicodeStreamBuf*
-OdbcData_libodbc::getMemo(void) const
+OdbcData_libodbc::getMemoStream(void) const
 {
     DALTRACE("VISIT");
     DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_MEMO);
@@ -1046,7 +1046,7 @@ OdbcData_libodbc::getMemo(void) const
     }
     else
     {
-        OdbcBlob_libodbc *blob = this->getBlob();
+        OdbcBlob_libodbc *blob = this->getBlobStream();
 
         if(! this->m_memostream.get())
         {
@@ -1069,7 +1069,7 @@ OdbcData_libodbc::getMemo(void) const
 
 //
 OdbcBlob_libodbc*
-OdbcData_libodbc::getBlob(void) const
+OdbcData_libodbc::getBlobStream(void) const
 {
     DALTRACE("VISIT");
     DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_BLOB || (this->daltype() == DAL_TYPE_MEMO && !this->m_resultset.getDbc().usingUnicode()));

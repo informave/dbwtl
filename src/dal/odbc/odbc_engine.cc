@@ -404,7 +404,7 @@ sv_accessor<OdbcData*>::cast(BlobStream*, std::locale loc) const
                 return BlobStream(this->m_blob_buffer->rdbuf());
         }
         else
-                return BlobStream(this->get_value()->getBlob());
+                return BlobStream(this->get_value()->getBlobStream());
 }
 
 MemoStream
@@ -416,7 +416,7 @@ sv_accessor<OdbcData*>::cast(MemoStream*, std::locale loc) const
                 return MemoStream(this->m_memo_buffer->rdbuf());
         }
         else
-                return MemoStream(this->get_value()->getMemo());
+                return MemoStream(this->get_value()->getMemoStream());
 }
 
 Blob
@@ -425,7 +425,7 @@ sv_accessor<OdbcData*>::cast(Blob*, std::locale loc) const
     if(!this->m_blob_buffer.get())
     {
         this->m_blob_buffer.reset(new std::stringstream());
-        (*this->m_blob_buffer.get()) << this->get_value()->getBlob(); /// @bug rename to getBlobStream()
+        (*this->m_blob_buffer.get()) << this->get_value()->getBlobStream();
     }
     this->m_blob_buffer->rdbuf()->pubseekpos(0);
     return Blob(this->m_blob_buffer->rdbuf());
@@ -440,7 +440,7 @@ sv_accessor<OdbcData*>::cast(Memo*, std::locale loc) const
     if(!this->m_memo_buffer.get())
     {
         this->m_memo_buffer.reset(new std::wstringstream());
-        (*this->m_memo_buffer.get()) << this->get_value()->getMemo(); /// @bug rename to getBlobStream()
+        (*this->m_memo_buffer.get()) << this->get_value()->getMemoStream();
     }
     this->m_memo_buffer->rdbuf()->pubseekpos(0);
     return Memo(this->m_memo_buffer->rdbuf());
@@ -568,7 +568,7 @@ sv_accessor<OdbcData*>::cast(TVarbinary*, std::locale loc) const
     case DAL_TYPE_VARBINARY:
         return this->get_value()->getBinary();
     case DAL_TYPE_BLOB:
-        return Blob(this->get_value()->getBlob()).toVarbinary();
+        return Blob(this->get_value()->getBlobStream()).toVarbinary();
     default:
         std::cout << daltype2string(this->get_value()->daltype()) << std::endl;
         DBWTL_BUG();

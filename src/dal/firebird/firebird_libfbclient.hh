@@ -154,8 +154,8 @@ public:
     virtual TNumeric     getNumeric(void) const;
     virtual TVarbinary   getVarbinary(void) const;
 
-    virtual FirebirdBlob_libfbclient*       getBlob(void) const;
-    virtual UnicodeStreamBuf* getMemo(void) const;
+    virtual FirebirdBlob_libfbclient*       getBlobStream(void) const;
+    virtual UnicodeStreamBuf* getMemoStream(void) const;
 
 
     virtual IVariantValue* do_deepcopy(const IVariantValue *owner) const;

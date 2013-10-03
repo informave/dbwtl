@@ -361,7 +361,7 @@ sv_accessor<FirebirdData*>::cast(BlobStream*, std::locale loc) const
                 return BlobStream(this->m_blob_buffer->rdbuf());
         }
         else
-                return BlobStream(this->get_value()->getBlob());
+                return BlobStream(this->get_value()->getBlobStream());
     }
     else
         throw ConvertException(this->datatype(), value_traits<BlobStream>::info_type::type());
@@ -379,7 +379,7 @@ sv_accessor<FirebirdData*>::cast(MemoStream*, std::locale loc) const
                 return MemoStream(this->m_memo_buffer->rdbuf());
         }
         else
-                return MemoStream(this->get_value()->getMemo());
+                return MemoStream(this->get_value()->getMemoStream());
     }
     else
         throw ConvertException(this->datatype(), value_traits<MemoStream>::info_type::type());
@@ -395,7 +395,7 @@ sv_accessor<FirebirdData*>::cast(Blob*, std::locale loc) const
         if(!this->m_blob_buffer.get())
         {
             this->m_blob_buffer.reset(new std::stringstream());
-            (*this->m_blob_buffer.get()) << this->get_value()->getBlob();
+            (*this->m_blob_buffer.get()) << this->get_value()->getBlobStream();
         }
         this->m_blob_buffer->rdbuf()->pubseekpos(0);
         return Blob(this->m_blob_buffer->rdbuf());
@@ -412,7 +412,7 @@ sv_accessor<FirebirdData*>::cast(Memo*, std::locale loc) const
         if(!this->m_memo_buffer.get())
         {
             this->m_memo_buffer.reset(new std::wstringstream());
-            (*this->m_memo_buffer.get()) << this->get_value()->getMemo();
+            (*this->m_memo_buffer.get()) << this->get_value()->getMemoStream();
         }
         this->m_memo_buffer->rdbuf()->pubseekpos(0);
         return Memo(this->m_memo_buffer->rdbuf());

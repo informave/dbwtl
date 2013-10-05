@@ -8,8 +8,11 @@ env:
   - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=OFF"
   - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
 before_install:
-  - sudo apt-get install libsqlite3-dev libicu-dev unixodbc-dev firebird-dev
+  - sudo apt-get install libsqlite3-dev libicu-dev unixodbc-dev firebird-dev firebird2.5-super
 before_script:
+  - psql -c 'create database dbwtl_test;' -U postgres
+  - mysql -e 'create database dbwtl_test;'
+  - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' page_size 8192 user 'SYSDBA' password 'masterkey';" | fbsql
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
@@ -21,6 +24,9 @@ notifications:
   irc:
     channels:
       - "chat.freenode.net#informave"
+    template:
+      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+      - "Build details : %{build_url}"
   recipients:
     - daniel@vogelbacher.name
   email:

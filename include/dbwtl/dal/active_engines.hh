@@ -17,7 +17,10 @@
 #include "engines/firebird_engine.hh"
 #endif
 
+
+#if defined(DBWTL_WITH_ODBC)
 #include "engines/odbc_engine.hh"
+#endif
 
 #endif
 

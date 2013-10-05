@@ -76,14 +76,14 @@ option(DBWTL_WITH_SQLITE
         "Compile with SQLite support" ON)
 
 option(DBWTL_WITH_FIREBIRD
-	"Compile with Firebird support" ON)
+	"Compile with Firebird support" OFF)
 
 
 option(DBWTL_WITH_SDI
-	"Compile with SDI support" ON)
+	"Compile with SDI support" OFF)
 
 option(DBWTL_WITH_ODBC
-	"Compile with ODBC support" ON)
+	"Compile with ODBC support" OFF)
 
 
 #select plattform
@@ -276,8 +276,6 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/utils.cc
 	${DBWTL_MAIN_SRC_DIR}/recordset.cc
 	${DBWTL_MAIN_SRC_DIR}/shrrecord.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_libodbc.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/cachedresult.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bigint.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_bool.cc
@@ -294,8 +292,6 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/types/type_numeric.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_interval.cc
 	${DBWTL_MAIN_SRC_DIR}/types/type_varbinary.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_engine.cc
-	${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_libsdi.cc
         ${DBWTL_MAIN_SRC_DIR}/dal/generic/generic_engine.cc
 	${DBWTL_MAIN_SRC_DIR}/exceptions.cc
 	${DBWTL_MAIN_SRC_DIR}/variant.cc
@@ -305,6 +301,23 @@ set(dbwtl_srcs
 	${DBWTL_MAIN_SRC_DIR}/debug.cc
 	${DBWTL_MAIN_SRC_DIR}/dal/sqlutils.cc
 )
+
+
+if(DBWTL_WITH_SDI)
+	set(dbwtl_src
+		${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_engine.cc
+		${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_libsdi.cc
+		${dbwtl_srcs}
+	)
+endif(DBWTL_WITH_SDI)
+
+if(DBWTL_WITH_ODBC)
+	set(dbwtl_src
+		${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_libodbc.cc
+		${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_engine.cc
+		${dbwtl_srcs}
+	)
+endif(DBWTL_WITH_ODBC)
 
 if(DBWTL_WITH_SQLITE)
 	set(dbwtl_srcs

@@ -102,11 +102,15 @@ generic::createEnv(String driver)
         return firebird::createEnv(driver);
 #endif
 
+#if defined(DBWTL_WITH_SDI)
     else if(engine.compare(String("sdi")) == 0)
         return sdi::createEnv(driver);
+#endif
 
+#if defined(DBWTL_WITH_ODBC)
     else if(engine.compare(String("odbc")) == 0)
         return odbc::createEnv(driver);
+#endif
 
 /*
     else if(engine.compare(L"postgres") == 0)

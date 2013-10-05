@@ -1,0 +1,20 @@
+language: cpp
+compiler:
+  - gcc
+branches:
+  only:
+    - travis
+env:
+  - OPTIONS="-DCMAKE_BUILD_TYPE=Release"
+before_install:
+  - sudo apt-get install libsqlite3-dev libicu-dev
+  - sudo apt-get install cmake
+script:
+  - cibuild.sh
+notifications:
+  recipients:
+    - daniel@vogelbacher.name
+  email:
+    on_success: always
+    on_failure: always
+

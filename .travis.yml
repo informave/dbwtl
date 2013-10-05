@@ -1,8 +1,8 @@
 language: cpp
 compiler:
   - gcc
-services:
-  - Firebird
+#services:
+#  - Firebird
 branches:
   only:
     - travis
@@ -11,6 +11,7 @@ env:
   - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
 before_install:
   - sudo apt-get install libsqlite3-dev libicu-dev unixodbc-dev firebird-dev firebird2.5-super
+  - sudo sed /ENABLE_FIREBIRD_SERVER=/s/no/yes/ -i /etc/default/firebird2.5
   - sudo service firebird2.5-super start 
 #  - echo "masterkey" | sudo dpkg-reconfigure -f readline firebird2.5-super
 before_script:

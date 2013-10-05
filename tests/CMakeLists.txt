@@ -1,6 +1,14 @@
 
+
 add_subdirectory(other)
-add_subdirectory(firebird)
-add_subdirectory(odbc)
-add_subdirectory(sdi)
+
+if(DBWTL_WITH_FIREBIRD)
+	add_subdirectory(firebird)
+endif(DBWTL_WITH_FIREBIRD)
+
+if(DBWTL_WITH_ODBC)
+	add_subdirectory(odbc)
+endif(DBWTL_WITH_ODBC)
+
+#add_subdirectory(sdi)
 

@@ -1,7 +1,7 @@
 language: cpp
 compiler:
   - gcc
-service:
+services:
   - firebird
 branches:
   only:

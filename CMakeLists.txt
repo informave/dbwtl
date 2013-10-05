@@ -304,7 +304,7 @@ set(dbwtl_srcs
 
 
 if(DBWTL_WITH_SDI)
-	set(dbwtl_src
+	set(dbwtl_srcs
 		${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_engine.cc
 		${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_libsdi.cc
 		${dbwtl_srcs}
@@ -312,7 +312,7 @@ if(DBWTL_WITH_SDI)
 endif(DBWTL_WITH_SDI)
 
 if(DBWTL_WITH_ODBC)
-	set(dbwtl_src
+	set(dbwtl_srcs
 		${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_libodbc.cc
 		${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_engine.cc
 		${dbwtl_srcs}

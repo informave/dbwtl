@@ -12,7 +12,7 @@ before_install:
 before_script:
   - psql -c 'create database dbwtl_test;' -U postgres
   - mysql -e 'create database dbwtl_test;'
-  - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' page_size 8192 user 'SYSDBA' password 'masterkey';" | fbsql
+  - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' page_size 8192 user 'SYSDBA' password 'masterkey';" | isql-fb
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS

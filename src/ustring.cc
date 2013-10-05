@@ -54,6 +54,7 @@
 #include <unicode/ucnv_err.h>
 #include <unicode/uenum.h>
 #include <unicode/localpointer.h>
+#include <unicode/ustring.h>
 //#endif
 
 #include <iostream>
@@ -160,7 +161,7 @@ ustring_icu::utf16_to_utf8(char *cdest, int32_t cbuflen,
 {
 	int32_t len = 0;
 	UErrorCode errcode = U_ZERO_ERROR;
-	::u_strToUTF8(cdest, cbuflen, &len, (const UChar*)wsrc, wlen, &errcode);
+	u_strToUTF8(cdest, cbuflen, &len, (const UChar*)wsrc, wlen, &errcode);
 	    if(! U_SUCCESS(errcode))
 	        {
 		        throw ConversionError();

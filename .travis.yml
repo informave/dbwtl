@@ -13,7 +13,7 @@ before_script:
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
 script:
-  - make
+  - make -j2
 notifications:
   recipients:
     - daniel@vogelbacher.name

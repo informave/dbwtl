@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get install libsqlite3-dev libicu-dev
   - sudo apt-get install cmake
 script:
-  - cibuild.sh
+  - ./cibuild.sh
 notifications:
   recipients:
     - daniel@vogelbacher.name

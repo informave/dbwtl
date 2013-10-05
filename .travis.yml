@@ -5,6 +5,7 @@ branches:
   only:
     - travis
 env:
+  - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=OFF"
   - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
 before_install:
   - sudo apt-get install libsqlite3-dev libicu-dev unixodbc-dev firebird-dev
@@ -13,8 +14,13 @@ before_script:
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
 script:
-  - make -j2 && ctest -V
+  - make -j2
+after_success:
+  - ctest -V
 notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#informave"
   recipients:
     - daniel@vogelbacher.name
   email:

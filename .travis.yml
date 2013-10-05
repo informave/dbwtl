@@ -8,9 +8,10 @@ env:
   - OPTIONS="-DCMAKE_BUILD_TYPE=Release"
 before_install:
   - sudo apt-get install libsqlite3-dev libicu-dev
-  - sudo apt-get install cmake
-script:
-  - ./cibuild.sh
+before_script:
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
 notifications:
   recipients:
     - daniel@vogelbacher.name

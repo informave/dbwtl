@@ -18,6 +18,7 @@ before_install:
   - odbcinst -i -s -f tests/odbc/odbc_dsn_setup.ini
 before_script:
   - psql -c 'create database dbwtl_test;' -U postgres
+  - psql -U postgres dbwtl_test < tests/odbc/setup_odbc_postgres.sql
   - mysql -e 'create database dbwtl_test;'
   - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' USER 'SYSDBA' PASSWORD 'masterkey' PAGE_SIZE 16384 DEFAULT CHARACTER SET UTF8;" | isql-fb
   - isql-fb -ch utf8 -u SYSDBA -p masterkey "localhost:dbwtl_test.fdb" < tests/firebird/setup_firebird.sql

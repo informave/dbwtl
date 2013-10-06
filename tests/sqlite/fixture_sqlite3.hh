@@ -20,8 +20,8 @@ struct SqliteMemoryFixture
         : env("sqlite:libsqlite"),
           dbc(env)
     {}
-
-    virtual ~SqliteMemoryFixture(void)
+    
+    ~SqliteMemoryFixture(void)
     {}
     
     void onSetUp(void)

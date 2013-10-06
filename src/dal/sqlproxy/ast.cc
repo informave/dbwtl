@@ -373,8 +373,10 @@ ExprNode::str(void) const
     switch(m_mode)
     {
     case ExprNode::plus_expr:
+    case ExprNode::plus_op:
         s.append("+"); break;
     case ExprNode::minus_expr:
+    case ExprNode::minus_op:
         s.append("-"); break;
     case ExprNode::mul_expr:
         s.append("*"); break;
@@ -406,6 +408,8 @@ ExprNode::str(void) const
         s.append("XOR"); break;
     case ExprNode::mod_expr:
         s.append("MOD"); break;
+    case ExprNode::not_expr:
+    	s.append("NOT"); break;
     };
     return s;
 }

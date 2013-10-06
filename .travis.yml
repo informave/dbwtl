@@ -8,7 +8,7 @@ branches:
   only:
     - travis
 env:
-#  - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=OFF"
+  - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=OFF"
   - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=OFF -DDBWTL_WITH_FIREBIRD=ON"
 before_install:
   - sudo apt-get install libsqlite3-dev libicu-dev firebird-dev firebird2.5-super 
@@ -41,4 +41,6 @@ notifications:
   email:
     on_success: always
     on_failure: always
-
+matrix:
+  allow_failures:
+    - compiler: clang

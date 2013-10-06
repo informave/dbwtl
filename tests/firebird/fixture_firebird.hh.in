@@ -24,7 +24,9 @@ struct FirebirdTestbaseFixture
     
     void onSetUp(void)
     {
-    	 dbc.connect("localhost:/var/lib/firebird/dbwtldb.fdb", "SYSDBA", "masterkey");
+	 dbc.connect("@DBWTL_TESTCONF_FIREBIRD_DATABASE@",
+	 	"@DBWTL_TESTCONF_FIREBIRD_USER@",
+		"@DBWTL_TESTCONF_FIREBIRD_PW@");
     }
     
    virtual ~FirebirdTestbaseFixture(void) {}
@@ -45,9 +47,9 @@ struct FirebirdTestbaseIso88591Fixture
     void onSetUp(void)
     {
 	IDbc::Options opts;
-	opts["database"] = "localhost:/var/lib/firebird/dbwtldb.fdb";
-	opts["username"] = "SYSDBA";
-	opts["password"] = "masterkey";
+	opts["database"] = "@DBWTL_TESTCONF_FIREBIRD_DATABASE@";
+	opts["username"] = "@DBWTL_TESTCONF_FIREBIRD_USER@";
+	opts["password"] = "@DBWTL_TESTCONF_FIREBIRD_PW@";
          dbc.connect(opts);
     }
 

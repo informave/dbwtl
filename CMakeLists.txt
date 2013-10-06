@@ -407,5 +407,7 @@ install(FILES "${PROJECT_BINARY_DIR}/dbwtl/dbwtl_config.hh"
 if(DBWTL_WITH_TESTS)
 	include(CTest)
 	add_subdirectory(tests)
+	set(DBWTL_TESTCONF_ODBC_DATABASE "dbwtl_test" CACHE STRING "Database
+	name for ODBC tests")
 endif(DBWTL_WITH_TESTS)
 

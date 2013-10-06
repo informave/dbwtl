@@ -7,17 +7,18 @@ branches:
   only:
     - travis
 env:
-  - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=OFF"
+#  - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=OFF"
   - OPTIONS="-DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
 before_install:
-  - sudo apt-get install libsqlite3-dev libicu-dev unixodbc-dev firebird-dev firebird2.5-super
+  - sudo apt-get install libsqlite3-dev libicu-dev firebird-dev firebird2.5-super 
+  - sudo apt-get install unixodbc-dev odbc-postgresql
   - sudo sed /ENABLE_FIREBIRD_SERVER=/s/no/yes/ -i /etc/default/firebird2.5
   - sudo service firebird2.5-super start 
-#  - echo "masterkey" | sudo dpkg-reconfigure -f readline firebird2.5-super
 before_script:
   - psql -c 'create database dbwtl_test;' -U postgres
   - mysql -e 'create database dbwtl_test;'
   - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' page_size 8192 user 'SYSDBA' password 'masterkey';" | isql-fb
+  - isql-fb -u SYSDBA -p masterkey "localhost:dbwtl_test.fdb" < tests/firebird/setup_firebird.sql
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS

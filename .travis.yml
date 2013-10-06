@@ -17,7 +17,7 @@ before_install:
 before_script:
   - psql -c 'create database dbwtl_test;' -U postgres
   - mysql -e 'create database dbwtl_test;'
-  - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' PAGE_SIZE 16384 DEFAULT CHARACTER SET UTF8 user 'SYSDBA' password 'masterkey';" | isql-fb
+  - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' USER 'SYSDBA' PASSWORD 'masterkey' PAGE_SIZE 16384 DEFAULT CHARACTER SET UTF8;" | isql-fb
   - isql-fb -ch utf8 -u SYSDBA -p masterkey "localhost:dbwtl_test.fdb" < tests/firebird/setup_firebird.sql
   - mkdir build
   - cd build

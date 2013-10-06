@@ -152,7 +152,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -179,7 +179,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -206,7 +206,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -233,7 +233,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -260,7 +260,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -287,7 +287,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -314,7 +314,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -341,7 +341,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -368,7 +368,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -395,7 +395,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -422,7 +422,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -449,7 +449,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -476,7 +476,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_BLOB;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -503,7 +503,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_MEMO;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -530,7 +530,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_NUMERIC;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_NUMERIC;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_NUMERIC;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_NUMERIC;
@@ -539,6 +539,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_TIMESTAMP:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_INTERVAL:      return DAL_TYPE_UNKNOWN;
         };
+	/*
     case DAL_TYPE_DECIMAL:
         switch(op1.datatype())
         {
@@ -566,6 +567,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_TIMESTAMP:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_INTERVAL:      return DAL_TYPE_UNKNOWN;
         };
+	*/
     case DAL_TYPE_VARBINARY:
         switch(op1.datatype())
         {
@@ -584,7 +586,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_VARBINARY;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -611,7 +613,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_FLOAT;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -638,7 +640,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_NUMERIC;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_DECIMAL;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_DOUBLE;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_DOUBLE;
@@ -665,7 +667,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -692,7 +694,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -719,7 +721,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;
@@ -746,7 +748,7 @@ static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
         case DAL_TYPE_BLOB:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_MEMO:          return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_NUMERIC:       return DAL_TYPE_UNKNOWN;
-        case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
+        //case DAL_TYPE_DECIMAL:       return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_VARBINARY:     return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_FLOAT:         return DAL_TYPE_UNKNOWN;
         case DAL_TYPE_DOUBLE:        return DAL_TYPE_UNKNOWN;

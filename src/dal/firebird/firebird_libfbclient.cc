@@ -1778,7 +1778,7 @@ FirebirdColumnDesc_libfbclient::FirebirdColumnDesc_libfbclient(colnum_t i,
             }
 	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
 	    {
-	    	this->m_daltype = DAL_TYPE_DECIMAL;
+	    	this->m_daltype = DAL_TYPE_NUMERIC; //DAL_TYPE_DECIMAL;
 		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
 	    }
             else
@@ -1792,7 +1792,7 @@ FirebirdColumnDesc_libfbclient::FirebirdColumnDesc_libfbclient(colnum_t i,
             }
 	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
 	    {
-	    	this->m_daltype = DAL_TYPE_DECIMAL;
+	    	this->m_daltype = DAL_TYPE_NUMERIC;//DAL_TYPE_DECIMAL;
 		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
 	    }
             else
@@ -1809,7 +1809,7 @@ FirebirdColumnDesc_libfbclient::FirebirdColumnDesc_libfbclient(colnum_t i,
             }
 	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
 	    {
-	    	this->m_daltype = DAL_TYPE_DECIMAL;
+	    	this->m_daltype = DAL_TYPE_NUMERIC;//DAL_TYPE_DECIMAL;
 		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
 	    }
             else

@@ -66,6 +66,7 @@ struct SyntaxError : std::exception
     std::string msg;
 
     SyntaxError(Token *t)
+    : msg()
     {
         msg = t->str();
     }
@@ -76,6 +77,7 @@ struct SyntaxError : std::exception
     }
 
     SyntaxError(void)
+    : msg()
     {
     }
 

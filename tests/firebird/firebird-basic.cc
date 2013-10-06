@@ -251,7 +251,6 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, BindAllTypesToValues)
     CXXC_CHECK( rs.column("T_DATE").get<TDate>() == TDate("2012-08-31"));
     CXXC_CHECK( rs.column("T_TIME").get<TTime>() == TTime("23:49:22"));
     CXXC_CHECK( rs.column("T_TIMESTAMP").get<TTimestamp>() == TTimestamp("2012-12-24T23:00:03"));
-
     CXXC_CHECK( !rs.column("T_CHAR").isnull() );
     CXXC_ECHO( rs.column("T_CHAR") );
     CXXC_CHECK( rs.column("T_CHAR").get<String>() == "X                   " ||  rs.column("T_CHAR").get<String>() == "X");

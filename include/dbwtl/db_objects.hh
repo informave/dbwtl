@@ -1008,7 +1008,7 @@ struct DBWTL_EXPORT ColumnSortByNumber
 
     bool operator()(const ShrRecord &a, const ShrRecord &b)
     {
-        return a[m_num-1].template get<T>() < b[m_num-1].get<T>();
+        return a[m_num-1].template get<T>() < b[m_num-1].template get<T>();
     }
 
     const size_t m_num;

@@ -164,6 +164,8 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
   if(DBWTL_ENABLE_WERROR)
     add_definitions("-Werror")
   endif(DBWTL_ENABLE_WERROR)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-non-virtual-dtor -std=c++0x")
 endif(MSVC)
 
 

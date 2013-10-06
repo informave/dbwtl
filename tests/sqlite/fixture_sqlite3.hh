@@ -21,8 +21,6 @@ struct SqliteMemoryFixture
           dbc(env)
     {}
     
-    ~SqliteMemoryFixture(void)
-    {}
     
     void onSetUp(void)
     {

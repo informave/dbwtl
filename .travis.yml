@@ -15,11 +15,13 @@ before_install:
   - sudo apt-get install unixodbc-dev odbc-postgresql
   - sudo sed /ENABLE_FIREBIRD_SERVER=/s/no/yes/ -i /etc/default/firebird2.5
   - sudo service firebird2.5-super start 
+  - odbcinst -i -s -f tests/odbc/odbc_dsn_setup.ini
 before_script:
   - psql -c 'create database dbwtl_test;' -U postgres
   - mysql -e 'create database dbwtl_test;'
   - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' USER 'SYSDBA' PASSWORD 'masterkey' PAGE_SIZE 16384 DEFAULT CHARACTER SET UTF8;" | isql-fb
   - isql-fb -ch utf8 -u SYSDBA -p masterkey "localhost:dbwtl_test.fdb" < tests/firebird/setup_firebird.sql
+  - echo "select current_database()" | isql dbwtl_test
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS

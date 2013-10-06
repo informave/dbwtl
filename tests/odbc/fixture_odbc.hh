@@ -15,9 +15,9 @@ using namespace informave::db;
 typedef Database<odbc> DBMS;
 
 
-struct OdbcTestbaseFixture
+struct OdbcPgFixture
 {
-    OdbcTestbaseFixture(void)
+    OdbcPgFixture(void)
         : env("odbc:libodbc"),
           dbc(env)
     {}
@@ -29,14 +29,14 @@ struct OdbcTestbaseFixture
         opts["datasource"] = "foo";
         opts["username"] = "sa";
         opts["password"] = "test";
-        opts["charset"] = "iso8859_1";
+        opts["charset"] = "ISO8859_1";
 	opts["unicode"] = "yes";
 
     	dbc.connect(opts);
     	 //dbc.connect("mypgsql", "postgres", "test");
     }
     
-   virtual ~OdbcTestbaseFixture(void) {}
+   virtual ~OdbcPgFixture(void) {}
 
     DBMS::Environment env;
     DBMS::Connection dbc;

@@ -327,19 +327,39 @@ ColumnDesc::changeEntry(ColumnDescEntry entry, const IColumnDesc::value_type &v)
         case DBWTL_COLUMNDESC_NAME:
 		this->m_name = v;
 		break;
-/*
         case DBWTL_COLUMNDESC_CATALOG_NAME:
+		this->m_catalog_name = v;
+		break;
         case DBWTL_COLUMNDESC_SCHEMA_NAME:
+		this->m_schema_name = v;
+		break;
         case DBWTL_COLUMNDESC_BASE_COLUMN_NAME:
+		this->m_base_column_name = v;
+		break;
         case DBWTL_COLUMNDESC_TYPE_NAME:
+		this->m_type_name = v;
+		break;
         case DBWTL_COLUMNDESC_BASE_TABLE_NAME:
+		this->m_base_table_name = v;
+		break;
         case DBWTL_COLUMNDESC_SIZE:
+		this->m_size = v;
+		break;
         case DBWTL_COLUMNDESC_COMMENT:
+		this->m_comment = v;
+		break;
         case DBWTL_COLUMNDESC_IS_NULLABLE:
+		this->m_is_nullable = v;
+		break;
         case DBWTL_COLUMNDESC_PRECISION:
+		this->m_precision = v;
+		break;
         case DBWTL_COLUMNDESC_SCALE:
+		this->m_scale = v;
+		break;
         case DBWTL_COLUMNDESC_IS_SEARCHABLE:
-*/
+		this->m_is_searchable = v;
+		break;
 	};
 }
 

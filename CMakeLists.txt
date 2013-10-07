@@ -18,7 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 
 set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-possibly-lost=no
--show-reachable=no")
+-show-reachable=no --suppressions=dbwtl.supp")
 
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE)

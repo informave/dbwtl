@@ -1,0 +1,17 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:malloc
+   fun:nss_parse_service_list
+   fun:__nss_database_lookup
+   obj:*
+   obj:*
+   fun:getpwuid_r@@GLIBC_2.2.5
+   fun:getpwuid
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+}
+

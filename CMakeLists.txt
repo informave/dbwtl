@@ -17,7 +17,7 @@ SET(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 
-set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-possibly-lost=yes
+set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-possibly-lost=no
 -show-reachable=no")
 
 
@@ -249,9 +249,18 @@ endif()
 #include Debug information
 if(CMAKE_COMPILER_IS_GNUCXX AND (uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG"))
 	add_definitions("-O0 -g")
+	add_definitions("-ftest-coverage -fprofile-arcs")
+	link_libraries( gcov )
 endif()
 
+#add_definitions("-ftest-coverage -fprofile-arcs")
 
+#SET(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} " -ftest-coverage -fprofile-arcs")
+#SET(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " -ftest-coverage -fprofile-arcs")
+
+#add_definitions( -fprofile-arcs -ftest-coverage )
+#link_libraries( gcov )
+#set( CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} --coverage )
 
 # Lemon parser
 add_executable(lemon ${CMAKE_CURRENT_SOURCE_DIR}/lemon/lemon.c)
@@ -407,6 +416,7 @@ install(FILES "${PROJECT_BINARY_DIR}/dbwtl/dbwtl_config.hh"
 
 #include Tests
 if(DBWTL_WITH_TESTS)
+	ENABLE_TESTING()
 	include(CTest)
 	add_subdirectory(tests)
 	set(DBWTL_TESTCONF_ODBC_DATABASE "dbwtl_test" CACHE STRING "Database

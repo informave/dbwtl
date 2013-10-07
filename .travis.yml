@@ -29,7 +29,7 @@ before_script:
 script:
   - make -j2 && ctest ctest -D Experimental
 after_success:
-  - ctest -D NightlyMemoryCheck
+  - ctest -D ExperimentalMemCheck
 notifications:
   irc:
     channels:

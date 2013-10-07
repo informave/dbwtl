@@ -27,7 +27,7 @@ before_script:
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
 script:
-  - make -j2 && ctest -V
+  - make -j2 && ctest ctest -V -D Continuous
 #after_success:
 #  - ctest -V
 notifications:

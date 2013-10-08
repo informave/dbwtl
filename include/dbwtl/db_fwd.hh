@@ -55,7 +55,7 @@ DB_NAMESPACE_BEGIN
 
 class RecordSet;
 
-class NotFoundException;
+//class NotFoundException;
 
 class Variant;
 

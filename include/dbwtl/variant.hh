@@ -393,6 +393,17 @@ struct supports_integral_type_cast : public virtual sa_base<U>,
 };
 
 
+template<typename U>
+struct supports_integral_type_cast<U, bool> : public virtual sa_base<U>,
+                                     public supports<bool>
+{
+    virtual bool cast(bool*, std::locale) const
+    {
+        return this->get_value() ? true : false;
+    }
+};
+
+
 
 
 //..............................................................................

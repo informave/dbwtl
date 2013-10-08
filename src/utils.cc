@@ -1,12 +1,14 @@
 
 
-#include "utils.hh"
+
 
 #include <sstream>
 #include <string>
 #include <stdexcept>
 
 #include "dbwtl/exceptions.hh"
+
+#include "utils.hh"
 
 DB_NAMESPACE_BEGIN
 

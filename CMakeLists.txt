@@ -126,7 +126,7 @@ if(MSVC)
   add_definitions("-D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS")
   add_definitions("-D_SCL_SECURE_NO_WARNINGS -DCRT_NONSTDC_NO_WARNINGS")
   add_definitions("-D_SCL_SECURE_NO_DEPRECATE")
-  add_definitions("-wd4309 -wd4251 -wd4800 -wd4099 -wd4275 -wd4244")
+  add_definitions("-wd4309 -wd4251 -wd4800 -wd4099 -wd4275 -wd4244 -wd4351")
 
   if(NOT ${DBWTL_USE_CRT} STREQUAL "")
     list(FIND MSVC_CRT ${DBWTL_USE_CRT} idx)

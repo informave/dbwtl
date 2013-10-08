@@ -51,7 +51,7 @@
 
 #include "db_fwd.hh"
 #include "variant.hh"
-//#include "dbwtl/dal/dal_interface.hh"
+#include "dbwtl/dal/dal_interface.hh"
 
 DB_NAMESPACE_BEGIN
 

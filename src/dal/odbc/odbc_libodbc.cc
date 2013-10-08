@@ -683,7 +683,7 @@ void
 OdbcData_libodbc::bindIndicator(colnum_t colnum, SQLLEN *len)
 {
     DBWTL_TRACE2(colnum, *len);
-    SQLRETURN ret;
+    //SQLRETURN ret;
 
 
     assert(!"do not call");
@@ -1095,12 +1095,13 @@ String OdbcData_libodbc::getString(void) const
         throw NullException(String("OdbcData_libodbc result column"));
     else
     {
+		DBWTL_BUGCHECK(this->m_value.ind >= 0);
         if(m_value.strbufA.size())
         {
             return m_value.strbufA.str(this->m_value.ind/sizeof(SQLCHAR), this->m_resultset.getDbc().getDbcEncoding());
         }
         else
-            return m_value.strbufW.str((unsigned)this->m_value.ind/sizeof(SQLWCHAR) > m_value.strbufW.size() ?
+            return m_value.strbufW.str(this->m_value.ind/(signed)sizeof(SQLWCHAR) > m_value.strbufW.size() ?
                                        m_value.strbufW.size()-1 : this->m_value.ind/sizeof(SQLWCHAR));
     }
 }
@@ -1655,7 +1656,8 @@ OdbcResult_libodbc::bindParamBlob(StmtBase::ParamMapIterator param)
     {
         pdata->varbinary = Blob(param->second->get<BlobStream>().rdbuf()).toVarbinary();
         assert(pdata->varbinary.size());
-        pdata->ind = SQL_LEN_DATA_AT_EXEC(pdata->varbinary.size());
+		// SQL_LEN_DATA_AT_EXEC requires a signed sized type
+        pdata->ind = SQL_LEN_DATA_AT_EXEC(static_cast<SQLINTEGER>(pdata->varbinary.size()));
     }
     else // no length required
     {
@@ -1700,7 +1702,8 @@ OdbcResult_libodbc::bindParamMemo(StmtBase::ParamMapIterator param)
         if(needLength)
         {
             pdata->strbufW = OdbcStrW(Memo(param->second->get<MemoStream>().rdbuf()).str());
-            pdata->ind = SQL_LEN_DATA_AT_EXEC(pdata->strbufW.size()*sizeof(SQLWCHAR));
+			// SQL_LEN_DATA_AT_EXEC requires a signed sized type
+            pdata->ind = SQL_LEN_DATA_AT_EXEC(static_cast<SQLINTEGER>(pdata->strbufW.size()*sizeof(SQLWCHAR)));
         }
         else // no length required
         {
@@ -1720,7 +1723,8 @@ OdbcResult_libodbc::bindParamMemo(StmtBase::ParamMapIterator param)
     {
         // we ignore needLength because we need to transform the whole data in-memory.
         pdata->strbufA = OdbcStrA(Memo(param->second->get<MemoStream>().rdbuf()).str(), this->getDbc().getDbcEncoding());
-        pdata->ind = SQL_LEN_DATA_AT_EXEC(pdata->strbufA.size()*sizeof(SQLCHAR));
+		// SQL_LEN_DATA_AT_EXEC requires a signed sized type
+        pdata->ind = SQL_LEN_DATA_AT_EXEC(static_cast<SQLINTEGER>(pdata->strbufA.size()*sizeof(SQLCHAR)));
         ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                             SQL_C_CHAR,
                                             SQL_LONGVARCHAR,

@@ -84,7 +84,6 @@ sv_accessor<String>::cast(unsigned int*, std::locale loc) const
 bool
 sv_accessor<String>::cast(bool*, std::locale loc) const
 {
-    bool v;
     std::string data = this->get_value().utf8();
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
     if(data == "true" ||

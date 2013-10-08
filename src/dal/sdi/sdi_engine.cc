@@ -314,7 +314,7 @@ SDIMetadata::getColumns(const Variant &table,
             {
         
                 rs.insert(*tmp.begin());
-            skipit:;
+            //skipit:;
             }
         }
     }

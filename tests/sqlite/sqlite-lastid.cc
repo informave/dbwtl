@@ -13,7 +13,7 @@
 #include "fixture_sqlite3.hh"
 
 
-CXXC_FIXTURE_TEST(SqliteMemoryFixture, DoubleResultset)
+CXXC_FIXTURE_TEST(SqliteMemoryFixture, LastInsertId)
 {
     dbc.directCmd("CREATE TABLE test(id INTEGER PRIMARY KEY, data TEXT);");
     

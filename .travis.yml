@@ -8,8 +8,8 @@ branches:
   only:
     - travis
 env:
-  - OPTIONS="-DBUILDNAME='travis-ci debug bild' -DCMAKE_BUILD_TYPE=Debug -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
-  - OPTIONS="-DBUILDNAME='travis-ci release bild' -DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
+  - OPTIONS="-DBUILDNAME=travisci-debug-build -DCMAKE_BUILD_TYPE=Debug -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
+  - OPTIONS="-DBUILDNAME=travisci-release-build -DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
 before_install:
   - sudo apt-get install libsqlite3-dev libicu-dev firebird-dev firebird2.5-super valgrind
   - sudo apt-get install unixodbc-dev odbc-postgresql

@@ -55,7 +55,7 @@ endif()
 
 option(DBWTL_CXX98_COMPATIBILITY
 	"Use C++98 header and features instead of the current standard
-	version" ON)
+	version" OFF)
 
 
 

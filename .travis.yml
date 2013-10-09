@@ -27,9 +27,9 @@ before_script:
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
 script:
-  - make -j2 && ctest ctest -D Experimental
-after_success:
-  - ctest -D ExperimentalMemCheck -D ExperimentalSubmit
+  - ctest -D ExperimentalConfigure -D ExperimentalBuild -D ExperimentalTest -D ExperimentalCoverage -D ExperimentalMemCheck -D ExperimentalSubmit
+#after_success:
+#  - ctest -D ExperimentalMemCheck -D ExperimentalSubmit
 notifications:
   irc:
     channels:

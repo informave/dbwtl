@@ -132,7 +132,7 @@ private:
 ///
 /// @since 0.0.1
 /// @brief BLOB Datatype
-class Blob
+class DBWTL_EXPORT Blob
 {
 public:
 	Blob(void);
@@ -160,7 +160,7 @@ protected:
 ///
 /// @since 0.0.1
 /// @brief MEMO Datatype
-class Memo
+class DBWTL_EXPORT Memo
 {
 public:
 	Memo(void);

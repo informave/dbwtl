@@ -10,7 +10,7 @@ bool sortme(const ShrRecord& a, const ShrRecord& b)
 	return a[1].get<int>() < b[1].get<int>();
 }
 
-
+#ifdef _UNIX
 CXXC_TEST(RecordClear)
 {
 	RecordSet foo;
@@ -112,6 +112,7 @@ CXXC_TEST(RecordsetScroll)
 	CXXC_CHECK( foo.column(1).get<int>() == 3 );
 	
 }
+#endif
 
 
 int main(void)

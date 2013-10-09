@@ -272,7 +272,7 @@ struct supports_cast : public virtual sa_base<U>, /// @todo rename to supports_i
 };
 
 
-void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, const String &str);
+DBWTL_EXPORT void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, const String &str);
 
 
 template<typename U, typename T>

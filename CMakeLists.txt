@@ -418,7 +418,5 @@ if(DBWTL_WITH_TESTS)
 	ENABLE_TESTING()
 	include(CTest)
 	add_subdirectory(tests)
-	set(DBWTL_TESTCONF_ODBC_DATABASE "dbwtl_test" CACHE STRING "Database
-	name for ODBC tests")
 endif(DBWTL_WITH_TESTS)
 

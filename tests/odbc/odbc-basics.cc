@@ -29,10 +29,10 @@ CXXC_FIXTURE_TEST(OdbcPgFixture, MetaTables)
 	{
 		for(colnum_t i = 1; i <= rs.columnCount(); ++i)
 		{
-			std::cout << ifnull<String>(rs.column(i), "<null>") << "\t|\t";
+			String s =  ifnull<String>(rs.column(i), "<null>");
 		}
 		rs.next();
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 }
 

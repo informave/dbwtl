@@ -27,7 +27,7 @@ before_script:
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
 script:
-  - ctest -D ExperimentalConfigure -D ExperimentalBuild -D ExperimentalTest -D ExperimentalCoverage -D ExperimentalMemCheck -D ExperimentalSubmit
+  - ctest -V -D ExperimentalConfigure -D ExperimentalBuild -D ExperimentalTest -D ExperimentalCoverage -D ExperimentalMemCheck -D ExperimentalSubmit
 #after_success:
 #  - ctest -D ExperimentalMemCheck -D ExperimentalSubmit
 notifications:

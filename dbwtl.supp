@@ -1,0 +1,16 @@
+{
+   nsswitch_malloc_supp
+   Memcheck:Leak
+   fun:malloc
+   fun:nss_parse_service_list
+   fun:__nss_database_lookup
+   obj:*
+   fun:getpwuid_r@@GLIBC_2.2.5
+   fun:getpwuid
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+}
+

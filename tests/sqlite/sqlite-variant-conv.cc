@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 #include "../cxxc.hh"
-#include "fixtures/sqlite_memory.hh"
+#include "fixture_sqlite3.hh"
 
 
 

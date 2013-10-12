@@ -17,8 +17,7 @@ SET(CMAKE_COLOR_MAKEFILE ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 
-set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-possibly-lost=yes
--show-reachable=no")
+set(MEMORYCHECK_COMMAND_OPTIONS "--leak-check=full --show-possibly-lost=no --show-reachable=no --suppressions=${CMAKE_CURRENT_SOURCE_DIR}/dbwtl.supp")
 
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE)
@@ -56,7 +55,7 @@ endif()
 
 option(DBWTL_CXX98_COMPATIBILITY
 	"Use C++98 header and features instead of the current standard
-	version" ON)
+	version" OFF)
 
 
 
@@ -127,7 +126,7 @@ if(MSVC)
   add_definitions("-D_CRT_SECURE_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS")
   add_definitions("-D_SCL_SECURE_NO_WARNINGS -DCRT_NONSTDC_NO_WARNINGS")
   add_definitions("-D_SCL_SECURE_NO_DEPRECATE")
-  add_definitions("-wd4309 -wd4251 -wd4800 -wd4099 -wd4275 -wd4244")
+  add_definitions("-wd4309 -wd4251 -wd4800 -wd4099 -wd4275 -wd4244 -wd4351")
 
   if(NOT ${DBWTL_USE_CRT} STREQUAL "")
     list(FIND MSVC_CRT ${DBWTL_USE_CRT} idx)
@@ -164,6 +163,8 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
   if(DBWTL_ENABLE_WERROR)
     add_definitions("-Werror")
   endif(DBWTL_ENABLE_WERROR)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-non-virtual-dtor -std=c++0x -Wno-tautological-constant-out-of-range-compare")
 endif(MSVC)
 
 
@@ -247,9 +248,18 @@ endif()
 #include Debug information
 if(CMAKE_COMPILER_IS_GNUCXX AND (uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG"))
 	add_definitions("-O0 -g")
+	add_definitions("-ftest-coverage -fprofile-arcs")
+	link_libraries( gcov )
 endif()
 
+#add_definitions("-ftest-coverage -fprofile-arcs")
 
+#SET(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} " -ftest-coverage -fprofile-arcs")
+#SET(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " -ftest-coverage -fprofile-arcs")
+
+#add_definitions( -fprofile-arcs -ftest-coverage )
+#link_libraries( gcov )
+#set( CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} --coverage )
 
 # Lemon parser
 add_executable(lemon ${CMAKE_CURRENT_SOURCE_DIR}/lemon/lemon.c)
@@ -304,7 +314,7 @@ set(dbwtl_srcs
 
 
 if(DBWTL_WITH_SDI)
-	set(dbwtl_src
+	set(dbwtl_srcs
 		${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_engine.cc
 		${DBWTL_MAIN_SRC_DIR}/dal/sdi/sdi_libsdi.cc
 		${dbwtl_srcs}
@@ -312,7 +322,7 @@ if(DBWTL_WITH_SDI)
 endif(DBWTL_WITH_SDI)
 
 if(DBWTL_WITH_ODBC)
-	set(dbwtl_src
+	set(dbwtl_srcs
 		${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_libodbc.cc
 		${DBWTL_MAIN_SRC_DIR}/dal/odbc/odbc_engine.cc
 		${dbwtl_srcs}
@@ -405,6 +415,7 @@ install(FILES "${PROJECT_BINARY_DIR}/dbwtl/dbwtl_config.hh"
 
 #include Tests
 if(DBWTL_WITH_TESTS)
+	ENABLE_TESTING()
 	include(CTest)
 	add_subdirectory(tests)
 endif(DBWTL_WITH_TESTS)

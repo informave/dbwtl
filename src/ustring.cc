@@ -54,6 +54,7 @@
 #include <unicode/ucnv_err.h>
 #include <unicode/uenum.h>
 #include <unicode/localpointer.h>
+#include <unicode/ustring.h>
 //#endif
 
 #include <iostream>

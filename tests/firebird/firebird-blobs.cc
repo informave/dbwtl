@@ -42,6 +42,8 @@ CXXC_FIXTURE_TEST(FirebirdTestbaseFixture, WriteMemo)
 	DBMS::Resultset rs;
 	rs.attach(stmt);
 	rs.first();
+	CXXC_CHECK( !rs.column(1).isnull() );
+	CXXC_ECHO(  rs.column(1).get<String>() );
 	CXXC_CHECK( rs.column(1).get<String>() == "TeststringÖÄÜ" );
 	stmt.close();
         dbc.commit();

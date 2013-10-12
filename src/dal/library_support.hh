@@ -156,7 +156,7 @@ public:
 			this->m_handle = LoadLibrary(name);
             if (!this->m_handle) {
 				  LPVOID lpMsgBuf;
-    LPVOID lpDisplayBuf;
+    //LPVOID lpDisplayBuf;
     DWORD dw = GetLastError(); 
 				    FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 

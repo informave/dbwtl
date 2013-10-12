@@ -353,6 +353,7 @@ String daltype2sqlname(daltype_t type)
     case DAL_TYPE_TIME:       return "TIME";
     case DAL_TYPE_TIMESTAMP:  return "TIMESTAMP";
     case DAL_TYPE_INTERVAL:   return "INTERVAL";
+    case DAL_TYPE_VARBINARY:  return "VARBINARY";
     }
     DBWTL_BUG_EX("Found BUG: daltype2sqlname(): Given type is not handled");
 }

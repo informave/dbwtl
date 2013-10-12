@@ -1,4 +1,17 @@
 
+set(DBWTL_TESTCONF_FIREBIRD_USER "SYSDBA" CACHE STRING "Username for
+Firebird tests")
+set(DBWTL_TESTCONF_FIREBIRD_PW "masterkey" CACHE STRING "Password for
+Firebird tests")
+set(DBWTL_TESTCONF_FIREBIRD_DATABASE "localhost:dbwtl_test.fdb" CACHE STRING "Database name for
+Firebird tests")
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/fixture_firebird.hh.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/fixture_firebird.hh"
+)
+
+
+
 FILE (GLOB DBWTL_TEST_FILES_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cc )
 
 foreach(t ${DBWTL_TEST_FILES_SRC})

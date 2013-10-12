@@ -4,23 +4,17 @@
 #include <dbwtl/dbobjects>
 #include <dbwtl/ustring>
 
-
 #include <iostream>
 #include <fstream>
 #include <memory>
 #include <cstdlib>
 
+#include "../cxxc.hh"
+#include "fixture_sqlite3.hh"
 
-int test(void)
+
+CXXC_FIXTURE_TEST(SqliteMemoryFixture, LastInsertId)
 {
-    using namespace informave::db;
-    typedef Database<sqlite> DBMS;
-
-    DBMS::Environment env("sqlite:libsqlite");
-
-    DBMS::Connection dbc(env);
-    dbc.connect(":memory:");
-
     dbc.directCmd("CREATE TABLE test(id INTEGER PRIMARY KEY, data TEXT);");
     
     DBMS::Statement stmt(dbc);
@@ -33,22 +27,20 @@ int test(void)
     
     stmt.close();
 
-    return (id.asBigint() == 1234) ? 0 : -1;
+    CXXC_CHECK( id.asBigint() == 1234 );
 }
-
 
 
 int main(void)
 {
-    try
-    {
-        return test();
-    }
-    catch(informave::db::Exception &e)
-    {
-        std::cout << "error: " << e.what() << std::endl;
-        return -1;
-    }
-    return 0;
+    std::locale::global(std::locale(""));
+    std::cout.imbue(std::locale());
+    std::cerr.imbue(std::locale());
+    std::clog.imbue(std::locale());
+    std::wcout.imbue(std::locale());
+    std::wcerr.imbue(std::locale());
+    std::wclog.imbue(std::locale());
+
+    return cxxc::runAll();
 }
 

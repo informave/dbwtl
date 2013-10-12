@@ -24,6 +24,14 @@
 #include <sqltypes.h>
 #include <odbcinst.h>
 
+#if defined(DBWTL_ON_WIN32)
+#define DBWTL_ODBC_DEFAULT_LIB "odbc32.dll"
+#elif defined(DBWTL_ON_UNIX)
+#define DBWTL_ODBC_DEFAULT_LIB "libodbc.so"
+#else
+#error "Unsupported plattform"
+#endif
+
 
 
 DAL_NAMESPACE_BEGIN
@@ -808,11 +816,6 @@ protected:
     odbcapi__SQLTablesW 		  m_func_SQLTablesW;
 
 
-#ifdef DBWTL_ON_WIN32
-#define DBWTL_ODBC_DEFAULT_LIB "odbc32.dll"
-#else
-#define DBWTL_ODBC_DEFAULT_LIB "/usr/lib/libodbc.so"
-#endif
 
 public:
     ODBC30Drv(String path) : DynamicLibrary(path.length() ? path.toSystemEncoding() : DBWTL_ODBC_DEFAULT_LIB),

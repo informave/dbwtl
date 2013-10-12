@@ -5,7 +5,7 @@
 
 
 
-#include "../../cxxc.hh"
+#include "../cxxc.hh"
 
 
 

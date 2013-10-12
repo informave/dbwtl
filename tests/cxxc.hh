@@ -188,6 +188,7 @@ namespace cxxc
         }
         catch(Failure &e)
         {
+			std::cout << e.what() << std::endl;
             return 1;
         }
         return 0;

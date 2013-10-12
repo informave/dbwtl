@@ -272,7 +272,7 @@ struct supports_cast : public virtual sa_base<U>, /// @todo rename to supports_i
 };
 
 
-void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, const String &str);
+DBWTL_EXPORT void internal_helper__throw_ConvertException(daltype_t src, daltype_t dest, const String &str);
 
 
 template<typename U, typename T>
@@ -389,6 +389,17 @@ struct supports_integral_type_cast : public virtual sa_base<U>,
     virtual T cast(T*, std::locale) const
     {
         return arithmetic_cast<U, T>(this->get_value());
+    }
+};
+
+
+template<typename U>
+struct supports_integral_type_cast<U, bool> : public virtual sa_base<U>,
+                                     public supports<bool>
+{
+    virtual bool cast(bool*, std::locale) const
+    {
+        return this->get_value() ? true : false;
     }
 };
 

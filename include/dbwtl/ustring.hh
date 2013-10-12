@@ -71,7 +71,7 @@ DB_NAMESPACE_BEGIN
 
 typedef uint16_t UCharT;
 
-#define DEFAULT_CHARSET "UTF-8"
+#define USTRING_DEFAULT_CHARSET "UTF-8"
 
 #ifdef _WIN32
 #define USTRING_WCHAR_SIZE 2
@@ -284,7 +284,7 @@ public:
     /// @final
     template<class B, class C>
     ustring(const std::basic_string<char, B, C> &s,
-            const std::string &charset = DEFAULT_CHARSET)
+            const std::string &charset = USTRING_DEFAULT_CHARSET)
         : m_data(),
           m_narrow(),
           m_strptr(0)
@@ -455,7 +455,7 @@ public:
 
 
     /// @final
-    const char* to(const std::string &charset = DEFAULT_CHARSET) const
+    const char* to(const std::string &charset = USTRING_DEFAULT_CHARSET) const
     {
         if(LIKELY(!hasExternStorage()))
         {

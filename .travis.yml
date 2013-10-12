@@ -1,0 +1,51 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+#services:
+#  - Firebird
+branches:
+  only:
+    - devel
+env:
+  - OPTIONS="-DBUILDNAME=travisci-debug-build -DCMAKE_BUILD_TYPE=Debug -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
+  - OPTIONS="-DBUILDNAME=travisci-release-build -DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
+before_install:
+  - sudo apt-get install libsqlite3-dev libicu-dev firebird-dev firebird2.5-super valgrind
+  - sudo apt-get install unixodbc-dev odbc-postgresql
+  - sudo sed /ENABLE_FIREBIRD_SERVER=/s/no/yes/ -i /etc/default/firebird2.5
+  - sudo service firebird2.5-super start
+  - odbcinst -i -s -f tests/odbc/odbc_dsn_setup.ini
+before_script:
+  - psql -c 'create database dbwtl_test;' -U postgres
+  - psql -U postgres dbwtl_test < tests/odbc/setup_odbc_postgres.sql
+  - mysql -e 'create database dbwtl_test;'
+  - echo "CREATE DATABASE 'localhost:dbwtl_test.fdb' USER 'SYSDBA' PASSWORD 'masterkey' PAGE_SIZE 16384 DEFAULT CHARACTER SET UTF8;" | isql-fb
+  - isql-fb -ch utf8 -u SYSDBA -p masterkey "localhost:dbwtl_test.fdb" < tests/firebird/setup_firebird.sql
+  - echo "select current_database()" | isql dbwtl_test
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=../_install $OPTIONS
+script:
+  - ctest -V -D ExperimentalConfigure -D ExperimentalBuild -D ExperimentalTest
+after_success:
+  - ctest -D ExperimentalCoverage -D ExperimentalMemCheck -D ExperimentalSubmit
+after_failure:
+  - ctest -D ExperimentalSubmit
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#informave"
+    use_notice: true
+    skip_join: true
+    template:
+      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
+      - "Build details : %{build_url}"
+  recipients:
+    - daniel@vogelbacher.name
+  email:
+    on_success: always
+    on_failure: always
+matrix:
+  allow_failures:
+    - compiler: clang

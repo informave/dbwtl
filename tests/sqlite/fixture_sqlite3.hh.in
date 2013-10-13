@@ -6,16 +6,17 @@
 #include "../cxxc.hh"
 
 using namespace informave::db;
-typedef Database<sqlite> DBMS;
 
 struct SqliteMemoryFixture
 {
+    typedef Database<sqlite> DBMS;
+
     SqliteMemoryFixture(void)
         : env("sqlite:libsqlite"),
           dbc(env)
     {}
 
-    ~SqliteMemoryFixture(void)
+    virtual ~SqliteMemoryFixture(void)
     {}
     
     
@@ -27,6 +28,30 @@ struct SqliteMemoryFixture
     DBMS::Environment env;
     DBMS::Connection dbc;
 };
+
+
+
+struct SqliteGenericFixture
+{
+	typedef Database<generic> DBMS;
+
+	SqliteGenericFixture(void)
+		: env("sqlite:libsqlite"),
+		dbc(env)
+		{}
+
+	virtual ~SqliteGenericFixture(void)
+	{}
+
+	void onSetUp(void)
+	{
+		dbc.connect(":memory:");
+	}
+
+	DBMS::Environment env;
+	DBMS::Connection dbc;
+};
+
 
 
 //

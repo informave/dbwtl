@@ -1,0 +1,19 @@
+== Discussion & Chat
+
+Just join the #informave channel on irc.freenode.net.
+
+Also, feel free to open an
+http://dbwtl.informave.org[issue] to start a discussion
+about any concerns you have.
+
+== Reporting Bugs
+
+If you're not running against the latest `development` branch version,
+please compile and test against that to avoid re-reporting an issue that's
+already been fixed.
+
+== Style Guide
+
+'dbwtl' is written in ISO c++11 with some specific conventions for function and type naming,
+code formatting, and testing.
+Take a look at the https://github.com/informave/dbwtl/development/CONVENTIONS.adoc[CONVENTIONS] file.

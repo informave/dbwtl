@@ -1,0 +1,142 @@
+Informave DBWTL C++11 Library
+-----------------------------
+Daniel Vogelbacher <daniel@vogelbacher.name>
+
+:homepage: http://dbwtl.informave.org
+:news: http://dbwtl.informave.org
+:manual: https://github.com/informave/dbwtl/master/MANUAL.adoc
+:forum: http://lists.informave.org/cgi-bin/mailman/listinfo/dbwtl-users
+:sources: https://github.com/informave/dbwtl
+:issues: http://dbwtl.informave.org/report/1
+:org: http://github.com/informave
+:contrib: https://github.com/informave/dbwtl/master/CONTRIBUTING.adoc
+:license: https://github.com/informave/dbwtl/master/LICENSE
+
+:cpp: {basebackend@docbook:c++:cpp}
+
+
+image:https://api.travis-ci.org/informave/dbwtl.png[Travis-CI",link="https://travis-ci.org/informave/dbwtl"]
+
+
+{homepage}[DBWTL] is an open source C++11 library for database access and
+is released under the BSD license.
+
+
+== Getting the source
+
+ $> git clone https://github.com/informave/dbwtl.git
+
+
+
+== Requirements
+
+
+You'll need
+
+- Cmake >= 2.6 (All platforms)
+- ICU >= 51.1 (All platforms)
+- GCC >= 4.6 (Unix/Linux platforms)
+- MSVC++ 2013 (Windows platforms)
+
+and the header files for the client libraries you want to use.
+
+
+See the platform specifics section for other information specific to
+the platform you may be working on.
+
+
+== Basic Compiling Instructions
+
+To use CMake:
+
+- Make a directory 'build' in your repo directory
+- Go into that directory
+- Type cmake ..
+- After this, just run *make*
+
+[NOTE]
+You need at least one available header file for a database client library.
+
+
+=== Platform Specifics
+
+==== Windows
+This library requires Microsoft Visual Studio 2013.
+
+
+== Supported Databases
+
+- SQLite 3
+- Firebird >= 2.0
+
+Other interfaces:
+
+- ODBC 3.5
+- SDI
+
+
+== Getting started
+The full manual can be found {manual}[here].
+
+Here is a short demonstration how to use the DBWTL library:
+
+[source,{cpp}]
+--------------------------------------------------------------------------------
+#ifndef YOURPROJECT_DB_HH
+#define YOURPROJECT_DB_HH
+
+#include <dbwtl/dbobjects>
+#include <dbwl/engines/generic>
+
+use namespace informave;
+typedef db::Database<db::generic> DBMS;
+
+#endif
+--------------------------------------------------------------------------------
+
+
+== Information Resources
+
+Information about the DBWTL library and the INFORMAVE project can be found at
+
+http://www.informave.org
+
+For questions, support, and discussion, check out the IRC channel at
+
+#informave on Freenode
+
+The full manual can be found {manual}[here].
+
+
+
+== Copyright and Licensing
+
+Copyright (C) 2008-2013 Daniel Vogelbacher.
+Free use of this software is granted under the terms of the BSD License.
+
+See the {license}[LICENSE] file for details.
+
+== Authors
+
+*DBWTL* was written by Daniel Vogelbacher.
+
+
+== Contact and Help
+I encourage you to ask questions and discuss any aspects of the project on the mailing list or IRC.
+
+Mailing list:: {forum}
+Chat:: #informave on FreeNode IRC
+
+Further information and documentation about DBWTL can be found on the project's website.
+
+Home:: {homepage}
+News:: {news}
+Docs:: {manual}
+
+Source repository (GitHub):: {sources}
+Issue tracker:: {issues}
+Informave organization (GitHub):: {org}
+
+If you discover errors or ommisions in the source code, documentation, or website content, please don't hesitate to submit an issue or open a pull request with a fix. 
+
+The {contrib}[CONTRIBUTING] file provides information on how to create, style, and submit issues, feature requests, code, and documentation.

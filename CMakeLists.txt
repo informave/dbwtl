@@ -358,9 +358,9 @@ endif(MSVC)
 add_library(dbwtl SHARED ${dbwtl_srcs})
 
 
-if(UNIX)
-	target_link_libraries(dbwtl dl)
-endif()
+#if(UNIX)
+#	target_link_libraries(dbwtl dl)
+#endif()
 
 
 # ICU Library

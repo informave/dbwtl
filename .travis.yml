@@ -11,8 +11,9 @@ env:
   - OPTIONS="-DBUILDNAME=travisci-debug-build -DCMAKE_BUILD_TYPE=Debug -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
   - OPTIONS="-DBUILDNAME=travisci-release-build -DCMAKE_BUILD_TYPE=Release -DDBWTL_WITH_TESTS=ON -DDBWTL_WITH_SDI=OFF -DDBWTL_WITH_ODBC=ON -DDBWTL_WITH_FIREBIRD=ON"
 before_install:
-  - sudo apt-get install libsqlite3-dev libicu-dev firebird-dev firebird2.5-super valgrind
-  - sudo apt-get install unixodbc-dev odbc-postgresql
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install libsqlite3-dev libicu-dev firebird-dev firebird2.5-super valgrind
+  - sudo apt-get -qq install unixodbc-dev odbc-postgresql
   - sudo sed /ENABLE_FIREBIRD_SERVER=/s/no/yes/ -i /etc/default/firebird2.5
   - sudo service firebird2.5-super start
   - odbcinst -i -s -f tests/odbc/odbc_dsn_setup.ini
@@ -41,11 +42,6 @@ notifications:
     template:
       - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}"
       - "Build details : %{build_url}"
-  recipients:
-    - daniel@vogelbacher.name
-  email:
-    on_success: always
-    on_failure: always
 matrix:
   allow_failures:
     - compiler: clang

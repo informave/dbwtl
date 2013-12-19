@@ -1324,6 +1324,7 @@ FirebirdResult_libfbclient::next(void)
         ++this->m_current_tuple;
         break;
     case 100: // no more rows
+		DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
         DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_EOF);
         break;
     default:

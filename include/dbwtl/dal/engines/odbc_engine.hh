@@ -621,7 +621,7 @@ protected:
     OdbcDiag(const OdbcDiag& ref);
 
     odbc_sqlstates::engine_states_t m_sqlstate_id;
-    std::string m_sqlstate;
+    //std::string m_sqlstate;
     int m_nativecode;
 };
 

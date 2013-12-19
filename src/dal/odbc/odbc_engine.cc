@@ -1995,10 +1995,10 @@ OdbcDiag::OdbcDiag(dalstate_t state,
                    int nativecode)
     : DiagBase(state, pos, what, description),
       m_sqlstate_id(),
-      m_sqlstate(sqlstate),
       m_nativecode(nativecode)
 {
     m_sqlstate_id = sqlstate2id(sqlstate);
+	m_sqlstate = String(sqlstate, "ASCII");
 }
 
 
@@ -2006,7 +2006,7 @@ OdbcDiag::OdbcDiag(dalstate_t state,
 OdbcDiag::OdbcDiag(const OdbcDiag& ref)
     : DiagBase(ref),
       m_sqlstate_id(ref.m_sqlstate_id),
-      m_sqlstate(ref.m_sqlstate),
+      //m_sqlstate(ref.m_sqlstate), /// @bug remove
       m_nativecode(ref.m_nativecode)
 {}
 

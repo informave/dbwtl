@@ -427,6 +427,9 @@ OdbcBlob_libodbc::underflow()
                                 SQL_C_BINARY, start, sizeof(m_buf) - (start - base), &ind);
 
 
+    if(ret == SQL_NO_DATA)
+        return traits_type::eof();
+
     if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->m_data.m_resultset.getDbc(), this->m_data.m_resultset.getStmt(),
@@ -451,7 +454,7 @@ OdbcBlob_libodbc::underflow()
         return traits_type::to_int_type(*gptr());
     }
 
-    if(ret == SQL_NO_DATA || ind == SQL_NULL_DATA)
+    if(ind == SQL_NULL_DATA)
         return traits_type::eof();
     else
     {
@@ -598,6 +601,7 @@ OdbcMemo_libodbc::underflow()
         std::vector<SQLWCHAR> tmp((sizeof(m_buf)/sizeof(wchar_t) - (start - base)));
         ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
                                       SQL_C_WCHAR, tmp.data(), tmp.size()*sizeof(SQLWCHAR), &ind);
+        /// @bug check ret value!
         for(size_t i = 0; i < (sizeof(m_buf)/sizeof(wchar_t) - (start - base)); ++i)
         {
             assert(i < (DAL_STREAMBUF_BUFSIZE + DAL_STREAMBUF_PUTBACK));
@@ -609,6 +613,9 @@ OdbcMemo_libodbc::underflow()
         }
     }
 
+
+
+
     if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->m_data.m_resultset.getDbc(), this->m_data.m_resultset.getStmt(),
@@ -617,6 +624,8 @@ OdbcMemo_libodbc::underflow()
     }
 
     //std::cout << "IND: " << ind << std::endl;
+
+
 
     if(ret == SQL_SUCCESS_WITH_INFO)
     {
@@ -633,7 +642,7 @@ OdbcMemo_libodbc::underflow()
         return traits_type::to_int_type(*gptr());
     }
 
-    if(ret == SQL_NO_DATA || ind == SQL_NULL_DATA)
+    if(ind == SQL_NULL_DATA)
         return traits_type::eof();
     else
     {
@@ -1392,7 +1401,11 @@ OdbcData_libodbc::fetchParts(void)
             ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
                                           SQL_C_WCHAR, m_value.strbufW.ptr(),
                                           m_value.strbufW.size()*sizeof(SQLWCHAR), &this->m_value.ind);
-            if(! SQL_SUCCEEDED(ret))
+            if(ret == SQL_NO_DATA)
+            {
+                m_value.ind = SQL_NULL_DATA;
+            }
+            else if(! SQL_SUCCEEDED(ret))
                 THROW_ODBC_DIAG_ERROR(this->m_resultset.getDbc(), this->m_resultset.getStmt(),
                                       this->getHandle(), SQL_HANDLE_STMT,
                                       "SQLGetData() failed");
@@ -1413,6 +1426,10 @@ OdbcData_libodbc::fetchParts(void)
                 {
                     m_value.strbufW.resize((m_value.strbufW.size()-1)+bufsize); // remove null terminator
                     ptr = m_value.strbufW.ptr() + (m_value.strbufW.size()-bufsize);
+                }
+                else if(ret == SQL_NO_DATA)
+                {
+                    m_value.ind = SQL_NULL_DATA;
                 }
                 else if(ret == SQL_SUCCESS) // final part
                 {
@@ -1454,7 +1471,11 @@ OdbcData_libodbc::fetchParts(void)
             ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
                                           SQL_C_CHAR, m_value.strbufA.ptr(),
                                           m_value.strbufA.size()*sizeof(SQLCHAR), &this->m_value.ind);
-            if(! SQL_SUCCEEDED(ret))
+            if(ret == SQL_NO_DATA)
+            {
+                m_value.ind = SQL_NULL_DATA;
+            }
+			else if(! SQL_SUCCEEDED(ret))
                 THROW_ODBC_DIAG_ERROR(this->m_resultset.getDbc(), this->m_resultset.getStmt(),
                                       this->getHandle(), SQL_HANDLE_STMT,
                                       "SQLGetData() failed");
@@ -1475,6 +1496,10 @@ OdbcData_libodbc::fetchParts(void)
                 {
                     m_value.strbufA.resize((m_value.strbufA.size()-1)+bufsize); // remove null terminator
                     ptr = m_value.strbufA.ptr() + (m_value.strbufA.size()-bufsize);
+                }
+				else if(ret == SQL_NO_DATA)
+                {
+                    m_value.ind = SQL_NULL_DATA;
                 }
                 else if(ret == SQL_SUCCESS) // final part
                 {
@@ -1523,6 +1548,8 @@ void
 OdbcData_libodbc::refresh(void)
 {
     this->m_blobbuf.reset(0);
+	this->m_memobuf.reset(0);
+	this->m_memostream.reset(0);
 }
 
 
@@ -2616,6 +2643,12 @@ OdbcResult_libodbc::next(void)
     if(SQL_SUCCEEDED(ret))
     {
         ++this->m_current_tuple;
+            std::for_each(this->m_column_accessors.begin(),
+                          this->m_column_accessors.end(),
+                          [](VariantListT::value_type &item)
+                          {
+                              item.second->refresh();
+                          });
     }
     else if(ret == SQL_NO_DATA)
     {

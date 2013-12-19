@@ -187,7 +187,7 @@ Variant::asUChar(void) const
 String
 Variant::asStr(std::locale loc) const
 {
-    return this->get<String>();
+    return this->get<String>(loc);
 }
 
 bool

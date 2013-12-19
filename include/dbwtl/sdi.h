@@ -47,7 +47,16 @@
 //SDI ++++++++++++
 //SDI 
 
+
+#ifdef __cplusplus
+#include <cstdlib>
+#else
 #include <stdlib.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 enum sdi_data_types
@@ -78,6 +87,7 @@ enum sdi_data_types
 typedef enum sdi_data_types sditype_t;
 
 #define SDI_NULL_VALUE 0
+#define SDI_NULL_HANDLE NULL
 #define SDI_HAS_VALUE 1
 
 typedef enum 
@@ -215,6 +225,14 @@ sdi_code SDI_API SDIDescribeCol(SDISTMT stmt, int colnum, size_t *size, const ch
 
 // write support?
 //
+
+
+
+
+#ifdef __cplusplus
+} // extern C
+#endif
+
 
 #endif
 

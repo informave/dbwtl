@@ -3362,7 +3362,7 @@ OdbcDiag_libodbc::str(void) const
 {
     std::wstringstream ss;
 
-    ss << L"[SQLSTATE:" << String(this->m_sqlstate)  << L"] "
+    ss << L"[SQLSTATE:" << ifnull<String>(this->m_sqlstate, L"-----")  << L"] "
        << ifnull<String>(this->m_message, L"No message") << std::endl
        << ifnull<String>(this->m_description, L"No description") << std::endl
        << L"ODBC native error: " << this->m_nativecode << std::endl

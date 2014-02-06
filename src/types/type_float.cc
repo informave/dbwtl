@@ -63,7 +63,7 @@ sv_accessor<float>::cast(String*, std::locale loc) const
 {
     std::wstringstream ss;
     ss.imbue(loc);
-    ss << this->get_value();
+    ss << std::fixed << this->get_value();
     return ss.str();
 }
 
@@ -74,7 +74,7 @@ sv_accessor<double>::cast(String*, std::locale loc) const
 {
     std::wstringstream ss;
     ss.imbue(loc);
-    ss << this->get_value();
+	ss << std::fixed << this->get_value();
     return ss.str();
 }
 

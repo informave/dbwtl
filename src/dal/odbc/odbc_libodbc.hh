@@ -436,6 +436,11 @@ public:
 
     virtual void fetchParts(void);
 
+	virtual BlobStream cast2BlobStream(std::locale loc) const;
+	virtual MemoStream cast2MemoStream(std::locale loc) const;
+	virtual Blob cast2Blob(std::locale loc) const;
+	virtual Memo cast2Memo(std::locale loc) const;
+
 protected:
     OdbcResult_libodbc& getResultset(void) const;
     OdbcStmt_libodbc& getStmt(void) const;
@@ -450,6 +455,12 @@ protected:
     colnum_t   m_colnum;
     mutable std::auto_ptr<OdbcBlob_libodbc> m_blobbuf;
     mutable std::auto_ptr<OdbcMemo_libodbc> m_memobuf;
+
+	// This caches are used for MemoStream -> Memo conversions
+	// and must be reset if the cursor moves.
+    mutable std::shared_ptr<std::stringstream> m_blob_cache;
+    mutable std::shared_ptr<std::wstringstream> m_memo_cache;
+
 
     /// @todo Used for ANSI memo data conversion
     mutable std::auto_ptr<std::wstringstream> m_memostream;

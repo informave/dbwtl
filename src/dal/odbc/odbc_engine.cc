@@ -398,6 +398,8 @@ sv_accessor<OdbcData*>::cast(bool*, std::locale loc) const
 BlobStream
 sv_accessor<OdbcData*>::cast(BlobStream*, std::locale loc) const
 {
+	return this->get_value()->cast2BlobStream(loc);
+	/*
         if(this->m_blob_buffer.get())
         {
                 this->m_blob_buffer->seekg(0);
@@ -405,11 +407,14 @@ sv_accessor<OdbcData*>::cast(BlobStream*, std::locale loc) const
         }
         else
                 return BlobStream(this->get_value()->getBlobStream());
+	*/
 }
 
 MemoStream
 sv_accessor<OdbcData*>::cast(MemoStream*, std::locale loc) const
 {
+	return this->get_value()->cast2MemoStream(loc);
+	/*
         if(this->m_memo_buffer.get())
         {
                 this->m_memo_buffer->seekg(0);
@@ -417,11 +422,14 @@ sv_accessor<OdbcData*>::cast(MemoStream*, std::locale loc) const
         }
         else
                 return MemoStream(this->get_value()->getMemoStream());
+				*/
 }
 
 Blob
 sv_accessor<OdbcData*>::cast(Blob*, std::locale loc) const
 {
+	return this->get_value()->cast2Blob(loc);
+	/*
     if(!this->m_blob_buffer.get())
     {
         this->m_blob_buffer.reset(new std::stringstream());
@@ -429,7 +437,7 @@ sv_accessor<OdbcData*>::cast(Blob*, std::locale loc) const
     }
     this->m_blob_buffer->rdbuf()->pubseekpos(0);
     return Blob(this->m_blob_buffer->rdbuf());
-
+	*/
 
 //    return BlobStream(this->get_value()->getBlob());
 }
@@ -437,6 +445,8 @@ sv_accessor<OdbcData*>::cast(Blob*, std::locale loc) const
 Memo
 sv_accessor<OdbcData*>::cast(Memo*, std::locale loc) const
 {
+	return this->get_value()->cast2Memo(loc);
+	/*
     if(!this->m_memo_buffer.get())
     {
         this->m_memo_buffer.reset(new std::wstringstream());
@@ -444,6 +454,7 @@ sv_accessor<OdbcData*>::cast(Memo*, std::locale loc) const
     }
     this->m_memo_buffer->rdbuf()->pubseekpos(0);
     return Memo(this->m_memo_buffer->rdbuf());
+	*/
 
     //return MemoStream(this->get_value()->getMemo());
 }

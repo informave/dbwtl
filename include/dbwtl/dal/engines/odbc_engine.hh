@@ -690,7 +690,11 @@ public:
     virtual TNumeric getNumeric(void) const = 0;
 //TGuid getGUID(void) const = 0;
 
-
+	// Convert helpers for the accessor (because accessor must be stateless)
+	virtual BlobStream cast2BlobStream(std::locale loc) const = 0;
+	virtual MemoStream cast2MemoStream(std::locale loc) const = 0;
+	virtual Blob cast2Blob(std::locale loc) const = 0;
+	virtual Memo cast2Memo(std::locale loc) const = 0;
 
  
     virtual rowid_t getCurrentRowID(void) const = 0;
@@ -1236,15 +1240,11 @@ struct sv_accessor<OdbcData*> : public virtual sa_base<OdbcData*>,
     virtual daltype_t datatype() const;
 
 protected:
-   sv_accessor(void) : m_blob_buffer(), m_memo_buffer() {}
-
-   sv_accessor(const sv_accessor &orig)
-   : m_blob_buffer(orig.m_blob_buffer),
-     m_memo_buffer(orig.m_memo_buffer)
+   sv_accessor(void)
    {}
 
-   mutable std::shared_ptr<std::stringstream> m_blob_buffer;
-   mutable std::shared_ptr<std::wstringstream> m_memo_buffer;
+   sv_accessor(const sv_accessor &orig)
+   {}
 };
 
 

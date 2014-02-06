@@ -797,6 +797,8 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
       m_colnum(colnum),
       m_blobbuf(),
       m_memobuf(),
+	  m_blob_cache(),
+	  m_memo_cache(), 
       m_memostream(),
       m_bufsize(),
       m_value()
@@ -1347,6 +1349,54 @@ TNumeric OdbcData_libodbc::getNumeric(void) const
 }
 
 
+BlobStream
+OdbcData_libodbc::cast2BlobStream(std::locale loc) const
+{
+	    if(this->m_blob_cache.get())
+        {
+                this->m_blob_cache->seekg(0);
+                return BlobStream(this->m_blob_cache->rdbuf());
+        }
+        else
+                return BlobStream(this->getBlobStream());
+}
+
+MemoStream
+OdbcData_libodbc::cast2MemoStream(std::locale loc) const
+{
+        if(this->m_memo_cache.get())
+        {
+                this->m_memo_cache->seekg(0);
+                return MemoStream(this->m_memo_cache->rdbuf());
+        }
+        else
+                return MemoStream(this->getMemoStream());
+}
+
+Blob
+OdbcData_libodbc::cast2Blob(std::locale loc) const
+{
+	if(!this->m_blob_cache.get())
+    {
+        this->m_blob_cache.reset(new std::stringstream());
+        (*this->m_blob_cache.get()) << this->getBlobStream();
+    }
+    this->m_blob_cache->rdbuf()->pubseekpos(0);
+    return Blob(this->m_blob_cache->rdbuf());
+}
+
+Memo
+OdbcData_libodbc::cast2Memo(std::locale loc) const
+{
+    if(!this->m_memo_cache.get())
+    {
+        this->m_memo_cache.reset(new std::wstringstream());
+        (*this->m_memo_cache.get()) << this->getMemoStream();
+    }
+    this->m_memo_cache->rdbuf()->pubseekpos(0);
+    return Memo(this->m_memo_cache->rdbuf());
+}
+
 
 //
 bool
@@ -1550,6 +1600,9 @@ OdbcData_libodbc::refresh(void)
     this->m_blobbuf.reset(0);
 	this->m_memobuf.reset(0);
 	this->m_memostream.reset(0);
+
+	this->m_blob_cache.reset();
+    this->m_memo_cache.reset();
 }
 
 

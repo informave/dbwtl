@@ -1244,7 +1244,12 @@ SDIDbc::directCmd(String cmd)
 }
 
 
-
+String
+SDIDbc::quoteIdentifier(const String &id)
+{
+    //return String("\"") + id + String("\"");
+    return id; /// @todo quoting not supported
+}
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

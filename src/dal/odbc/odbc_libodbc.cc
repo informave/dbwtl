@@ -4240,4 +4240,15 @@ OdbcDbc_libodbc::getCurrentCatalog(void)
 }
 
 
+
+String
+OdbcDbc_libodbc::quoteIdentifier(const String &id)
+{
+    String q = sqlgetinfo<String>(*this, SQL_IDENTIFIER_QUOTE_CHAR);
+
+    return q + id + q;
+}
+
+
+
 DAL_NAMESPACE_END

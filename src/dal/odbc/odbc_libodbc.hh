@@ -725,6 +725,8 @@ public:
 
     virtual Variant        getCurrentCatalog(void);
 
+    virtual String         quoteIdentifier(const String &id);
+
 protected:
     virtual void           setDbcEncoding(std::string encoding);
 

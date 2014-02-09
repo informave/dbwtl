@@ -1107,6 +1107,8 @@ public:
 
     virtual Variant        getCurrentCatalog(void) = 0;
 
+    virtual String         quoteIdentifier(const String &id) = 0;
+
 protected:
     virtual void           setDbcEncoding(std::string encoding) = 0;
 };

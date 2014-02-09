@@ -529,6 +529,9 @@ public:
 
 	virtual Variant         getCurrentCatalog(void) { return this->m_dbc->getCurrentCatalog(); }
 
+    virtual String         quoteIdentifier(const String &id)
+    { return this->m_dbc->quoteIdentifier(id); }
+
 protected:
     virtual void           setDbcEncoding(std::string encoding)
     {

@@ -589,6 +589,8 @@ public:
 
 	virtual SqliteMetadata* newMetadata(void);
 
+    virtual String         quoteIdentifier(const String &id);
+
 protected:
     SqliteDiagController m_diag;
 };

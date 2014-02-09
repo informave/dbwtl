@@ -1293,6 +1293,11 @@ SqliteDbc::directCmd(String cmd)
 }
 
 
+String
+SqliteDbc::quoteIdentifier(const String &id)
+{
+    return String("\"") + id + String("\"");
+}
 
 
 

@@ -656,6 +656,8 @@ public:
 
 	virtual FirebirdMetadata* newMetadata(void);
 
+    virtual String         quoteIdentifier(const String &id);
+
 protected:
     mutable FirebirdDiagController m_diag;
 };

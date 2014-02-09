@@ -655,6 +655,8 @@ public:
 
 	virtual SDIMetadata* newMetadata(void);
 
+    virtual String         quoteIdentifier(const String &id);
+
 /*
 	virtual SDIStmt* getSDICatalogs(void) = 0;
 	virtual SDIStmt* getSDISchemas(void) = 0;

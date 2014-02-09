@@ -1192,7 +1192,11 @@ FirebirdDbc::directCmd(String cmd)
 }
 
 
-
+String
+FirebirdDbc::quoteIdentifier(const String &id)
+{
+    return String("\"") + id + String("\"");
+}
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

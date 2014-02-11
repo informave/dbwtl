@@ -614,6 +614,8 @@ OdbcMemo_libodbc::underflow()
     }
 
 
+	if(ret == SQL_NO_DATA)
+		return traits_type::eof();
 
 
     if(! SQL_SUCCEEDED(ret))

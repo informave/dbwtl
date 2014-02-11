@@ -54,6 +54,7 @@
 #include <cassert>
 #include <sstream>
 #include <cstdint>
+#include <locale>
 //#include <cstdlib>
 
 
@@ -140,6 +141,24 @@ public:
         set_value(v);
     }
 
+
+    explicit basic_bcd(float v)
+       : m_nibbles(),
+         m_scale(0),
+	 m_sign(true)
+    {
+        set_value(v);
+    }
+
+    explicit basic_bcd(double v)
+       : m_nibbles(),
+         m_scale(0),
+         m_sign(true)
+    {
+        set_value(v);
+    }
+
+
     /// @brief Construct from long long and specific scale
     basic_bcd(long long num, unsigned short scale)
        : m_nibbles(),
@@ -154,14 +173,13 @@ public:
     }
 
     /// @brief Construct from string
-    basic_bcd(const std::string &v)
+    basic_bcd(const std::string &v, std::locale loc = std::locale(""))
         : m_nibbles(),
           m_scale(0),
           m_sign(true)
     {
-        set_value(v);
+        set_strvalue(v, loc);
     }
-
 
     /// @brief Returns the scale
     size_t scale(void) const
@@ -222,9 +240,28 @@ public:
         while(v);
     }
 
+    void set_value(float v)
+    {
+        std::stringstream ss;
+        std::locale loc("C");
+        ss.imbue(loc);
+        ss << v;
+        set_strvalue(ss.str(), loc);
+    }
+
+
+    void set_value(double v)
+    {
+        std::stringstream ss;
+        std::locale loc("C");
+        ss.imbue(loc);
+        ss << v;
+        set_strvalue(ss.str(), loc);
+    }
+
 
     /// @brief Set value as string
-    void set_value(std::string s)
+    void set_strvalue(std::string s, std::locale loc)
     {
     	std::string orig(s);
         m_nibbles.clear();
@@ -245,9 +282,11 @@ public:
         
         if(!s.size()) throw std::invalid_argument(std::string("Invalid numeric value: ").append(orig));
 
+	const char radix_separator = std::use_facet<std::numpunct<char> >(loc).decimal_point();
+
         for(size_t i = 0; i < s.size(); ++i)
         {
-            if(s[i] == '.')
+            if(s[i] == radix_separator)
             {
                 dot = i;
                 continue;
@@ -890,10 +929,10 @@ typedef informave::utils::basic_bcd<std::deque<uint8_t> > bcd;
 
 
 template<typename StorageContainer>
-basic_bcd<StorageContainer> basic_bcd<StorageContainer>::tolerance("0.0000000000000000000000000001");
+basic_bcd<StorageContainer> basic_bcd<StorageContainer>::tolerance("0.0000000000000000000000000001", std::locale("C"));
 
 template<typename StorageContainer>
-basic_bcd<StorageContainer> basic_bcd<StorageContainer>::inverse_mfactor("2.914");
+basic_bcd<StorageContainer> basic_bcd<StorageContainer>::inverse_mfactor("2.914", std::locale("C"));
 
 
 INFORMAVE_BCD_NS_END

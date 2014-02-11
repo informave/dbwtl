@@ -495,8 +495,8 @@ sv_accessor<SqliteData*>::cast(TTimestamp*, std::locale loc) const
 TNumeric
 sv_accessor<SqliteData*>::cast(TNumeric*, std::locale loc) const
 {
-    String s = this->get_value()->getString();
-    return TNumeric(s);
+    std::string s = this->get_value()->getString();
+    return TNumeric(s, loc);
 }
 
 

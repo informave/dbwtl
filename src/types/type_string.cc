@@ -159,6 +159,12 @@ sv_accessor<String>::cast(double*, std::locale loc) const
 }
 
 
+TNumeric
+sv_accessor<String>::cast(TNumeric*, std::locale loc) const
+{
+    return TNumeric(std::string(this->get_value()), loc);
+}
+
 TDate
 sv_accessor<String>::cast(TDate*, std::locale loc) const
 {

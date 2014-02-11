@@ -80,4 +80,20 @@ sv_accessor<double>::cast(String*, std::locale loc) const
 
 
 
+TNumeric
+sv_accessor<float>::cast(TNumeric*, std::locale loc) const
+{
+    return TNumeric(this->get_value());
+}
+
+
+TNumeric
+sv_accessor<double>::cast(TNumeric*, std::locale loc) const
+{
+    return TNumeric(this->get_value());
+}
+
+
+
+
 DB_NAMESPACE_END

@@ -142,20 +142,18 @@ public:
     }
 
 
-    explicit basic_bcd(float v)
-       : m_nibbles(),
-         m_scale(0),
-	 m_sign(true)
+    static basic_bcd from_float(float v)
     {
-        set_value(v);
+        basic_bcd bcd;
+        bcd.set_value(v);
+	return bcd;
     }
 
-    explicit basic_bcd(double v)
-       : m_nibbles(),
-         m_scale(0),
-         m_sign(true)
+    static basic_bcd from_double(double v)
     {
-        set_value(v);
+        basic_bcd bcd;
+        bcd.set_value(v);
+        return bcd;
     }
 
 

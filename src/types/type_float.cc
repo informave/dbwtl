@@ -83,14 +83,14 @@ sv_accessor<double>::cast(String*, std::locale loc) const
 TNumeric
 sv_accessor<float>::cast(TNumeric*, std::locale loc) const
 {
-    return TNumeric(this->get_value());
+    return TNumeric::from_float(this->get_value());
 }
 
 
 TNumeric
 sv_accessor<double>::cast(TNumeric*, std::locale loc) const
 {
-    return TNumeric(this->get_value());
+    return TNumeric::from_double(this->get_value());
 }
 
 

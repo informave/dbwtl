@@ -151,6 +151,16 @@ template<> struct binary_op_impl<String> : public binary_op_unsupported<String>
 };
 
 
+template<> struct binary_op_impl<TDate> : public binary_op_unsupported<TDate>
+{
+   virtual Variant binary_equal         (const Variant &v0, const Variant &v1) const { return v0.get<TDate>() == v1.get<TDate>(); }
+   virtual Variant binary_not_equl      (const Variant &v0, const Variant &v1) const { return v0.get<TDate>() != v1.get<TDate>(); }
+   virtual Variant binary_less          (const Variant &v0, const Variant &v1) const { return v0.get<TDate>() < v1.get<TDate>(); }
+   virtual Variant binary_less_equal    (const Variant &v0, const Variant &v1) const { return !(v0.get<TDate>() > v1.get<TDate>()); }
+   virtual Variant binary_greater       (const Variant &v0, const Variant &v1) const { return v0.get<TDate>() > v1.get<TDate>(); }
+   virtual Variant binary_greater_equal (const Variant &v0, const Variant &v1) const { return !(v0.get<TDate>() < v1.get<TDate>()); }
+};
+
 
 static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
 {

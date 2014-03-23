@@ -171,7 +171,7 @@ public:
     }
 
     /// @brief Construct from string
-    basic_bcd(const std::string &v, std::locale loc = std::locale(""))
+    basic_bcd(const std::string &v, const std::locale &loc = std::locale())
         : m_nibbles(),
           m_scale(0),
           m_sign(true)
@@ -259,7 +259,7 @@ public:
 
 
     /// @brief Set value as string
-    void set_strvalue(std::string s, std::locale loc)
+    void set_strvalue(std::string s, const std::locale &loc)
     {
     	std::string orig(s);
         m_nibbles.clear();
@@ -281,20 +281,27 @@ public:
         if(!s.size()) throw std::invalid_argument(std::string("Invalid numeric value: ").append(orig));
 
 	const char radix_separator = std::use_facet<std::numpunct<char> >(loc).decimal_point();
+	const char thousands_separator = std::use_facet<std::numpunct<char> >(loc).thousands_sep();
+	size_t th_n = 0;
 
         for(size_t i = 0; i < s.size(); ++i)
         {
-            if(s[i] == radix_separator)
+            if(dot == 0 && s[i] == radix_separator)
             {
                 dot = i;
                 continue;
             }
+			if(s[i] == thousands_separator)
+			{
+				++th_n;
+				continue;
+			}
             if(s[i] < 0x30 || s[i] > 0x39)
                 throw std::invalid_argument(std::string("Invalid numeric value: ").append(orig));
             *d++ = s[i] - 0x30;
         }
         if(dot)
-            m_scale = m_nibbles.size() - dot;
+            m_scale = m_nibbles.size() - (dot-th_n);
         else
             m_scale = 0;
 
@@ -303,18 +310,20 @@ public:
 
 
     /// @brief Convert number to string
-    std::string str(void) const
+    std::string str(const std::locale &loc = std::locale("")) const
     {
         std::string s;
         std::transform(m_nibbles.begin(), m_nibbles.end(),
                        std::back_inserter(s), int2char);
         if(m_scale)
         {
-            return std::string(this->sign() ? "+" : "-") + s.substr(0, s.size() - scale())
-                + "." + s.substr((s.size() - scale()));
+			std::numpunct<std::string::value_type> const &n = std::use_facet<std::numpunct<std::string::value_type> >(loc);
+
+            return std::string(this->sign() ? "" : "-") + s.substr(0, s.size() - scale())
+				+ n.decimal_point() + s.substr((s.size() - scale()));
         }
         else
-            return std::string(this->sign() ? "+" : "-") + s;
+            return std::string(this->sign() ? "" : "-") + s;
     }
 
 

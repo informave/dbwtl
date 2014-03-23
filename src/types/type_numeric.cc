@@ -61,7 +61,7 @@ DB_NAMESPACE_BEGIN
 String
 sv_accessor<TNumeric>::cast(String*, std::locale loc) const
 {
-    return this->get_value().str();
+    return this->get_value().str(loc);
 }
                             
                             

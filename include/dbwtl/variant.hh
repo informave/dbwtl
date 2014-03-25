@@ -817,9 +817,9 @@ public:
 
     virtual daltype_t datatype(void) const;
 
-    virtual bool isnull(void) const;
+    bool isnull(void) const;
 
-    virtual void assign(const Variant& value);
+    void assign(const Variant& value);
 
     virtual void setNull(void);
 

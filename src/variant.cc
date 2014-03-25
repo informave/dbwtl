@@ -121,13 +121,14 @@ Variant::isnull(void) const
 void
 Variant::assign(const Variant& value)
 {
-    if(value.isnull())
+    if(!value.isnull())
     {
-        this->m_storage.reset(0);
+        this->m_storage.reset(value.get_storage()->deepcopy());        
     }
     else
     {
-        this->m_storage.reset(value.get_storage()->deepcopy());
+        this->m_storage.reset(0);
+
     }
 }
 

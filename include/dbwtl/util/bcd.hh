@@ -243,7 +243,7 @@ public:
         std::stringstream ss;
         std::locale loc("C");
         ss.imbue(loc);
-        ss << v;
+        ss << std::fixed << v;
         set_strvalue(ss.str(), loc);
     }
 
@@ -253,7 +253,7 @@ public:
         std::stringstream ss;
         std::locale loc("C");
         ss.imbue(loc);
-        ss << v;
+        ss << std::fixed << v;
         set_strvalue(ss.str(), loc);
     }
 

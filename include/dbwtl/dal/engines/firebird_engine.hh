@@ -70,6 +70,7 @@ class FirebirdTable;
 class FirebirdDiag;
 class FirebirdDatatype;
 class FirebirdColumnDesc;
+class FirebirdParamDesc;
 class FirebirdMetadata;
 
 
@@ -484,6 +485,26 @@ public:
 };
 
 
+//..............................................................................
+///////////////////////////////////////////////////////////// FirebirdParamDesc
+///
+/// @since 0.0.1
+/// @brief Firebird Param Descriptor
+class DBWTL_EXPORT FirebirdParamDesc : public ParamDescBase
+{
+public:
+    friend class FirebirdResult;
+
+    FirebirdParamDesc(void) : ParamDescBase()
+    {}
+
+    virtual ~FirebirdParamDesc(void)
+    {}
+
+};
+
+
+
 class DBWTL_EXPORT FirebirdMetadata : public IMetadata
 {
 public:
@@ -567,6 +588,8 @@ public:
     virtual const FirebirdColumnDesc& describeColumn(colnum_t num) const = 0;
 
     virtual const FirebirdColumnDesc& describeColumn(String name) const = 0;
+
+    virtual const FirebirdParamDesc&   describeParam(int num) const = 0;
   
 protected:
     FirebirdDiagController &m_diag;

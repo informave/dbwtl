@@ -506,6 +506,31 @@ public:
 
 
 
+//--------------------------------------------------------------------------
+/// @brief DAL Interface for param descriptors
+class DBWTL_EXPORT IParamDesc : public IDALObject
+{
+public:
+    typedef Variant value_type;
+    //typedef util::SmartPtr<ITable, util::RefCounted, util::AllowConversion> ptr;
+
+    /// Empty virtual destructor
+    virtual ~IParamDesc(void) { }
+
+    virtual const value_type& getName(void) const = 0;
+    virtual const value_type& getTypeName(void) const = 0;
+    virtual const value_type& getSize(void) const = 0;
+    virtual const value_type& getIsNullable(void) const = 0;
+    virtual const value_type& getPrecision(void) const = 0;
+    virtual const value_type& getScale(void) const = 0;
+
+
+    /// @todo datatype() should return IDatatype, which is get from the DBC method
+    virtual daltype_t getDatatype(void) const = 0;
+};
+
+
+
 
 class DBWTL_EXPORT DatasetFilter
 {
@@ -1245,6 +1270,9 @@ public:
     virtual void      bind(int num, ByteStreamBuf *data) = 0;
     virtual void      bind(int num, UnicodeStreamBuf *data) = 0;
 
+    /// @brief Returns the param descriptor for the given param number
+    virtual const IParamDesc& describeParam(int num) const = 0;
+
     virtual rowcount_t  affectedRows(void) const = 0;
 
     virtual Variant   lastInsertRowId(void) = 0;
@@ -1337,6 +1365,8 @@ public:
     virtual void      bind(int num, const Variant &data);
     virtual void      bind(int num, ByteStreamBuf *data);
     virtual void      bind(int num, UnicodeStreamBuf *data);
+
+    virtual const IParamDesc& describeParam(int num) const;
 
     virtual bool      isPrepared(void) const;
 
@@ -1524,6 +1554,50 @@ public:
 	virtual void changeEntry(ColumnDescEntry entry, const IColumnDesc::value_type &v);
 	virtual void changeType(daltype_t daltype);
 };
+
+
+
+
+//------------------------------------------------------------------------------
+///
+///
+class DBWTL_EXPORT ParamDescBase : public IParamDesc
+{
+public:
+    virtual const IColumnDesc::value_type& getName(void) const;
+    virtual const IColumnDesc::value_type& getTypeName(void) const;
+    virtual const IColumnDesc::value_type& getSize(void) const;
+    virtual const IColumnDesc::value_type& getIsNullable(void) const;
+    virtual const IColumnDesc::value_type& getPrecision(void) const;
+    virtual const IColumnDesc::value_type& getScale(void) const;
+
+    virtual daltype_t getDatatype(void) const;
+
+protected:
+    ParamDescBase(void);
+
+    virtual ~ParamDescBase(void);
+
+    Variant m_name;
+    Variant m_type_name;
+    Variant m_size;
+    Variant m_is_nullable;
+    Variant m_precision;
+    Variant m_scale;
+
+    daltype_t m_daltype;
+};
+
+
+class DBWTL_EXPORT ParamDesc : public ParamDescBase
+{
+public:
+	ParamDesc(void);
+	ParamDesc(const IParamDesc &orig);
+	virtual ~ParamDesc(void)
+	{}
+};
+
 
 
 //------------------------------------------------------------------------------

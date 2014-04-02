@@ -616,6 +616,8 @@ public:
 
     virtual size_t    paramCount(void) const                    { return this->m_stmt->paramCount(); }
 
+    virtual const IParamDesc&          describeParam(int num) const  { return this->m_stmt->describeParam(num); }
+
     
     template<class A, class B, class C> void bind(int num, const std::basic_string<A, B, C>& data)
     {

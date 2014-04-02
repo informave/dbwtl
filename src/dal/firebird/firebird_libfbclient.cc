@@ -904,7 +904,28 @@ FirebirdResult_libfbclient::freeVars(XSQLDA *sqlda)
             var->sqldata = 0;
             //if(var->sqltype & 1)
             delete var->sqlind;
-            //var->sqlind = 0;
+            var->sqlind = 0;
+        }
+    }
+}
+
+
+/// @details
+/// 
+void
+FirebirdResult_libfbclient::resetVars(XSQLDA *sqlda)
+{
+    if(sqlda)
+    {
+        XSQLVAR *var = 0;
+        int i;
+        for(i = 0, var = sqlda->sqlvar;
+            i < sqlda->sqln;
+            ++var, ++i)
+        {
+            //assert(var->sqltype & 1); // must have null flag!
+            if(var->sqlind)
+                *var->sqlind = -1;
         }
     }
 }
@@ -923,6 +944,7 @@ FirebirdResult_libfbclient::fillBindBuffers(StmtBase::ParamMap &params)
     // We reset the input XSQLDA to drop old values
     freeVars(da);
     allocateVars(da);
+    // resetVars(da);
 
     assert(da->sqln == da->sqld);
 

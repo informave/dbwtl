@@ -256,6 +256,7 @@ public:
 protected:
     void allocateVars(XSQLDA *sqlda);
     void freeVars(XSQLDA *sqlda);
+    void resetVars(XSQLDA *sqlda);
     void fillBindBuffers(StmtBase::ParamMap& params);
     void fillBlob(XSQLVAR *var, Variant &data);
 

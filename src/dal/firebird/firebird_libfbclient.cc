@@ -1944,90 +1944,128 @@ FirebirdParamDesc_libfbclient::FirebirdParamDesc_libfbclient(int i,
 	    // The OCTETS character set has the ID 1, but it is also possible to
 	    // check the RDB$CHARACTER_SETS system table against the ID.
 	    if((var->sqlsubtype & 0xFF) == 1)
+	    {
 	    	this->m_daltype = DAL_TYPE_VARBINARY;
+		this->m_type_name.set(String("VARBINARY"));
+	    }
 	    else
 	    {
             	this->m_daltype = DAL_TYPE_STRING;
 		this->m_size.set(var->sqllen / 4);
+		this->m_type_name.set(String("VARCHAR"));
 	    }
             break;
         case SQL_TEXT:
 	    if((var->sqlsubtype & 0xFF) == 1)
+	    {
 	    	this->m_daltype = DAL_TYPE_VARBINARY;
+		this->m_type_name.set(String("VARBINARY"));
+	    }
             else
 	    {
 	    	this->m_daltype = DAL_TYPE_STRING;
 		this->m_size.set(var->sqllen / 4);
+		this->m_type_name.set(String("CHAR"));
 	    }
             break;
         case SQL_TYPE_DATE:
             this->m_daltype = DAL_TYPE_DATE;
+	    this->m_type_name.set(String("DATE"));
             break;
         case SQL_SHORT:
 	    // For NUMERIC/DECIMAL values, sqlsubtype is set 1 or 2.
             if(var->sqlscale < 0 || var->sqlsubtype == 1)
             {
                 this->m_daltype = DAL_TYPE_NUMERIC;
+		this->m_type_name.set(String("NNUMERIC"));
                 this->m_scale.set<unsigned short>(::abs(var->sqlscale));
             }
 	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
 	    {
 	    	this->m_daltype = DAL_TYPE_NUMERIC; //DAL_TYPE_DECIMAL;
+		this->m_type_name.set(String("DECIMAL"));
 		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
 	    }
             else
+	    {
                 this->m_daltype = DAL_TYPE_SMALLINT;
+		this->m_type_name.set(String("SMALLINT"));
+	    }
             break;
         case SQL_LONG:
             if(var->sqlscale < 0 || var->sqlsubtype == 1)
             {
                 this->m_daltype = DAL_TYPE_NUMERIC;
+		this->m_type_name.set(String("NUMERIC"));
                 this->m_scale.set<unsigned short>(::abs(var->sqlscale));
             }
 	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
 	    {
 	    	this->m_daltype = DAL_TYPE_NUMERIC;//DAL_TYPE_DECIMAL;
+		this->m_type_name.set(String("DECIMAL"));
 		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
 	    }
             else
+	    {
                 this->m_daltype = DAL_TYPE_INT;
+		this->m_type_name.set(String("INTEGER"));
+	    }
             break;
         case SQL_DOUBLE:
             this->m_daltype = DAL_TYPE_DOUBLE;
+	    this->m_type_name.set(String("DOUBLE"));
             break;
         case SQL_INT64:
             if(var->sqlscale < 0 || var->sqlsubtype == 1)
             {
                 this->m_daltype = DAL_TYPE_NUMERIC;
+		this->m_type_name.set(String("NNUMERIC"));
                 this->m_scale.set<unsigned short>(::abs(var->sqlscale));
             }
 	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
 	    {
 	    	this->m_daltype = DAL_TYPE_NUMERIC;//DAL_TYPE_DECIMAL;
+		this->m_type_name.set(String("DECIMAL"));
 		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
 	    }
             else
+	    {
                 this->m_daltype = DAL_TYPE_BIGINT;
+		this->m_type_name.set(String("BIGINT"));
+	    }
             break;
         case SQL_FLOAT:
             this->m_daltype = DAL_TYPE_FLOAT;
+	    this->m_type_name.set(String("FLOAT"));
             break;
         case SQL_TYPE_TIME:
             this->m_daltype = DAL_TYPE_TIME;
+	    this->m_type_name.set(String("TIME"));
             break;
         case SQL_TIMESTAMP:
             this->m_daltype = DAL_TYPE_TIMESTAMP;
+	    this->m_type_name.set(String("TIMESTAMP"));
             break;
         case SQL_ARRAY:
             this->m_daltype = DAL_TYPE_CUSTOM; // @todo introduce array type
+	    this->m_type_name.set(String("UNKNOWN"));
             break;
         case SQL_BLOB:
             if(var->sqlsubtype == 0)
+	    {
                 this->m_daltype = DAL_TYPE_BLOB;
+		this->m_type_name.set(String("BLOB"));
+	    }
             else if(var->sqlsubtype == 1)
+	    {
                 this->m_daltype = DAL_TYPE_MEMO;
+		this->m_type_name.set(String("MEMO"));
+	    }
             else
+	    {
                 this->m_daltype = DAL_TYPE_BLOB; // BLR and other subtypes
+		this->m_type_name.set(String("BLOB"));
+	    }
             break;
         default:
             DBWTL_BUG_FMT("unknown sqltype: %hd", var->sqltype & ~1);

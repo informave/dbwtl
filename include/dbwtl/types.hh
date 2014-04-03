@@ -532,7 +532,7 @@ template<>
 struct DBWTL_EXPORT var_info<bool>
 {
     static daltype_t type(void) { return DAL_TYPE_BOOL; }
-    static const char* name(void) { return "DAL_TYPE_BOOL"; }
+    static const char* name(void) { return "BOOL"; }
     
 };
 
@@ -541,7 +541,7 @@ template<>
 struct DBWTL_EXPORT var_info<signed char>
 {
     static daltype_t type(void) { return DAL_TYPE_CHAR; }
-    static const char* name(void) { return "DAL_TYPE_CHAR"; }
+    static const char* name(void) { return "CHAR"; }
     
 };
 
@@ -550,7 +550,7 @@ template<>
 struct DBWTL_EXPORT var_info<unsigned char>
 {
     static daltype_t type(void) { return DAL_TYPE_UCHAR; }
-    static const char* name(void) { return "DAL_TYPE_UCHAR"; }
+    static const char* name(void) { return "UCHAR"; }
     
 };
 
@@ -560,7 +560,7 @@ template<>
 struct DBWTL_EXPORT var_info<signed short>
 {
     static daltype_t type(void) { return DAL_TYPE_SMALLINT; }
-    static const char* name(void) { return "DAL_TYPE_SMALLINT"; }
+    static const char* name(void) { return "SMALLINT"; }
     
 };
 
@@ -569,7 +569,7 @@ template<>
 struct DBWTL_EXPORT var_info<unsigned short>
 {
     static daltype_t type(void) { return DAL_TYPE_USMALLINT; }
-    static const char* name(void) { return "DAL_TYPE_USMALLINT"; }
+    static const char* name(void) { return "USMALLINT"; }
     
 };
 
@@ -579,7 +579,7 @@ template<>
 struct DBWTL_EXPORT var_info<signed int>
 {
     static daltype_t type(void) { return DAL_TYPE_INT; }
-    static const char* name(void) { return "DAL_TYPE_INT"; }
+    static const char* name(void) { return "INT"; }
     
 };
 
@@ -588,7 +588,7 @@ template<>
 struct DBWTL_EXPORT var_info<unsigned int>
 {
     static daltype_t type(void) { return DAL_TYPE_UINT; }
-    static const char* name(void) { return "DAL_TYPE_UINT"; }
+    static const char* name(void) { return "UINT"; }
     
 };
 
@@ -598,7 +598,7 @@ template<>
 struct DBWTL_EXPORT var_info<signed long long>
 {
     static daltype_t type(void) { return DAL_TYPE_BIGINT; }
-    static const char* name(void) { return "DAL_TYPE_BIGINT"; }
+    static const char* name(void) { return "BIGINT"; }
     
 };
 
@@ -607,7 +607,7 @@ template<>
 struct DBWTL_EXPORT var_info<unsigned long long>
 {
     static daltype_t type(void) { return DAL_TYPE_UBIGINT; }
-    static const char* name(void) { return "DAL_TYPE_UBIGINT"; }
+    static const char* name(void) { return "UBIGINT"; }
     
 };
 
@@ -617,7 +617,7 @@ template<>
 struct DBWTL_EXPORT var_info<float>
 {
     static daltype_t type(void) { return DAL_TYPE_FLOAT; }
-    static const char* name(void) { return "DAL_TYPE_FLOAT"; }
+    static const char* name(void) { return "FLOAT"; }
     
 };
 
@@ -626,7 +626,7 @@ template<>
 struct DBWTL_EXPORT var_info<double>
 {
     static daltype_t type(void) { return DAL_TYPE_DOUBLE; }
-    static const char* name(void) { return "DAL_TYPE_DOUBLE"; }
+    static const char* name(void) { return "DOUBLE"; }
     
 };
 
@@ -635,7 +635,7 @@ template<>
 struct DBWTL_EXPORT var_info<TDate>
 {
     static daltype_t type(void) { return DAL_TYPE_DATE; }
-    static const char* name(void) { return "DAL_TYPE_DATE"; }
+    static const char* name(void) { return "DATE"; }
     
 };
 
@@ -644,7 +644,7 @@ template<>
 struct DBWTL_EXPORT var_info<TTime>
 {
     static daltype_t type(void) { return DAL_TYPE_TIME; }
-    static const char* name(void) { return "DAL_TYPE_TIME"; }
+    static const char* name(void) { return "TIME"; }
     
 };
 
@@ -654,7 +654,7 @@ template<>
 struct DBWTL_EXPORT var_info<TTimestamp>
 {
     static daltype_t type(void) { return DAL_TYPE_TIMESTAMP; }
-    static const char* name(void) { return "DAL_TYPE_TIMESTAMP"; }
+    static const char* name(void) { return "TIMESTAMP"; }
     
 };
 
@@ -664,7 +664,7 @@ template<>
 struct DBWTL_EXPORT var_info<TInterval>
 {
     static daltype_t type(void) { return DAL_TYPE_INTERVAL; }
-    static const char* name(void) { return "DAL_TYPE_INTERVAL"; }
+    static const char* name(void) { return "INTERVAL"; }
     
 };
 
@@ -674,7 +674,7 @@ template<>
 struct DBWTL_EXPORT var_info<String>
 {
     static daltype_t type(void) { return DAL_TYPE_STRING; }
-    static const char* name(void) { return "DAL_TYPE_STRING"; }
+    static const char* name(void) { return "VARCHAR"; }
     
 };
 
@@ -683,7 +683,7 @@ template<>
 struct DBWTL_EXPORT var_info<TNumeric>
 {
     static daltype_t type(void) { return DAL_TYPE_NUMERIC; }
-    static const char* name(void) { return "DAL_TYPE_NUMERIC"; }
+    static const char* name(void) { return "NUMERIC"; }
     
 };
 
@@ -692,7 +692,7 @@ template<>
 struct DBWTL_EXPORT var_info<Blob>
 {
     static daltype_t type(void) { return DAL_TYPE_BLOB; }
-    static const char* name(void) { return "DAL_TYPE_BLOB"; }
+    static const char* name(void) { return "BLOB"; }
     
 };
 
@@ -701,7 +701,7 @@ template<>
 struct DBWTL_EXPORT var_info<Memo>
 {
     static daltype_t type(void) { return DAL_TYPE_MEMO; }
-    static const char* name(void) { return "DAL_TYPE_MEMO"; }
+    static const char* name(void) { return "MEMO"; }
     
 };
 
@@ -710,7 +710,7 @@ template<>
 struct DBWTL_EXPORT var_info<BlobStream>
 {
     static daltype_t type(void) { return DAL_TYPE_BLOB; }
-    static const char* name(void) { return "DAL_TYPE_BLOB"; }
+    static const char* name(void) { return "BLOB"; }
 
 };
 
@@ -719,7 +719,7 @@ template<>
 struct DBWTL_EXPORT var_info<MemoStream>
 {
     static daltype_t type(void) { return DAL_TYPE_MEMO; }
-    static const char* name(void) { return "DAL_TYPE_MEMO"; }
+    static const char* name(void) { return "MEMO"; }
 
 };
 
@@ -729,7 +729,7 @@ template<>
 struct DBWTL_EXPORT var_info<TVarbinary>
 {
     static daltype_t type(void) { return DAL_TYPE_VARBINARY; }
-    static const char* name(void) { return "DAL_TYPE_VARBINARY"; }
+    static const char* name(void) { return "VARBINARY"; }
 
 };
 

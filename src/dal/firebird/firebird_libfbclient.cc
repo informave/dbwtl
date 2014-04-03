@@ -1946,13 +1946,19 @@ FirebirdParamDesc_libfbclient::FirebirdParamDesc_libfbclient(int i,
 	    if((var->sqlsubtype & 0xFF) == 1)
 	    	this->m_daltype = DAL_TYPE_VARBINARY;
 	    else
+	    {
             	this->m_daltype = DAL_TYPE_STRING;
+		this->m_size.set(var->sqllen / 4);
+	    }
             break;
         case SQL_TEXT:
 	    if((var->sqlsubtype & 0xFF) == 1)
 	    	this->m_daltype = DAL_TYPE_VARBINARY;
             else
+	    {
 	    	this->m_daltype = DAL_TYPE_STRING;
+		this->m_size.set(var->sqllen / 4);
+	    }
             break;
         case SQL_TYPE_DATE:
             this->m_daltype = DAL_TYPE_DATE;
@@ -3057,8 +3063,8 @@ FirebirdResult_libfbclient::describeParam(int num) const
     if(this->isBad())
         throw EngineException("Resultset is in bad state.");
 
-    if(! this->isOpen())
-        throw EngineException("Resultset is not open.");
+    if(! this->isPrepared())
+        throw EngineException("Resultset is not prepared.");
 
     std::map<int, FirebirdParamDesc_libfbclient>::const_iterator i =
         this->m_param_desc.find(num);

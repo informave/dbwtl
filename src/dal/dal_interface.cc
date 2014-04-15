@@ -367,6 +367,60 @@ ColumnDesc::changeEntry(ColumnDescEntry entry, const IColumnDesc::value_type &v)
 
 
 //--------------------------------------------------------------------------
+//
+ParamDescBase::ParamDescBase(void)
+    : IParamDesc(),
+      m_name              (DAL_TYPE_STRING,    "ParamDesc::name"),
+      m_type_name         (DAL_TYPE_STRING,    "ParamDesc::type_name"),
+      m_size              (DAL_TYPE_INT,       "ParamDesc::size"),
+      m_is_nullable       (DAL_TYPE_BOOL,      "ParamDesc::is_nullable"),
+      m_precision         (DAL_TYPE_USMALLINT, "ParamDesc::precision"),
+      m_scale             (DAL_TYPE_USMALLINT, "ParamDesc::scale"),
+      m_daltype           (DAL_TYPE_UNKNOWN)
+{}
+
+/*
+ParamDesc::ParamDesc(const IParamDesc &orig)
+{
+	assert(!"fixme");
+}
+*/
+
+
+//
+//
+ParamDescBase::~ParamDescBase(void)
+{}
+
+
+const IParamDesc::value_type& ParamDescBase::getName(void) const           { return this->m_name; }
+const IParamDesc::value_type& ParamDescBase::getTypeName(void) const       { return this->m_type_name; }
+const IParamDesc::value_type& ParamDescBase::getSize(void) const           { return this->m_size; }
+const IParamDesc::value_type& ParamDescBase::getIsNullable(void) const     { return this->m_is_nullable; }
+const IParamDesc::value_type& ParamDescBase::getPrecision(void) const      { return this->m_precision; }
+const IParamDesc::value_type& ParamDescBase::getScale(void) const          { return this->m_scale; }
+
+//
+//
+daltype_t ParamDescBase::getDatatype(void) const { return this->m_daltype; }
+
+
+
+
+ParamDesc::ParamDesc(const IParamDesc &orig)
+	: ParamDescBase()
+{
+	assert(!"fixme");
+}
+
+ParamDesc::ParamDesc(void)
+	: ParamDescBase()
+{
+}
+
+
+
+//--------------------------------------------------------------------------
 ///
 /// This method assigns the value from one variant to another.
 /// If the source value is NULL, the destination value is just set to NULL.
@@ -819,6 +873,12 @@ StmtBase::bind(int num, UnicodeStreamBuf *data)
     this->m_params[num] = tmp;
 }
 
+
+const IParamDesc&
+StmtBase::describeParam(int num) const
+{
+	throw EngineException("Unsupported method: describeParam()");
+}
 
 ///
 ///

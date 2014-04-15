@@ -196,6 +196,20 @@ public:
 };
 
 
+//------------------------------------------------------------------------------
+///
+/// @internal
+/// @brief FirebirdParamDesc implementation for libfirebird
+class FirebirdParamDesc_libfbclient : public FirebirdParamDesc
+{
+public:
+    FirebirdParamDesc_libfbclient(int n, FirebirdResult_libfbclient &result);
+
+    virtual ~FirebirdParamDesc_libfbclient(void)
+    {}
+};
+
+
 
 //------------------------------------------------------------------------------
 ///
@@ -205,6 +219,7 @@ class FirebirdResult_libfbclient : public FirebirdResult
 {
     friend class FirebirdStmt_libfbclient;
     friend class FirebirdColumnDesc_libfbclient;
+    friend class FirebirdParamDesc_libfbclient;
     friend class FirebirdData_libfbclient;
 
 public:
@@ -253,6 +268,8 @@ public:
 
     virtual FirebirdDiag& appendDiagRec(const FirebirdDiag &diag) const;
 
+    virtual const FirebirdParamDesc&   describeParam(int num) const;
+
 protected:
     void allocateVars(XSQLDA *sqlda);
     void freeVars(XSQLDA *sqlda);
@@ -263,6 +280,7 @@ protected:
     typedef std::map<colnum_t, FirebirdVariant*> VariantListT;
 
     virtual void         refreshMetadata(void);
+    virtual void         refreshParamDesc(void);
     virtual size_t       paramCount(void) const;
     
 
@@ -279,6 +297,10 @@ protected:
     ///
     /// @brief Stores the type information of all columns in the resultset
     std::map<colnum_t, FirebirdColumnDesc_libfbclient>     m_column_desc;
+
+    ///
+    /// @brief Stores the type information of all params in the query
+    std::map<int, FirebirdParamDesc_libfbclient>           m_param_desc;
 
     ///
     /// @brief Stores all column accessors (IVariants) requested by an user for
@@ -358,6 +380,8 @@ public:
     virtual Transaction getCurrentTrx(void) { return this->m_currentTrx; }
 
     virtual FirebirdDiag& appendDiagRec(const FirebirdDiag &diag) const;
+
+    virtual const FirebirdParamDesc&  describeParam(int num) const;
 
 protected:
     FirebirdResult_libfbclient* newResultset(void);

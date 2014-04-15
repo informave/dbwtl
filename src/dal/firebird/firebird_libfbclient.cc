@@ -661,6 +661,7 @@ FirebirdResult_libfbclient::FirebirdResult_libfbclient(FirebirdStmt_libfbclient&
       m_last_row_status(100), // 100 signals EOF in isc API
       m_isopen(false),
       m_column_desc(),
+      m_param_desc(),
       m_column_accessors(),
       m_allocated_accessors()
 {}
@@ -815,6 +816,8 @@ FirebirdResult_libfbclient::prepare(String sql, Transaction trx)
     this->allocateVars(this->m_isqlda);
 
     DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_PREPARED);
+
+    this->refreshParamDesc();
 
     DALTRACE_LEAVE;
 }
@@ -1263,8 +1266,10 @@ FirebirdResult_libfbclient::paramCount(void) const
     if(! this->isPrepared())
         throw EngineException("Resultset is not prepared.");
 
-    assert(this->m_isqlda);
-    return this->m_isqlda->sqln;
+    if(this->m_isqlda)
+        return this->m_isqlda->sqln;
+    else
+        return 0;
 }
 
 
@@ -1724,6 +1729,27 @@ FirebirdResult_libfbclient::refreshMetadata(void)
 }
 
 
+/// @details
+/// 
+void
+FirebirdResult_libfbclient::refreshParamDesc(void)
+{
+    DALTRACE_ENTER;
+    this->m_param_desc.clear();
+    if(! this->getHandle())
+        return;
+    
+    size_t pcount = this->paramCount();
+    FirebirdParamDesc desc;
+    
+    for(size_t i = 1; i <= pcount; ++i)
+    {
+        FirebirdParamDesc_libfbclient x(i, *this);
+        this->m_param_desc.insert(std::pair<int, FirebirdParamDesc_libfbclient>(i, x));
+    }
+}
+
+
 
 //..............................................................................
 ///////////////////////////////////////////////// FirebirdColumnDesc_libfbclient
@@ -1766,6 +1792,151 @@ FirebirdColumnDesc_libfbclient::FirebirdColumnDesc_libfbclient(colnum_t i,
 	    	this->m_daltype = DAL_TYPE_VARBINARY;
             else
 	    	this->m_daltype = DAL_TYPE_STRING;
+            break;
+        case SQL_TYPE_DATE:
+            this->m_daltype = DAL_TYPE_DATE;
+            break;
+        case SQL_SHORT:
+	    // For NUMERIC/DECIMAL values, sqlsubtype is set 1 or 2.
+            if(var->sqlscale < 0 || var->sqlsubtype == 1)
+            {
+                this->m_daltype = DAL_TYPE_NUMERIC;
+                this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+            }
+	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
+	    {
+	    	this->m_daltype = DAL_TYPE_NUMERIC; //DAL_TYPE_DECIMAL;
+		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+	    }
+            else
+                this->m_daltype = DAL_TYPE_SMALLINT;
+            break;
+        case SQL_LONG:
+            if(var->sqlscale < 0 || var->sqlsubtype == 1)
+            {
+                this->m_daltype = DAL_TYPE_NUMERIC;
+                this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+            }
+	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
+	    {
+	    	this->m_daltype = DAL_TYPE_NUMERIC;//DAL_TYPE_DECIMAL;
+		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+	    }
+            else
+                this->m_daltype = DAL_TYPE_INT;
+            break;
+        case SQL_DOUBLE:
+            this->m_daltype = DAL_TYPE_DOUBLE;
+            break;
+        case SQL_INT64:
+            if(var->sqlscale < 0 || var->sqlsubtype == 1)
+            {
+                this->m_daltype = DAL_TYPE_NUMERIC;
+                this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+            }
+	    else if(var->sqlscale < 0 || var->sqlsubtype == 2)
+	    {
+	    	this->m_daltype = DAL_TYPE_NUMERIC;//DAL_TYPE_DECIMAL;
+		this->m_scale.set<unsigned short>(::abs(var->sqlscale));
+	    }
+            else
+                this->m_daltype = DAL_TYPE_BIGINT;
+            break;
+        case SQL_FLOAT:
+            this->m_daltype = DAL_TYPE_FLOAT;
+            break;
+        case SQL_TYPE_TIME:
+            this->m_daltype = DAL_TYPE_TIME;
+            break;
+        case SQL_TIMESTAMP:
+            this->m_daltype = DAL_TYPE_TIMESTAMP;
+            break;
+        case SQL_ARRAY:
+            this->m_daltype = DAL_TYPE_CUSTOM; // @todo introduce array type
+            break;
+        case SQL_BLOB:
+            if(var->sqlsubtype == 0)
+                this->m_daltype = DAL_TYPE_BLOB;
+            else if(var->sqlsubtype == 1)
+                this->m_daltype = DAL_TYPE_MEMO;
+            else
+                this->m_daltype = DAL_TYPE_BLOB; // BLR and other subtypes
+            break;
+        default:
+            DBWTL_BUG_FMT("unknown sqltype: %hd", var->sqltype & ~1);
+        }
+      
+
+        //DBWTL_NOTIMPL();
+        // // set name
+        // const char *s = result.drv()->firebird3_column_name(result.getHandle(), i-1);
+        // this->m_name.set(String(s ? s : "", "UTF-8"));
+
+        // // set type
+        // const char *type = result.drv()->firebird3_column_decltype(result.getHandle(), i-1);
+
+        // SqlTypeParser pt;
+        // pt.registerType(DAL_TYPE_STRING, US("TEXT*"));
+        // pt.parse(String(type, "UTF-8"));
+        // this->m_type_name.set(daltype2sqlname(pt.getDaltype()));
+        // this->m_daltype = pt.getDaltype();
+        // this->m_size.set<signed int>(pt.getSize());
+        // this->m_precision.set<unsigned short>(pt.getPrecision());
+        // this->m_scale.set<unsigned short>(pt.getSize());
+    }
+}
+
+
+
+
+
+//..............................................................................
+////////////////////////////////////////////////// FirebirdParamDesc_libfbclient
+
+
+/// @details
+/// 
+FirebirdParamDesc_libfbclient::FirebirdParamDesc_libfbclient(int i,
+                                                             FirebirdResult_libfbclient &result)
+    : FirebirdParamDesc()
+{
+    if(i == 0)
+    {
+        this->m_daltype = DAL_TYPE_UNKNOWN;
+        this->m_name.set(String("__DBWTL_BOOKMARK__"));
+    }
+    else
+    {
+        assert(i <= colnum_t(result.m_isqlda->sqln));
+
+        XSQLVAR *var = &result.m_isqlda->sqlvar[i-1];
+        assert(var);
+
+        this->m_name.set(String(std::string(var->aliasname, var->aliasname_length)));
+        this->m_size.set(var->sqllen);
+        switch(var->sqltype & ~1)
+        {
+        case SQL_VARYING:
+	    // Firebird stores the charset ID in the low byte of the sqlsubtype field.
+	    // The high byte contains the collation ID.
+	    // The OCTETS character set has the ID 1, but it is also possible to
+	    // check the RDB$CHARACTER_SETS system table against the ID.
+	    if((var->sqlsubtype & 0xFF) == 1)
+	    	this->m_daltype = DAL_TYPE_VARBINARY;
+	    else
+	    {
+            	this->m_daltype = DAL_TYPE_STRING;
+		this->m_size.set(var->sqllen / 4);
+	    }
+            break;
+        case SQL_TEXT:
+	    if((var->sqlsubtype & 0xFF) == 1)
+	    	this->m_daltype = DAL_TYPE_VARBINARY;
+            else
+	    {
+	    	this->m_daltype = DAL_TYPE_STRING;
+		this->m_size.set(var->sqllen / 4);
+	    }
             break;
         case SQL_TYPE_DATE:
             this->m_daltype = DAL_TYPE_DATE;
@@ -2855,6 +3026,35 @@ FirebirdStmt_libfbclient::paramCount(void) const
 {
     return this->resultset().paramCount();
 }
+
+
+const FirebirdParamDesc&
+FirebirdStmt_libfbclient::describeParam(int num) const
+{
+    return this->resultset().describeParam(num);
+}
+
+
+const FirebirdParamDesc&
+FirebirdResult_libfbclient::describeParam(int num) const
+{
+    if(this->isBad())
+        throw EngineException("Resultset is in bad state.");
+
+    if(! this->isPrepared())
+        throw EngineException("Resultset is not prepared.");
+
+    std::map<int, FirebirdParamDesc_libfbclient>::const_iterator i =
+        this->m_param_desc.find(num);
+
+    if(i == this->m_param_desc.end())
+    {
+        throw NotFoundException(US("Param '") + String::Internal(Variant(int(num)).asStr()) + US("' not found."));
+    }
+    else
+        return i->second;
+}
+
 
 
 /// @details

@@ -382,8 +382,14 @@ sv_accessor<FirebirdData*>::cast(MemoStream*, std::locale loc) const
                 return MemoStream(this->get_value()->getMemoStream());
     }
     else
-        throw ConvertException(this->datatype(), value_traits<MemoStream>::info_type::type());
-
+	{
+		Variant tmp(this->deepcopy());
+		String m = tmp.get<String>();
+		std::wstringbuf *buf = new std::wstringbuf(m);
+	
+		return MemoStream(buf);
+        //throw ConvertException(this->datatype(), value_traits<MemoStream>::info_type::type());
+	}
 }
 
 
@@ -418,7 +424,7 @@ sv_accessor<FirebirdData*>::cast(Memo*, std::locale loc) const
         return Memo(this->m_memo_buffer->rdbuf());
     }
     else
-        throw ConvertException(this->datatype(), value_traits<MemoStream>::info_type::type());
+        return Variant(this->deepcopy()).get<Memo>();
 }
 
 

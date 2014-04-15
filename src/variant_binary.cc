@@ -161,6 +161,21 @@ template<> struct binary_op_impl<TDate> : public binary_op_unsupported<TDate>
    virtual Variant binary_greater_equal (const Variant &v0, const Variant &v1) const { return !(v0.get<TDate>() < v1.get<TDate>()); }
 };
 
+template<> struct binary_op_impl<TNumeric> : public binary_op_unsupported<TNumeric>
+{
+   virtual Variant binary_equal         (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() == v1.get<TNumeric>(); }
+   virtual Variant binary_not_equl      (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() != v1.get<TNumeric>(); }
+   virtual Variant binary_less          (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() < v1.get<TNumeric>(); }
+   virtual Variant binary_less_equal    (const Variant &v0, const Variant &v1) const { return !(v0.get<TNumeric>() > v1.get<TNumeric>()); }
+   virtual Variant binary_greater       (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() > v1.get<TNumeric>(); }
+   virtual Variant binary_greater_equal (const Variant &v0, const Variant &v1) const { return !(v0.get<TNumeric>() < v1.get<TNumeric>()); }
+	virtual Variant binary_mul           (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() * v1.get<TNumeric>(); }
+    virtual Variant binary_div           (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() / v1.get<TNumeric>(); }
+    virtual Variant binary_add           (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() + v1.get<TNumeric>(); }
+    virtual Variant binary_concat        (const Variant &v0, const Variant &v1) const { return v0.get<String>() + v1.get<String>(); }
+    virtual Variant binary_sub           (const Variant &v0, const Variant &v1) const { return v0.get<TNumeric>() - v1.get<TNumeric>(); }
+};
+
 
 static daltype_t resolve_higher(const Variant &op0, const Variant &op1)
 {

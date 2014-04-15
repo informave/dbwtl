@@ -63,86 +63,75 @@ DB_NAMESPACE_BEGIN
 signed char
 sv_accessor<OdbcData*>::cast(signed char*, std::locale loc) const
 {
-
     typedef signed char output_type;
-/*
-  if(this->get_value()->daltype() == DAL_TYPE_TINYINT)
-  return this->get_value()->getSTinyint();
-  else if(this->get_value()->daltype() == DAL_TYPE_UTINYINT)
-  return this->get_value()->getUTinyint();
-  else
-  return this->deepcopy().get<output_type>();
-  {
-
-  }
-*/
-
-    return Variant(this->deepcopy()).get<int>();
-/*
-  switch(this->get_value()->daltype())
-  {
-  case DAL_TYPE_INT:
-  return this->get_value()->getSLong();
-  case DAL_TYPE_UINT:
-  return this->get_value()->getULong();
-  case DAL_TYPE_SMALLINT:
-  return this->get_value()->getSShort();
-  case DAL_TYPE_USMALLINT:
-  return this->get_value()->getUShort();
-  case DAL_TYPE_BIGINT:
-  return this->get_value()->getSBigint();
-  case DAL_TYPE_UBIGINT:
-  return this->get_value()->getUBigint();
-  case DAL_TYPE_BOOL:
-  return this->get_value()->getBit();
-  case DAL_TYPE_FLOAT:
-  return this->get_value()->getFloat();
-  case DAL_TYPE_DOUBLE:
-  return this->get_value()->getDouble();
-  case DAL_TYPE_NUMERIC:
-  return Variant(this->get_value()->getNumeric()).get<output_type>();
-  case DAL_TYPE_STRING:
-  return Variant(this->get_value()->getString()).get<output_type>();
-  default:
-  DBWTL_BUG();
-  }
-*/
+    switch(this->get_value()->daltype())
+    {
+    case DAL_TYPE_INT:
+        return this->get_value()->getSLong();
+    case DAL_TYPE_UINT:
+        return this->get_value()->getULong();
+    case DAL_TYPE_SMALLINT:
+        return this->get_value()->getSShort();
+    case DAL_TYPE_USMALLINT:
+        return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
+    case DAL_TYPE_BIGINT:
+        return this->get_value()->getSBigint();
+    case DAL_TYPE_UBIGINT:
+        return this->get_value()->getUBigint();
+    case DAL_TYPE_BOOL:
+        return this->get_value()->getBit();
+    case DAL_TYPE_FLOAT:
+        return this->get_value()->getFloat();
+    case DAL_TYPE_DOUBLE:
+        return this->get_value()->getDouble();
+    case DAL_TYPE_NUMERIC:
+        return Variant(this->get_value()->getNumeric()).get<output_type>();
+    case DAL_TYPE_STRING:
+        return Variant(this->get_value()->getString()).get<output_type>();
+    default:
+        DBWTL_BUG();
+    }
 }
 
 unsigned char
 sv_accessor<OdbcData*>::cast(unsigned char*, std::locale loc) const
 {
-    DBWTL_NOTIMPL();
-/*
-  typedef signed char output_type;
-  switch(this->get_value()->daltype())
-  {
-  case DAL_TYPE_INT:
-  return this->get_value()->getSLong();
-  case DAL_TYPE_UINT:
-  return this->get_value()->getULong();
-  case DAL_TYPE_SMALLINT:
-  return this->get_value()->getSShort();
-  case DAL_TYPE_USMALLINT:
-  return this->get_value()->getUShort();
-  case DAL_TYPE_BIGINT:
-  return this->get_value()->getSBigint();
-  case DAL_TYPE_UBIGINT:
-  return this->get_value()->getUBigint();
-  case DAL_TYPE_BOOL:
-  return this->get_value()->getBit();
-  case DAL_TYPE_FLOAT:
-  return this->get_value()->getFloat();
-  case DAL_TYPE_DOUBLE:
-  return this->get_value()->getDouble();
-  case DAL_TYPE_NUMERIC:
-  return Variant(this->get_value()->getNumeric()).get<output_type>();
-  case DAL_TYPE_STRING:
-  return Variant(this->get_value()->getString()).get<output_type>();
-  default:
-  DBWTL_BUG();
-  }
-*/
+    typedef unsigned char output_type;
+    switch(this->get_value()->daltype())
+    {
+    case DAL_TYPE_INT:
+        return this->get_value()->getSLong();
+    case DAL_TYPE_UINT:
+        return this->get_value()->getULong();
+    case DAL_TYPE_SMALLINT:
+        return this->get_value()->getSShort();
+    case DAL_TYPE_USMALLINT:
+        return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
+    case DAL_TYPE_BIGINT:
+        return this->get_value()->getSBigint();
+    case DAL_TYPE_UBIGINT:
+        return this->get_value()->getUBigint();
+    case DAL_TYPE_BOOL:
+        return this->get_value()->getBit();
+    case DAL_TYPE_FLOAT:
+        return this->get_value()->getFloat();
+    case DAL_TYPE_DOUBLE:
+        return this->get_value()->getDouble();
+    case DAL_TYPE_NUMERIC:
+        return Variant(this->get_value()->getNumeric()).get<output_type>();
+    case DAL_TYPE_STRING:
+        return Variant(this->get_value()->getString()).get<output_type>();
+    default:
+        DBWTL_BUG();
+    }
 }
 
 signed int
@@ -159,6 +148,10 @@ sv_accessor<OdbcData*>::cast(signed int*, std::locale loc) const
         return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
         return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
     case DAL_TYPE_BIGINT:
         return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
@@ -193,6 +186,10 @@ sv_accessor<OdbcData*>::cast(signed short*, std::locale loc) const
         return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
         return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
     case DAL_TYPE_BIGINT:
         return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
@@ -226,6 +223,10 @@ sv_accessor<OdbcData*>::cast(signed long long*, std::locale loc) const
         return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
         return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
     case DAL_TYPE_BIGINT:
         return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
@@ -259,6 +260,10 @@ sv_accessor<OdbcData*>::cast(unsigned int*, std::locale loc) const
         return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
         return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
     case DAL_TYPE_BIGINT:
         return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
@@ -292,6 +297,10 @@ sv_accessor<OdbcData*>::cast(unsigned short*, std::locale loc) const
         return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
         return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
     case DAL_TYPE_BIGINT:
         return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
@@ -325,6 +334,10 @@ sv_accessor<OdbcData*>::cast(unsigned long long*, std::locale loc) const
         return this->get_value()->getSShort();
     case DAL_TYPE_USMALLINT:
         return this->get_value()->getUShort();
+	case DAL_TYPE_CHAR:
+		return this->get_value()->getSTinyint();
+    case DAL_TYPE_UCHAR:
+		return this->get_value()->getUTinyint();
     case DAL_TYPE_BIGINT:
         return this->get_value()->getSBigint();
     case DAL_TYPE_UBIGINT:
@@ -398,7 +411,10 @@ sv_accessor<OdbcData*>::cast(bool*, std::locale loc) const
 BlobStream
 sv_accessor<OdbcData*>::cast(BlobStream*, std::locale loc) const
 {
-	return this->get_value()->cast2BlobStream(loc);
+	if(this->get_value()->daltype() == DAL_TYPE_BLOB)
+		return this->get_value()->cast2BlobStream(loc);
+	else
+		throw ConvertException(this->get_value()->daltype(), DAL_TYPE_BLOB);
 	/*
         if(this->m_blob_buffer.get())
         {
@@ -413,7 +429,10 @@ sv_accessor<OdbcData*>::cast(BlobStream*, std::locale loc) const
 MemoStream
 sv_accessor<OdbcData*>::cast(MemoStream*, std::locale loc) const
 {
-	return this->get_value()->cast2MemoStream(loc);
+	if(this->get_value()->daltype() == DAL_TYPE_MEMO)
+		return this->get_value()->cast2MemoStream(loc);
+	else
+		throw ConvertException(this->get_value()->daltype(), DAL_TYPE_MEMO);
 	/*
         if(this->m_memo_buffer.get())
         {
@@ -428,7 +447,12 @@ sv_accessor<OdbcData*>::cast(MemoStream*, std::locale loc) const
 Blob
 sv_accessor<OdbcData*>::cast(Blob*, std::locale loc) const
 {
-	return this->get_value()->cast2Blob(loc);
+	if(this->get_value()->daltype() == DAL_TYPE_BLOB)
+		return this->get_value()->cast2Blob(loc);
+	else
+	{
+		return Variant(this->deepcopy()).get<Blob>();
+	}
 	/*
     if(!this->m_blob_buffer.get())
     {
@@ -445,7 +469,12 @@ sv_accessor<OdbcData*>::cast(Blob*, std::locale loc) const
 Memo
 sv_accessor<OdbcData*>::cast(Memo*, std::locale loc) const
 {
-	return this->get_value()->cast2Memo(loc);
+	if(this->get_value()->daltype() == DAL_TYPE_MEMO)
+		return this->get_value()->cast2Memo(loc);
+	else
+	{
+		return Variant(this->deepcopy()).get<Memo>();
+	}
 	/*
     if(!this->m_memo_buffer.get())
     {

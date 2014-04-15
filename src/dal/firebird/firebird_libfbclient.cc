@@ -1092,7 +1092,7 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
         {
             Blob tmp_blob;
             ByteStreamBuf *buf = 0;
-            if(data.can_convert<BlobStream>())
+			if(data.datatype() == DAL_TYPE_BLOB && data.can_convert<BlobStream>())
             {
                 buf = data.get<BlobStream>().rdbuf();
             }
@@ -1124,7 +1124,7 @@ FirebirdResult_libfbclient::fillBlob(XSQLVAR *var, Variant &data)
         {
             Memo tmp_memo;
             UnicodeStreamBuf *buf = 0;
-            if(data.can_convert<MemoStream>())
+            if(data.datatype() == DAL_TYPE_MEMO && data.can_convert<MemoStream>())
             {
                 buf = data.get<MemoStream>().rdbuf();
             }

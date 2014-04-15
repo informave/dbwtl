@@ -2071,14 +2071,22 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
 
         if(var->isnull())
         {
-            /// @todo Setting TINYINT is just a workaround.
-            SQLSMALLINT dtype = SQL_TINYINT;
+            /// @todo Setting VARCHAR is just a workaround.
+            SQLSMALLINT dtype = SQL_VARCHAR;
+			SQLULEN plen = 1;
+			SQLSMALLINT decdigits = 1;
 
             if(sqlgetfunction(this->getDbc(), SQL_API_SQLDESCRIBEPARAM))
             {
                 SQLRETURN ret = this->drv()->SQLDescribeParam(this->getHandle(), param->first,
-                                                              &dtype, NULL, NULL, NULL);
-                if(! SQL_SUCCEEDED(ret))
+                                                              &dtype, &plen, &decdigits, NULL);
+				if(SQL_SUCCEEDED(ret)) {}
+				// Invalid Descriptor Index
+				else if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "07009")
+				{
+					// ignore
+				}
+				else
                     THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
                                           this->getHandle(), SQL_HANDLE_STMT,
                                           "SQLDescribeParam() for NULL value failed");
@@ -2087,8 +2095,8 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
             ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                 SQL_C_DEFAULT,
                                                 dtype,
-                                                0,
-                                                0,
+                                                plen,
+                                                decdigits,
                                                 NULL,
                                                 0,
                                                 &pdata->ind);

@@ -709,8 +709,8 @@ struct DBWTL_EXPORT var_info<Memo>
 template<>
 struct DBWTL_EXPORT var_info<BlobStream>
 {
-    static daltype_t type(void) { return DAL_TYPE_BLOB; }
-    static const char* name(void) { return "BLOB"; }
+    static daltype_t type(void) { return DAL_TYPE_BLOBSTREAM; }
+    static const char* name(void) { return "BLOBSTREAM"; }
 
 };
 
@@ -718,8 +718,8 @@ struct DBWTL_EXPORT var_info<BlobStream>
 template<>
 struct DBWTL_EXPORT var_info<MemoStream>
 {
-    static daltype_t type(void) { return DAL_TYPE_MEMO; }
-    static const char* name(void) { return "MEMO"; }
+    static daltype_t type(void) { return DAL_TYPE_MEMOSTREAM; }
+    static const char* name(void) { return "MEMOSTREAM"; }
 
 };
 

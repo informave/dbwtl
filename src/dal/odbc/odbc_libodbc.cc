@@ -84,6 +84,8 @@
 DAL_NAMESPACE_BEGIN
 
 
+static inline daltype_t sqltype2daltype(SQLSMALLINT sqltype, bool is_unsigned);
+
 bool sqlgetfunction(const OdbcDbc_libodbc &dbc, SQLUSMALLINT functionId)
 {
     SQLRETURN ret;
@@ -352,10 +354,11 @@ OdbcBlob_libodbc::getHandle(void) const
 
 /// @details
 ///
-OdbcBlob_libodbc::OdbcBlob_libodbc(const OdbcData_libodbc& data)
+OdbcBlob_libodbc::OdbcBlob_libodbc(const OdbcData_libodbc& data, SQLLEN &ind)
     : OdbcBlob(),
       m_data(data),
       m_buf(),
+	  m_ind(ind),
       m_putback(DAL_STREAMBUF_PUTBACK)
 {
 /*
@@ -420,11 +423,10 @@ OdbcBlob_libodbc::underflow()
 
     // start is now the start of the buffer, proper.
     // Read from fptr_ in to the provided buffer
-    SQLLEN ind = SQL_NULL_DATA;
 
     SQLRETURN ret =
         this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
-                                SQL_C_BINARY, start, sizeof(m_buf) - (start - base), &ind);
+                                SQL_C_BINARY, start, sizeof(m_buf) - (start - base), &m_ind);
 
 
     if(ret == SQL_NO_DATA)
@@ -454,12 +456,12 @@ OdbcBlob_libodbc::underflow()
         return traits_type::to_int_type(*gptr());
     }
 
-    if(ind == SQL_NULL_DATA)
+    if(m_ind == SQL_NULL_DATA || m_ind == 0)
         return traits_type::eof();
     else
     {
-        assert(ind > 0); // there mus be data avail!
-        setg(base, start, start + ind);
+        assert(m_ind > 0); // there mus be data avail!
+        setg(base, start, start + m_ind);
         return traits_type::to_int_type(*gptr());
     }
 }
@@ -470,8 +472,7 @@ OdbcBlob_libodbc::underflow()
 bool
 OdbcBlob_libodbc::isNull(void) const
 {
-    // this object is only constructed when the field is not null
-    return false;
+	return this->m_ind == SQL_NULL_DATA;
 }
 
 
@@ -517,10 +518,11 @@ OdbcMemo_libodbc::getHandle(void) const
 
 /// @details
 ///
-OdbcMemo_libodbc::OdbcMemo_libodbc(const OdbcData_libodbc& data)
+OdbcMemo_libodbc::OdbcMemo_libodbc(const OdbcData_libodbc& data, SQLLEN &ind)
     : OdbcMemo(),
       m_data(data),
       m_buf(),
+	  m_ind(ind),
       m_putback(DAL_STREAMBUF_PUTBACK)
 {
 /*
@@ -585,7 +587,7 @@ OdbcMemo_libodbc::underflow()
 
     // start is now the start of the buffer, proper.
     // Read from fptr_ in to the provided buffer
-    SQLLEN ind = SQL_NULL_DATA;
+    
 
     SQLRETURN ret;
 
@@ -593,14 +595,14 @@ OdbcMemo_libodbc::underflow()
     if(sizeof(char_type) == sizeof(SQLWCHAR))
     {
         ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
-                                      SQL_C_WCHAR, start, sizeof(m_buf) - (start - base), &ind);
+                                      SQL_C_WCHAR, start, sizeof(m_buf) - (start - base), &m_ind);
 //  std::wcout << "DATA: " << std::wstring(start, start + (sizeof(m_buf) - (start - base))) << std::endl;
     }
     else
     {
         std::vector<SQLWCHAR> tmp((sizeof(m_buf)/sizeof(wchar_t) - (start - base)));
         ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
-                                      SQL_C_WCHAR, tmp.data(), tmp.size()*sizeof(SQLWCHAR), &ind);
+                                      SQL_C_WCHAR, tmp.data(), tmp.size()*sizeof(SQLWCHAR), &m_ind);
         /// @bug check ret value!
         for(size_t i = 0; i < (sizeof(m_buf)/sizeof(wchar_t) - (start - base)); ++i)
         {
@@ -644,12 +646,12 @@ OdbcMemo_libodbc::underflow()
         return traits_type::to_int_type(*gptr());
     }
 
-    if(ind == SQL_NULL_DATA)
+    if(m_ind == SQL_NULL_DATA || m_ind == 0)
         return traits_type::eof();
     else
     {
-        assert(ind > 0); // there mus be data avail!
-        setg(base, start, start + (ind/2));
+        assert(m_ind > 0); // there mus be data avail!
+        setg(base, start, start + (m_ind/sizeof(SQLWCHAR)));
         return traits_type::to_int_type(*gptr());
     }
 }
@@ -660,8 +662,7 @@ OdbcMemo_libodbc::underflow()
 bool
 OdbcMemo_libodbc::isNull(void) const
 {
-    // this object is only constructed when the field is not null
-    return false;
+    return this->m_ind == SQL_NULL_DATA;
 }
 
 
@@ -803,229 +804,15 @@ OdbcData_libodbc::OdbcData_libodbc(OdbcResult_libodbc& result, colnum_t colnum, 
 	  m_memo_cache(), 
       m_memostream(),
       m_bufsize(),
-      m_value()
+      m_value(),
+	  m_is_bound(false)
 {
     DBWTL_TRACE2(colnum, locked);
     assert(result.isOpen());
 
-    if(colnum == 0)
-    {
-        /// @todo Implement bookmark support for ODBC
-        return;
-    }
 
-    SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
-    SQLULEN size = 0;
-    SQLLEN is_unsigned = SQL_FALSE;
-
-    SQLRETURN ret;
-
-    if(this->m_resultset.getDbc().usingUnicode())
-        ret = this->drv()->SQLDescribeColW(this->getHandle(), m_colnum, NULL, 0, NULL,
-                                           &sqltype, &size, NULL, NULL);
-    else
-        ret = this->drv()->SQLDescribeColA(this->getHandle(), m_colnum, NULL, 0, NULL,
-                                           &sqltype, &size, NULL, NULL);
-
-
-    if(! SQL_SUCCEEDED(ret))
-    {
-        THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
-                              this->getHandle(), SQL_HANDLE_STMT, "DescribeCol failed");
-    }
-
-    if(this->m_resultset.getDbc().usingUnicode())
-        ret = this->drv()->SQLColAttributeW(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
-                                            NULL, 0, NULL, &is_unsigned);
-    else
-        ret = this->drv()->SQLColAttributeA(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
-                                            NULL, 0, NULL, &is_unsigned);
-
-    if(! SQL_SUCCEEDED(ret))
-    {
-        THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
-                              this->getHandle(), SQL_HANDLE_STMT, "SQLColAttribute failed");
-    }
-
-
-    if(sqltype == SQL_WCHAR && !this->m_resultset.getDbc().usingUnicode())
-        sqltype = SQL_CHAR;
-    if(sqltype == SQL_WVARCHAR && !this->m_resultset.getDbc().usingUnicode())
-        sqltype = SQL_VARCHAR;
-    if(sqltype == SQL_WLONGVARCHAR && !this->m_resultset.getDbc().usingUnicode())
-        sqltype = SQL_LONGVARCHAR;
-
-
-
-    switch(sqltype)
-    {
-    case SQL_CHAR:
-    case SQL_VARCHAR:
-        //m_value.strbufA.resize(2);
-        m_value.strbufA.resize(size == 0 || size > DBWTL_ODBC_MAX_STRING_SIZE ? 256 : size+1); // size = chars
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_CHAR,
-                                      m_value.strbufA.ptr(), m_value.strbufA.size()*sizeof(SQLCHAR), &m_value.ind);
-        break;
-    case SQL_LONGVARCHAR:
-        // We bind a dummy buffer, just for getting the indicator.
-        // The real fetch is done by SQLGetData()
-        m_value.strbufA.resize(5);
-
-        // This is very tricky. We must set a valid data pointer, but the size is 0.
-        // If data pointer is NULL, the indicator variable is ignored by drivers (WTF?)
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_CHAR,
-                                      m_value.strbufA.ptr(), m_value.strbufA.size()*sizeof(SQLCHAR), &m_value.ind);
-        break;
-    case SQL_WCHAR:
-    case SQL_WVARCHAR:
-        m_value.strbufW.resize(size == 0 || size > DBWTL_ODBC_MAX_STRING_SIZE ? 256 : size+1); // size = chars
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
-                                      m_value.strbufW.ptr(), m_value.strbufW.size()*sizeof(SQLWCHAR), &m_value.ind);
-        break;
-    case SQL_WLONGVARCHAR:
-        // We bind a dummy buffer, just for getting the indicator.
-        // The real fetch is done by SQLGetData()
-        m_value.strbufW.resize(5);
-
-        // This is very tricky. We must set a valid data pointer, but the size is 0.
-        // If data pointer is NULL, the indicator variable is ignored by drivers (WTF?)
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
-                                      m_value.strbufW.ptr(), 0, &m_value.ind);
-
-
-//        this->bindIndicator(m_colnum, &m_value.ind);
-/*
-  ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
-  NULL, 0, &m_value.ind);
-*/
-        break;
-    case SQL_DECIMAL:
-    case SQL_NUMERIC:
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_NUMERIC,
-                                      &m_value.data.numeric, sizeof(m_value.data.numeric), &m_value.ind);
-        break;
-    case SQL_SMALLINT:
-        if(is_unsigned == SQL_TRUE)
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_USHORT,
-                                          &m_value.data.uShortInt, sizeof(m_value.data.uShortInt), &m_value.ind);
-        else
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SSHORT,
-                                          &m_value.data.sShortInt, sizeof(m_value.data.sShortInt), &m_value.ind);
-
-        break;
-    case SQL_INTEGER:
-        if(is_unsigned == SQL_TRUE)
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_ULONG,
-                                          &m_value.data.uLongInt, sizeof(m_value.data.uLongInt), &m_value.ind);
-        else
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SLONG,
-                                          &m_value.data.sLongInt, sizeof(m_value.data.sLongInt), &m_value.ind);
-
-        break;
-    case SQL_REAL:
-    case SQL_FLOAT:
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_FLOAT,
-                                      &m_value.data.float_, sizeof(m_value.data.float_), &m_value.ind);
-        break;
-    case SQL_DOUBLE:
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_DOUBLE,
-                                      &m_value.data.double_, sizeof(m_value.data.double_), &m_value.ind);
-        break;
-    case SQL_BIT:
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_BIT,
-                                      &m_value.data.bit, sizeof(m_value.data.bit), &m_value.ind);
-        break;
-    case SQL_TINYINT:
-        if(is_unsigned == SQL_TRUE)
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_UTINYINT,
-                                          &m_value.data.uTinyInt, sizeof(m_value.data.uTinyInt), &m_value.ind);
-        else
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_STINYINT,
-                                          &m_value.data.sTinyInt, sizeof(m_value.data.sTinyInt), &m_value.ind);
-        break;
-    case SQL_BIGINT:
-        if(is_unsigned == SQL_TRUE)
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_UBIGINT,
-                                          &m_value.data.uBigInt, sizeof(m_value.data.uBigInt), &m_value.ind);
-        else
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SBIGINT,
-                                          &m_value.data.sBigInt, sizeof(m_value.data.sBigInt), &m_value.ind);
-
-        break;
-    case SQL_BINARY:
-    case SQL_VARBINARY:
-        assert(size > 0);
-        m_value.varbinary.resize(size);
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_BINARY,
-                                      m_value.varbinary.data(), m_value.varbinary.size(), &m_value.ind);
-        break;
-    case SQL_LONGVARBINARY:
-        // We bind a dummy buffer, just for getting the indicator.
-        // The real fetch is done by SQLGetData()
-        m_value.varbinary.resize(8);
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_BINARY,
-                                      m_value.varbinary.data(), 0/*m_value.varbinary.size()*/, &m_value.ind);
-        break; /// we read longvarbinary data via SQLGetData()
-    case SQL_TYPE_DATE:
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_TYPE_DATE,
-                                      &m_value.data.date, sizeof(m_value.data.date), &m_value.ind);
-        break;
-    case SQL_TYPE_TIME:
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_TYPE_TIME,
-                                      &m_value.data.time, sizeof(m_value.data.time), &m_value.ind);
-        break;
-    case SQL_TYPE_TIMESTAMP:
-        ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_TYPE_TIMESTAMP,
-                                      &m_value.data.timestamp, sizeof(m_value.data.timestamp), &m_value.ind);
-        break;
-//case SQL_TYPE_UTCDATETIME:
-//case SQL_TYPE_UTCTIME:
-    case SQL_INTERVAL_MONTH:
-    case SQL_INTERVAL_YEAR:
-    case SQL_INTERVAL_YEAR_TO_MONTH:
-    case SQL_INTERVAL_DAY:
-    case SQL_INTERVAL_HOUR:
-    case SQL_INTERVAL_MINUTE:
-    case SQL_INTERVAL_SECOND:
-    case SQL_INTERVAL_DAY_TO_HOUR:
-    case SQL_INTERVAL_DAY_TO_MINUTE:
-    case SQL_INTERVAL_DAY_TO_SECOND:
-    case SQL_INTERVAL_HOUR_TO_MINUTE:
-    case SQL_INTERVAL_HOUR_TO_SECOND:
-    case SQL_INTERVAL_MINUTE_TO_SECOND:
-        /// @todo Implement Interval types
-        throw FeatureUnsuppException("Interval types for ODBC are not implemented yet.");
-//case SQL_GUID:
-    default:
-        /// @note Other types: fallback to string
-        if(this->getStmt().getDbc().usingUnicode())
-        {
-            m_value.strbufW.resize(size == 0 ? 256 : size+1); // size = chars
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
-                                          m_value.strbufW.ptr(), m_value.strbufW.size()*sizeof(SQLWCHAR), &m_value.ind);
-        }
-        else
-        {
-            m_value.strbufA.resize(size == 0 ? 256 : size+1); // size = chars
-            ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_CHAR,
-                                          m_value.strbufA.ptr(), m_value.strbufA.size()*sizeof(SQLCHAR), &m_value.ind);
-        }
-    }
-
-
-    //m_buf = new int();
-    //m_bufsize = sizeof(int);
-    m_value.ind = SQL_NULL_DATA;
-/*
-
-  ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, type, &m_value.sLongInt, sizeof(m_value.sLongInt), &m_ind);
-*/
-
-    if(! SQL_SUCCEEDED(ret))
-    {
-        THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "BindCol failed");
-    }
-
+	if(colnum != 0)
+		this->initValue();
 
 }
 
@@ -1045,15 +832,16 @@ OdbcData_libodbc::getMemoStream(void) const
     DALTRACE("VISIT");
     DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_MEMO);
 
-    if(this->isnull())
-        throw NullException(String("OdbcData_libodbc result column"));
+	/*
+      if(this->isnull())
+      throw NullException(String("OdbcData_libodbc result column"));
+	*/
 
-
-    if(this->m_resultset.getDbc().usingUnicode())
+	if(/*this->m_resultset.getDbc().usingUnicode() && */ this->m_value.sqltype == SQL_WLONGVARCHAR)
     {
         if(! this->m_memobuf.get())
         {
-            this->m_memobuf.reset(new OdbcMemo_libodbc(*this));
+			this->m_memobuf.reset(new OdbcMemo_libodbc(*this, this->m_value.ind));
         }
         return this->m_memobuf.get();
     }
@@ -1085,14 +873,16 @@ OdbcBlob_libodbc*
 OdbcData_libodbc::getBlobStream(void) const
 {
     DALTRACE("VISIT");
-    DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_BLOB || (this->daltype() == DAL_TYPE_MEMO && !this->m_resultset.getDbc().usingUnicode()));
+    //DBWTL_BUGCHECK(this->daltype() == DAL_TYPE_BLOB || (this->daltype() == DAL_TYPE_MEMO && !this->m_resultset.getDbc().usingUnicode()));
 
-    if(this->isnull())
-        throw NullException(String("OdbcData_libodbc result column"));
+	/*
+      if(this->isnull())
+      throw NullException(String("OdbcData_libodbc result column"));
+	*/
 
     if(! this->m_blobbuf.get())
     {
-        this->m_blobbuf.reset(new OdbcBlob_libodbc(*this));
+        this->m_blobbuf.reset(new OdbcBlob_libodbc(*this, this->m_value.ind));
     }
 
     return this->m_blobbuf.get();
@@ -1354,25 +1144,25 @@ TNumeric OdbcData_libodbc::getNumeric(void) const
 BlobStream
 OdbcData_libodbc::cast2BlobStream(std::locale loc) const
 {
-	    if(this->m_blob_cache.get())
-        {
-                this->m_blob_cache->seekg(0);
-                return BlobStream(this->m_blob_cache->rdbuf());
-        }
-        else
-                return BlobStream(this->getBlobStream());
+    if(this->m_blob_cache.get())
+    {
+        this->m_blob_cache->seekg(0);
+        return BlobStream(this->m_blob_cache->rdbuf());
+    }
+    else
+        return BlobStream(this->getBlobStream());
 }
 
 MemoStream
 OdbcData_libodbc::cast2MemoStream(std::locale loc) const
 {
-        if(this->m_memo_cache.get())
-        {
-                this->m_memo_cache->seekg(0);
-                return MemoStream(this->m_memo_cache->rdbuf());
-        }
-        else
-                return MemoStream(this->getMemoStream());
+    if(this->m_memo_cache.get())
+    {
+        this->m_memo_cache->seekg(0);
+        return MemoStream(this->m_memo_cache->rdbuf());
+    }
+    else
+        return MemoStream(this->getMemoStream());
 }
 
 Blob
@@ -1407,11 +1197,14 @@ OdbcData_libodbc::isnull(void) const
     return this->m_value.ind == SQL_NULL_DATA;
 }
 
+
 //
 void
 OdbcData_libodbc::fetchParts(void)
 {
     DBWTL_TRACE0();
+
+	return;
 
     if(this->m_value.ind == SQL_NULL_DATA || this->m_value.ind == SQL_NTS)
         return;
@@ -1605,6 +1398,508 @@ OdbcData_libodbc::refresh(void)
 
 	this->m_blob_cache.reset();
     this->m_memo_cache.reset();
+
+
+	this->getdata();
+}
+
+
+
+void
+OdbcData_libodbc::initValue(void)
+{
+	
+
+    SQLRETURN ret;
+
+	///
+
+    if(this->m_resultset.getDbc().usingUnicode())
+        ret = this->drv()->SQLDescribeColW(this->getHandle(), m_colnum, NULL, 0, NULL,
+                                           &this->m_value.sqltype, &this->m_value.size, NULL, NULL);
+    else
+        ret = this->drv()->SQLDescribeColA(this->getHandle(), m_colnum, NULL, 0, NULL,
+                                           &this->m_value.sqltype, &this->m_value.size, NULL, NULL);
+
+
+    if(! SQL_SUCCEEDED(ret))
+    {
+        THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
+                              this->getHandle(), SQL_HANDLE_STMT, "DescribeCol failed");
+    }
+
+
+	///
+
+    if(this->m_resultset.getDbc().usingUnicode())
+        ret = this->drv()->SQLColAttributeW(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
+                                            NULL, 0, NULL, &this->m_value.is_unsigned);
+    else
+        ret = this->drv()->SQLColAttributeA(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
+                                            NULL, 0, NULL, &this->m_value.is_unsigned);
+
+    if(! SQL_SUCCEEDED(ret))
+    {
+        THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
+                              this->getHandle(), SQL_HANDLE_STMT, "SQLColAttribute failed");
+    }
+
+	OdbcValue &val = this->m_value;
+
+
+	// This is used for all datatypes except char and binary types
+	val.buf = &this->m_value.data;
+
+    switch(this->m_value.sqltype)
+    {
+    case SQL_LONGVARCHAR:
+		val.ctype = SQL_C_CHAR;
+		val.buf = 0;
+		val.buflen = 0;
+        break;
+    case SQL_WLONGVARCHAR:
+		val.ctype = SQL_C_WCHAR;
+		val.buf = 0;
+		val.buflen = 0;
+        break;
+	case SQL_LONGVARBINARY:
+		val.ctype = SQL_C_BINARY;
+		val.buf = 0;
+		val.buflen = 0;
+        break;
+
+    case SQL_CHAR:
+    case SQL_VARCHAR:
+        val.strbufA.resize((val.size == 0 || val.size > DBWTL_ODBC_MAX_STRING_SIZE) ? DBWTL_ODBC_MAX_STRING_SIZE : val.size+1); // size = chars
+		val.ctype = SQL_C_CHAR;
+		val.buf = m_value.strbufA.ptr();
+		val.buflen = m_value.strbufA.size()*sizeof(SQLCHAR);
+        break;
+
+    case SQL_WCHAR:
+    case SQL_WVARCHAR:
+        val.strbufW.resize((val.size == 0 || val.size > DBWTL_ODBC_MAX_STRING_SIZE) ? DBWTL_ODBC_MAX_STRING_SIZE : val.size+1); // size = chars
+		val.ctype = SQL_C_WCHAR;
+		val.buf = m_value.strbufW.ptr();
+		val.buflen = m_value.strbufW.size()*sizeof(SQLWCHAR);
+        break;
+
+    case SQL_DECIMAL:
+    case SQL_NUMERIC:
+		val.ctype = SQL_C_NUMERIC;
+		val.buflen = sizeof(this->m_value.data.numeric);
+        break;
+
+    case SQL_SMALLINT:
+		val.ctype = this->m_value.is_unsigned ? SQL_C_USHORT : SQL_C_SSHORT;
+		val.buflen = this->m_value.is_unsigned ? sizeof(this->m_value.data.uShortInt) : sizeof(this->m_value.data.sShortInt);
+        break;
+
+	case SQL_INTEGER:
+		val.ctype = this->m_value.is_unsigned ? SQL_C_ULONG : SQL_C_SLONG;
+		val.buflen = this->m_value.is_unsigned ? sizeof(this->m_value.data.uLongInt) : sizeof(this->m_value.data.sLongInt);
+		break;
+
+    case SQL_REAL:
+    case SQL_FLOAT:
+		val.ctype = SQL_C_FLOAT;
+		val.buflen = sizeof(this->m_value.data.float_);
+        break;
+
+    case SQL_DOUBLE:
+		val.ctype = SQL_C_DOUBLE;
+		val.buflen = sizeof(this->m_value.data.double_);
+        break;
+
+    case SQL_BIT:
+		val.ctype = SQL_C_BIT;
+		val.buflen = sizeof(this->m_value.data.bit);
+        break;
+
+    case SQL_TINYINT:
+		val.ctype = this->m_value.is_unsigned ? SQL_C_UTINYINT : SQL_C_STINYINT;
+		val.buflen = this->m_value.is_unsigned ? sizeof(this->m_value.data.uTinyInt) : sizeof(this->m_value.data.sTinyInt);
+        break;
+
+    case SQL_BIGINT:
+		val.ctype = this->m_value.is_unsigned ? SQL_C_UBIGINT : SQL_C_SBIGINT;
+		val.buflen = this->m_value.is_unsigned ? sizeof(this->m_value.data.uBigInt) : sizeof(this->m_value.data.sBigInt);
+        break;
+
+    case SQL_BINARY:
+    case SQL_VARBINARY:
+        val.varbinary.resize((val.size == 0 || val.size > DBWTL_ODBC_MAX_VARBINARY_SIZE) ? DBWTL_ODBC_MAX_VARBINARY_SIZE : val.size+1); // size = chars
+		val.ctype = SQL_C_BINARY;
+		val.buf = m_value.varbinary.data();
+		val.buflen = m_value.varbinary.size();
+        break;
+
+    case SQL_TYPE_DATE:
+		val.ctype = SQL_C_TYPE_DATE;
+		val.buflen = sizeof(this->m_value.data.date);
+        break;
+
+    case SQL_TYPE_TIME:
+		val.ctype = SQL_C_TYPE_TIME;
+		val.buflen = sizeof(this->m_value.data.time);
+        break;
+
+    case SQL_TYPE_TIMESTAMP:
+		val.ctype = SQL_C_TYPE_TIMESTAMP;
+		val.buflen = sizeof(this->m_value.data.timestamp);
+        break;
+
+//case SQL_TYPE_UTCDATETIME:
+//case SQL_TYPE_UTCTIME:
+    case SQL_INTERVAL_MONTH:
+    case SQL_INTERVAL_YEAR:
+    case SQL_INTERVAL_YEAR_TO_MONTH:
+    case SQL_INTERVAL_DAY:
+    case SQL_INTERVAL_HOUR:
+    case SQL_INTERVAL_MINUTE:
+    case SQL_INTERVAL_SECOND:
+    case SQL_INTERVAL_DAY_TO_HOUR:
+    case SQL_INTERVAL_DAY_TO_MINUTE:
+    case SQL_INTERVAL_DAY_TO_SECOND:
+    case SQL_INTERVAL_HOUR_TO_MINUTE:
+    case SQL_INTERVAL_HOUR_TO_SECOND:
+    case SQL_INTERVAL_MINUTE_TO_SECOND:
+        /// @todo Implement Interval types
+        throw FeatureUnsuppException("Interval types for ODBC are not implemented yet.");
+
+	default:
+		// raise exception!!!
+		throw std::runtime_error("unhandled sqltype");
+	};
+}
+
+bool
+OdbcData_libodbc::getdata(void)
+{
+	SQLRETURN ret;
+
+    if(m_colnum == 0)
+    {
+        /// @todo Implement bookmark support for ODBC
+        return true;
+    }
+	
+	if(this->m_is_bound)
+		return true;
+
+
+	if(this->m_value.sqltype == SQL_WLONGVARCHAR || this->m_value.sqltype == SQL_LONGVARCHAR)
+	{
+		bool fetch_later = this->m_resultset.getDbc().getOption(DBWTL_ODBC_DEFERRED_LOB_FETCH).get<bool>();
+
+		if(!fetch_later)
+		{
+			this->m_memo_cache.reset(new std::wstringstream());
+			(*this->m_memo_cache.get()) << this->getMemoStream();
+			this->m_memo_cache->rdbuf()->pubseekpos(0);
+			return true;
+		}
+		return false;
+	}
+	else if(this->m_value.sqltype == SQL_LONGVARBINARY)
+	{
+		bool fetch_later = this->m_resultset.getDbc().getOption(DBWTL_ODBC_DEFERRED_LOB_FETCH).get<bool>();
+
+		if(!fetch_later)
+		{
+			this->m_blob_cache.reset(new std::stringstream());
+			(*this->m_blob_cache.get()) << this->getBlobStream();
+			this->m_blob_cache->rdbuf()->pubseekpos(0);
+			return true;
+		}
+		return false;
+	}
+	else
+	{
+
+		ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum, this->m_value.ctype, this->m_value.buf, this->m_value.buflen, &this->m_value.ind);
+
+		if(! SQL_SUCCEEDED(ret))
+		{
+			THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
+                                  this->getHandle(), SQL_HANDLE_STMT, "SQLGetData() failed!!!");
+		}
+		return true;
+	}
+}
+
+//
+bool
+OdbcData_libodbc::bindcol(void)
+{
+	SQLRETURN ret;
+
+	if(m_colnum == 0)
+	{
+		/// @todo Implement bookmark support for ODBC
+		return true;
+	}
+
+
+
+
+
+	if(this->m_value.sqltype == SQL_LONGVARCHAR
+       || this->m_value.sqltype == SQL_LONGVARBINARY
+       || this->m_value.sqltype == SQL_WLONGVARCHAR)
+	{
+		
+		bool fetch_later = this->m_resultset.getDbc().getOption(DBWTL_ODBC_DEFERRED_LOB_FETCH).get<bool>();
+		if(fetch_later)
+		{
+			ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, this->m_value.ctype,
+                                          &this->m_value.data.wchar_dummy, sizeof(SQLWCHAR), &m_value.ind);
+			if(! SQL_SUCCEEDED(ret))
+			{
+				THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "BindCol failed");
+			}
+			
+			return false;
+		} 
+		else
+			
+			return false;
+	}
+
+
+	ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, this->m_value.ctype,
+                                  this->m_value.buf, this->m_value.buflen, &m_value.ind);
+
+	if(! SQL_SUCCEEDED(ret))
+	{
+		THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "BindCol failed");
+	}
+
+	this->m_is_bound = true;
+	return true;
+
+	/*
+
+
+      SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
+      SQLULEN size = 0;
+      SQLLEN is_unsigned = SQL_FALSE;
+
+    
+
+      if(this->m_resultset.getDbc().usingUnicode())
+      ret = this->drv()->SQLDescribeColW(this->getHandle(), m_colnum, NULL, 0, NULL,
+      &sqltype, &size, NULL, NULL);
+      else
+      ret = this->drv()->SQLDescribeColA(this->getHandle(), m_colnum, NULL, 0, NULL,
+      &sqltype, &size, NULL, NULL);
+
+
+      if(! SQL_SUCCEEDED(ret))
+      {
+      THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
+      this->getHandle(), SQL_HANDLE_STMT, "DescribeCol failed");
+      }
+
+      if(this->m_resultset.getDbc().usingUnicode())
+      ret = this->drv()->SQLColAttributeW(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
+      NULL, 0, NULL, &is_unsigned);
+      else
+      ret = this->drv()->SQLColAttributeA(this->getHandle(), m_colnum, SQL_DESC_UNSIGNED,
+      NULL, 0, NULL, &is_unsigned);
+
+      if(! SQL_SUCCEEDED(ret))
+      {
+      THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
+      this->getHandle(), SQL_HANDLE_STMT, "SQLColAttribute failed");
+      }
+
+      // check for getinfo getdata extensions!!!!!
+      if(sqltype == SQL_LONGVARCHAR
+      || sqltype == SQL_LONGVARBINARY
+      || sqltype == SQL_WLONGVARCHAR)
+      {
+      return false;
+      }
+
+      if(sqltype == SQL_WCHAR && !this->m_resultset.getDbc().usingUnicode())
+      sqltype = SQL_CHAR;
+      if(sqltype == SQL_WVARCHAR && !this->m_resultset.getDbc().usingUnicode())
+      sqltype = SQL_VARCHAR;
+      if(sqltype == SQL_WLONGVARCHAR && !this->m_resultset.getDbc().usingUnicode())
+      sqltype = SQL_LONGVARCHAR;
+
+
+
+
+      switch(sqltype)
+      {
+      case SQL_CHAR:
+      case SQL_VARCHAR:
+      std::cout << "ERRRRRRRR" << std::endl;
+      //m_value.strbufA.resize(2);
+      m_value.strbufA.resize(size == 0 || size > DBWTL_ODBC_MAX_STRING_SIZE ? 256 : size+1); // size = chars
+      ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_CHAR,
+      m_value.strbufA.ptr(), m_value.strbufA.size()*sizeof(SQLCHAR), &m_value.ind);
+      break;
+      case SQL_LONGVARCHAR:
+      // We bind a dummy buffer, just for getting the indicator.
+      // The real fetch is done by SQLGetData()
+      m_value.strbufA.resize(5);
+
+      // This is very tricky. We must set a valid data pointer, but the size is 0.
+      // If data pointer is NULL, the indicator variable is ignored by drivers (WTF?)
+      ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_CHAR,
+      m_value.strbufA.ptr(), m_value.strbufA.size()*sizeof(SQLCHAR), &m_value.ind);
+      break;
+      case SQL_WCHAR:
+      case SQL_WVARCHAR:
+      m_value.strbufW.resize(size == 0 || size > DBWTL_ODBC_MAX_STRING_SIZE ? 256 : size+1); // size = chars
+      m_value.strbufW.resize(4); // size = chars
+      ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
+      m_value.strbufW.ptr(), m_value.strbufW.size()*sizeof(SQLWCHAR), &m_value.ind);
+      break;
+      case SQL_WLONGVARCHAR:
+      // We bind a dummy buffer, just for getting the indicator.
+      // The real fetch is done by SQLGetData()
+      m_value.strbufW.resize(5);
+
+      // This is very tricky. We must set a valid data pointer, but the size is 0.
+      // If data pointer is NULL, the indicator variable is ignored by drivers (WTF?)
+      ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
+      m_value.strbufW.ptr(), 0, &m_value.ind);
+
+
+//        this->bindIndicator(m_colnum, &m_value.ind);
+
+break;
+case SQL_DECIMAL:
+case SQL_NUMERIC:
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_NUMERIC,
+&m_value.data.numeric, sizeof(m_value.data.numeric), &m_value.ind);
+break;
+case SQL_SMALLINT:
+if(is_unsigned == SQL_TRUE)
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_USHORT,
+&m_value.data.uShortInt, sizeof(m_value.data.uShortInt), &m_value.ind);
+else
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SSHORT,
+&m_value.data.sShortInt, sizeof(m_value.data.sShortInt), &m_value.ind);
+
+break;
+case SQL_INTEGER:
+if(is_unsigned == SQL_TRUE)
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_ULONG,
+&m_value.data.uLongInt, sizeof(m_value.data.uLongInt), &m_value.ind);
+else
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SLONG,
+&m_value.data.sLongInt, sizeof(m_value.data.sLongInt), &m_value.ind);
+
+break;
+case SQL_REAL:
+case SQL_FLOAT:
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_FLOAT,
+&m_value.data.float_, sizeof(m_value.data.float_), &m_value.ind);
+break;
+case SQL_DOUBLE:
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_DOUBLE,
+&m_value.data.double_, sizeof(m_value.data.double_), &m_value.ind);
+break;
+case SQL_BIT:
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_BIT,
+&m_value.data.bit, sizeof(m_value.data.bit), &m_value.ind);
+break;
+case SQL_TINYINT:
+if(is_unsigned == SQL_TRUE)
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_UTINYINT,
+&m_value.data.uTinyInt, sizeof(m_value.data.uTinyInt), &m_value.ind);
+else
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_STINYINT,
+&m_value.data.sTinyInt, sizeof(m_value.data.sTinyInt), &m_value.ind);
+break;
+case SQL_BIGINT:
+if(is_unsigned == SQL_TRUE)
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_UBIGINT,
+&m_value.data.uBigInt, sizeof(m_value.data.uBigInt), &m_value.ind);
+else
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_SBIGINT,
+&m_value.data.sBigInt, sizeof(m_value.data.sBigInt), &m_value.ind);
+
+break;
+case SQL_BINARY:
+case SQL_VARBINARY:
+assert(size > 0);
+m_value.varbinary.resize(size);
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_BINARY,
+m_value.varbinary.data(), m_value.varbinary.size(), &m_value.ind);
+break;
+case SQL_LONGVARBINARY:
+// We bind a dummy buffer, just for getting the indicator.
+// The real fetch is done by SQLGetData()
+m_value.varbinary.resize(8);
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_BINARY,
+m_value.varbinary.data(), 0, &m_value.ind);
+break; /// we read longvarbinary data via SQLGetData()
+case SQL_TYPE_DATE:
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_TYPE_DATE,
+&m_value.data.date, sizeof(m_value.data.date), &m_value.ind);
+break;
+case SQL_TYPE_TIME:
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_TYPE_TIME,
+&m_value.data.time, sizeof(m_value.data.time), &m_value.ind);
+break;
+case SQL_TYPE_TIMESTAMP:
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_TYPE_TIMESTAMP,
+&m_value.data.timestamp, sizeof(m_value.data.timestamp), &m_value.ind);
+break;
+//case SQL_TYPE_UTCDATETIME:
+//case SQL_TYPE_UTCTIME:
+case SQL_INTERVAL_MONTH:
+case SQL_INTERVAL_YEAR:
+case SQL_INTERVAL_YEAR_TO_MONTH:
+case SQL_INTERVAL_DAY:
+case SQL_INTERVAL_HOUR:
+case SQL_INTERVAL_MINUTE:
+case SQL_INTERVAL_SECOND:
+case SQL_INTERVAL_DAY_TO_HOUR:
+case SQL_INTERVAL_DAY_TO_MINUTE:
+case SQL_INTERVAL_DAY_TO_SECOND:
+case SQL_INTERVAL_HOUR_TO_MINUTE:
+case SQL_INTERVAL_HOUR_TO_SECOND:
+case SQL_INTERVAL_MINUTE_TO_SECOND:
+/// @todo Implement Interval types
+throw FeatureUnsuppException("Interval types for ODBC are not implemented yet.");
+//case SQL_GUID:
+default:
+/// @note Other types: fallback to string
+if(this->getStmt().getDbc().usingUnicode())
+{
+m_value.strbufW.resize(size == 0 ? 256 : size+1); // size = chars
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_WCHAR,
+m_value.strbufW.ptr(), m_value.strbufW.size()*sizeof(SQLWCHAR), &m_value.ind);
+}
+else
+{
+m_value.strbufA.resize(size == 0 ? 256 : size+1); // size = chars
+ret = this->drv()->SQLBindCol(this->getHandle(), m_colnum, SQL_C_CHAR,
+m_value.strbufA.ptr(), m_value.strbufA.size()*sizeof(SQLCHAR), &m_value.ind);
+}
+}
+
+
+//m_buf = new int();
+//m_bufsize = sizeof(int);
+m_value.ind = SQL_NULL_DATA;
+
+
+if(! SQL_SUCCEEDED(ret))
+{
+THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "BindCol failed");
+}
+
+this->m_is_bound = true;
+return true;
+	*/
 }
 
 
@@ -2121,7 +2416,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_SLONG,
                                                     SQL_INTEGER,
-                                                    0,
+                                                    10,
                                                     0,
                                                     &pdata->data.sLongInt,
                                                     sizeof(pdata->data.sLongInt),
@@ -2140,7 +2435,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_ULONG,
                                                     SQL_INTEGER,
-                                                    0,
+                                                    10,
                                                     0,
                                                     &pdata->data.uLongInt,
                                                     sizeof(pdata->data.uLongInt),
@@ -2158,7 +2453,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_STINYINT,
                                                     SQL_TINYINT,
-                                                    0,
+                                                    3,
                                                     0,
                                                     &pdata->data.sTinyInt,
                                                     sizeof(pdata->data.sTinyInt),
@@ -2176,7 +2471,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_UTINYINT,
                                                     SQL_TINYINT,
-                                                    0,
+                                                    3,
                                                     0,
                                                     &pdata->data.uTinyInt,
                                                     sizeof(pdata->data.uTinyInt),
@@ -2194,7 +2489,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_BIT,
                                                     SQL_BIT,
-                                                    0,
+                                                    1,
                                                     0,
                                                     &pdata->data.bit,
                                                     sizeof(pdata->data.bit),
@@ -2212,7 +2507,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_SSHORT,
                                                     SQL_SMALLINT,
-                                                    0,
+                                                    5,
                                                     0,
                                                     &pdata->data.sShortInt,
                                                     sizeof(pdata->data.sShortInt),
@@ -2230,7 +2525,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_USHORT,
                                                     SQL_SMALLINT,
-                                                    0,
+                                                    5,
                                                     0,
                                                     &pdata->data.uShortInt,
                                                     sizeof(pdata->data.uShortInt),
@@ -2248,7 +2543,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_SBIGINT,
                                                     SQL_BIGINT,
-                                                    0,
+                                                    19,
                                                     0,
                                                     &pdata->data.sBigInt,
                                                     sizeof(pdata->data.sBigInt),
@@ -2266,7 +2561,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_UBIGINT,
                                                     SQL_BIGINT,
-                                                    0,
+                                                    20,
                                                     0,
                                                     &pdata->data.uBigInt,
                                                     sizeof(pdata->data.uBigInt),
@@ -2284,7 +2579,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_FLOAT,
                                                     SQL_FLOAT,
-                                                    0,
+                                                    15,
                                                     0,
                                                     &pdata->data.float_,
                                                     sizeof(pdata->data.float_),
@@ -2302,7 +2597,7 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_DOUBLE,
                                                     SQL_DOUBLE,
-                                                    0,
+                                                    15,
                                                     0,
                                                     &pdata->data.double_,
                                                     sizeof(pdata->data.double_),
@@ -2319,8 +2614,8 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 tdate2odbc(var->get<TDate>(), pdata->data.date);
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_DATE,
-                                                    SQL_DATE,
-                                                    0,
+													SQL_TYPE_DATE,
+                                                    10,
                                                     0,
                                                     &pdata->data.date,
                                                     sizeof(pdata->data.date),
@@ -2338,8 +2633,8 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ttime2odbc(var->get<TTime>(), pdata->data.time);
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_TIME,
-                                                    SQL_TIME,
-                                                    0,
+                                                    SQL_TYPE_TIME,
+                                                    8,
                                                     0,
                                                     &pdata->data.time,
                                                     sizeof(pdata->data.time),
@@ -2357,8 +2652,8 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                 ttimestamp2odbc(var->get<TTimestamp>(), pdata->data.timestamp);
                 ret = this->drv()->SQLBindParameter(this->getHandle(), param->first, SQL_PARAM_INPUT,
                                                     SQL_C_TIMESTAMP,
-                                                    SQL_TIMESTAMP,
-                                                    0,
+                                                    SQL_TYPE_TIMESTAMP,
+                                                    19,
                                                     0,
                                                     &pdata->data.timestamp,
                                                     sizeof(pdata->data.timestamp),
@@ -2584,17 +2879,25 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
                                   "SQLParamData failed");
         }
     }
+	else if(ret == SQL_NO_DATA_FOUND)
+	{
+		DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_OPEN);
+		this->refreshMetadata();
+		this->m_current_tuple = 0;
+		DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_EOF);
+	}
     else if(! SQL_SUCCEEDED(ret))
     {
         THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt,
                               this->getHandle(), SQL_HANDLE_STMT,
                               "Execute failed");
     }
-
-
-    DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_OPEN);
-    this->refreshMetadata();
-    this->m_current_tuple = 0;
+	else
+	{
+		DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_OPEN);
+		this->refreshMetadata();
+		this->m_current_tuple = 0;
+	}
     //this->next();
 
     DALTRACE_LEAVE;
@@ -2654,6 +2957,12 @@ OdbcResult_libodbc::first(void)
     {
         this->m_current_tuple = 1;
         DAL_SET_CURSORSTATE(this->m_cursorstate, DAL_CURSOR_POSITIONED);
+        std::for_each(this->m_column_accessors.begin(),
+                      this->m_column_accessors.end(),
+                      [](VariantListT::value_type &item)
+                      {
+                          item.second->refresh();
+                      });
     }
     else if(ret == SQL_NO_DATA)
     {
@@ -2706,12 +3015,12 @@ OdbcResult_libodbc::next(void)
     if(SQL_SUCCEEDED(ret))
     {
         ++this->m_current_tuple;
-            std::for_each(this->m_column_accessors.begin(),
-                          this->m_column_accessors.end(),
-                          [](VariantListT::value_type &item)
-                          {
-                              item.second->refresh();
-                          });
+        std::for_each(this->m_column_accessors.begin(),
+                      this->m_column_accessors.end(),
+                      [](VariantListT::value_type &item)
+                      {
+                          item.second->refresh();
+                      });
     }
     else if(ret == SQL_NO_DATA)
     {
@@ -3029,7 +3338,84 @@ OdbcResult_libodbc::getStmt(void) const
 }
 
 
+static inline daltype_t sqltype2daltype(SQLSMALLINT sqltype, bool is_unsigned)
+{
+	switch(sqltype)
+    {
+    case SQL_CHAR:
+    case SQL_VARCHAR:
+    case SQL_WCHAR:
+    case SQL_WVARCHAR:
+        return DAL_TYPE_STRING;
 
+    case SQL_LONGVARCHAR:
+    case SQL_WLONGVARCHAR:
+        return DAL_TYPE_MEMO;
+
+    case SQL_DECIMAL:
+    case SQL_NUMERIC:
+        return DAL_TYPE_NUMERIC;
+            
+    case SQL_SMALLINT:
+        return is_unsigned ? DAL_TYPE_USMALLINT : DAL_TYPE_SMALLINT;
+
+    case SQL_INTEGER:
+        return is_unsigned ? DAL_TYPE_UINT : DAL_TYPE_INT;
+
+    case SQL_REAL:
+    case SQL_FLOAT:
+        return DAL_TYPE_FLOAT;
+            
+    case SQL_DOUBLE:
+        return DAL_TYPE_DOUBLE;
+            
+    case SQL_BIT:
+        return DAL_TYPE_BOOL;
+            
+    case SQL_TINYINT:
+        return is_unsigned  ? DAL_TYPE_UCHAR : DAL_TYPE_CHAR;
+            
+    case SQL_BIGINT:
+        return is_unsigned ? DAL_TYPE_UBIGINT : DAL_TYPE_BIGINT;
+            
+    case SQL_BINARY:
+    case SQL_VARBINARY:
+        return DAL_TYPE_VARBINARY;
+            
+    case SQL_LONGVARBINARY:
+        return DAL_TYPE_BLOB;
+
+    case SQL_TYPE_DATE:
+        return DAL_TYPE_DATE;
+            
+    case SQL_TYPE_TIME:
+        return DAL_TYPE_TIME;
+            
+    case SQL_TYPE_TIMESTAMP:
+        return DAL_TYPE_TIMESTAMP;
+            
+//case SQL_TYPE_UTCDATETIME:
+//case SQL_TYPE_UTCTIME:
+    case SQL_INTERVAL_MONTH:
+    case SQL_INTERVAL_YEAR:
+    case SQL_INTERVAL_YEAR_TO_MONTH:
+    case SQL_INTERVAL_DAY:
+    case SQL_INTERVAL_HOUR:
+    case SQL_INTERVAL_MINUTE:
+    case SQL_INTERVAL_SECOND:
+    case SQL_INTERVAL_DAY_TO_HOUR:
+    case SQL_INTERVAL_DAY_TO_MINUTE:
+    case SQL_INTERVAL_DAY_TO_SECOND:
+    case SQL_INTERVAL_HOUR_TO_MINUTE:
+    case SQL_INTERVAL_HOUR_TO_SECOND:
+    case SQL_INTERVAL_MINUTE_TO_SECOND:
+        /// @todo Implement Interval support for ODBC
+        throw FeatureUnsuppException("Interval types are not supported yet.");
+        break;
+    default:
+        return DAL_TYPE_UNKNOWN;
+    }
+}
 
 //
 //
@@ -3104,91 +3490,11 @@ OdbcColumnDesc_libodbc::OdbcColumnDesc_libodbc(colnum_t i, OdbcResult_libodbc &r
                          : nameA.str(namelen, result.getDbc().getDbcEncoding()));
         this->m_size.set<signed int>(size);
         this->m_is_nullable.set<bool>(nullable == SQL_NULLABLE);
-        switch(sqltype)
-        {
-        case SQL_CHAR:
-        case SQL_VARCHAR:
-            this->m_daltype = DAL_TYPE_STRING;
-            break;
-        case SQL_LONGVARCHAR:
-            this->m_daltype = DAL_TYPE_MEMO;
-            break;
-        case SQL_WCHAR:
-        case SQL_WVARCHAR:
-            this->m_daltype = DAL_TYPE_STRING;
-            break;
-        case SQL_WLONGVARCHAR:
-            this->m_daltype = DAL_TYPE_MEMO;
-            break;
-        case SQL_DECIMAL:
-        case SQL_NUMERIC:
-            this->m_daltype = DAL_TYPE_NUMERIC;
-            this->m_precision.set<unsigned short>(precision);
-            this->m_scale.set<unsigned short>(scale);
-            break;
-        case SQL_SMALLINT:
-            this->m_daltype = is_unsigned == SQL_TRUE ? DAL_TYPE_USMALLINT : DAL_TYPE_SMALLINT;
-            break;
-        case SQL_INTEGER:
-            this->m_daltype = is_unsigned == SQL_TRUE ? DAL_TYPE_UINT : DAL_TYPE_INT;
-            break;
-        case SQL_REAL:
-        case SQL_FLOAT:
-            this->m_precision.set<unsigned short>(precision);
-            this->m_daltype = DAL_TYPE_FLOAT;
-            break;
-        case SQL_DOUBLE:
-            this->m_precision.set<unsigned short>(precision);
-            this->m_daltype = DAL_TYPE_DOUBLE;
-            break;
-        case SQL_BIT:
-            this->m_daltype = DAL_TYPE_BOOL;
-            break;
-        case SQL_TINYINT:
-            this->m_daltype = is_unsigned == SQL_TRUE ? DAL_TYPE_UCHAR : DAL_TYPE_CHAR;
-            break;
-        case SQL_BIGINT:
-            this->m_daltype = is_unsigned == SQL_TRUE ? DAL_TYPE_UBIGINT : DAL_TYPE_BIGINT;
-            break;
-        case SQL_BINARY:
-        case SQL_VARBINARY:
-            this->m_daltype = DAL_TYPE_VARBINARY;
-            break;
-        case SQL_LONGVARBINARY:
-            this->m_daltype = DAL_TYPE_BLOB;
-            break;
-        case SQL_TYPE_DATE:
-            this->m_daltype = DAL_TYPE_DATE;
-            break;
-        case SQL_TYPE_TIME:
-            this->m_daltype = DAL_TYPE_TIME;
-            this->m_precision.set<unsigned short>(precision);
-            break;
-        case SQL_TYPE_TIMESTAMP:
-            this->m_daltype = DAL_TYPE_TIMESTAMP;
-            this->m_precision.set<unsigned short>(precision);
-            break;
-//case SQL_TYPE_UTCDATETIME:
-//case SQL_TYPE_UTCTIME:
-        case SQL_INTERVAL_MONTH:
-        case SQL_INTERVAL_YEAR:
-        case SQL_INTERVAL_YEAR_TO_MONTH:
-        case SQL_INTERVAL_DAY:
-        case SQL_INTERVAL_HOUR:
-        case SQL_INTERVAL_MINUTE:
-        case SQL_INTERVAL_SECOND:
-        case SQL_INTERVAL_DAY_TO_HOUR:
-        case SQL_INTERVAL_DAY_TO_MINUTE:
-        case SQL_INTERVAL_DAY_TO_SECOND:
-        case SQL_INTERVAL_HOUR_TO_MINUTE:
-        case SQL_INTERVAL_HOUR_TO_SECOND:
-        case SQL_INTERVAL_MINUTE_TO_SECOND:
-            /// @todo Implement Interval support for ODBC
-            throw FeatureUnsuppException("Interval types are not supported yet.");
-            break;
-        default:
-            this->m_daltype = DAL_TYPE_UNKNOWN;
-        }
+
+		this->m_daltype = sqltype2daltype(sqltype, is_unsigned == SQL_TRUE);
+
+		this->m_precision.set<unsigned short>(precision);
+        this->m_scale.set<unsigned short>(scale);
     }
 }
 
@@ -3245,6 +3551,11 @@ OdbcResult_libodbc::refreshMetadata(void)
     size_t colcount = this->columnCount();
     OdbcColumnDesc desc;
 
+	bool can_bind = true;
+
+	SQLUINTEGER gd_ext = sqlgetinfo<SQLUINTEGER>(this->getDbc(), SQL_GETDATA_EXTENSIONS);
+
+
     for(size_t i = 0; i <= colcount; ++i)
     {
         OdbcColumnDesc_libodbc x(i, *this);
@@ -3253,8 +3564,13 @@ OdbcResult_libodbc::refreshMetadata(void)
 
         {
             std::pair<VariantListT::iterator,bool> r;
-            OdbcVariant* v = new OdbcVariant(new OdbcData_libodbc(*this, i, false));
-            this->m_allocated_accessors.push_back(v); // smart ptr
+			OdbcData_libodbc *data = new OdbcData_libodbc(*this, i, false);
+			OdbcVariant* v = new OdbcVariant(data);
+			this->m_allocated_accessors.push_back(v); // smart ptr
+			if(can_bind || gd_ext & SQL_GD_ANY_COLUMN)
+				can_bind = data->bindcol();
+				
+            
             r = this->m_column_accessors.insert(VariantListT::value_type(i, v));
         }
 
@@ -3339,6 +3655,8 @@ OdbcDbc_libodbc::OdbcDbc_libodbc(OdbcEnv_libodbc& env)
     assert(env.getHandle() != SQL_NULL_HANDLE);
     SQLRETURN ret = this->drv()->SQLAllocHandle(SQL_HANDLE_DBC, env.getHandle(), &this->m_dbh);
     assert(ret == SQL_SUCCESS);
+
+	this->m_options[DBWTL_ODBC_DEFERRED_LOB_FETCH] = bool(false);
 }
 
 IEnv&
@@ -3447,6 +3765,18 @@ OdbcDbc_libodbc::connect(IDbc::Options& options)
 
     if(options["charset"].empty())
     {
+		
+	this->writeDiagnostic(DiagnosticRec(DBWTL_CPI, DAL_STATE_DEBUG, SQLSTATE("HY000"), 34,
+		"connect() failed, invalid arguments",
+		23412, 2,
+		"connect() failed. You must specify the 'charset' option"
+        " with a valid character set"
+        " like \"utf-8\" or \"iso-8859-1\"."));
+
+	
+
+	//throw EngineException(DiagnosticRec(OdbcDiagRecXXX));
+
         throw EngineException("connect() failed. You must specify the 'charset' option"
                               " with a valid character set"
                               " like \"utf-8\" or \"iso-8859-1\".");
@@ -3490,25 +3820,25 @@ OdbcDbc_libodbc::connect(IDbc::Options& options)
 
     if(! SQL_SUCCEEDED(ret))
     {
-    if(usingUnicode())
-    {
+        if(usingUnicode())
+        {
 
-        OdbcStrW constr(options[ "datasource" ]);
-	OdbcStrW outstr(1024);
-	SQLSMALLINT outlen = 0;
-        ret = this->drv()->SQLDriverConnectW(this->getHandle(), 0,
-					constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
-					&outlen, SQL_DRIVER_NOPROMPT);
-    }
-    else
-    {
-        OdbcStrA constr(options[ "datasource" ], this->m_ansics);
-	OdbcStrA outstr(1024);
-	SQLSMALLINT outlen = 0;
-	ret = this->drv()->SQLDriverConnectA(this->getHandle(), 0,
-				constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
-				&outlen, SQL_DRIVER_NOPROMPT);
-    }
+            OdbcStrW constr(options[ "datasource" ]);
+            OdbcStrW outstr(1024);
+            SQLSMALLINT outlen = 0;
+            ret = this->drv()->SQLDriverConnectW(this->getHandle(), 0,
+                                                 constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
+                                                 &outlen, SQL_DRIVER_NOPROMPT);
+        }
+        else
+        {
+            OdbcStrA constr(options[ "datasource" ], this->m_ansics);
+            OdbcStrA outstr(1024);
+            SQLSMALLINT outlen = 0;
+            ret = this->drv()->SQLDriverConnectA(this->getHandle(), 0,
+                                                 constr.ptr(), constr.size(), outstr.ptr(), outstr.size(),
+                                                 &outlen, SQL_DRIVER_NOPROMPT);
+        }
     }
 
     if(! SQL_SUCCEEDED(ret))
@@ -3517,6 +3847,10 @@ OdbcDbc_libodbc::connect(IDbc::Options& options)
     }
     assert(ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
     this->m_isConnected = true;
+
+	SQLUINTEGER gd_ext = sqlgetinfo<SQLUINTEGER>(*this, SQL_GETDATA_EXTENSIONS);
+
+	this->setOption(DBWTL_ODBC_DEFERRED_LOB_FETCH, bool((gd_ext & SQL_GD_ANY_COLUMN) && (gd_ext & SQL_GD_ANY_ORDER) && (gd_ext & SQL_GD_BOUND)));
 
 /*
   DALTRACE_ENTER;

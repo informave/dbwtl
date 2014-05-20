@@ -56,6 +56,7 @@ DAL_NAMESPACE_BEGIN
 #define DBWTL_ODBC_LOB_BUFSIZE 512
 
 #define DBWTL_ODBC_MAX_STRING_SIZE (256*256)
+#define DBWTL_ODBC_MAX_VARBINARY_SIZE (256*256)
 
 
 class OdbcResult_libodbc;
@@ -101,7 +102,7 @@ public:
 class OdbcBlob_libodbc : public OdbcBlob
 {
 public:
-    OdbcBlob_libodbc(const OdbcData_libodbc& data);
+    OdbcBlob_libodbc(const OdbcData_libodbc& data, SQLLEN &ind);
 
     virtual ~OdbcBlob_libodbc(void);
 
@@ -117,6 +118,7 @@ protected:
     const OdbcData_libodbc& m_data;
 
     char_type           m_buf[DAL_STREAMBUF_BUFSIZE + DAL_STREAMBUF_PUTBACK];
+	SQLLEN			   &m_ind;
     const std::size_t   m_putback;
 
 private:
@@ -133,7 +135,7 @@ private:
 class OdbcMemo_libodbc : public OdbcMemo
 {
 public:
-    OdbcMemo_libodbc(const OdbcData_libodbc& data);
+    OdbcMemo_libodbc(const OdbcData_libodbc& data, SQLLEN &ind);
 
     virtual ~OdbcMemo_libodbc(void);
 
@@ -149,6 +151,7 @@ protected:
     const OdbcData_libodbc& m_data;
 
     char_type           m_buf[DAL_STREAMBUF_BUFSIZE + DAL_STREAMBUF_PUTBACK];
+	SQLLEN			   &m_ind;
     const std::size_t   m_putback;
 
 private:
@@ -353,6 +356,11 @@ struct OdbcValue
         : data(),
           ind(SQL_NULL_DATA),
           ctype(SQL_C_DEFAULT),
+		  sqltype(SQL_UNKNOWN_TYPE),
+		  size(0),
+		  buf(0),
+		  buflen(0),
+		  is_unsigned(SQL_FALSE),
           strbufW(),
           strbufA(),
           varbinary()
@@ -378,13 +386,23 @@ struct OdbcValue
         SQL_NUMERIC_STRUCT numeric;
         //SQLGUID  guid;
         SQL_INTERVAL_STRUCT interval;
+		SQLWCHAR wchar_dummy;
     } data;
     //char padding[128];
     SQLLEN ind;
     SQLSMALLINT ctype;
+	SQLSMALLINT sqltype;
+	SQLULEN size;
+	SQLPOINTER buf;
+	SQLINTEGER buflen;
+    SQLLEN is_unsigned;
     OdbcStrW strbufW;
     OdbcStrA strbufA;
     TVarbinary varbinary; // used for parameter data
+
+private:
+    OdbcValue(const OdbcValue &);
+    OdbcValue& operator=(const OdbcValue &);
 };
 
 
@@ -431,6 +449,10 @@ public:
 
     virtual void refresh(void);
 
+	virtual bool bindcol(void);
+	virtual bool getdata(void);
+
+	virtual void initValue(void);
 
     virtual daltype_t daltype(void) const;
 
@@ -471,6 +493,7 @@ protected:
     //SQLLEN m_ind;
 
     mutable OdbcValue m_value;
+	bool m_is_bound;
     //std::vector<SQLWCHAR> m_strbufW;
     //std::vector<SQLCHAR> m_strbufA;
     //OdbcStrW m_strbufW;

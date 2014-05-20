@@ -2019,6 +2019,7 @@ static odbc_sqlstates::engine_states_t sqlstate2id(std::string sqlstate)
         else if(sqlstate.substr(0, 2) == "HY") return odbc_sqlstates::DAL_ODBC_SQLSTATE_HY000;
         else if(sqlstate.substr(0, 2) == "IM") return odbc_sqlstates::DAL_ODBC_SQLSTATE_IM000;
         else
+			
             throw EngineException(FORMAT1("Unknown SQLSTATE for exception mapping: %s", String(sqlstate)));
     }
 }
@@ -2037,7 +2038,12 @@ OdbcDiag::OdbcDiag(dalstate_t state,
       m_sqlstate_id(),
       m_nativecode(nativecode)
 {
-    m_sqlstate_id = sqlstate2id(sqlstate);
+	try
+	{
+		m_sqlstate_id = sqlstate2id(sqlstate);
+	}
+	catch(...) /// @bug fix unknown mappings
+	{}
 	m_sqlstate = String(sqlstate, "ASCII");
 }
 

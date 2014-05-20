@@ -145,6 +145,7 @@ typedef unsigned char cursorstate_t;
 typedef enum
 {
     DAL_STATE_OK,
+	DAL_STATE_DEBUG,
     DAL_STATE_INFO,
     DAL_STATE_WARNING,
     DAL_STATE_ERROR
@@ -186,6 +187,9 @@ typedef enum access_mode_enum
 
 
 typedef std::map<std::string, Variant> options_type;
+
+
+#define DBWTL_CPI CodePosInfo(__FILE__, __LINE__, __FUNCTION__)
 
 struct CodePosInfo
 {
@@ -355,6 +359,109 @@ public:
 
 
 
+class DBWTL_EXPORT SQLSTATE
+{
+public:
+	SQLSTATE(const char *ptr);
+	SQLSTATE(const SQLSTATE&);
+
+	String str(void) const;
+
+protected:
+	std::string state;
+};
+
+
+
+//--------------------------------------------------------------------------
+/// Interface for diagnostic records
+///
+/// @since 0.0.1
+/// @brief Interface for diagnostic records
+class DBWTL_EXPORT IDiagnosticRec
+{
+public:
+    virtual ~IDiagnosticRec(void)
+    {}
+
+    virtual dalstate_t             getState(void) const = 0;
+    virtual const Variant&         getNativeErrorCode(void) const = 0;
+    virtual const String&          getMsg(void) const = 0;
+    virtual const String&          getDescription(void) const = 0;
+    virtual const Variant&         getData(void) const = 0;
+    virtual const CodePosInfo&     getCodepos(void) const = 0;
+    virtual const SQLSTATE         getSqlstate(void) const = 0;
+
+    virtual rownum_t     getRowNumber(void) const = 0;
+    virtual colnum_t     getColumnNumber(void) const = 0;
+
+
+    /// SQLSTATE exceptions stores an own copy of a diagnostic record.
+    /// It must be save to clone a complete record even if the handle that
+    /// has initially created the record is destroyed.
+    virtual IDiagnosticRec* clone(void) const = 0;
+
+    /// Dumps the information as as string
+    virtual String str(void) const = 0;
+};
+
+
+//--------------------------------------------------------------------------
+/// Interface for diagnostic records
+///
+/// @since 0.0.1
+/// @brief Interface for diagnostic records
+class DBWTL_EXPORT DiagnosticRec : public IDiagnosticRec
+{
+public:
+    DiagnosticRec(const CodePosInfo &cpi,
+    		dalstate_t dalstate,
+		SQLSTATE sqlstate,
+		const Variant &nativeCode,
+		const String &msg,
+		rownum_t rowNum = 0,
+		colnum_t colNum = 0,
+		const String &desc = String(),
+		const Variant &data = Variant());
+
+    DiagnosticRec(const DiagnosticRec &o);
+
+    virtual ~DiagnosticRec(void)
+    {}
+
+    virtual dalstate_t             getState(void) const;
+    virtual const Variant&         getNativeErrorCode(void) const;
+    virtual const String&          getMsg(void) const;
+    virtual const String&          getDescription(void) const;
+    virtual const Variant&         getData(void) const;
+    virtual const CodePosInfo&     getCodepos(void) const;
+    virtual const SQLSTATE         getSqlstate(void) const;
+
+    virtual rownum_t     getRowNumber(void) const;
+    virtual colnum_t     getColumnNumber(void) const;
+
+
+    /// SQLSTATE exceptions stores an own copy of a diagnostic record.
+    /// It must be save to clone a complete record even if the handle that
+    /// has initially created the record is destroyed.
+    virtual IDiagnosticRec* clone(void) const;
+
+    /// Dumps the information as as string
+    virtual String str(void) const;
+
+protected:
+    dalstate_t		m_dalstate;
+    Variant		m_nativeCode;
+    String		m_msg;
+    String		m_description;
+    Variant		m_data;
+    CodePosInfo		m_codepos;
+    SQLSTATE		m_sqlstate;
+    rownum_t		m_rownum;
+    colnum_t		m_colnum; 
+};
+
+
 
 //--------------------------------------------------------------------------
 /// Interface for diagnostic records
@@ -396,8 +503,6 @@ public:
 
 
 
-
-
 //--------------------------------------------------------------------------
 /// @brief Base class for Handles
 class DBWTL_EXPORT IHandle : public IDALObject
@@ -412,8 +517,21 @@ public:
     virtual const IDiagnostic&   fetchDiag(void) = 0;
 
 
+    virtual bool writeDiagnostic(const IDiagnosticRec &rec) const;
+
+    virtual void setDiagnosticWriter(void (*writer)(const IDiagnosticRec&, void*), void *arg = 0);
+
+
     virtual void             setOption(std::string name, const Variant &data) = 0;
     virtual const Variant&   getOption(std::string name) const = 0;
+
+protected:
+    void(*m_writer)(const IDiagnosticRec&, void*);
+    void *m_arg;
+
+private:
+    IHandle(const IHandle &);
+    IHandle& operator=(const IHandle &);
 };
 
 

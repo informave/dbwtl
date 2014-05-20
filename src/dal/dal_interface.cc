@@ -115,8 +115,30 @@ CodePosInfo::str(void) const
 //--------------------------------------------------------------------------
 //
 IHandle::IHandle(void)
-  : IDALObject()
+  : IDALObject(),
+    m_writer(0),
+    m_arg(0)
 {}
+
+
+bool
+IHandle::writeDiagnostic(const IDiagnosticRec &rec) const
+{
+	if(this->m_writer)
+	{
+		this->m_writer(rec, this->m_arg);
+	}
+	return true;
+}
+
+
+void
+IHandle::setDiagnosticWriter(void (*writer)(const IDiagnosticRec&, void*), void *arg)
+{
+	this->m_writer = writer;
+	this->m_arg = arg;
+}
+
 
 
 
@@ -624,6 +646,159 @@ IDbc::~IDbc(void)
 
 
 
+
+DiagnosticRec::DiagnosticRec(const CodePosInfo &cpi,
+                dalstate_t dalstate,
+                SQLSTATE sqlstate,
+                const Variant &nativeCode,
+                const String &msg,
+                rownum_t rowNum,
+                colnum_t colNum,
+                const String &desc,
+                const Variant &data)
+      : m_dalstate(dalstate),
+       m_nativeCode(nativeCode),
+        m_msg(msg),
+         m_description(desc),
+    m_data(data),
+       m_codepos(cpi),
+          m_sqlstate(sqlstate),
+       m_rownum(rowNum),
+        m_colnum(colNum)
+
+{
+}
+
+    
+DiagnosticRec::DiagnosticRec(const DiagnosticRec &o)
+      : m_dalstate(o.m_dalstate),
+       m_nativeCode(o.m_nativeCode),
+        m_msg(o.m_msg),
+         m_description(o.m_description),
+    m_data(o.m_data),
+       m_codepos(o.m_codepos),
+          m_sqlstate(o.m_sqlstate),
+       m_rownum(o.m_rownum),
+        m_colnum(o.m_colnum)
+{
+}
+
+ dalstate_t       
+DiagnosticRec::getState(void) const
+{
+	return this->m_dalstate;
+}
+const Variant&        
+DiagnosticRec::getNativeErrorCode(void) const
+{
+return this->m_nativeCode;
+}
+
+const String&         
+DiagnosticRec::getMsg(void) const
+{
+	return this->m_msg;
+}
+
+const String&          
+DiagnosticRec::getDescription(void) const
+{
+	return this->m_description;
+}
+
+ const Variant&        
+DiagnosticRec::getData(void) const
+{
+	return this->m_data;
+}
+
+   const CodePosInfo&    
+DiagnosticRec::getCodepos(void) const
+{
+	return this->m_codepos;
+}
+
+   const SQLSTATE        
+DiagnosticRec::getSqlstate(void) const
+{
+	return this->m_sqlstate;
+}
+
+  rownum_t     
+DiagnosticRec::getRowNumber(void) const
+{
+	return this->m_rownum;
+}
+
+  colnum_t     
+DiagnosticRec::getColumnNumber(void) const
+{
+	return this->m_colnum;
+}
+
+
+String
+DiagnosticRec::str(void) const
+{
+	String serv;
+	switch(this->getState())
+	{
+	case DAL_STATE_DEBUG:
+		serv = "DEBUG"; break;
+	case DAL_STATE_WARNING:
+		serv = "WARNING"; break;
+	case DAL_STATE_ERROR:
+		serv = "ERROR"; break;
+	case DAL_STATE_INFO:
+		serv = "INFO"; break;
+	}
+
+	std::wstringstream ss;
+	ss << serv << L" [" << this->getSqlstate().str() << L"] " << this->getMsg();
+	ss << std::endl;
+	ss << L"----------" << std::endl;
+	ss << L"column (" << this->getColumnNumber() << L"), row (" << this->getRowNumber() << L"), nativecode (" << this->getNativeErrorCode() << L")";
+	ss << std::endl;
+	if(!this->getDescription().empty())
+	{
+		ss << L"" << this->getDescription();
+		ss << std::endl;
+	}
+	if(!this->getData().isnull())
+	{
+		ss << L"RAW: [" << this->getData().asStr() << L"]";
+		ss << std::endl;
+	}
+	ss << L"Source: " << this->getCodepos().str() << L"";
+	ss << std::endl << L"----------" << std::endl;
+	return ss.str();
+}
+
+IDiagnosticRec*
+DiagnosticRec::clone(void) const
+{
+		return NULL; /// @bug fixme
+}
+
+
+SQLSTATE::SQLSTATE(const char *sqlstate)
+	: state(sqlstate)
+{
+}
+
+
+SQLSTATE::SQLSTATE(SQLSTATE const &o)
+	: state(o.state)
+{
+}
+
+String
+SQLSTATE::str(void) const
+{
+	return String(this->state);
+}
+
+
 //--------------------------------------------------------------------------
 ///
 ///
@@ -711,7 +886,10 @@ DiagBase::getColumnNumber(void) const
 }
 */
 
-
+void defaultDiagnosticWriter(const IDiagnosticRec &rec, void*)
+{
+	std::cerr << "[DIAG] " << rec.str() << std::endl;
+}
 
 //--------------------------------------------------------------------------
 ///
@@ -724,6 +902,8 @@ EnvBase::EnvBase(void)
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
     
     this->m_options["env_diag_maxsize"].set(50);
+
+	this->setDiagnosticWriter(defaultDiagnosticWriter);
 }
 
 
@@ -777,6 +957,8 @@ StmtBase::StmtBase(void)
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
     
     this->m_options["env_diag_maxsize"].set(50);
+
+	this->setDiagnosticWriter(defaultDiagnosticWriter);
 }
 
 
@@ -971,6 +1153,8 @@ DbcBase::DbcBase(void)
     DAL_ADD_OPTION("env_diag_maxsize", DAL_TYPE_UINT);
     
     this->m_options["env_diag_maxsize"].set(50);
+
+	this->setDiagnosticWriter(defaultDiagnosticWriter);
 }
 
 

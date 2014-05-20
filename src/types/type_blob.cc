@@ -225,6 +225,7 @@ sv_accessor<BlobStream>::cast(BlobStream*, std::locale loc) const
 String
 sv_accessor<BlobStream>::cast(String*, std::locale loc) const
 {
+/*
     if(!this->m_buffer.get())
     {
         this->m_buffer.reset(new std::stringstream());
@@ -232,7 +233,13 @@ sv_accessor<BlobStream>::cast(String*, std::locale loc) const
     }
     this->m_buffer->rdbuf()->pubseekpos(0);
     std::string tmp(this->m_buffer->str());
-
+    
+    return TVarbinary(tmp.c_str(), tmp.size()).str();
+*/
+    std::stringstream ss;
+    ss << this->get_value().rdbuf();
+    std::string tmp(ss.str());
+    
     return TVarbinary(tmp.c_str(), tmp.size()).str();
 }
 

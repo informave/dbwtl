@@ -247,6 +247,7 @@ sv_accessor<MemoStream>::cast(MemoStream*, std::locale loc) const
 String
 sv_accessor<MemoStream>::cast(String*, std::locale loc) const
 {
+/*
     if(!this->m_buffer.get())
     {
         this->m_buffer.reset(new std::wstringstream());
@@ -254,6 +255,10 @@ sv_accessor<MemoStream>::cast(String*, std::locale loc) const
     }
     this->m_buffer->rdbuf()->pubseekpos(0);
     return this->m_buffer->str();
+*/
+   std::wstringstream ss;
+   ss << this->get_value().rdbuf();
+   return ss.str();
 }
 
 

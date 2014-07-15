@@ -215,20 +215,20 @@ namespace cxxc
         }
         catch(Failure &e)
         {
-            std::cerr << e.what() << std::endl;
+            //std::cerr << e.what() << std::endl;
             if(true) throw e;
         }
         catch(std::exception &e)
         {
             TestDetails td(test->name(), test->file(), test->line(), std::string("Exception raised, what(): ").append(e.what()).c_str());
-            std::cerr << td.what() << std::endl;
+            //std::cerr << td.what() << std::endl;
             if(true) throw Failure(td);
         }
 
         catch(...)
         {
             TestDetails td(test->name(), test->file(), test->line(), "Test raised an exception which is not derived from std::exception.");
-            std::cerr << td.what() << std::endl;
+            //std::cerr << td.what() << std::endl;
             if(true) throw Failure(td);
         }
 

@@ -597,6 +597,28 @@ typedef sqlstate<DAL_ODBC_SQLSTATE_42000>                         SQLSTATE_synta
 
 
 
+//------------------------------------------------------------------------------
+///
+/// @brief SQLite Diagnostic
+class DBWTL_EXPORT OdbcDiagnosticRec : public DiagnosticRec
+{
+public:
+	OdbcDiagnosticRec(dalstate_t dalstate,
+		SQLSTATE sqlstate,
+		const Variant &nativeCode,
+		const String &msg,
+		rownum_t rowNum = 0,
+		colnum_t colNum = 0,
+		const String &desc = String(),
+		const Variant &data = Variant());
+
+    virtual ~OdbcDiagnosticRec(void)
+    {}
+
+
+    virtual OdbcDiagnosticRec* clone(void) const = 0;
+};
+
 
 //------------------------------------------------------------------------------
 ///

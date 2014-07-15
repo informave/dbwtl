@@ -173,6 +173,8 @@ class DBWTL_EXPORT EngineException : public Exception
 public:
     EngineException(const String &what);
 
+	EngineException(IHandle *handle, const IDiagnosticRec &rec);
+
     virtual ~EngineException(void) throw()
     {}
 

@@ -82,7 +82,8 @@ class DatasetFilter;
 class MetadataFilter;
 class NoFilter;
 
-
+class IHandle;
+class IDiagnosticRec;
 
 
 //--------------------------------------------------------------------------

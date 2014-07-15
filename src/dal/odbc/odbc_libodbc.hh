@@ -67,6 +67,30 @@ class OdbcData_libodbc;
 class OdbcDiag_libodbc;
 
 
+
+//------------------------------------------------------------------------------
+///
+/// @internal
+/// @brief OdbcDiag implementation for libodbc
+class DBWTL_EXPORT OdbcDiagnosticRec_libodbc : public OdbcDiagnosticRec
+{
+public:
+	OdbcDiagnosticRec_libodbc(dalstate_t dalstate,
+		SQLSTATE sqlstate,
+		const Variant &nativeCode,
+		const String &msg,
+		rownum_t rowNum = 0,
+		colnum_t colNum = 0,
+		const String &desc = String(),
+		const Variant &data = Variant());
+
+    virtual ~OdbcDiagnosticRec_libodbc(void)
+    {}
+
+
+    virtual OdbcDiagnosticRec_libodbc* clone(void) const;
+};
+
 //------------------------------------------------------------------------------
 ///
 /// @internal
@@ -678,6 +702,9 @@ public:
 	virtual void openOdbcSchemas(const Variant &catalog);
 	virtual void openOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type);
 	virtual void openOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table);
+
+	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(void) const;
+
 protected:
     OdbcResult_libodbc* newResultset(void);
 
@@ -750,6 +777,8 @@ public:
 
     virtual String         quoteIdentifier(const String &id);
 
+	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(void) const;
+
 protected:
     virtual void           setDbcEncoding(std::string encoding);
 
@@ -786,6 +815,8 @@ public:
     virtual OdbcDiag& appendDiagRec(const OdbcDiag &diag);
 
     virtual SQLHENV getHandle(void) const;
+
+	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(void) const;
 
 
 protected:

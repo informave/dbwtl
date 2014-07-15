@@ -193,6 +193,8 @@ typedef std::map<std::string, Variant> options_type;
 
 struct CodePosInfo
 {
+	static CodePosInfo unknown(void) { return CodePosInfo(__FILE__, __LINE__, __FILE__); }
+
     CodePosInfo(const char *file, int line, const char *func)
         : m_file(file),
           m_line(line),
@@ -450,6 +452,8 @@ public:
     virtual String str(void) const;
 
 protected:
+	DiagnosticRec(const CodePosInfo &cpi);
+
     dalstate_t		m_dalstate;
     Variant		m_nativeCode;
     String		m_msg;

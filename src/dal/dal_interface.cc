@@ -683,6 +683,20 @@ DiagnosticRec::DiagnosticRec(const DiagnosticRec &o)
 {
 }
 
+
+DiagnosticRec::DiagnosticRec(const CodePosInfo &cpi)
+      : m_dalstate(),
+       m_nativeCode(),
+        m_msg(),
+         m_description(),
+    m_data(),
+       m_codepos(cpi),
+          m_sqlstate("00000"),
+       m_rownum(),
+        m_colnum()
+{
+}
+
  dalstate_t       
 DiagnosticRec::getState(void) const
 {

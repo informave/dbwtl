@@ -2057,7 +2057,17 @@ OdbcDiag::OdbcDiag(const OdbcDiag& ref)
 {}
 
 
-
+OdbcDiagnosticRec::OdbcDiagnosticRec(dalstate_t dalstate,
+		SQLSTATE sqlstate,
+		const Variant &nativeCode,
+		const String &msg,
+		rownum_t rowNum,
+		colnum_t colNum,
+		const String &desc,
+		const Variant &data)
+	: DiagnosticRec(CodePosInfo::unknown(), dalstate, sqlstate, nativeCode, msg, rowNum, colNum, desc, data)
+{
+}
 
 
 #define DAL_THROW_STATE(state)                      \

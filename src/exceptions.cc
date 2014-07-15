@@ -276,6 +276,14 @@ EngineException::EngineException(const String &what)
 }
 
 
+//
+//
+EngineException::EngineException(IHandle *handle, const IDiagnosticRec &rec)
+	: Exception()
+{
+	this->setMessage(rec.getMsg());
+}
+
 
 //
 //

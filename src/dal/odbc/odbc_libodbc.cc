@@ -1976,6 +1976,16 @@ OdbcResult_libodbc::prepare(String sql)
 
     if(! SQL_SUCCEEDED(ret))
     {
+		std::list<OdbcDiagnosticRec_libodbc> list = this->m_stmt.getDiagRecs();
+
+		std::for_each(list.begin(), list.end(), [this](OdbcDiagnosticRec_libodbc &i){ this->m_stmt.writeDiagnostic(i); });
+		
+	// @bug Debug & Dev code, remove after implementation!
+	this->m_stmt.writeDiagnostic(DiagnosticRec(DBWTL_CPI, DAL_STATE_DEBUG, SQLSTATE("HY000"), 34,
+		"SQLPrepare() failed, invalid SQL",
+		23412, 2,
+		"The query failed."));
+
         THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt, this->getHandle(), SQL_HANDLE_STMT, "Prepare failed");
     }
 
@@ -1987,6 +1997,98 @@ OdbcResult_libodbc::prepare(String sql)
     DALTRACE_LEAVE;
 }
 
+
+std::list<OdbcDiagnosticRec_libodbc>
+readDiagnosticRecs(bool use_unicode, const std::string &charset, ODBC30Drv* drv, SQLHANDLE handle, SQLSMALLINT htype)
+{
+	std::list<OdbcDiagnosticRec_libodbc> lst;
+    SQLINTEGER i = 0;
+    SQLINTEGER native = 0;
+    SQLSMALLINT len = 0;
+    SQLRETURN ret;
+	
+    if(use_unicode)
+    {
+        OdbcStrW state(6);
+        OdbcStrW text(512+1);
+        do
+        {
+            ret = drv->SQLGetDiagRecW(htype, handle, ++i, state.ptr(), &native, text.ptr(), text.size(), &len);
+            if(SQL_SUCCEEDED(ret))
+            {
+				lst.push_back(OdbcDiagnosticRec_libodbc(DAL_STATE_ERROR, state.str(5).utf8(), native, text.str(len)));
+            }
+            else if(ret != SQL_NO_DATA)
+            {
+                throw EngineException("SQLGetDiagRec() returns an unexpected error");
+            }
+        }
+        while(SQL_SUCCEEDED(ret));
+
+    }
+    else
+    {
+        OdbcStrA state(6);
+        OdbcStrA text(512+1);
+        do
+        {
+            ret = drv->SQLGetDiagRecA(htype, handle, ++i, state.ptr(), &native, text.ptr(), text.size(), &len);
+            if(SQL_SUCCEEDED(ret))
+            {
+				lst.push_back(OdbcDiagnosticRec_libodbc(DAL_STATE_ERROR, state.str(5, "ASCII").utf8(), native, text.str(len, charset)));
+            }
+            else if(ret != SQL_NO_DATA)
+            {
+                throw EngineException("SQLGetDiagRec() returns an unexpected error");
+            }
+        }
+        while(SQL_SUCCEEDED(ret));
+    }
+	return lst;
+}
+
+
+
+std::list<OdbcDiagnosticRec_libodbc>
+OdbcStmt_libodbc::getDiagRecs(void) const
+{
+	return readDiagnosticRecs(this->getDbc().usingUnicode(), this->getDbc().getDbcEncoding(), this->drv(), 
+		this->getHandle(), SQL_HANDLE_STMT);
+}
+
+std::list<OdbcDiagnosticRec_libodbc>
+OdbcDbc_libodbc::getDiagRecs(void) const
+{
+	return std::list<OdbcDiagnosticRec_libodbc>();
+}
+
+
+std::list<OdbcDiagnosticRec_libodbc>
+OdbcEnv_libodbc::getDiagRecs(void) const
+{
+	return std::list<OdbcDiagnosticRec_libodbc>();
+}
+
+
+OdbcDiagnosticRec_libodbc::OdbcDiagnosticRec_libodbc(dalstate_t dalstate,
+		SQLSTATE sqlstate,
+		const Variant &nativeCode,
+		const String &msg,
+		rownum_t rowNum,
+		colnum_t colNum,
+		const String &desc,
+		const Variant &data)
+	: OdbcDiagnosticRec(dalstate, sqlstate, nativeCode, msg, rowNum, colNum, desc, data)
+{
+    
+}
+
+
+OdbcDiagnosticRec_libodbc*
+OdbcDiagnosticRec_libodbc::clone(void) const
+{
+	DBWTL_NOTIMPL();
+}
 
 
 static void tdate2odbc(const TDate &tdate, SQL_DATE_STRUCT &odbc)
@@ -3255,7 +3357,7 @@ OdbcResult_libodbc::columnCount(void) const
     if(! this->isOpen())
         throw EngineException("Resultset is not open.");
 
-    SQLSMALLINT c;
+    SQLSMALLINT c = 0;
 
     if(this->m_cached_resultcol_count == -1)
     {

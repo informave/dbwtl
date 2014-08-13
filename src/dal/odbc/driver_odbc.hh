@@ -17,7 +17,7 @@
 #include <sqlite3.h>
 
 
-#define ODBCVER 0x0300
+#define ODBCVER 0x0350
 
 #include <sql.h>
 #include <sqlext.h>

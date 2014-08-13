@@ -1470,7 +1470,7 @@ OdbcData_libodbc::initValue(void)
 		val.ctype = SQL_C_WCHAR;
 		val.buf = 0;
 		val.buflen = 0;
-        break;
+        break;		
 	case SQL_LONGVARBINARY:
 		val.ctype = SQL_C_BINARY;
 		val.buf = 0;
@@ -1558,6 +1558,14 @@ OdbcData_libodbc::initValue(void)
 		val.buflen = sizeof(this->m_value.data.timestamp);
         break;
 
+	/// @bug GUID is an ODBC 3.5 type. Needs handling via version. for now, we use string conversion
+	case SQL_GUID:
+        val.strbufA.resize(100+1); // size = chars
+		val.ctype = SQL_C_CHAR;
+		val.buf = m_value.strbufA.ptr();
+		val.buflen = m_value.strbufA.size()*sizeof(SQLCHAR);
+        break;
+
 //case SQL_TYPE_UTCDATETIME:
 //case SQL_TYPE_UTCTIME:
     case SQL_INTERVAL_MONTH:
@@ -1578,7 +1586,8 @@ OdbcData_libodbc::initValue(void)
 
 	default:
 		// raise exception!!!
-		throw std::runtime_error("unhandled sqltype");
+		//this->m_resultset.columnName(this->m_colnum)
+		throw std::runtime_error(FORMAT2("unhandled sqltype for %s %d", this->m_resultset.columnName(this->m_colnum), this->m_value.sqltype));
 	};
 }
 
@@ -3287,7 +3296,7 @@ OdbcResult_libodbc::reset(void)
     }
     this->m_param_data.clear();
 
-    m_cached_resultcol_count = -1;
+    this->m_cached_resultcol_count = -1;
 }
 
 
@@ -3415,11 +3424,12 @@ OdbcResult_libodbc::columnCount(void) const
         {
             THROW_ODBC_DIAG_ERROR(this->getDbc(), this->getStmt(), this->getHandle(), SQL_HANDLE_STMT, "NumResultCols");
         }
+		this->m_cached_resultcol_count = c;
     }
 
     DAL_DEBUG("Query column count: " << this->m_cached_resultcol_count);
     DALTRACE_LEAVE;
-    return c;
+    return this->m_cached_resultcol_count;
 }
 
 

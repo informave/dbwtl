@@ -612,7 +612,7 @@ protected:
     rowid_t                  m_current_tuple;
     int                      m_last_row_status;
     bool                     m_isopen;
-    SQLSMALLINT              m_cached_resultcol_count;
+    mutable SQLSMALLINT      m_cached_resultcol_count;
 
 
     std::map<colnum_t, std::shared_ptr<OdbcValue> > m_param_data;

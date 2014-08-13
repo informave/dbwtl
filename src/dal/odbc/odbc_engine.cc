@@ -2057,7 +2057,8 @@ OdbcDiag::OdbcDiag(const OdbcDiag& ref)
 {}
 
 
-OdbcDiagnosticRec::OdbcDiagnosticRec(dalstate_t dalstate,
+OdbcDiagnosticRec::OdbcDiagnosticRec(const CodePosInfo & cpi,
+									 dalstate_t dalstate,
 		SQLSTATE sqlstate,
 		const Variant &nativeCode,
 		const String &msg,
@@ -2065,7 +2066,7 @@ OdbcDiagnosticRec::OdbcDiagnosticRec(dalstate_t dalstate,
 		colnum_t colNum,
 		const String &desc,
 		const Variant &data)
-	: DiagnosticRec(CodePosInfo::unknown(), dalstate, sqlstate, nativeCode, msg, rowNum, colNum, desc, data)
+	: DiagnosticRec(cpi, dalstate, sqlstate, nativeCode, msg, rowNum, colNum, desc, data)
 {
 }
 

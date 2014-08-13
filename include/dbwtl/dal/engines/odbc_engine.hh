@@ -603,7 +603,8 @@ typedef sqlstate<DAL_ODBC_SQLSTATE_42000>                         SQLSTATE_synta
 class DBWTL_EXPORT OdbcDiagnosticRec : public DiagnosticRec
 {
 public:
-	OdbcDiagnosticRec(dalstate_t dalstate,
+	OdbcDiagnosticRec(const CodePosInfo & cpi,
+		dalstate_t dalstate,
 		SQLSTATE sqlstate,
 		const Variant &nativeCode,
 		const String &msg,

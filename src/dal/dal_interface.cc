@@ -900,9 +900,30 @@ DiagBase::getColumnNumber(void) const
 }
 */
 
+
+std::string replace_all(std::string str, const std::string& from, const std::string& to)
+{
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos)
+	{
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
+
 void defaultDiagnosticWriter(const IDiagnosticRec &rec, void*)
 {
-	std::cerr << "[DIAG] " << rec.str() << std::endl;
+	static size_t errc = 0;
+	++errc;
+	std::string utf8_msg = rec.getMsg().utf8();
+	utf8_msg = replace_all(utf8_msg, "\r\n", " ");
+	utf8_msg = replace_all(utf8_msg, "\n", " ");
+	std::cerr << "[ERR " << errc << "]: " << utf8_msg << std::endl;
+	std::cerr << "[ERR " << errc << "]: " << "SQLSTATE " << rec.getSqlstate().str() << std::endl;
+	std::cerr << "[ERR " << errc << "]: " << "at " << rec.getCodepos().str() << std::endl;	
+	//std::cerr << "[DIAG] " << rec.str() << std::endl;
+	std::cerr << std::endl;
 }
 
 //--------------------------------------------------------------------------

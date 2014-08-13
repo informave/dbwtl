@@ -200,7 +200,7 @@ inline void copy_diag_and_throw(const OdbcDbc_libodbc &dbc, T &obj, const CodePo
 
 
 
-inline std::string diag_sqlstate(const OdbcDbc_libodbc &dbc, SQLHANDLE handle, SQLSMALLINT htype)
+inline std::string diag_sqlstate(const CodePosInfo &info, const OdbcDbc_libodbc &dbc, SQLHANDLE handle, SQLSMALLINT htype)
 {
     SQLINTEGER native = 0;
     SQLSMALLINT len = 0;
@@ -232,7 +232,7 @@ inline std::string diag_sqlstate(const OdbcDbc_libodbc &dbc, SQLHANDLE handle, S
     }
     else if(ret == SQL_NO_DATA)
     {
-        throw EngineException("SQLGetDiagRec() returns SQL_NO_DATA when asking for SQLSTATE");
+		throw EngineException(std::string("SQLGetDiagRec() returns SQL_NO_DATA when asking for SQLSTATE at ") + info.str().utf8());
     }
     else
     {
@@ -444,7 +444,7 @@ OdbcBlob_libodbc::underflow()
     if(ret == SQL_SUCCESS_WITH_INFO)
     {
         //std::cout << "TRUNC" << std::endl;
-        std::string state = diag_sqlstate(this->m_data.m_resultset.getDbc(),
+        std::string state = diag_sqlstate(DBWTL_CPI, this->m_data.m_resultset.getDbc(),
                                           this->getHandle(), SQL_HANDLE_STMT);
         if(state != "01004")
         {
@@ -596,6 +596,7 @@ OdbcMemo_libodbc::underflow()
     {
         ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
                                       SQL_C_WCHAR, start, sizeof(m_buf) - (start - base), &m_ind);
+
 //  std::wcout << "DATA: " << std::wstring(start, start + (sizeof(m_buf) - (start - base))) << std::endl;
     }
     else
@@ -603,16 +604,19 @@ OdbcMemo_libodbc::underflow()
         std::vector<SQLWCHAR> tmp((sizeof(m_buf)/sizeof(wchar_t) - (start - base)));
         ret = this->drv()->SQLGetData(this->getHandle(), this->m_data.m_colnum,
                                       SQL_C_WCHAR, tmp.data(), tmp.size()*sizeof(SQLWCHAR), &m_ind);
-        /// @bug check ret value!
-        for(size_t i = 0; i < (sizeof(m_buf)/sizeof(wchar_t) - (start - base)); ++i)
-        {
-            assert(i < (DAL_STREAMBUF_BUFSIZE + DAL_STREAMBUF_PUTBACK));
+        
+		if(SQL_SUCCEEDED(ret))
+		{
+			for(size_t i = 0; i < (sizeof(m_buf)/sizeof(wchar_t) - (start - base)); ++i)
+			{
+				assert(i < (DAL_STREAMBUF_BUFSIZE + DAL_STREAMBUF_PUTBACK));
 
-            assert(sizeof(m_buf)/sizeof(wchar_t) ==  (DAL_STREAMBUF_BUFSIZE + DAL_STREAMBUF_PUTBACK));
+				assert(sizeof(m_buf)/sizeof(wchar_t) ==  (DAL_STREAMBUF_BUFSIZE + DAL_STREAMBUF_PUTBACK));
 
-            //std::cout << i << " " << (sizeof(m_buf) << " " << (start - base))  << std::endl;
-            start[i] = tmp[i];
-        }
+				//std::cout << i << " " << (sizeof(m_buf) << " " << (start - base))  << std::endl;
+				start[i] = tmp[i];
+			}
+		}
     }
 
 
@@ -634,8 +638,13 @@ OdbcMemo_libodbc::underflow()
     if(ret == SQL_SUCCESS_WITH_INFO)
     {
         //std::cout << "TRUNC" << std::endl;
-        std::string state = diag_sqlstate(this->m_data.m_resultset.getDbc(),
+		std::string state;
+		try
+		{
+			state = diag_sqlstate(DBWTL_CPI, this->m_data.m_resultset.getDbc(),
                                           this->getHandle(), SQL_HANDLE_STMT);
+		}
+		catch(...) {}
         if(state != "01004")
         {
             THROW_ODBC_DIAG_ERROR(this->m_data.m_resultset.getDbc(), this->m_data.m_resultset.getStmt(),
@@ -1206,176 +1215,176 @@ OdbcData_libodbc::fetchParts(void)
 
 	return;
 
-    if(this->m_value.ind == SQL_NULL_DATA || this->m_value.ind == SQL_NTS)
-        return;
+   // if(this->m_value.ind == SQL_NULL_DATA || this->m_value.ind == SQL_NTS)
+   //     return;
 
-    SQLRETURN ret;
-    SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
-    SQLULEN size = 0;
+   // SQLRETURN ret;
+   // SQLSMALLINT sqltype = SQL_UNKNOWN_TYPE;
+   // SQLULEN size = 0;
 
-    if(this->m_resultset.getDbc().usingUnicode())
-        ret = this->drv()->SQLDescribeColW(this->getHandle(), m_colnum, NULL, 0, NULL,
-                                           &sqltype, &size, NULL, NULL);
-    else
-        ret = this->drv()->SQLDescribeColA(this->getHandle(), m_colnum, NULL, 0, NULL,
-                                           &sqltype, &size, NULL, NULL);
+   // if(this->m_resultset.getDbc().usingUnicode())
+   //     ret = this->drv()->SQLDescribeColW(this->getHandle(), m_colnum, NULL, 0, NULL,
+   //                                        &sqltype, &size, NULL, NULL);
+   // else
+   //     ret = this->drv()->SQLDescribeColA(this->getHandle(), m_colnum, NULL, 0, NULL,
+   //                                        &sqltype, &size, NULL, NULL);
 
-    if(! SQL_SUCCEEDED(ret))
-    {
-        THROW_ODBC_DIAG_ERROR(this->m_resultset.getStmt().getDbc(),
-                              this->m_resultset.getStmt(), this->m_resultset.getHandle(),
-                              SQL_HANDLE_STMT, "DescribeCol failed");
-    }
+   // if(! SQL_SUCCEEDED(ret))
+   // {
+   //     THROW_ODBC_DIAG_ERROR(this->m_resultset.getStmt().getDbc(),
+   //                           this->m_resultset.getStmt(), this->m_resultset.getHandle(),
+   //                           SQL_HANDLE_STMT, "DescribeCol failed");
+   // }
 
-    // UNICODE
-    if(sqltype == SQL_WCHAR || sqltype == SQL_WVARCHAR)
-    {
-        if(this->m_value.ind > 0 && (unsigned)this->m_value.ind <= this->m_value.strbufW.size()*sizeof(SQLWCHAR))
-        {
-            return; // nothing to do.
-        }
-        else if(this->m_value.ind > 0 && (unsigned)this->m_value.ind > this->m_value.strbufW.size()*sizeof(SQLWCHAR))
-        {
-            // we know the exact size of the data, everything could
-            // be read at once.
-            if((unsigned)this->m_value.ind > this->m_value.strbufW.max_size())
-                throw EngineException(FORMAT2("Unable to fetch %d bytes, max string size is %d",
-                                              this->m_value.ind, this->m_value.strbufW.max_size()));
-            m_value.strbufW.resize( (this->m_value.ind/sizeof(SQLWCHAR))+1); // add null-terminator
-            this->m_value.ind = SQL_NULL_DATA; // reset indicator
-            ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
-                                          SQL_C_WCHAR, m_value.strbufW.ptr(),
-                                          m_value.strbufW.size()*sizeof(SQLWCHAR), &this->m_value.ind);
-            if(ret == SQL_NO_DATA)
-            {
-                m_value.ind = SQL_NULL_DATA;
-            }
-            else if(! SQL_SUCCEEDED(ret))
-                THROW_ODBC_DIAG_ERROR(this->m_resultset.getDbc(), this->m_resultset.getStmt(),
-                                      this->getHandle(), SQL_HANDLE_STMT,
-                                      "SQLGetData() failed");
-        }
-        else if(this->m_value.ind == SQL_NO_TOTAL)
-        {
-            SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
-            m_value.strbufW.resize(bufsize);
-            SQLWCHAR *ptr = m_value.strbufW.ptr();
-            do
-            {
-                this->m_value.ind = SQL_NULL_DATA; // reset indicator
-                ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
-                                              SQL_C_WCHAR, ptr,
-                                              bufsize*sizeof(SQLWCHAR), &this->m_value.ind);
-                if(ret == SQL_SUCCESS_WITH_INFO
-                   && diag_sqlstate(this->getStmt().getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
-                {
-                    m_value.strbufW.resize((m_value.strbufW.size()-1)+bufsize); // remove null terminator
-                    ptr = m_value.strbufW.ptr() + (m_value.strbufW.size()-bufsize);
-                }
-                else if(ret == SQL_NO_DATA)
-                {
-                    m_value.ind = SQL_NULL_DATA;
-                }
-                else if(ret == SQL_SUCCESS) // final part
-                {
-                    assert(this->m_value.ind != SQL_NO_TOTAL);
-                    assert(this->m_value.ind != 0);
-                    m_value.strbufW.resize(m_value.strbufW.size()-(bufsize-((this->m_value.ind/sizeof(SQLWCHAR)))));
-                    m_value.ind = m_value.strbufW.size()*sizeof(SQLWCHAR);
-                    break;
-                }
-                else
-                {
-                    THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
-                                          this->getHandle(), SQL_HANDLE_STMT, "SQLGetData() failed");
-                }
-            }
-            while(ret == SQL_SUCCESS_WITH_INFO);
-        }
-        else
-        {
-            throw EngineException(FORMAT1("Invalid indicator value at fetchParts(): %d", this->m_value.ind));
-        }
-    }
-    // ANSI
-    else if(sqltype == SQL_CHAR || sqltype == SQL_VARCHAR)
-    {
-        if(this->m_value.ind > 0 && (unsigned)this->m_value.ind <= this->m_value.strbufA.size()*sizeof(SQLCHAR))
-        {
-            return; // nothing to do.
-        }
-        else if(this->m_value.ind > 0 && (unsigned)this->m_value.ind > this->m_value.strbufA.size()*sizeof(SQLCHAR))
-        {
-            // we know the exact size of the data, everything could
-            // be read at once.
-            if((unsigned)this->m_value.ind > this->m_value.strbufA.max_size())
-                throw EngineException(FORMAT2("Unable to fetch %d bytes, max string size is %d",
-                                              this->m_value.ind, this->m_value.strbufA.max_size()));
-            m_value.strbufA.resize( (this->m_value.ind/sizeof(SQLCHAR))+1); // add null-terminator
-            this->m_value.ind = SQL_NULL_DATA; // reset indicator
-            ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
-                                          SQL_C_CHAR, m_value.strbufA.ptr(),
-                                          m_value.strbufA.size()*sizeof(SQLCHAR), &this->m_value.ind);
-            if(ret == SQL_NO_DATA)
-            {
-                m_value.ind = SQL_NULL_DATA;
-            }
-			else if(! SQL_SUCCEEDED(ret))
-                THROW_ODBC_DIAG_ERROR(this->m_resultset.getDbc(), this->m_resultset.getStmt(),
-                                      this->getHandle(), SQL_HANDLE_STMT,
-                                      "SQLGetData() failed");
-        }
-        else if(this->m_value.ind == SQL_NO_TOTAL)
-        {
-            SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
-            m_value.strbufA.resize(bufsize);
-            SQLCHAR *ptr = m_value.strbufA.ptr();
-            do
-            {
-                this->m_value.ind = SQL_NULL_DATA; // reset indicator
-                ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
-                                              SQL_C_CHAR, ptr,
-                                              bufsize*sizeof(SQLCHAR), &this->m_value.ind);
-                if(ret == SQL_SUCCESS_WITH_INFO
-                   && diag_sqlstate(this->getStmt().getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
-                {
-                    m_value.strbufA.resize((m_value.strbufA.size()-1)+bufsize); // remove null terminator
-                    ptr = m_value.strbufA.ptr() + (m_value.strbufA.size()-bufsize);
-                }
-				else if(ret == SQL_NO_DATA)
-                {
-                    m_value.ind = SQL_NULL_DATA;
-                }
-                else if(ret == SQL_SUCCESS) // final part
-                {
-                    assert(this->m_value.ind != SQL_NO_TOTAL);
-                    assert(this->m_value.ind != 0);
-                    m_value.strbufA.resize(m_value.strbufA.size()-(bufsize-((this->m_value.ind/sizeof(SQLCHAR)))));
-                    m_value.ind = m_value.strbufA.size()*sizeof(SQLCHAR);
-                    break;
-                }
-                else
-                {
-                    THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
-                                          this->getHandle(), SQL_HANDLE_STMT, "SQLGetData() failed");
-                }
-            }
-            while(ret == SQL_SUCCESS_WITH_INFO);
-        }
-        else
-        {
-            throw EngineException(FORMAT1("Invalid indicator value at fetchParts(): %d", this->m_value.ind));
-        }
-    }
-    // BINARY
-    else if(sqltype == SQL_BINARY || sqltype == SQL_VARBINARY)
-    {
-        DBWTL_NOTIMPL();
-    }
-    else
-    {
-        // other types ignored
-    }
+   // // UNICODE
+   // if(sqltype == SQL_WCHAR || sqltype == SQL_WVARCHAR)
+   // {
+   //     if(this->m_value.ind > 0 && (unsigned)this->m_value.ind <= this->m_value.strbufW.size()*sizeof(SQLWCHAR))
+   //     {
+   //         return; // nothing to do.
+   //     }
+   //     else if(this->m_value.ind > 0 && (unsigned)this->m_value.ind > this->m_value.strbufW.size()*sizeof(SQLWCHAR))
+   //     {
+   //         // we know the exact size of the data, everything could
+   //         // be read at once.
+   //         if((unsigned)this->m_value.ind > this->m_value.strbufW.max_size())
+   //             throw EngineException(FORMAT2("Unable to fetch %d bytes, max string size is %d",
+   //                                           this->m_value.ind, this->m_value.strbufW.max_size()));
+   //         m_value.strbufW.resize( (this->m_value.ind/sizeof(SQLWCHAR))+1); // add null-terminator
+   //         this->m_value.ind = SQL_NULL_DATA; // reset indicator
+   //         ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
+   //                                       SQL_C_WCHAR, m_value.strbufW.ptr(),
+   //                                       m_value.strbufW.size()*sizeof(SQLWCHAR), &this->m_value.ind);
+   //         if(ret == SQL_NO_DATA)
+   //         {
+   //             m_value.ind = SQL_NULL_DATA;
+   //         }
+   //         else if(! SQL_SUCCEEDED(ret))
+   //             THROW_ODBC_DIAG_ERROR(this->m_resultset.getDbc(), this->m_resultset.getStmt(),
+   //                                   this->getHandle(), SQL_HANDLE_STMT,
+   //                                   "SQLGetData() failed");
+   //     }
+   //     else if(this->m_value.ind == SQL_NO_TOTAL)
+   //     {
+   //         SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
+   //         m_value.strbufW.resize(bufsize);
+   //         SQLWCHAR *ptr = m_value.strbufW.ptr();
+   //         do
+   //         {
+   //             this->m_value.ind = SQL_NULL_DATA; // reset indicator
+   //             ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
+   //                                           SQL_C_WCHAR, ptr,
+   //                                           bufsize*sizeof(SQLWCHAR), &this->m_value.ind);
+   //             if(ret == SQL_SUCCESS_WITH_INFO
+   //                && diag_sqlstate(this->getStmt().getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
+   //             {
+   //                 m_value.strbufW.resize((m_value.strbufW.size()-1)+bufsize); // remove null terminator
+   //                 ptr = m_value.strbufW.ptr() + (m_value.strbufW.size()-bufsize);
+   //             }
+   //             else if(ret == SQL_NO_DATA)
+   //             {
+   //                 m_value.ind = SQL_NULL_DATA;
+   //             }
+   //             else if(ret == SQL_SUCCESS) // final part
+   //             {
+   //                 assert(this->m_value.ind != SQL_NO_TOTAL);
+   //                 assert(this->m_value.ind != 0);
+   //                 m_value.strbufW.resize(m_value.strbufW.size()-(bufsize-((this->m_value.ind/sizeof(SQLWCHAR)))));
+   //                 m_value.ind = m_value.strbufW.size()*sizeof(SQLWCHAR);
+   //                 break;
+   //             }
+   //             else
+   //             {
+   //                 THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
+   //                                       this->getHandle(), SQL_HANDLE_STMT, "SQLGetData() failed");
+   //             }
+   //         }
+   //         while(ret == SQL_SUCCESS_WITH_INFO);
+   //     }
+   //     else
+   //     {
+   //         throw EngineException(FORMAT1("Invalid indicator value at fetchParts(): %d", this->m_value.ind));
+   //     }
+   // }
+   // // ANSI
+   // else if(sqltype == SQL_CHAR || sqltype == SQL_VARCHAR)
+   // {
+   //     if(this->m_value.ind > 0 && (unsigned)this->m_value.ind <= this->m_value.strbufA.size()*sizeof(SQLCHAR))
+   //     {
+   //         return; // nothing to do.
+   //     }
+   //     else if(this->m_value.ind > 0 && (unsigned)this->m_value.ind > this->m_value.strbufA.size()*sizeof(SQLCHAR))
+   //     {
+   //         // we know the exact size of the data, everything could
+   //         // be read at once.
+   //         if((unsigned)this->m_value.ind > this->m_value.strbufA.max_size())
+   //             throw EngineException(FORMAT2("Unable to fetch %d bytes, max string size is %d",
+   //                                           this->m_value.ind, this->m_value.strbufA.max_size()));
+   //         m_value.strbufA.resize( (this->m_value.ind/sizeof(SQLCHAR))+1); // add null-terminator
+   //         this->m_value.ind = SQL_NULL_DATA; // reset indicator
+   //         ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
+   //                                       SQL_C_CHAR, m_value.strbufA.ptr(),
+   //                                       m_value.strbufA.size()*sizeof(SQLCHAR), &this->m_value.ind);
+   //         if(ret == SQL_NO_DATA)
+   //         {
+   //             m_value.ind = SQL_NULL_DATA;
+   //         }
+			//else if(! SQL_SUCCEEDED(ret))
+   //             THROW_ODBC_DIAG_ERROR(this->m_resultset.getDbc(), this->m_resultset.getStmt(),
+   //                                   this->getHandle(), SQL_HANDLE_STMT,
+   //                                   "SQLGetData() failed");
+   //     }
+   //     else if(this->m_value.ind == SQL_NO_TOTAL)
+   //     {
+   //         SQLLEN bufsize = DBWTL_ODBC_LOB_BUFSIZE;
+   //         m_value.strbufA.resize(bufsize);
+   //         SQLCHAR *ptr = m_value.strbufA.ptr();
+   //         do
+   //         {
+   //             this->m_value.ind = SQL_NULL_DATA; // reset indicator
+   //             ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum,
+   //                                           SQL_C_CHAR, ptr,
+   //                                           bufsize*sizeof(SQLCHAR), &this->m_value.ind);
+   //             if(ret == SQL_SUCCESS_WITH_INFO
+   //                && diag_sqlstate(this->getStmt().getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
+   //             {
+   //                 m_value.strbufA.resize((m_value.strbufA.size()-1)+bufsize); // remove null terminator
+   //                 ptr = m_value.strbufA.ptr() + (m_value.strbufA.size()-bufsize);
+   //             }
+			//	else if(ret == SQL_NO_DATA)
+   //             {
+   //                 m_value.ind = SQL_NULL_DATA;
+   //             }
+   //             else if(ret == SQL_SUCCESS) // final part
+   //             {
+   //                 assert(this->m_value.ind != SQL_NO_TOTAL);
+   //                 assert(this->m_value.ind != 0);
+   //                 m_value.strbufA.resize(m_value.strbufA.size()-(bufsize-((this->m_value.ind/sizeof(SQLCHAR)))));
+   //                 m_value.ind = m_value.strbufA.size()*sizeof(SQLCHAR);
+   //                 break;
+   //             }
+   //             else
+   //             {
+   //                 THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
+   //                                       this->getHandle(), SQL_HANDLE_STMT, "SQLGetData() failed");
+   //             }
+   //         }
+   //         while(ret == SQL_SUCCESS_WITH_INFO);
+   //     }
+   //     else
+   //     {
+   //         throw EngineException(FORMAT1("Invalid indicator value at fetchParts(): %d", this->m_value.ind));
+   //     }
+   // }
+   // // BINARY
+   // else if(sqltype == SQL_BINARY || sqltype == SQL_VARBINARY)
+   // {
+   //     DBWTL_NOTIMPL();
+   // }
+   // else
+   // {
+   //     // other types ignored
+   // }
 }
 
 
@@ -1619,12 +1628,19 @@ OdbcData_libodbc::getdata(void)
 
 		ret = this->drv()->SQLGetData(this->getHandle(), this->m_colnum, this->m_value.ctype, this->m_value.buf, this->m_value.buflen, &this->m_value.ind);
 
-		if(! SQL_SUCCEEDED(ret))
+		if(ret == SQL_NO_DATA)
+		{
+			throw EngineException("SQLGetData() returns SQL_NO_DATA, this is unhandled here!");
+		}
+		else if(SQL_SUCCEEDED(ret))
+		{
+			return true;
+		}
+		else
 		{
 			THROW_ODBC_DIAG_ERROR(this->getStmt().getDbc(), this->getStmt(),
                                   this->getHandle(), SQL_HANDLE_STMT, "SQLGetData() failed!!!");
 		}
-		return true;
 	}
 }
 
@@ -1942,6 +1958,21 @@ OdbcResult_libodbc::~OdbcResult_libodbc(void)
 }
 
 
+class Sqlstate2Exception
+{
+public:
+	Sqlstate2Exception(int(*mapping_function)(int), const IDiagnosticRec &rec, IHandle &handle)
+	{
+		handle.writeDiagnostic(DiagnosticRec(DBWTL_CPI, DAL_STATE_DEBUG, SQLSTATE("00000"), 0, "not impl"));
+	}
+};
+
+
+int odbcSqlstateMapping(int)
+{
+		/// @bug implement me
+		return 0;
+}
 
 //
 void
@@ -1976,15 +2007,30 @@ OdbcResult_libodbc::prepare(String sql)
 
     if(! SQL_SUCCEEDED(ret))
     {
-		std::list<OdbcDiagnosticRec_libodbc> list = this->m_stmt.getDiagRecs();
+		std::list<OdbcDiagnosticRec_libodbc> list = this->m_stmt.getDiagRecs(DBWTL_CPI);
 
 		std::for_each(list.begin(), list.end(), [this](OdbcDiagnosticRec_libodbc &i){ this->m_stmt.writeDiagnostic(i); });
 		
+
+		this->m_stmt.writeDiagnostic(DiagnosticRec(DBWTL_CPI, DAL_STATE_DEBUG, SQLSTATE("00000"), 0, "fooMessage"));
+
+		DiagnosticRec myrec(DBWTL_CPI, DAL_STATE_ERROR, SQLSTATE("HY000"), 0, "bla");
+
+		//throw map_sqlstate2exception();
+
+		throw Sqlstate2Exception(odbcSqlstateMapping, myrec, this->m_stmt);
+
+
+		throw EngineException(this->m_stmt, DiagnosticRec(DBWTL_CPI, DAL_STATE_ERROR, SQLSTATE("XXXXX"), 0, "newFoo"));
+		
+
 	// @bug Debug & Dev code, remove after implementation!
+		/*
 	this->m_stmt.writeDiagnostic(DiagnosticRec(DBWTL_CPI, DAL_STATE_DEBUG, SQLSTATE("HY000"), 34,
 		"SQLPrepare() failed, invalid SQL",
 		23412, 2,
 		"The query failed."));
+		*/
 
         THROW_ODBC_DIAG_ERROR(this->m_stmt.getDbc(), this->m_stmt, this->getHandle(), SQL_HANDLE_STMT, "Prepare failed");
     }
@@ -1999,7 +2045,7 @@ OdbcResult_libodbc::prepare(String sql)
 
 
 std::list<OdbcDiagnosticRec_libodbc>
-readDiagnosticRecs(bool use_unicode, const std::string &charset, ODBC30Drv* drv, SQLHANDLE handle, SQLSMALLINT htype)
+readDiagnosticRecs(const CodePosInfo &cpi, bool use_unicode, const std::string &charset, ODBC30Drv* drv, SQLHANDLE handle, SQLSMALLINT htype)
 {
 	std::list<OdbcDiagnosticRec_libodbc> lst;
     SQLINTEGER i = 0;
@@ -2016,7 +2062,8 @@ readDiagnosticRecs(bool use_unicode, const std::string &charset, ODBC30Drv* drv,
             ret = drv->SQLGetDiagRecW(htype, handle, ++i, state.ptr(), &native, text.ptr(), text.size(), &len);
             if(SQL_SUCCEEDED(ret))
             {
-				lst.push_back(OdbcDiagnosticRec_libodbc(DAL_STATE_ERROR, state.str(5).utf8(), native, text.str(len)));
+				/// @bug check error class instead of hardcoding DAL_STATE_ERROR
+				lst.push_back(OdbcDiagnosticRec_libodbc(cpi, DAL_STATE_ERROR, state.str(5).utf8(), native, text.str(len)));
             }
             else if(ret != SQL_NO_DATA)
             {
@@ -2035,7 +2082,7 @@ readDiagnosticRecs(bool use_unicode, const std::string &charset, ODBC30Drv* drv,
             ret = drv->SQLGetDiagRecA(htype, handle, ++i, state.ptr(), &native, text.ptr(), text.size(), &len);
             if(SQL_SUCCEEDED(ret))
             {
-				lst.push_back(OdbcDiagnosticRec_libodbc(DAL_STATE_ERROR, state.str(5, "ASCII").utf8(), native, text.str(len, charset)));
+				lst.push_back(OdbcDiagnosticRec_libodbc(cpi, DAL_STATE_ERROR, state.str(5, "ASCII").utf8(), native, text.str(len, charset)));
             }
             else if(ret != SQL_NO_DATA)
             {
@@ -2050,27 +2097,28 @@ readDiagnosticRecs(bool use_unicode, const std::string &charset, ODBC30Drv* drv,
 
 
 std::list<OdbcDiagnosticRec_libodbc>
-OdbcStmt_libodbc::getDiagRecs(void) const
+OdbcStmt_libodbc::getDiagRecs(const CodePosInfo & cpi) const
 {
-	return readDiagnosticRecs(this->getDbc().usingUnicode(), this->getDbc().getDbcEncoding(), this->drv(), 
+	return readDiagnosticRecs(cpi, this->getDbc().usingUnicode(), this->getDbc().getDbcEncoding(), this->drv(), 
 		this->getHandle(), SQL_HANDLE_STMT);
 }
 
 std::list<OdbcDiagnosticRec_libodbc>
-OdbcDbc_libodbc::getDiagRecs(void) const
+OdbcDbc_libodbc::getDiagRecs(const CodePosInfo & cpi) const
 {
 	return std::list<OdbcDiagnosticRec_libodbc>();
 }
 
 
 std::list<OdbcDiagnosticRec_libodbc>
-OdbcEnv_libodbc::getDiagRecs(void) const
+OdbcEnv_libodbc::getDiagRecs(const CodePosInfo & cpi) const
 {
 	return std::list<OdbcDiagnosticRec_libodbc>();
 }
 
 
-OdbcDiagnosticRec_libodbc::OdbcDiagnosticRec_libodbc(dalstate_t dalstate,
+OdbcDiagnosticRec_libodbc::OdbcDiagnosticRec_libodbc(const CodePosInfo & cpi,
+													 dalstate_t dalstate,
 		SQLSTATE sqlstate,
 		const Variant &nativeCode,
 		const String &msg,
@@ -2078,7 +2126,7 @@ OdbcDiagnosticRec_libodbc::OdbcDiagnosticRec_libodbc(dalstate_t dalstate,
 		colnum_t colNum,
 		const String &desc,
 		const Variant &data)
-	: OdbcDiagnosticRec(dalstate, sqlstate, nativeCode, msg, rowNum, colNum, desc, data)
+	: OdbcDiagnosticRec(cpi, dalstate, sqlstate, nativeCode, msg, rowNum, colNum, desc, data)
 {
     
 }
@@ -2477,9 +2525,9 @@ OdbcResult_libodbc::execute(StmtBase::ParamMap& params)
             {
                 SQLRETURN ret = this->drv()->SQLDescribeParam(this->getHandle(), param->first,
                                                               &dtype, &plen, &decdigits, NULL);
-				if(SQL_SUCCEEDED(ret)) {}
+				if(ret == SQL_SUCCESS) {}
 				// Invalid Descriptor Index
-				else if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "07009")
+				else if(ret == SQL_SUCCESS_WITH_INFO && diag_sqlstate(DBWTL_CPI, this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "07009")
 				{
 					// ignore
 				}
@@ -3077,24 +3125,24 @@ OdbcResult_libodbc::first(void)
     }
 
     // Fetch parts
-    if(ret == SQL_SUCCESS_WITH_INFO)
-    {
-        if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
-        {
-            // std::for_each(this->m_column_accessors.begin(),
-            //               this->m_column_accessors.end(),
-            //               stdext::compose1(std::mem_fun(&OdbcVariant::fetchParts),
-            //                                stdext::select2nd<VariantListT::value_type>())
-            //  );
+    //if(ret == SQL_SUCCESS_WITH_INFO)
+    //{
+    //    if(diag_sqlstate(DBWTL_CPI, this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
+    //    {
+    //        // std::for_each(this->m_column_accessors.begin(),
+    //        //               this->m_column_accessors.end(),
+    //        //               stdext::compose1(std::mem_fun(&OdbcVariant::fetchParts),
+    //        //                                stdext::select2nd<VariantListT::value_type>())
+    //        //  );
 
-            std::for_each(this->m_column_accessors.begin(),
-                          this->m_column_accessors.end(),
-                          [](VariantListT::value_type &item)
-                          {
-                              item.second->fetchParts();
-                          });
-        }
-    }
+    //        std::for_each(this->m_column_accessors.begin(),
+    //                      this->m_column_accessors.end(),
+    //                      [](VariantListT::value_type &item)
+    //                      {
+    //                          item.second->fetchParts();
+    //                      });
+    //    }
+    //}
 
 }
 
@@ -3135,24 +3183,24 @@ OdbcResult_libodbc::next(void)
     }
 
     // Fetch parts
-    if(ret == SQL_SUCCESS_WITH_INFO)
-    {
-        if(diag_sqlstate(this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
-        {
-            // std::for_each(this->m_column_accessors.begin(),
-            //               this->m_column_accessors.end(),
-            //               stdext::compose1(std::mem_fun(&OdbcVariant::fetchParts),
-            //                                stdext::select2nd<VariantListT::value_type>())
-            //  );
+    //if(ret == SQL_SUCCESS_WITH_INFO)
+    //{
+    //    if(diag_sqlstate(DBWTL_CPI, this->getDbc(), this->getHandle(), SQL_HANDLE_STMT) == "01004")
+    //    {
+    //        // std::for_each(this->m_column_accessors.begin(),
+    //        //               this->m_column_accessors.end(),
+    //        //               stdext::compose1(std::mem_fun(&OdbcVariant::fetchParts),
+    //        //                                stdext::select2nd<VariantListT::value_type>())
+    //        //  );
 
-            std::for_each(this->m_column_accessors.begin(),
-                          this->m_column_accessors.end(),
-                          [](VariantListT::value_type &item)
-                          {
-                              item.second->fetchParts();
-                          });
-        }
-    }
+    //        std::for_each(this->m_column_accessors.begin(),
+    //                      this->m_column_accessors.end(),
+    //                      [](VariantListT::value_type &item)
+    //                      {
+    //                          item.second->fetchParts();
+    //                      });
+    //    }
+    //}
 
     return !this->eof();
 }

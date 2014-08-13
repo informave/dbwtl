@@ -75,7 +75,8 @@ class OdbcDiag_libodbc;
 class DBWTL_EXPORT OdbcDiagnosticRec_libodbc : public OdbcDiagnosticRec
 {
 public:
-	OdbcDiagnosticRec_libodbc(dalstate_t dalstate,
+	OdbcDiagnosticRec_libodbc(const CodePosInfo & cpi,
+		dalstate_t dalstate,
 		SQLSTATE sqlstate,
 		const Variant &nativeCode,
 		const String &msg,
@@ -703,7 +704,7 @@ public:
 	virtual void openOdbcTables(const Variant &catalog, const Variant &schema, const Variant &type);
 	virtual void openOdbcColumns(const Variant &catalog, const Variant &schema, const Variant &table);
 
-	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(void) const;
+	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(const CodePosInfo & cpi) const;
 
 protected:
     OdbcResult_libodbc* newResultset(void);
@@ -777,7 +778,7 @@ public:
 
     virtual String         quoteIdentifier(const String &id);
 
-	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(void) const;
+	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(const CodePosInfo & cpi) const;
 
 protected:
     virtual void           setDbcEncoding(std::string encoding);
@@ -816,7 +817,7 @@ public:
 
     virtual SQLHENV getHandle(void) const;
 
-	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(void) const;
+	std::list<OdbcDiagnosticRec_libodbc> getDiagRecs(const CodePosInfo & cpi) const;
 
 
 protected:

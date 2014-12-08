@@ -429,7 +429,11 @@ public:
             assert(node->getChilds().size() == 2);
             apply_visitor(node->getChilds()[0], ExprEvalVisitor(m_cursor, op1));
             apply_visitor(node->getChilds()[1], ExprEvalVisitor(m_cursor, op2));
-            m_value = op1.get<TNumeric>() == op2.get<TNumeric>();
+			m_value = apply_binary_method(op1, op2, &BinaryOperatorVariant::binary_equal);
+			/*
+			if(op1.datatype() == DAL_TYPE_STRING)	m_value = op1.get<String>() == op2.get<String>();
+            else									m_value = op1.get<TNumeric>() == op2.get<TNumeric>();
+			*/
             return;
         case ExprNode::notequal_expr:
             assert(node->getChilds().size() == 2);

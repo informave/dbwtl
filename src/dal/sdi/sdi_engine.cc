@@ -50,6 +50,7 @@
 
 #include <sstream>
 #include <string>
+#include <fstream>
 
 //#include "../sqlproxy/sqlproxy.hh"
 
@@ -148,17 +149,42 @@ SDIMetadata::getSchemas(const Variant &catalog,
     assert(tmp.columnCount() == rs.columnCount());
     rs.open();
 
-    ShrRecord rec(3);
-    rec[0] = this->m_dbc.getCurrentCatalog();
-    rec[1] = String("DEFAULT");
-    //rec[2] = rawRes.column("REMARKS");
-    tmp.open();
-    tmp.insert(rec);
-    tmp.first();
-    if(filter(tmp))
+
+    std::shared_ptr<SDIStmt> rawStmt(this->m_dbc.newStatement());
+    SDIDataProvider* dp = rawStmt->newProvider();
+    dp->openObjects();
+    assert(dp->isOpen());
+    IDataset &rawRes = *dp;
+
+	std::map<std::wstring, bool> schema_list;
+	schema_list[String("DEFAULT")] = true;
+
+	std::ofstream x("f:/output.txt");
+
+    for(rawRes.first(); !rawRes.eof(); rawRes.next())
     {
-        rs.insert(*tmp.begin());
+		
+        schema_list[rawRes.column("SCHEMA").get<String>()] = true;
     }
+
+	for(std::map<std::wstring, bool>::iterator i = schema_list.begin(); i != schema_list.end(); ++i)
+	{
+		ShrRecord rec(3);
+		rec[0] = this->m_dbc.getCurrentCatalog();
+		rec[1] = String(i->first);
+		//rec[2] = rawRes.column("REMARKS");
+        tmp.close();
+        tmp.clear();
+		tmp.open();
+		tmp.insert(rec);
+		tmp.first();
+		x << String(i->first) << std::endl;
+		x << tmp.column(2).get<String>() << std::endl;
+		if(filter(tmp))
+		{
+			rs.insert(*tmp.begin());
+		}
+	}
 
     return rs;
 }
@@ -209,21 +235,28 @@ SDIMetadata::getTables(const Variant &schema,
 
     for(rawRes.first(); !rawRes.eof(); rawRes.next())
     {
-        std::cerr << "FOUND SDI TABLE" << std::endl;
-        tmp.close();
-        tmp.clear();
-        tmp.open();
-        ShrRecord rec(5);
-        rec[0] = this->m_dbc.getCurrentCatalog();
-        rec[1] = String("DEFAULT");
-        rec[2] = rawRes.column("NAME");
-        rec[3] = String("TABLE");
-        tmp.insert(rec);
-        tmp.first();
-        if(!tmp.eof() && filter(tmp))
-        {
-            rs.insert(*tmp.begin());
-        }
+		//if(rawRes.column("SCHEMA").isnull() || rawRes.column("SCHEMA").get<String>().utf8() != String(ifnull<String>(schema, String())).utf8())
+		//	continue;
+
+		if(schema.isnull() ||
+			schema.get<String>() == String(ifnull<String>(rawRes.column("SCHEMA"), "DEFAULT")))
+		{
+			std::cerr << "FOUND SDI TABLE" << std::endl;
+			tmp.close();
+			tmp.clear();
+			tmp.open();
+			ShrRecord rec(5);
+			rec[0] = this->m_dbc.getCurrentCatalog();
+			rec[1] = rawRes.column("SCHEMA");
+			rec[2] = rawRes.column("NAME");
+			rec[3] = String("TABLE");
+			tmp.insert(rec);
+			tmp.first();
+			if(!tmp.eof() && filter(tmp))
+			{
+				rs.insert(*tmp.begin());
+			}
+		}
     }
     std::cerr << "RETURN OBDC TABLE" << std::endl;
     return rs;
@@ -282,11 +315,17 @@ SDIMetadata::getColumns(const Variant &table,
             if(std::wstring(tables.column("TABLE_NAME").asStr()) != std::wstring(table.get<String>()))
                 continue;
         }
+        if((!schema.isnull()) && (!tables.column("SCHEMA_NAME").isnull()))
+        {
+            //std::cerr << "TABFILTER: \"" << tables.column("TABLE_NAME").asStr().utf8() << "\"/\"" << table.utf8() << "\"" << std::endl;
+            if(std::wstring(tables.column("SCHEMA_NAME").asStr()) != std::wstring(schema.get<String>()))
+                continue;
+        }
 
 
         std::shared_ptr<SDIStmt> rawStmt(this->m_dbc.newStatement());
         SDIDataProvider* dp = rawStmt->newProvider();
-        dp->openColumns(String(), String(), tables.column("TABLE_NAME").asStr());
+        dp->openColumns(String(), schema.isnull() ? String() : schema.get<String>(), tables.column("TABLE_NAME").asStr());
         assert(dp->isOpen());
         IDataset &rawRes = *dp;
 

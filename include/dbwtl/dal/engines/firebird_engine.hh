@@ -260,6 +260,12 @@ public:
     virtual UnicodeStreamBuf* getMemoStream(void) const = 0;
     //virtual FirebirdMemo*  getMemo(void) const = 0;
 
+	// Convert helpers for the accessor (because accessor must be stateless)
+	virtual BlobStream cast2BlobStream(std::locale loc) const = 0;
+	virtual MemoStream cast2MemoStream(std::locale loc) const = 0;
+	virtual Blob cast2Blob(std::locale loc) const = 0;
+	virtual Memo cast2Memo(std::locale loc) const = 0;
+
  
     virtual rowid_t getCurrentRowID(void) const = 0;
 
@@ -826,15 +832,11 @@ struct sv_accessor<FirebirdData*> : public virtual sa_base<FirebirdData*>,
     {}
 
 protected:
-   sv_accessor(void) : m_blob_buffer(), m_memo_buffer() {}
+   sv_accessor(void) {}
 
    sv_accessor(const sv_accessor &orig)
-   : m_blob_buffer(orig.m_blob_buffer),
-     m_memo_buffer(orig.m_memo_buffer)
    {}
 
-   mutable std::shared_ptr<std::stringstream> m_blob_buffer;
-   mutable std::shared_ptr<std::wstringstream> m_memo_buffer;
 
 private:    
     sv_accessor& operator=(const sv_accessor&);

@@ -167,6 +167,11 @@ public:
 
     virtual daltype_t daltype(void) const;
 
+	virtual BlobStream cast2BlobStream(std::locale loc) const;
+	virtual MemoStream cast2MemoStream(std::locale loc) const;
+	virtual Blob cast2Blob(std::locale loc) const;
+	virtual Memo cast2Memo(std::locale loc) const;
+
 protected:
     FirebirdResult_libfbclient& m_resultset;
 
@@ -174,6 +179,11 @@ protected:
     mutable std::auto_ptr<FirebirdBlob_libfbclient> m_blobbuf;
     mutable std::auto_ptr<std::wstringstream> m_memostream;
     XSQLVAR *m_sqlvar;
+
+	// This caches are used for MemoStream -> Memo conversions
+	// and must be reset if the cursor moves.
+    mutable std::shared_ptr<std::stringstream> m_blob_cache;
+    mutable std::shared_ptr<std::wstringstream> m_memo_cache;
 
 private:
     FirebirdData_libfbclient(const FirebirdData_libfbclient&);

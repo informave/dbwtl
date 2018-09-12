@@ -353,6 +353,11 @@ sv_accessor<FirebirdData*>::cast(bool*, std::locale loc) const
 BlobStream
 sv_accessor<FirebirdData*>::cast(BlobStream*, std::locale loc) const
 {
+	if(this->get_value()->daltype() == DAL_TYPE_BLOB)
+		return this->get_value()->cast2BlobStream(loc);
+	else
+		throw ConvertException(this->get_value()->daltype(), DAL_TYPE_BLOB);
+	/*
     if(this->get_value()->daltype() == DAL_TYPE_BLOB || this->get_value()->daltype() == DAL_TYPE_MEMO)
     {
         if(this->m_blob_buffer.get())
@@ -365,12 +370,18 @@ sv_accessor<FirebirdData*>::cast(BlobStream*, std::locale loc) const
     }
     else
         throw ConvertException(this->datatype(), value_traits<BlobStream>::info_type::type());
+		*/
 }
 
 
 MemoStream
 sv_accessor<FirebirdData*>::cast(MemoStream*, std::locale loc) const
 {
+	if(this->get_value()->daltype() == DAL_TYPE_MEMO)
+		return this->get_value()->cast2MemoStream(loc);
+	else
+		throw ConvertException(this->get_value()->daltype(), DAL_TYPE_MEMO);
+	/*
     if(this->get_value()->daltype() == DAL_TYPE_MEMO)
     {
         if(this->m_memo_buffer.get())
@@ -390,12 +401,20 @@ sv_accessor<FirebirdData*>::cast(MemoStream*, std::locale loc) const
 		return MemoStream(buf);
         //throw ConvertException(this->datatype(), value_traits<MemoStream>::info_type::type());
 	}
+	*/
 }
 
 
 Blob
 sv_accessor<FirebirdData*>::cast(Blob*, std::locale loc) const
 {
+	if(this->get_value()->daltype() == DAL_TYPE_BLOB)
+		return this->get_value()->cast2Blob(loc);
+	else
+	{
+		return Variant(this->deepcopy()).get<Blob>();
+	}
+	/*
     if(this->get_value()->daltype() == DAL_TYPE_BLOB)
     {
         if(!this->m_blob_buffer.get())
@@ -408,11 +427,19 @@ sv_accessor<FirebirdData*>::cast(Blob*, std::locale loc) const
     }
     else
         throw ConvertException(this->datatype(), value_traits<BlobStream>::info_type::type());
+		*/
 }
 
 Memo
 sv_accessor<FirebirdData*>::cast(Memo*, std::locale loc) const
 {
+	if(this->get_value()->daltype() == DAL_TYPE_MEMO)
+		return this->get_value()->cast2Memo(loc);
+	else
+	{
+		return Variant(this->deepcopy()).get<Memo>();
+	}
+	/*
     if(this->get_value()->daltype() == DAL_TYPE_MEMO)
     {
         if(!this->m_memo_buffer.get())
@@ -425,6 +452,7 @@ sv_accessor<FirebirdData*>::cast(Memo*, std::locale loc) const
     }
     else
         return Variant(this->deepcopy()).get<Memo>();
+		*/
 }
 
 
